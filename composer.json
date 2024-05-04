@@ -1,0 +1,32 @@
+{
+    "name": "blockera/pro",
+    "description": "The premium addons for blockera wordpress free plugin.",
+    "type": "library",
+    "license": "ISC",
+  	"repositories": [
+	  	{
+		  	"type": "path",
+		  	"url": "./packages/pro-setup"
+		},
+	  	{
+		  	"type": "path",
+		  	"url": "../blockera/packages/blockera-setup"
+		}
+	],
+    "autoload": {
+		"files": [
+		  	"packages/pro-setup/php/functions.php"
+		]
+	},
+    "authors": [
+        {
+            "name": "blockeraai.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+	  	"blockera/setup": "*",
+	  	"blockera/pro-setup": "*",
+        "vlucas/phpdotenv": "^5.6@dev"
+    }
+}
