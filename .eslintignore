@@ -1,0 +1,13 @@
+# lint top level dot files
+!.*
+/node_modules/*
+/cypress/*
+/.storybook/*
+build/*
+dist/*
+node_modules/*
+vendor/*
+assets/*
+wordpress*
+**/test/*
+**/stories/*
