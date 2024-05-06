@@ -18,9 +18,7 @@ const defaultConfig = require('@wordpress/scripts/config/webpack.config');
 /**
  * Internal dependencies
  */
-const dependencies = [
-	'@blockera/pro-setup',
-];
+const dependencies = ['@blockera/blockera-pro'];
 const styleDependencies = require('./packages-styles');
 
 const exportDefaultPackages = [];
