@@ -1,0 +1,26 @@
+{
+	"name": "@blockera/controls-pro",
+	"version": "1.0.0",
+	"description": "UI with react.js and more functionalities of components as addon for controls Blockera Core.",
+	"author": "The Blockera Core Contributors",
+	"license": "ISC",
+	"keywords": [
+		"blockera",
+		"bootstrap",
+	  	"initliazer",
+		"controls"
+	],
+	"homepage": "https://github.com/blockeraai/blockera-pro/blob/master/packages/controls-pro/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/blockeraai/blockera-pro",
+		"directory": "packages/controls-pro"
+	},
+	"bugs": {
+		"url": "https://github.com/blockeraai/blockera-pro/issues"
+	},
+	"engines": {
+		"node": ">=12"
+	},
+	"main": "js/index.js"
+}
