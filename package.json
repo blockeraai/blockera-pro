@@ -2,7 +2,7 @@
 	"name": "@blockera/pro",
 	"version": "1.0.0",
 	"description": "The premium addons for blockera WordPress free plugin.",
-	"main": "packages/blockera-pro-setup/js/index.js",
+	"main": "packages/blockera-pro/js/index.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/blockeraai/blockera-pro.git"
@@ -61,12 +61,14 @@
 		"@blockera/classnames": "file:../blockera/packages/classnames",
 		"@blockera/components": "file:../blockera/packages/components",
 		"@blockera/controls": "file:../blockera/packages/controls",
+		"@blockera/controls-pro": "file:./packages/controls-pro",
 		"@blockera/data": "file:../blockera/packages/data",
 		"@blockera/data-editor": "file:../blockera/packages/data-editor",
 		"@blockera/editor": "file:../blockera/packages/editor",
 		"@blockera/editor-extensions": "file:../blockera/packages/editor-extensions",
-		"@blockera/blockera-setup": "file:../blockera/packages/blockera-setup",
-		"@blockera/pro-setup": "file:./packages/pro-setup",
+		"@blockera/editor-extensions-pro": "file:./packages/editor-extensions-pro",
+		"@blockera/blockera": "file:../blockera/packages/blockera",
+		"@blockera/blockera-pro": "file:./packages/blockera-pro",
 		"@blockera/style-engine": "file:../blockera/packages/style-engine",
 		"@blockera/utils": "file:../blockera/packages/utils"
 	},

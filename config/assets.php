@@ -2,10 +2,10 @@
 
 return [
 	'list'      => [
-		'pro-setup',
+		'blockera-pro',
 	],
 	'with-deps' => [
-		'pro-setup' => [
+		'blockera-pro' => [
 			'@blockera/editor-extensions',
 		],
 	],
