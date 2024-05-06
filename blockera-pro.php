@@ -28,12 +28,19 @@ define( 'BLOCKERA_PRO_PATH', plugin_dir_path( __FILE__ ) );
 
 // Env Loading ...
 $dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
-$dotenv->safeLoad();
+
+add_action( 'blockera/before/setup', 'blockera_before_setup' );
+
+function blockera_before_setup(): void {
+
+	// LOADING: other bootstrap files ...
+	blockera_load( 'packages.blockera-pro.php.hooks', [], __DIR__ );
+}
 
 add_action( 'blockera/after/setup', 'blockera_after_setup' );
 
 function blockera_after_setup(): void {
 
 	// loading front controller.
-	require BLOCKERA_PRO_PATH . 'packages/pro-setup/php/app.php';
+	require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
 }

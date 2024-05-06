@@ -6,16 +6,16 @@
   	"repositories": [
 	  	{
 		  	"type": "path",
-		  	"url": "./packages/pro-setup"
+		  	"url": "./packages/blockera-pro"
 		},
 	  	{
 		  	"type": "path",
-		  	"url": "../blockera/packages/blockera-setup"
+		  	"url": "../blockera/packages/blockera"
 		}
 	],
     "autoload": {
 		"files": [
-		  	"packages/pro-setup/php/functions.php"
+		  	"packages/blockera-pro/php/functions.php"
 		]
 	},
     "authors": [
@@ -25,8 +25,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-	  	"blockera/setup": "*",
-	  	"blockera/pro-setup": "*",
+	  	"blockera/blockera": "*",
+	  	"blockera/blockera-pro": "*",
         "vlucas/phpdotenv": "^5.6@dev"
     }
 }

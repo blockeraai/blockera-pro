@@ -4,5 +4,5 @@
  *
  * Security file.
  *
- * @package blockera-pro-setup/php/index.php
+ * @package blockera-blockera-pro/php/index.php
  */

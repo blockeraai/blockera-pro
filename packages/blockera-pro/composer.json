@@ -1,0 +1,9 @@
+{
+	"name": "blockera/blockera-pro",
+	"description": "The bootstrapper for blockera PRO php application for WordPress in admin and front-end sides.",
+	"autoload": {
+		"psr-4": {
+		 	"Blockera\\Pro\\": "php/"
+		}
+	}
+}
