@@ -6,7 +6,7 @@ import {
 	redirectToFrontPage,
 	openMoreFeaturesControl,
 	createPost,
-} from '../../../../../../../blockera/cypress/helpers';
+} from '@blockera/dev-cypress/js/helpers';
 
 describe('Text Indent → Functionality', () => {
 	beforeEach(() => {
