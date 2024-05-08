@@ -8,12 +8,12 @@
 		"url": "git+https://github.com/blockeraai/blockera-pro.git"
 	},
 	"keywords": [
-	  	"blockera-pro"
+		"blockera-pro"
 	],
 	"author": "blockeraai.com",
 	"license": "ISC",
 	"bugs": {
-	  	"url": "https://github.com/blockeraai/blockera-pro/issues"
+		"url": "https://github.com/blockeraai/blockera-pro/issues"
 	},
 	"homepage": "https://github.com/blockeraai/blockera-pro#readme",
 	"scripts": {
@@ -72,17 +72,18 @@
 		"@blockera/style-engine": "file:../blockera/packages/style-engine",
 		"@blockera/utils": "file:../blockera/packages/utils"
 	},
-  	"devDependencies": {
+	"devDependencies": {
 		"@babel/cli": "^7.22.9",
 		"@babel/core": "^7.22.9",
 		"@babel/plugin-proposal-export-default-from": "^7.18.10",
 		"@babel/preset-flow": "^7.21.4",
 		"@babel/preset-react": "^7.22.5",
+		"@blockera/dev-cypress": "file:./packages/dev-cypress",
 		"@cypress/browserify-preprocessor": "^3.0.2",
 		"@cypress/code-coverage": "^3.12.1",
 		"@cypress/webpack-dev-server": "^3.6.1",
 		"@cypress/webpack-preprocessor": "^6.0.0",
-	  	"@jest/core": "^27.4.5",
+		"@jest/core": "^27.4.5",
 		"@testing-library/jest-dom": "^5.16.1",
 		"@testing-library/react": "^14.0.0",
 		"@testing-library/user-event": "^14.5.1",
@@ -149,20 +150,20 @@
 		"use-immer": "^0.9.0",
 		"uuid": "^8.3.2",
 		"webpack": "^5.90.3",
-	  	"@wordpress/eslint-plugin": "^14.4.0"
+		"@wordpress/eslint-plugin": "^14.4.0"
 	},
 	"lint-staged": {
 		"*.{js,json,ts,tsx,yml,yaml}": [
-		  	"wp-scripts format"
+			"wp-scripts format"
 		],
 		"*.{js,ts,tsx}": [
-		  	"npm run lint:js"
+			"npm run lint:js"
 		],
 		"*.scss": [
-		 	"npm run lint:css"
+			"npm run lint:css"
 		],
 		"*.php": [
-		  	"./vendor/bin/phpcs --report-full --report-checkstyle=./.cache/phpcs-report.xml --standard=phpcs.xml"
+			"./vendor/bin/phpcs --report-full --report-checkstyle=./.cache/phpcs-report.xml --standard=phpcs.xml"
 		]
 	},
 	"wp-env": {
