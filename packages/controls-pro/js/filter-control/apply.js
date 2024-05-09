@@ -16,4 +16,14 @@ export const applyFilterControlHooks = () => {
 			};
 		}
 	);
+	addFilter(
+		`blockera.controls.backdrop-filter.props`,
+		'blockera.pro.controls.backdrop-filter.props',
+		(props: Object) => {
+			return {
+				...props,
+				PromoComponent: null,
+			};
+		}
+	);
 };
