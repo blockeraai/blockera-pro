@@ -27,6 +27,12 @@ describe('Transitions → Functionality', () => {
 
 		cy.get('.components-popover').within(() => {
 			cy.getParentContainer('Type', 'base-control').within(() => {
+				// check options should not be disabled
+				cy.get('select').within(() => {
+					cy.get('[value="margin"]').should('not.be.disabled');
+					cy.get('[value="padding"]').should('not.be.disabled');
+				});
+
 				cy.get('select').select('margin');
 			});
 
@@ -34,6 +40,12 @@ describe('Transitions → Functionality', () => {
 			cy.getByDataTest('transition-input-duration').type(200);
 
 			cy.getParentContainer('Timing', 'base-control').within(() => {
+				// check disabled options
+				cy.get('select').within(() => {
+					cy.get('[value="ease-in-quad"]').should('not.be.disabled');
+					cy.get('[value="ease-in-cubic"]').should('not.be.disabled');
+				});
+
 				cy.get('select').select('ease-in-out');
 			});
 
