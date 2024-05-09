@@ -5,6 +5,11 @@
  */
 import { addFilter } from '@wordpress/hooks';
 
+/**
+ * Internal dependencies
+ */
+import { getTransitionTypeOptions, getTransitionTimingOptions } from './utils';
+
 export const applyTransitionControlHooks = () => {
 	addFilter(
 		`blockera.controls.transition.props`,
@@ -13,6 +18,8 @@ export const applyTransitionControlHooks = () => {
 			return {
 				...props,
 				PromoComponent: null,
+				getTransitionTypeOptions,
+				getTransitionTimingOptions,
 			};
 		}
 	);
