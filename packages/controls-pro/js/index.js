@@ -8,6 +8,7 @@ import { applyTextShadowControlHooks } from './text-shadow-control/apply';
 import { applyBoxShadowControlHooks } from './box-shadow-control/apply';
 import { applyTransformControlHooks } from './transform-control/apply';
 import { applyTransitionControlHooks } from './transition-control/apply';
+import { applyFilterControlHooks } from './filter-control/apply';
 
 export const applyControls = () => {
 	applyBackgroundControlHooks();
@@ -15,4 +16,5 @@ export const applyControls = () => {
 	applyBoxShadowControlHooks();
 	applyTransformControlHooks();
 	applyTransitionControlHooks();
+	applyFilterControlHooks();
 };
