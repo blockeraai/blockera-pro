@@ -1,0 +1,9 @@
+{
+	"name": "blockera/blockera-pro-admin",
+	"description": "The bootstrapper for blockera PRO Admin php application for WordPress for WordPress admin panel.",
+	"autoload": {
+		"psr-4": {
+		 	"Blockera\\Pro\\Admin\\": "php/"
+		}
+	}
+}

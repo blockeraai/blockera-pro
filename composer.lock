@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81bd38577d28c9f7c08a11f7e459a1f0",
+    "content-hash": "a488c67a1688bd8657a4136ea8bc960e",
     "packages": [
         {
             "name": "blockera/blockera",
@@ -12,13 +12,16 @@
             "dist": {
                 "type": "path",
                 "url": "../blockera/packages/blockera",
-                "reference": "c4f2d30c71585a9b8b7009406a02a410b91c7b8d"
+                "reference": "9926939c0dcd53472a51e8c91f09fb990d86bba6"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Blockera\\Setup\\": "php/"
-                }
+                },
+                "files": [
+                    "php/functions.php"
+                ]
             },
             "description": "The bootstrapper for blockera php application for WordPress in admin and front-end sides.",
             "transport-options": {
@@ -40,6 +43,25 @@
                 }
             },
             "description": "The bootstrapper for blockera PRO php application for WordPress in admin and front-end sides.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/blockera-pro-admin",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/blockera-pro-admin",
+                "reference": "a092ec61d63872bb776d1e5c3a13794dc1e52e55"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Pro\\Admin\\": "php/"
+                }
+            },
+            "description": "The bootstrapper for blockera PRO Admin php application for WordPress for WordPress admin panel.",
             "transport-options": {
                 "relative": true
             }

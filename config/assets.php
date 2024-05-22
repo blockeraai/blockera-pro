@@ -1,12 +1,22 @@
 <?php
 
 return [
-	'list'      => [
-		'blockera-pro',
+	'editor' => [
+		'list'      => [
+			'blockera-pro',
+		],
+		'with-deps' => [],
+		'dequeue'   => [
+			'@blockera/blockera',
+		],
 	],
-	'with-deps' => [
-		'blockera-pro' => [
-			'@blockera/editor-extensions',
+	'admin'  => [
+		'list'      => [
+			'blockera-pro-admin',
+		],
+		'with-deps' => [],
+		'dequeue'   => [
+			'@blockera/blockera-admin',
 		],
 	],
 ];

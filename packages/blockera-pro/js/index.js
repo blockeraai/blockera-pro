@@ -8,25 +8,19 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Blockera dependencies
  */
-// import { reregistrationBlocks } from '@blockera/blocks';
-
-/**
- * Blockera dependencies
- */
-import { initializer } from '@blockera/bootstrap';
 import { applyControls } from '@blockera/controls-pro';
-import { registerEditorExtensions } from '@blockera/editor-extensions-pro';
+import { registerEditorExtensions } from '@blockera/editor-pro';
 
-/**
- * Internal dependencies
- */
+const initializeBlockeraPro = () => {
+	registerEditorExtensions();
+	applyControls();
+};
 
 /**
  * Initialize blockera react application.
  */
-addFilter('blockera.bootstrapper', 'blockera.pro.bootstrap', () => {
-	registerEditorExtensions();
-	applyControls();
-});
-
-initializer();
+addFilter(
+	'blockera.before.bootstrap',
+	'blockera.pro.bootstrap',
+	() => initializeBlockeraPro
+);

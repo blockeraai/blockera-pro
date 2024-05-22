@@ -10,18 +10,20 @@ export const applyBackgroundControlHooks = () => {
 		'blockera.controls.background.meshGradientColors.OnChange',
 		'blockera.pro.controls.background.meshGradientColors.onChange',
 		(
-			newValue: Object,
+			noop: () => {},
 			{ item, changeRepeaterItem, controlId, repeaterId, itemId }: Object
 		) => {
-			changeRepeaterItem({
-				controlId,
-				value: {
-					...item,
-					color: newValue,
-				},
-				repeaterId,
-				itemId,
-			});
+			return (newValue: Object): void => {
+				changeRepeaterItem({
+					controlId,
+					value: {
+						...item,
+						color: newValue,
+					},
+					repeaterId,
+					itemId,
+				});
+			};
 		}
 	);
 

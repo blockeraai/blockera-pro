@@ -8,7 +8,7 @@ import { select } from '@wordpress/data';
 /**
  * Blockera dependencies
  */
-import { updateConfig } from '@blockera/editor-extensions';
+import { updateConfig } from '@blockera/utils';
 
 /**
  * Internal dependencies
