@@ -65,11 +65,10 @@
 		"@blockera/data": "file:../blockera/packages/data",
 		"@blockera/data-editor": "file:../blockera/packages/data-editor",
 		"@blockera/editor": "file:../blockera/packages/editor",
-		"@blockera/editor-extensions": "file:../blockera/packages/editor-extensions",
-		"@blockera/editor-extensions-pro": "file:./packages/editor-extensions-pro",
+		"@blockera/editor-pro": "file:./packages/editor-pro",
 		"@blockera/blockera": "file:../blockera/packages/blockera",
 		"@blockera/blockera-pro": "file:./packages/blockera-pro",
-		"@blockera/style-engine": "file:../blockera/packages/style-engine",
+		"@blockera/blockera-pro-admin": "file:./packages/blockera-pro-admin",
 		"@blockera/utils": "file:../blockera/packages/utils"
 	},
 	"devDependencies": {
