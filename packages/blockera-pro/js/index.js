@@ -9,11 +9,15 @@ import { addFilter } from '@wordpress/hooks';
  * Blockera dependencies
  */
 import { applyControls } from '@blockera/controls-pro';
-import { registerEditorExtensions } from '@blockera/editor-pro';
+import {
+	applyExtensions,
+	registerEditorExtensions,
+} from '@blockera/editor-pro';
 
 const initializeBlockeraPro = () => {
 	registerEditorExtensions();
 	applyControls();
+	applyExtensions();
 };
 
 /**
