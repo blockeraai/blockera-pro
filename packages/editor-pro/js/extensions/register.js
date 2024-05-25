@@ -14,6 +14,7 @@ import { updateConfig } from '@blockera/utils';
  * Internal dependencies
  */
 import * as config from './config';
+import { applyBlockStates } from './libs';
 import * as innerBlocksConfig from './inner-blocks-config';
 
 export const registerEditorExtensions = () => {
@@ -51,4 +52,8 @@ export const registerEditorExtensions = () => {
 	Object.entries(innerBlocksConfig).forEach(([featureName, featureConfig]) =>
 		updateConfig(featureName, featureConfig)
 	);
+};
+
+export const applyExtensions = (): void => {
+	applyBlockStates();
 };
