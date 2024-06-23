@@ -146,7 +146,7 @@ describe('Box Shadow → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should(
+		cy.get('.blockera-block').should(
 			'have.css',
 			'box-shadow',
 			'rgba(197, 238, 240, 0.67) 10px 50px 30px 40px, rgba(106, 105, 105, 0.9) 20px 0px 50px 5px inset'

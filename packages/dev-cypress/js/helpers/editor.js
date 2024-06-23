@@ -64,7 +64,7 @@ export function disableGutenbergFeatures() {
 }
 
 /**
- * From inside the WordPress editor open the blockera-core Gutenberg editor panel
+ * From inside the WordPress editor open the blockera Gutenberg editor panel
  *
  * @param {string}  blockName   The name to find in the block inserter
  *                              e.g 'core/image'.
@@ -179,7 +179,7 @@ export function addNewGroupToPost() {
 }
 
 /**
- * From inside the WordPress editor open the blockera-core Gutenberg editor panel
+ * From inside the WordPress editor open the blockera Gutenberg editor panel
  */
 export function savePage() {
 	cy.get('.edit-post-header__settings button.is-primary').click();

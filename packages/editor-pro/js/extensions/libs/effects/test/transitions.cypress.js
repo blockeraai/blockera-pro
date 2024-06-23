@@ -110,7 +110,7 @@ describe('Transitions → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should(
+		cy.get('.blockera-block').should(
 			'have.css',
 			'transition',
 			'margin 0.2s ease-in-out 2s, border 0.3s ease-in 3s'

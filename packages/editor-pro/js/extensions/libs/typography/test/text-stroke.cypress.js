@@ -75,7 +75,7 @@ describe('Text Stroke → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block')
+		cy.get('.blockera-block')
 			.should('have.css', '-webkit-text-stroke-color', 'rgb(90, 34, 164)')
 			.and('have.css', '-webkit-text-stroke-width', '10px');
 	});

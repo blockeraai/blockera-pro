@@ -43,6 +43,6 @@ describe('Text Indent → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should('have.css', 'text-indent', '5px');
+		cy.get('.blockera-block').should('have.css', 'text-indent', '5px');
 	});
 });

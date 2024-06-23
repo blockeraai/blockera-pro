@@ -43,10 +43,6 @@ describe('Word Spacing → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should(
-			'have.css',
-			'word-spacing',
-			'5px'
-		);
+		cy.get('.blockera-block').should('have.css', 'word-spacing', '5px');
 	});
 });

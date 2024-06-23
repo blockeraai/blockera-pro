@@ -58,7 +58,7 @@ describe('Text Columns → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should(
+		cy.get('.blockera-block').should(
 			'have.css',
 			'column-count',
 			'auto' // todo: it should be initial but it fails! but it is there!
@@ -97,7 +97,7 @@ describe('Text Columns → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block').should('have.css', 'column-gap', '5px');
+		cy.get('.blockera-block').should('have.css', 'column-gap', '5px');
 	});
 
 	it('should update column-count & column-rule, when add column2 + rule', () => {
@@ -158,7 +158,7 @@ describe('Text Columns → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('.blockera-core-block')
+		cy.get('.blockera-block')
 			.should('have.css', 'column-rule-width', '1px')
 			.and('have.css', 'column-rule-style', 'dotted')
 			.and('have.css', 'column-rule-color', 'rgb(54, 234, 222)');

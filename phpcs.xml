@@ -40,7 +40,7 @@
     <arg name="cache" value=".cache/phpcs.json"/>
 
     <file>./bin</file>
-    <file>./blockera-core.php</file>
+    <file>./blockera-pro.php</file>
     <file>./libs</file>
     <file>./packages</file>
     <file>./.dev/tests/phpunit</file>
@@ -54,7 +54,7 @@
 
     <!-- These special comments are markers for the build process -->
     <rule ref="Squiz.Commenting.InlineComment.WrongStyle">
-        <exclude-pattern>blockera-core.php</exclude-pattern>
+        <exclude-pattern>blockera-pro.php</exclude-pattern>
     </rule>
 
     <!-- Do not require docblocks for unit tests -->

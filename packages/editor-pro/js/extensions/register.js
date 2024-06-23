@@ -18,7 +18,7 @@ import { applyBlockStates } from './libs';
 import * as innerBlocksConfig from './inner-blocks-config';
 
 export const registerEditorExtensions = () => {
-	const STORE_NAME = 'blockera-core/extensions/config';
+	const STORE_NAME = 'blockera/extensions/config';
 	const { getExtensions } = select(STORE_NAME) || {};
 
 	if ('function' === typeof getExtensions) {
