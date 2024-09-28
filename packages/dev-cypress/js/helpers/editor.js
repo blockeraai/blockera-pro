@@ -20,6 +20,19 @@ export function getIframeBody(containerClass) {
  * Safely obtain the window object or error
  * when the window object is not available.
  */
+export function getWindowProperty(path) {
+	return cy
+		.window()
+		.its(path)
+		.then((data) => {
+			return data;
+		});
+}
+
+/**
+ * Safely obtain the window object or error
+ * when the window object is not available.
+ */
 export function getWPDataObject() {
 	return cy
 		.window()
@@ -30,15 +43,61 @@ export function getWPDataObject() {
 }
 
 /**
+ * Get block type registered object.
+ *
+ * @param {Object} data the WordPress data.
+ * @param {string} blockType the block type name.
+ *
+ * @return {*} retrieved the block type.
+ */
+export function getBlockType(data, blockType) {
+	return data.select('core/blocks').getBlockType(blockType);
+}
+
+/**
  *
  * @param {Object} data the WordPress data.
  * @param {string} field the field of attributes of selectedBlock.
  * @return {*} retrieved th field value of selected block attributes.
  */
-export function getSelectedBlock(data, field) {
-	return data.select('core/block-editor').getSelectedBlock().attributes[
-		field
-	];
+export function getSelectedBlock(data, field = '') {
+	const selectedBlock = data.select('core/block-editor').getSelectedBlock();
+
+	if (!field) {
+		return selectedBlock;
+	}
+
+	return selectedBlock.attributes[field];
+}
+
+/**
+ * Get editor content.
+ *
+ * @param {Object} data the WordPress data.
+ * @return {*} retrieved th field value of selected block attributes.
+ */
+export function getEditorContent(data) {
+	const { getEditedEntityRecord } = data.select('core');
+	const { getCurrentPostType, getCurrentPostId } = data.select('core/editor');
+	const _type = getCurrentPostType();
+	const _id = getCurrentPostId();
+	const editedRecord = getEditedEntityRecord('postType', _type, _id);
+
+	if ('function' === typeof editedRecord?.content) {
+		return editedRecord?.content({ blocks: editedRecord?.blocks });
+	}
+
+	return editedRecord?.content;
+}
+
+/**
+ *
+ * @param {Object} data the Blockera data.
+ * @param {string} field the field of attributes of blockera entity.
+ * @return {*} retrieved th field value of blockera entity.
+ */
+export function getBlockeraEntity(data, field) {
+	return data.select('blockera/data').getEntity('blockera')[field];
 }
 
 export function getBlockClientId(data) {
@@ -50,17 +109,18 @@ export function getBlockClientId(data) {
  */
 export function disableGutenbergFeatures() {
 	return getWPDataObject().then((data) => {
-		// Enable "Top Toolbar"
-		if (!data.select('core/edit-post').isFeatureActive('fixedToolbar')) {
-			data.dispatch('core/edit-post').toggleFeature('fixedToolbar');
-		}
-
 		if (data.select('core/edit-post').isFeatureActive('welcomeGuide')) {
 			data.dispatch('core/edit-post').toggleFeature('welcomeGuide');
 		}
 
 		data.dispatch('core/editor').disablePublishSidebar();
 	});
+}
+
+export function getBlockInserter() {
+	return cy.get(
+		'.edit-post-header [aria-label="Toggle block inserter"], .edit-site-header [aria-label="Toggle block inserter"], .edit-post-header-toolbar__inserter-toggle[aria-pressed="false"], .editor-document-tools__inserter-toggle is-primary[aria-pressed="false"]'
+	);
 }
 
 /**
@@ -83,9 +143,7 @@ export function addBlockToPost(blockName, clearEditor = false, className = '') {
 		clearBlocks();
 	}
 
-	cy.get(
-		'.edit-post-header [aria-label="Toggle block inserter"], .edit-site-header [aria-label="Toggle block inserter"], .edit-post-header-toolbar__inserter-toggle[aria-pressed="false"], .editor-document-tools__inserter-toggle is-primary[aria-pressed="false"]'
-	).click();
+	getBlockInserter().click();
 
 	// eslint-disable-next-line
 	cy.get(
@@ -120,7 +178,7 @@ export function addBlockToPost(blockName, clearEditor = false, className = '') {
 			}
 		});
 
-	cy.get('.interface-pinned-items [aria-label="Settings"]').click();
+	cy.openDocumentSettingsSidebar('Block');
 
 	// Click on added new block item.
 	cy.getBlock(blockName).click();
@@ -182,7 +240,9 @@ export function addNewGroupToPost() {
  * From inside the WordPress editor open the blockera Gutenberg editor panel
  */
 export function savePage() {
-	cy.get('.edit-post-header__settings button.is-primary').click();
+	cy.get(
+		'.editor-header__settings button.is-primary,.edit-post-header__settings button.is-primary'
+	).click();
 
 	cy.get('.components-editor-notices__snackbar', { timeout: 120000 }).should(
 		'not.be.empty'
@@ -193,20 +253,21 @@ export function savePage() {
 }
 
 export function appendBlocks(blocksCode) {
-	cy.get('[aria-label="Options"]').click();
+	cy.get('[aria-label="Options"]').first().click();
 	cy.get('span').contains('Code editor').click();
 
 	cy.get('.editor-post-text-editor')
+		.focus()
 		.invoke('val', blocksCode)
-		.trigger('change');
-
-	// type a space to make sure the value is updated in the editor
-	cy.get('.editor-post-text-editor').type(' ', {
-		parseSpecialCharSequences: false,
-		keystrokeDelay: 0,
-	});
+		.trigger('change')
+		.then(() => {
+			// type a space to make sure the value is updated in the editor
+			cy.get('.editor-post-text-editor').type(' ', { force: true });
+		});
 
 	cy.get('button').contains('Exit code editor').click();
+
+	cy.openDocumentSettingsSidebar('Block');
 }
 
 /**
@@ -414,10 +475,10 @@ export function openMoreFeaturesControl(label) {
 		});
 }
 
-export const reSelectBlock = () => {
+export const reSelectBlock = (blockType = 'core/paragraph') => {
 	// unfocus block
 	cy.getIframeBody().find('h1').click();
 
 	// reselect block
-	cy.getIframeBody().find(`[data-type="core/paragraph"]`).click();
+	cy.getIframeBody().find(`[data-type="${blockType}"]`).first().click();
 };
