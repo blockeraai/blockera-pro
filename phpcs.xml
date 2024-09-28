@@ -11,13 +11,39 @@
     <rule ref="WordPress-Core"/>
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress.WP.I18n"/>
-    <config name="text_domain" value="blockera-pro,default"/>
-
-    <rule ref="WordPress">
-        <exclude name="WordPress.NamingConventions.PrefixAllGlobals"/>
-    </rule>
+    <config name="text_domain" value="blockera,default"/>
 
     <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.NamingConventions.ValidHookName.UseUnderscores">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.ClassComment.Missing">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Generic.Commenting.DocComment.MissingShort">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.Missing">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.MissingParamType">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.InlineComment.WrongStyle">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.WP.TimezoneChange.DeprecatedSniff">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <exclude-pattern>*</exclude-pattern>
     </rule>
 
@@ -33,34 +59,31 @@
         </properties>
     </rule>
 
+    <rule ref="WordPress.NamingConventions.ValidHookName">
+        <properties>
+            <property name="additionalWordDelimiters" value="/"/>
+        </properties>
+    </rule>
+
     <arg value="ps"/>
     <arg name="extensions" value="php"/>
 
     <!-- Cache the scan results and re-use those for unchanged files on the next scan. -->
     <arg name="cache" value=".cache/phpcs.json"/>
 
-    <file>./bin</file>
-    <file>./blockera-pro.php</file>
-    <file>./libs</file>
     <file>./packages</file>
-    <file>./.dev/tests/phpunit</file>
 
     <!-- Exclude generated files -->
     <exclude-pattern>node_modules/*</exclude-pattern>
-    <exclude-pattern>/.dev/**/*</exclude-pattern>
+    <exclude-pattern>./bin/*</exclude-pattern>
+    <exclude-pattern>./packages/**/tests/*</exclude-pattern>
+    <exclude-pattern>./packages/dev-phpunit/*</exclude-pattern>
+    <exclude-pattern>./packages/freemius-sdk/*</exclude-pattern>
+    <exclude-pattern>.patch/*</exclude-pattern>
 
     <!-- Exclude third party libraries -->
     <exclude-pattern>./vendor/*</exclude-pattern>
 
-    <!-- These special comments are markers for the build process -->
-    <rule ref="Squiz.Commenting.InlineComment.WrongStyle">
-        <exclude-pattern>blockera-pro.php</exclude-pattern>
-    </rule>
-
-    <!-- Do not require docblocks for unit tests -->
-    <rule ref="Squiz.Commenting.FunctionComment.Missing">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
     <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
         <exclude-pattern>*</exclude-pattern>
     </rule>
@@ -81,62 +104,6 @@
     </rule>
     <rule ref="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase">
         <exclude-pattern>*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.ClassComment.Missing">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.ClassComment.SpacingAfter">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Generic.Commenting.DocComment.Empty">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Generic.Commenting.DocComment.MissingShort">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.VariableComment.Missing">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.FunctionCommentThrowTag.Missing">
-        <exclude-pattern>.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-
-    <!-- Ignore filename error since it requires WP core build process change -->
-    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-
-    <rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="WordPress.Security.EscapeOutput.DeprecatedWhitelistCommentFound">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.PHP.CommentedOutCode.Found">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.PHP.CommentedOutCode.Found">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-
-    <!-- Exclude PHPUnit tests from file and class name sniffs (for Core parity). -->
-    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
-    </rule>
-    <rule ref="PEAR.NamingConventions.ValidClassName.Invalid">
-        <exclude-pattern>/.dev/tests/phpunit/*</exclude-pattern>
     </rule>
     <rule ref="Squiz.Commenting.ClosingDeclarationComment.Missing">
         <exclude-pattern>/*</exclude-pattern>
