@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid';
 import { select } from '@wordpress/data';
 import { mount } from 'cypress/react';
 import 'cypress-real-events/support';
-import '@cypress/code-coverage/support';
 import { PanelBody, Popover, SlotFillProvider } from '@wordpress/components';
 
 /**
@@ -16,17 +15,18 @@ import { ControlContextProvider, STORE_NAME } from '@blockera/controls';
 /**
  * Internal dependencies
  */
-import './commands';
+import { registerCommands } from './commands';
 
 /**
  * Style dependencies
  */
 import '../../../controls/js/style.scss';
 import '../../../../.storybook/styles/style.lazy.scss';
-import '../../../components/js/style.scss';
 import { WithControlDataProvider } from './components/providers/control-provider/with-control-data-provider';
 import { controlReducer } from '@blockera/controls/js/store/reducers/control-reducer';
 import { modifyControlValue } from '@blockera/controls/js/store/actions';
+
+registerCommands();
 
 Cypress.Commands.add('mount', mount);
 
