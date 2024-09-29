@@ -1,0 +1,115 @@
+name: Sync Packages to Other Repos
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    sync-packages:
+        name: Sync Packages to Other Repos
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Primary Repo
+              uses: actions/checkout@v3
+
+            - name: Set up Git
+              run: |
+                  git config user.name "blockerabot"
+                  git config user.email blockeraai+githubbot@gmail.com
+
+            - name: Find and Read blockera-pm.json files
+              id: read_blockera
+              run: |
+                  # Find all blockera-pm.json files in the target directory
+                  find ./path/to/shared/packages/ -name "blockera-pm.json" > blockera-files.txt
+
+                  # Read the .path property from each blockera-pm.json file and store them in a file
+                  paths=""
+                  while read blockeraFile; do
+                  packagePath=$(jq -r '.path' "$blockeraFile")
+                  paths="$paths $packagePath"
+                  done < blockera-files.txt
+
+                  echo "Package paths found: $paths"
+                  echo "::set-output name=package_paths::$paths"
+
+                  # Read the .dependent.repositories property from each blockera-pm.json file and store them in a file
+                  repos=""
+                  while read blockeraFile; do
+                  packagePath=$(jq -r '.dependent.repositories' "$blockeraFile")
+                  paths="$repos $packagePath"
+                  done < blockera-files.txt
+
+                  echo "Package dependent repos found: $repos"
+                  echo "::set-output name=package_repos::$repos"
+
+            - name: Check for packages changes
+              id: check_packages_changes
+              run: |
+                  # Loop through the extracted paths from the read_blockera step
+                  for path in ${{ steps.read_blockera.outputs.package_paths }}; do
+                    if git diff --name-only HEAD^ HEAD | grep "$path"; then
+                      echo "Changes detected in package at $path"
+                    else
+                      echo "No changes in $path"
+                    fi
+                  done
+
+            - name: Clone Other Repo
+              run: |
+                  # Loop through the extracted repositories from the read_blockera step
+                  for repo in ${{ steps.read_blockera.outputs.package_repos }}; do
+                     git clone https://github.com/blockeraai/"$repo".git
+                     cd "$repo"
+                     git remote set-url origin https://x-access-token:${{ secrets.BLOCKERABOT_PAT }}@github.com/blockeraai/"$repo".git
+                     cd ..
+                  done
+
+            - name: Sync Shared Packages
+              run: |
+                  # Loop through the extracted repos and paths from the read_blockera step
+                  for repo in ${{ steps.read_blockera.outputs.package_repos }}; do
+                    for path in ${{ steps.read_blockera.outputs.package_paths }}; do
+                      if ${{ github.repository }} !== blockeraai/"$repo"; then
+                        rsync -av --progress ./"$path"/ ../"$repo"/"$path"/ --delete
+                      fi
+                    done
+                  done
+
+            - name: Create Branch and Commit
+              run: |
+                  # Loop through the extracted repos and paths from the read_blockera step
+                  for repo in ${{ steps.read_blockera.outputs.package_repos }}; do
+                    if ${{ github.repository }} !== blockeraai/"$repo"; then
+                      for path in ${{ steps.read_blockera.outputs.package_paths }}; do
+                        cd "$repo"
+                        git checkout -b sync-packages-from-primary
+                        git add "$path"/
+                        git commit -m "Sync shared packages from primary repo"
+                        cd ..
+                      done
+                    fi
+                  done
+
+            - name: Push Changes to Other Repo
+              run: |
+                  # Loop through the extracted repos and paths from the read_blockera step
+                  for repo in ${{ steps.read_blockera.outputs.package_repos }}; do
+                    if ${{ github.repository }} !== blockeraai/"$repo"; then
+                      for path in ${{ steps.read_blockera.outputs.package_paths }}; do
+                        cd "$repo"
+                        git push origin sync-packages-from-primary
+                    
+                        # Create a pull request for the specific package
+                        gh pr create --repo blockeraai/"$repo" \
+                          --title "Sync package at $path from Primary Repo" \
+                          --body "This PR syncs the package at $path from the Primary Repo." \
+                          --head "sync-$path-from-primary" \
+                          --base master
+                    
+                        cd ..
+                      done
+                    fi
+                  done
