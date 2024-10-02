@@ -12,8 +12,7 @@ return [
 	],
 	'debug'         => blockera_core_env( 'APP_MODE' ) && 'development' === blockera_core_env( 'APP_MODE' ) || ( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ),
 	'providers'     => [
-		\Blockera\Pro\Providers\AssetProvider::class,
 		\Blockera\Pro\Providers\AppServiceProvider::class,
-		\Blockera\Pro\Admin\Providers\AdminAssetsProvider::class,
+		\Blockera\Pro\Admin\Providers\BlockeraProAdminAssetsProvider::class,
 	],
 ];
