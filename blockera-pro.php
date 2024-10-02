@@ -1,16 +1,18 @@
 <?php
 /**
- * Plugin Name:       Blockera PRO
- * Description:       The premium addons for blockera WordPress free plugin.
- * Requires at least: 6.5.2
- * Requires PHP:      7.4
- * Version:           1.0-beta
- * Author:            blockeraai.com
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       blockera-pro
+ * Plugin Name: Blockera PRO
+ * Plugin URI: https://blockera.ai/blockera-page-builder/
+ * Description: The Premium Advanced Mode for Block Editor
+ * Requires at least: 6.6
+ * Tested up to: 6.6
+ * Requires PHP: 7.4
+ * Author: Blockera AI
+ * Author URI: https://blockera.ai/about-us/
+ * Version: 1.0.0
+ * Text Domain: blockera-pro
+ * License: GPLv3 or later
  *
- * @package Core
+ * @package Blockera PRO
  */
 
 // security code.
@@ -22,24 +24,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
 
+// Env Loading ...
+$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
+$dotenv->safeLoad();
+
 define( 'BLOCKERA_PRO_FILE', __FILE__ );
 define( 'BLOCKERA_PRO_URI', plugin_dir_url( __FILE__ ) );
 define( 'BLOCKERA_PRO_PATH', plugin_dir_path( __FILE__ ) );
 
-// Env Loading ...
-$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
+### BEGIN AUTO-GENERATED DEFINES
+define( 'BLOCKERA_PRO_APP_MODE', 'development' );
+// Loads current version for development in the development environment.
+// this code will be replaced by string version of plugin version pulled from header
+// in production build.
+if ( ! function_exists( 'get_plugin_data' ) ) {
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+}
+define( 'BLOCKERA_PRO_VERSION', get_plugin_data( __FILE__ )['Version'] );
+### END AUTO-GENERATED DEFINES
 
-add_action( 'blockera/before/setup', 'blockera_before_setup' );
+add_action( 'blockera/before/setup', 'blockera_pro_before_setup_free_version' );
 
-function blockera_before_setup(): void {
+/**
+ * Setup premium version of blockera advanced mode for Block editor.
+ *
+ * @return void
+ */
+function blockera_pro_before_setup_free_version(): void {
 
-	// LOADING: other bootstrap files ...
-	blockera_load( 'packages.blockera-pro.php.hooks', [], __DIR__ );
+	// loading bootstrapper files.
+	blockera_load( 'packages.blockera-pro.php.hooks', __DIR__ );
+	blockera_load( 'packages.blockera-pro-admin.php.hooks', __DIR__ );
 }
 
-add_action( 'blockera/after/setup', 'blockera_after_setup' );
+add_action( 'blockera/after/setup', 'blockera_pro_after_setup_free_version' );
 
-function blockera_after_setup(): void {
+function blockera_pro_after_setup_free_version(): void {
 
 	// loading front controller.
 	require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
