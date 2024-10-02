@@ -3,54 +3,37 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
 
 /**
  * Blockera dependencies
  */
-import { updateConfig } from '@blockera/utils';
+import { mergeObject } from '@blockera/utils';
 
 /**
  * Internal dependencies
  */
 import * as config from './config';
 import { applyBlockStates } from './libs';
-import * as innerBlocksConfig from './inner-blocks-config';
 
 export const registerEditorExtensions = () => {
-	const STORE_NAME = 'blockera/extensions/config';
-	const { getExtensions } = select(STORE_NAME) || {};
+	addFilter(
+		'blocks.registerBlockType',
+		'blockeraPro-editorExtensions',
+		(settings: Object, name: Object): Object => {
+			const blockName = name.replace(/\//g, '-');
 
-	if ('function' === typeof getExtensions) {
-		// Overriding master blocks definitions.
-		Object.entries(getExtensions()).forEach(
-			([featureName, featureConfig]): void => {
-				if (!config[featureName]) {
-					Object.entries(featureConfig).forEach(
-						([subFeatureName, subFeatureConfig]) => {
-							return updateConfig(featureName, {
-								...featureConfig,
-								[subFeatureName]: {
-									...subFeatureConfig,
-									isActiveOnStatesOnFree: true,
-									isActiveOnBreakpointsOnFree: true,
-									isActiveOnInnerBlocksOnFree: true,
-								},
-							});
-						}
-					);
+			Object.entries(config).forEach(([supportId, next]) =>
+				addFilter(
+					`blockera-${blockName}-extension-${supportId}`,
+					'blockeraPro-editorBlockCustomizeExtension',
+					(previous: Object) => mergeObject(previous, next)
+				)
+			);
 
-					return;
-				}
-
-				return updateConfig(featureName, config[featureName]);
-			}
-		);
-	}
-
-	// Overriding inner blocks definitions.
-	Object.entries(innerBlocksConfig).forEach(([featureName, featureConfig]) =>
-		updateConfig(featureName, featureConfig)
+			return settings;
+		},
+		10
 	);
 };
 
