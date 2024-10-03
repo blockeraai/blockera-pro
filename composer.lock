@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/blockera-pro",
-                "reference": "10b6b62a99d3ba000bfd8b1e716a3d2d1cee7575"
+                "reference": "73fbebdfc0b4f55ebf1175b229541c007d3d7490"
             },
             "type": "library",
             "autoload": {
@@ -698,12 +698,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "b3d20319e93a69a2cb20e83922e44fc9c00664d0"
+                "reference": "4e3496e1bf0b398396947484de3945e5eeb95129"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/b3d20319e93a69a2cb20e83922e44fc9c00664d0",
-                "reference": "b3d20319e93a69a2cb20e83922e44fc9c00664d0",
+                "url": "https://api.github.com/repos/composer/composer/zipball/4e3496e1bf0b398396947484de3945e5eeb95129",
+                "reference": "4e3496e1bf0b398396947484de3945e5eeb95129",
                 "shasum": ""
             },
             "require": {
@@ -805,7 +805,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-02T14:40:29+00:00"
+            "time": "2024-10-03T12:15:23+00:00"
         },
         {
             "name": "composer/metadata-minifier",
