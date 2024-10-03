@@ -29,6 +29,7 @@
 	],
 	"minimum-stability": "dev",
 	"require": {
+		"php": ">=7.4",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
 		"blockera/utils": "*",
@@ -50,8 +51,13 @@
 		"symfony/var-dumper": "5.4.x-dev"
 	},
 	"config": {
+		"process-timeout": 0,
+		"platform": {
+			"php": "7.4"
+		},
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"cweagans/composer-patches": true
 		}
 	}
 }
