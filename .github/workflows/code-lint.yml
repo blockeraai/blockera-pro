@@ -45,9 +45,7 @@ jobs:
 
             - name: Find SCSS Files
               id: find_scss_files
-              run: |
-                  file_count=$(find packages -name "*.scss" | wc -l)
-                  echo "::set-output name=file_count::$file_count"
+              run: echo "file_count=$(find packages -name "*.scss" | wc -l)" >> $GITHUB_OUTPUT
 
             - name: Running the lint:css
               # Only run if SCSS files are found.
