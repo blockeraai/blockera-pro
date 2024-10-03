@@ -15,7 +15,7 @@ function print_changelog() {
  */
 function get_plugin_version() {
 
-	$content = file_get_contents( __DIR__ . '/../blockera.php' );
+	$content = file_get_contents( __DIR__ . '/../blockera-pro.php' );
 
 	if ( preg_match( '/\s*\*\s*Version:\s*([0-9.]+)/m', $content, $matches ) ) {
 		return $matches[1];
@@ -29,7 +29,7 @@ function get_plugin_version() {
  */
 function get_php_version() {
 
-	$content = file_get_contents( __DIR__ . '/../blockera.php' );
+	$content = file_get_contents( __DIR__ . '/../blockera-pro.php' );
 
 	if ( preg_match( '/\s*\*\s*Requires PHP:\s*([0-9.]+)/m', $content, $matches ) ) {
 		return $matches[1];
@@ -43,7 +43,7 @@ function get_php_version() {
  */
 function get_required_version() {
 
-	$content = file_get_contents( __DIR__ . '/../blockera.php' );
+	$content = file_get_contents( __DIR__ . '/../blockera-pro.php' );
 
 	if ( preg_match( '/\s*\*\s*Requires at least:\s*([0-9.]+)/m', $content, $matches ) ) {
 		return $matches[1];
@@ -57,7 +57,7 @@ function get_required_version() {
  */
 function get_tested_version() {
 
-	$content = file_get_contents( __DIR__ . '/../blockera.php' );
+	$content = file_get_contents( __DIR__ . '/../blockera-pro.php' );
 
 	if ( preg_match( '/\s*\*\s*Tested up to:\s*([0-9.]+)/m', $content, $matches ) ) {
 		return $matches[1];
@@ -71,7 +71,7 @@ function get_tested_version() {
  */
 function get_short_description() {
 
-	$content = file_get_contents( __DIR__ . '/../blockera.php' );
+	$content = file_get_contents( __DIR__ . '/../blockera-pro.php' );
 
 	if ( preg_match( '/\s*\*\s*Description:\s*(.*)/', $content, $matches ) ) {
 		return $matches[1];
