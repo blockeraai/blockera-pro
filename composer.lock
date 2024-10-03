@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "afa8f0cb7df207f1670a238daba0d242",
+    "content-hash": "da9b5af7985174f68a6cd2f301992fb6",
     "packages": [
         {
             "name": "blockera/blockera-pro",
@@ -54,7 +54,7 @@
             "version": "0.9.2",
             "dist": {
                 "type": "path",
-                "url": "../blockera/packages/utils",
+                "url": "./packages/utils",
                 "reference": "eb5bd0e727652a89d475970de550d339350c3305"
             },
             "type": "library",

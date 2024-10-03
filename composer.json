@@ -14,7 +14,7 @@
 		},
 		{
 			"type": "path",
-			"url": "../blockera/packages/utils"
+			"url": "./packages/utils"
 		}
 	],
 	"autoload": {
