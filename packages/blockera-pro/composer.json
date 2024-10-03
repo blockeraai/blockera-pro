@@ -3,7 +3,12 @@
 	"description": "The bootstrapper for blockera PRO php application for WordPress in admin and front-end sides.",
 	"autoload": {
 		"psr-4": {
-		 	"Blockera\\Pro\\": "php/"
+			"Blockera\\Pro\\": "php/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\Pro\\Tests\\": "php/tests/"
 		}
 	}
 }
