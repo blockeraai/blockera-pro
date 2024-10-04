@@ -23,11 +23,21 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v3
 
+            - name: Find Specs Files
+              id: find_specs_files
+              run: echo "file_count=$(find packages -name "packages/**/*.cy.js" | wc -l)" >> $GITHUB_OUTPUT
+
             - name: Setup Node.js and install dependencies
+              # Only run if Specs files are found.
+              if: steps.find_specs_files.outputs.file_count != '0'
               uses: ./.github/setup-node
 
             - name: Install Cypress
+              # Only run if Specs files are found.
+              if: steps.find_specs_files.outputs.file_count != '0'
               run: npx cypress install
 
             - name: Run Cypress Tests
+              # Only run if Specs files are found.
+              if: steps.find_specs_files.outputs.file_count != '0'
               run: npm run test:ct
