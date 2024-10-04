@@ -17,11 +17,6 @@
 			"url": "./packages/utils"
 		}
 	],
-	"autoload": {
-		"files": [
-			"packages/blockera-pro/php/functions.php"
-		]
-	},
 	"authors": [
 		{
 			"name": "blockeraai.com"
