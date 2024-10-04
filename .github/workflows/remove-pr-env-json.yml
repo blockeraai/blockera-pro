@@ -1,0 +1,32 @@
+name: Remove PR Env Json
+
+# Trigger on push to master (this will happen after a pull request is merged)
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    update-file:
+        runs-on: ubuntu-latest
+
+        steps:
+            # Step 1: Checkout the repository
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Remove .pr-env.json file
+              run: rm -rf .pr-env.json
+
+            # Step 3: Configure Git (required for committing changes)
+            - name: Set up Git
+              run: |
+                  git config user.name "blockerabot"
+                  git config user.email blockeraai+githubbot@gmail.com
+
+            # Step 4: Commit and push changes
+            - name: Commit and push changes
+              run: |
+                  git add .
+                  git commit -m "chore: remove .pr-env.json redundant file"
+                  git push origin master
