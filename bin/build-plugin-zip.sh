@@ -103,9 +103,13 @@ status "Generating inc/app.php 📝"
 mkdir -p "inc"
 cp packages/blockera-pro/php/app.php inc/app.php
 
-build_files=$(
-	ls dist/*/*.{min.js,min.css,asset.php} \
-)
+build_files=$(find dist/ -type f \( -name "*.min.js" -o -name "*.min.css" -o -name "asset.php" \))
+
+if [ -z "$build_files" ]; then
+    warning "No minified CSS, JS, or asset.php files found in the dist directory. 🤔"
+else
+    status "Found build files: $build_files"
+fi
 
 vendor_without_blockera_pro=$(
   find ./vendor -type f -not -path "./vendor/blockera-pro" \
