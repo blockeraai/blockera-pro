@@ -84,6 +84,7 @@ jobs:
                       jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json > .wp-env.json
                       ;;
                   esac
+                  cat .wp-env.json
 
             - name: Create required environment files
               run: |
