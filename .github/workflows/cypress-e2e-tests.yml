@@ -58,7 +58,7 @@ jobs:
             - name: Install Composer Packages
               run: composer install --no-dev -o --apcu-autoloader -a
 
-            - name: Read, modify, and create .wp-env.json file
+            - name: Create required environment files
               run: |
                   # Step 1: Read the .pr-env.json
                   PLUGINS_ARRAY=$(jq '.plugins' .pr-env.json)
@@ -85,9 +85,6 @@ jobs:
                       ;;
                   esac
                   cat .wp-env.json
-
-            - name: Create required environment files
-              run: |
                   touch .env
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env
