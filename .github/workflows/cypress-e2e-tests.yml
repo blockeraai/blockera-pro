@@ -64,26 +64,7 @@ jobs:
                   PLUGINS_ARRAY=$(jq '.plugins' .pr-env.json)
 
                   # Step 2: Add new requirements plugins to the .wp-env.json plugins property
-                  case "${{ matrix.category }}" in
-                    "woocommerce")
-                      NEW_PLUGIN="https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip"
-                      UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
-                      ;;
-                    "freemius")
-                      cp .pr-env.json .wp-env.json
-                      ;;
-                    "plugins")
-                      NEW_PLUGIN="https://downloads.wordpress.org/plugin/icon-block.latest-stable.zip"
-                      UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
-                      ;;
-                    *)
-                      NEW_PLUGIN="https://downloads.wordpress.org/plugin/svg-support.latest-stable.zip"
-                      UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
-                      ;;
-                  esac
+                  node .github/scripts/create-wp-env.js '${{ matrix.category }}'
                   cat .wp-env.json
                   touch .env
                   echo APP_MODE=production >> .env
