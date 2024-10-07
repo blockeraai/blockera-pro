@@ -68,7 +68,7 @@ jobs:
                     "woocommerce")
                       NEW_PLUGIN="https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip"
                       UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json > .wp-env.json
+                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
                       ;;
                     "freemius")
                       cp .pr-env.json .wp-env.json
@@ -76,12 +76,12 @@ jobs:
                     "plugins")
                       NEW_PLUGIN="https://downloads.wordpress.org/plugin/icon-block.latest-stable.zip"
                       UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json > .wp-env.json
+                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
                       ;;
                     *)
                       NEW_PLUGIN="https://downloads.wordpress.org/plugin/svg-support.latest-stable.zip"
                       UPDATED_PLUGINS=$(echo $PLUGINS_ARRAY | jq --arg new_plugin "$NEW_PLUGIN" '. += [$new_plugin]')
-                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json > .wp-env.json
+                      jq --argjson plugins "$UPDATED_PLUGINS" '.plugins = $plugins' .pr-env.json >> .wp-env.json
                       ;;
                   esac
                   cat .wp-env.json
