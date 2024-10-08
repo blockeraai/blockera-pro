@@ -53,7 +53,7 @@ module.exports = defineConfig({
 			framework: 'react',
 			bundler: 'webpack',
 		},
-		specPattern: 'packages/**/*.cy.js',
+		specPattern: 'packages/**/*.component.cy.js',
 		supportFile: 'packages/dev-cypress/js/support/component.js',
 	},
 });
