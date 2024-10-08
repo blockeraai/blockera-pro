@@ -19,7 +19,7 @@ on:
             # These files configures stylelint. Changes could affect the outcome.
             - '**.stylelint*'
             # These archive file of Blockera PRO plugin. Changes could affect the outcome.
-            - '**.zip'
+            - 'blockera-pro.zip'
             # These files configures TypeScript. Changes could affect the outcome.
             # TODO: uncomment below pattern to detect tsconfig file in future.
             #- '**.tsconfig*'
@@ -61,4 +61,4 @@ jobs:
             - uses: preactjs/compressed-size-action@v2
               with:
                   repo-token: '${{ secrets.BLOCKERABOT_PAT }}'
-                  pattern: '{dist/**/*.min.js,dist/**/*.css,blockera-pro-${{ github.event.pull_request.number }}.zip}'
+                  pattern: '{dist/**/*.min.js,dist/**/*.css,blockera-pro.zip}'
