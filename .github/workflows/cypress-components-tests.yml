@@ -25,7 +25,7 @@ jobs:
 
             - name: Find Specs Files
               id: find_specs_files
-              run: echo "file_count=$(find ./packages -name "*.cy.js" | wc -l)" >> $GITHUB_OUTPUT
+              run: echo "file_count=$(find ./packages -name "*.component.cy.js" | wc -l)" >> $GITHUB_OUTPUT
 
             - name: Setup Node.js and install dependencies
               # Only run if Specs files are found.
