@@ -2,8 +2,8 @@ name: Build Blockera Plugin Zip
 
 on:
     pull_request:
-    #    push:
-    #        branches: [master]
+    push:
+        branches: [master]
     workflow_dispatch:
         inputs:
             version:
@@ -198,15 +198,15 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
-                  name: blockera-pro-plugin
-                  path: ./blockera-pro.zip
+                  name: blockera-pro-${{ github.event.pull_request.number }}.zip
+                  path: ./blockera-pro-${{ github.event.pull_request.number }}.zip
 
             - name: Get artifact ID
               id: get_artifact_id
               run: |
                   ARTIFACTS_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts"
                   ARTIFACT_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  $ARTIFACTS_URL | jq '.artifacts[] | select(.name == "blockera-pro-plugin") | .id')
+                  $ARTIFACTS_URL | jq '.artifacts[] | select(.name == "blockera-pro-${{ github.event.pull_request.number }}.zip") | .id')
                   echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_ENV
 
             - name: Construct download link
@@ -348,7 +348,7 @@ jobs:
             - name: Download Plugin Zip Artifact
               uses: actions/download-artifact@v4
               with:
-                  name: blockera-pro-plugin
+                  name: blockera-pro-${{ github.event.pull_request.number }}.zip
 
             - name: Download Release Notes Artifact
               uses: actions/download-artifact@v4
@@ -375,6 +375,6 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./blockera-pro.zip
-                  asset_name: blockera-pro.zip
+                  asset_path: ./blockera-pro-${{ github.event.pull_request.number }}.zip
+                  asset_name: blockera-pro-${{ github.event.pull_request.number }}.zip
                   asset_content_type: application/zip
