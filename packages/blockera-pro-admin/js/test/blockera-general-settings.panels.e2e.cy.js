@@ -2,7 +2,10 @@ import {
 	createPost,
 	goTo,
 } from '@blockera/dev-cypress/js/helpers/site-navigation';
-import { appendBlocks, resetAll } from '@blockera/dev-cypress/js/helpers';
+import {
+	appendBlocks,
+	resetPanelSettings,
+} from '@blockera/dev-cypress/js/helpers';
 
 describe('Blockera general settings testing...', () => {
 	beforeEach(() => {
@@ -10,12 +13,10 @@ describe('Blockera general settings testing...', () => {
 	});
 
 	it.only('should restrict block visibility controls with selected user roles', () => {
-		resetAll();
+		resetPanelSettings();
 
 		cy.get('label')
-			.contains(
-				'Restrict block visibility controls to selected user roles.'
-			)
+			.contains('Restrict Blockera blocks to selected user roles.')
 			.click();
 		cy.get('label').contains('Editor').click();
 

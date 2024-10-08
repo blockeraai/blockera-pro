@@ -46,7 +46,7 @@ const initializeBlockeraProAdmin = () => {
  * Initialize blockera react application.
  */
 addFilter(
-	'blockera.admin.before.bootstrap',
+	'blockera.bootstrapper.before.domReady',
 	'blockera.pro.admin.bootstrap',
 	initializeBlockeraProAdmin
 );
