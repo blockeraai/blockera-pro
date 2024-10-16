@@ -57,7 +57,27 @@ while ( true ) {
 		case '### BEGIN AUTO-GENERATED FRONT CONTROLLERS':
 			$inside_defines = true;
 			echo $line;
-			echo 'require BLOCKERA_PRO_PATH . ' . "'inc/app.php';\n";
+			echo "add_action( 'blockera/before/setup', 'blockera_pro_before_setup_free_version' );
+
+/**
+ * Setup premium version of blockera advanced mode for Block editor.
+ *
+ * @return void
+ */
+function blockera_pro_before_setup_free_version(): void {
+
+	// loading bootstrapper files.
+	blockera_load( 'vendor.blockera.blockera-pro.php.hooks', __DIR__ );
+	blockera_load( 'vendor.blockera.blockera-pro-admin.php.hooks', __DIR__ );
+}
+
+add_action( 'blockera/after/setup', 'blockera_pro_after_setup_free_version' );
+
+function blockera_pro_after_setup_free_version(): void {
+
+	// loading front controller.
+	require BLOCKERA_PRO_PATH . 'inc/app.php';
+}\n";
 			break;
 
 		default:
