@@ -111,6 +111,13 @@ else
     status "Found build files: $build_files"
 fi
 
+main_plugin_file='blockera-pro.php'
+
+if [ -n "$MAIN_FILE_SUFFIX" ]; then
+  main_plugin_file="blockera-pro$MAIN_FILE_SUFFIX.php"
+  cp blockera.php "$main_plugin_file"
+fi
+
 vendor_without_blockera_pro=$(
   find ./vendor -type f -not -path "./vendor/blockera-pro" \
 );
@@ -124,7 +131,7 @@ zip -r -q blockera-pro.zip \
 	readme.txt \
 	languages \
 	$build_files \
-	blockera-pro.php \
+	$main_plugin_file \
 	changelog.txt \
 	composer.json \
 	experimental.config.json \
