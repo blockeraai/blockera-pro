@@ -42,7 +42,7 @@ if ( ! function_exists( 'get_plugin_data' ) ) {
 }
 define( 'BLOCKERA_PRO_VERSION', get_plugin_data( __FILE__ )['Version'] );
 ### END AUTO-GENERATED DEFINES
-
+### BEGIN AUTO-GENERATED FRONT CONTROLLERS
 add_action( 'blockera/before/setup', 'blockera_pro_before_setup_free_version' );
 
 /**
@@ -64,3 +64,4 @@ function blockera_pro_after_setup_free_version(): void {
 	// loading front controller.
 	require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
 }
+### END AUTO-GENERATED FRONT CONTROLLERS

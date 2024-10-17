@@ -14,14 +14,9 @@
 		},
 		{
 			"type": "path",
-			"url": "../blockera/packages/blockera"
+			"url": "./packages/utils"
 		}
 	],
-	"autoload": {
-		"files": [
-			"packages/blockera-pro/php/functions.php"
-		]
-	},
 	"authors": [
 		{
 			"name": "blockeraai.com"
@@ -29,9 +24,10 @@
 	],
 	"minimum-stability": "dev",
 	"require": {
-		"blockera/blockera": "*",
+		"php": ">=7.4",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
+		"blockera/utils": "*",
 		"vlucas/phpdotenv": "^5.6@dev"
 	},
 	"require-dev": {
@@ -50,8 +46,13 @@
 		"symfony/var-dumper": "5.4.x-dev"
 	},
 	"config": {
+		"process-timeout": 0,
+		"platform": {
+			"php": "7.4"
+		},
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"cweagans/composer-patches": true
 		}
 	}
 }
