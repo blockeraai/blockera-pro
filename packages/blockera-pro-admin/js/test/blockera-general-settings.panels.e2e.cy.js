@@ -4,18 +4,26 @@ import {
 } from '@blockera/dev-cypress/js/helpers/site-navigation';
 import {
 	appendBlocks,
-	resetAll
+	resetPanelSettings,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Blockera general settings testing...', () => {
 	beforeEach(() => {
-		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
+		goTo('/wp-admin/admin.php?page=blockera-settings').then(() => {
+			if (Cypress.$('#skip_activation').length) {
+				cy.get('#skip_activation').click();
+			}
+
+			goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
+		});
 	});
 
 	it.only('should restrict block visibility controls with selected user roles', () => {
-		resetAll();
+		resetPanelSettings();
 
-		cy.get('label').contains('Restrict block visibility controls to selected user roles.').click();
+		cy.get('label')
+			.contains('Restrict Blockera blocks to selected user roles.')
+			.click();
 		cy.get('label').contains('Editor').click();
 
 		cy.getByDataTest('update-settings').as('update');

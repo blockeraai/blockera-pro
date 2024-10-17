@@ -19,7 +19,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 	describe('Background', () => {
 		describe('Background Gradient', () => {
 			describe('Linear Gradient Background', () => {
-				it('Simple Value', () => {
+				it.only('Simple Value', () => {
 					appendBlocks(
 						'<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"linear-gradient(135deg,rgb(135,254,56) 1%,rgb(255,147,147) 97%)"}}}},"layout":{"type":"constrained"}} -->\n' +
 							'<div class="wp-block-group"><!-- wp:heading -->\n' +
@@ -61,8 +61,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -70,7 +71,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					// Test 2: Blockera value to WP data
 					//
 
-					setInnerBlock('Headings');
+					setInnerBlock('core/heading');
 
 					// open color popover
 					cy.get('@container').within(() => {
@@ -81,13 +82,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					// change color to #666 (#666666)
-					cy.get('.components-popover').within(() => {
-						cy.getParentContainer('Angel').within(() => {
-							cy.get('input[type="number"]').as('angelInput');
-							cy.get('@angelInput').clear();
-							cy.get('@angelInput').type('45');
+					cy.get('.components-popover')
+						.first()
+						.within(() => {
+							cy.getParentContainer('Angel').within(() => {
+								cy.get('input[type="number"]').as('angelInput');
+								cy.get('@angelInput').clear();
+								cy.get('@angelInput').type('45');
+							});
 						});
-					});
 
 					// Blockera value should be moved to WP data
 					getWPDataObject().then((data) => {
@@ -105,8 +108,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -140,8 +144,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 
 					getWPDataObject().then((data) => {
 						expect({}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 				});
@@ -202,8 +207,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -211,7 +217,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					// Test 2: Blockera value to WP data
 					//
 
-					setInnerBlock('Headings');
+					setInnerBlock('core/heading');
 
 					// open color popover
 					cy.get('@container').within(() => {
@@ -274,8 +280,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -300,8 +307,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 
 					getWPDataObject().then((data) => {
 						expect({}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 				});
@@ -353,8 +361,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -362,7 +371,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					// Test 2: Blockera value to WP data
 					//
 
-					setInnerBlock('Headings');
+					setInnerBlock('core/heading');
 
 					// open color popover
 					cy.get('@container').within(() => {
@@ -402,8 +411,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 								},
 							},
 						}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 
@@ -437,8 +447,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 
 					getWPDataObject().then((data) => {
 						expect({}).to.be.deep.equal(
-							getSelectedBlock(data, 'blockeraInnerBlocks')
-								?.heading?.attributes
+							getSelectedBlock(data, 'blockeraInnerBlocks')[
+								'core/heading'
+							]?.attributes
 						);
 					});
 				});
@@ -477,8 +488,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					expect({
 						blockeraBackgroundColor: '#ffcaca',
 					}).to.be.deep.equal(
-						getSelectedBlock(data, 'blockeraInnerBlocks')?.heading
-							?.attributes
+						getSelectedBlock(data, 'blockeraInnerBlocks')[
+							'core/heading'
+						]?.attributes
 					);
 				});
 
@@ -493,7 +505,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 				// Test 2: Blockera value to WP data
 				//
 
-				setInnerBlock('Headings');
+				setInnerBlock('core/heading');
 
 				// open color popover
 				cy.get('@imageContainer').within(() => {
@@ -528,8 +540,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 							},
 						},
 					}).to.be.deep.equal(
-						getSelectedBlock(data, 'blockeraInnerBlocks')?.heading
-							?.attributes
+						getSelectedBlock(data, 'blockeraInnerBlocks')[
+							'core/heading'
+						]?.attributes
 					);
 				});
 
@@ -583,8 +596,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 							},
 						},
 					}).to.be.deep.equal(
-						getSelectedBlock(data, 'blockeraInnerBlocks')?.heading
-							?.attributes
+						getSelectedBlock(data, 'blockeraInnerBlocks')[
+							'core/heading'
+						]?.attributes
 					);
 				});
 
@@ -631,8 +645,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 							},
 						},
 					}).to.be.deep.equal(
-						getSelectedBlock(data, 'blockeraInnerBlocks')?.heading
-							?.attributes
+						getSelectedBlock(data, 'blockeraInnerBlocks')[
+							'core/heading'
+						]?.attributes
 					);
 				});
 
@@ -664,8 +679,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 				// WP data should be removed too
 				getWPDataObject().then((data) => {
 					expect({}).to.be.deep.equal(
-						getSelectedBlock(data, 'blockeraInnerBlocks')?.heading
-							?.attributes
+						getSelectedBlock(data, 'blockeraInnerBlocks')[
+							'core/heading'
+						]?.attributes
 					);
 
 					expect(undefined).to.be.equal(

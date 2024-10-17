@@ -16,9 +16,14 @@ const blockeraTextStroke: Object = {
 	isActiveOnFree: true,
 };
 
+const blockeraWordBreak: Object = {
+	isActiveOnFree: true,
+};
+
 export const typographyConfig = {
 	blockeraWordSpacing,
 	blockeraTextIndent,
 	blockeraTextColumns,
 	blockeraTextStroke,
+	blockeraWordBreak,
 };
