@@ -88,7 +88,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: ['blockera-pro'],
+				allowedTextDomain: ['blockera', 'blockera-pro'],
 			},
 		],
 	},
