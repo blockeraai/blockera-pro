@@ -226,7 +226,7 @@ jobs:
                   # Fetch all comments and find if one from blockerabot exists
                   curl -H "Authorization: token ${{ secrets.BLOCKERABOT_PAT }}" \
                        -H "Accept: application/vnd.github.v3+json" \
-                       $COMMENTS_URL | jq '.[] | select(.user.login == "blockerabot") | .id' > comment_id.txt
+                       $COMMENTS_URL | jq -r '.[] | select(.user.login == "blockerabot" and (.body | test("Plugin Zip File"; "i"))) | .id' > comment_id.txt
 
                   # If comment ID is found, set it to environment variable
                   if [[ -s comment_id.txt ]]; then
