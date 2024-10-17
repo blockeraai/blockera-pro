@@ -98,6 +98,7 @@
 		"@wordpress/data": "^10.9.0",
 		"@wordpress/env": "^10.9.0",
 		"@wordpress/eslint-plugin": "^14.4.0",
+		"@wordpress/icons": "^10.10.0",
 		"@wordpress/scripts": "^26.3.0",
 		"autoprefixer": "^10.4.14",
 		"babel-jest": "^29.6.1",
