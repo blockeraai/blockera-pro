@@ -1,6 +1,0 @@
-{
-	"plugins": [
-		"https://downloads.wordpress.org/plugin/blockera.latest.zip",
-		"."
-	]
-}
