@@ -29,39 +29,41 @@ describe('Transforms → Functionality', () => {
 				cy.getByAriaLabel('Add New Transform').click();
 			});
 
-			cy.get('.components-popover').within(() => {
-				cy.get('[aria-label="Skew"]').click();
-				cy.get('[aria-label="Skew-X"]').type(10);
-				cy.get('[aria-label="Skew-Y"]').type(20);
-			});
+			cy.get('.components-popover')
+				.last()
+				.within(() => {
+					cy.get('[aria-label="Skew"]').click();
+					cy.get('[aria-label="Skew-X"]').type(10);
+					cy.get('[aria-label="Skew-Y"]').type(20);
+				});
 
 			cy.get('@transform').within(() => {
 				cy.getByAriaLabel('Add New Transform').click();
 			});
 
-			cy.get('.components-popover').each(($div) => {
-				cy.get($div).within(() => {
-					cy.get('[aria-label="Move"]').click();
-					cy.get('[aria-label="Move-X"]').clear();
-					cy.get('[aria-label="Move-X"]').type(150);
-					cy.get('[aria-label="Move-Y"]').clear();
-					cy.get('[aria-label="Move-Y"]').type(200);
-					cy.get('[aria-label="Move-Z"]').clear();
-					cy.get('[aria-label="Move-Z"]').type(100);
+			cy.get('.components-popover')
+				.last()
+				.each(($div) => {
+					cy.get($div).within(() => {
+						cy.get('[aria-label="Move"]').click();
+						cy.get('[aria-label="Move-X"]').clear();
+						cy.get('[aria-label="Move-X"]').type(150);
+						cy.get('[aria-label="Move-Y"]').clear();
+						cy.get('[aria-label="Move-Y"]').type(200);
+						cy.get('[aria-label="Move-Z"]').clear();
+						cy.get('[aria-label="Move-Z"]').type(100);
+					});
 				});
-			});
 
 			//Check block
-			cy.getBlock('core/paragraph')
-				.parent()
-				.within(() => {
-					cy.get('style')
-						.invoke('text')
-						.should(
-							'include',
-							'transform: skew(10deg, 20deg) translate3d(150px, 200px, 100px)'
-						);
-				});
+			cy.getIframeBody().within(() => {
+				cy.get('#blockera-styles-wrapper')
+					.invoke('text')
+					.should(
+						'include',
+						'transform: skew(10deg, 20deg) translate3d(150px, 200px, 100px)'
+					);
+			});
 
 			//Check store
 			getWPDataObject().then((data) => {
@@ -98,7 +100,7 @@ describe('Transforms → Functionality', () => {
 
 			redirectToFrontPage();
 
-			cy.get('style#blockera-inline-css-inline-css')
+			cy.get('style#blockera-inline-css')
 				.invoke('text')
 				.should(
 					'include',
