@@ -6,3 +6,4 @@ export { backgroundConfig } from './background';
 export { typographyConfig } from './typography';
 export { layoutConfig } from './layout';
 export { flexChildConfig } from './flex-child';
+export { effectsConfig } from './effects';
