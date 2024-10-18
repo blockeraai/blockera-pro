@@ -226,7 +226,7 @@ jobs:
                   # Fetch all comments and find if one from blockerabot exists
                   curl -H "Authorization: token ${{ secrets.BLOCKERABOT_PAT }}" \
                        -H "Accept: application/vnd.github.v3+json" \
-                       $COMMENTS_URL | jq -r '.[] | select(.user.login == "blockerabot" and (.body | test("Plugin Zip File"; "i"))) | .id' > comment_id.txt
+                       $COMMENTS_URL | jq -r '.[] | select(.user.login == "blockerabot" and (.body | test("Branch Links"; "i"))) | .id' > comment_id.txt
 
                   # If comment ID is found, set it to environment variable
                   if [[ -s comment_id.txt ]]; then
@@ -241,7 +241,7 @@ jobs:
                   RUN_ID="${{ github.run_id }}"
 
                   # Define the comment body following the desired structure
-                  COMMENT_BODY="**Plugin Zip File**\n\nThe plugin zip file has been generated and can be downloaded from [blockera-pro-plugin.zip](${{ env.download_link }})."
+                  COMMENT_BODY="**Branch Links**\n\n- [**📦 Download Zip** (Build)](${{ env.download_link }})"
 
                   if [ -z "${{ env.comment_id }}" ]; then
                       # No existing comment found, create a new one
