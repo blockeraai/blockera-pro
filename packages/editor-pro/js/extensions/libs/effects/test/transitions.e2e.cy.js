@@ -25,33 +25,40 @@ describe('Transitions → Functionality', () => {
 			cy.getByAriaLabel('Add New Transition').click();
 		});
 
-		cy.get('.components-popover').within(() => {
-			cy.getParentContainer('Type', 'base-control').within(() => {
-				// check options should not be disabled
-				cy.get('select').within(() => {
-					cy.get('[value="margin"]').should('not.be.disabled');
-					cy.get('[value="padding"]').should('not.be.disabled');
+		cy.get('.components-popover')
+			.last()
+			.within(() => {
+				cy.getParentContainer('Type', 'base-control').within(() => {
+					// check options should not be disabled
+					cy.get('select').within(() => {
+						cy.get('[value="opacity"]').should('not.be.disabled');
+						cy.get('[value="margin"]').should('not.be.disabled');
+						cy.get('[value="padding"]').should('not.be.disabled');
+					});
+
+					cy.get('select').select('margin');
 				});
 
-				cy.get('select').select('margin');
-			});
+				cy.getByDataTest('transition-input-duration').clear();
+				cy.getByDataTest('transition-input-duration').type(200);
 
-			cy.getByDataTest('transition-input-duration').clear();
-			cy.getByDataTest('transition-input-duration').type(200);
+				cy.getParentContainer('Timing', 'base-control').within(() => {
+					// check disabled options
+					cy.get('select').within(() => {
+						cy.get('[value="ease-in-quad"]').should(
+							'not.be.disabled'
+						);
+						cy.get('[value="ease-in-cubic"]').should(
+							'not.be.disabled'
+						);
+					});
 
-			cy.getParentContainer('Timing', 'base-control').within(() => {
-				// check disabled options
-				cy.get('select').within(() => {
-					cy.get('[value="ease-in-quad"]').should('not.be.disabled');
-					cy.get('[value="ease-in-cubic"]').should('not.be.disabled');
+					cy.get('select').select('ease-in-out');
 				});
 
-				cy.get('select').select('ease-in-out');
+				cy.getByDataTest('transition-input-delay').clear();
+				cy.getByDataTest('transition-input-delay').type(2000);
 			});
-
-			cy.getByDataTest('transition-input-delay').clear();
-			cy.getByDataTest('transition-input-delay').type(2000);
-		});
 
 		cy.get('@transition').within(() => {
 			cy.getByAriaLabel('Add New Transition').click();
@@ -60,21 +67,23 @@ describe('Transitions → Functionality', () => {
 		// promotion popover should not appear
 		cy.get('.blockera-component-promotion-popover').should('not.exist');
 
-		cy.getByDataTest('popover-body').within(() => {
-			cy.getParentContainer('Type', 'base-control').within(() => {
-				cy.get('select').select('border');
+		cy.getByDataTest('popover-body')
+			.last()
+			.within(() => {
+				cy.getParentContainer('Type', 'base-control').within(() => {
+					cy.get('select').select('border');
+				});
+
+				cy.getByDataTest('transition-input-duration').clear();
+				cy.getByDataTest('transition-input-duration').type(300);
+
+				cy.getParentContainer('Timing', 'base-control').within(() => {
+					cy.get('select').select('ease-in');
+				});
+
+				cy.getByDataTest('transition-input-delay').clear();
+				cy.getByDataTest('transition-input-delay').type(3000);
 			});
-
-			cy.getByDataTest('transition-input-duration').clear();
-			cy.getByDataTest('transition-input-duration').type(300);
-
-			cy.getParentContainer('Timing', 'base-control').within(() => {
-				cy.get('select').select('ease-in');
-			});
-
-			cy.getByDataTest('transition-input-delay').clear();
-			cy.getByDataTest('transition-input-delay').type(3000);
-		});
 
 		//Check block
 		cy.getBlock('core/paragraph').should(
