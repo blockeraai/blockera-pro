@@ -348,7 +348,7 @@ jobs:
             - name: Download Plugin Zip Artifact
               uses: actions/download-artifact@v4
               with:
-                  name: blockera-pro-${{ github.event.pull_request.number }}.zip
+                  name: blockera-pro-${{ github.event.pull_request.number }}
 
             - name: Download Release Notes Artifact
               uses: actions/download-artifact@v4
@@ -376,5 +376,5 @@ jobs:
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
                   asset_path: ./blockera-pro-${{ github.event.pull_request.number }}.zip
-                  asset_name: blockera-pro-${{ github.event.pull_request.number }}.zip
+                  asset_name: blockera-pro-${{ github.event.pull_request.number }}
                   asset_content_type: application/zip
