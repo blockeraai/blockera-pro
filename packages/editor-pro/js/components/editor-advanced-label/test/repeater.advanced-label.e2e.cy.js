@@ -71,7 +71,7 @@ describe('Repeater Control label testing on Pro version (Image & Gradient)', () 
 
 		// Assert state graph
 		cy.checkStateGraph('Background', 'Image & Gradient', {
-			laptop: ['Normal', 'Hover'],
+			desktop: ['Normal', 'Hover'],
 		});
 	});
 });
