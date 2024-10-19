@@ -18,7 +18,7 @@ describe('Blockera general settings testing...', () => {
 		});
 	});
 
-	it.only('should restrict block visibility controls with selected user roles', () => {
+	it('should restrict block visibility controls with selected user roles', () => {
 		resetPanelSettings();
 
 		cy.get('label')
