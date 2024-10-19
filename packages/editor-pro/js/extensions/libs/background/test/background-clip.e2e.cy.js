@@ -55,7 +55,7 @@ describe('Background Clip → Functionality', () => {
 			const bgClipState = getSelectedBlock(
 				data,
 				'blockeraBackgroundClip'
-			).value;
+			);
 			expect(bgClipState).to.be.equal('text');
 		});
 

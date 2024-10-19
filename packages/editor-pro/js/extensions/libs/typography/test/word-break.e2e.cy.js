@@ -34,7 +34,7 @@ describe('Word Break → Functionality', () => {
 		//Check store
 		getWPDataObject().then((data) => {
 			expect('keep-all').to.be.equal(
-				getSelectedBlock(data, 'blockeraWordBreak').value
+				getSelectedBlock(data, 'blockeraWordBreak')
 			);
 		});
 

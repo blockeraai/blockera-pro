@@ -25,27 +25,31 @@ describe('Filters → Functionality', () => {
 			cy.getByAriaLabel('Add New Filter Effect').click();
 		});
 
-		cy.get('.components-popover').within(() => {
-			cy.getParentContainer('Type').within(() => {
-				cy.get('select').select('brightness');
-			});
+		cy.get('.components-popover')
+			.eq(0)
+			.within(() => {
+				cy.getParentContainer('Type').within(() => {
+					cy.get('select').select('brightness');
+				});
 
-			cy.getByDataTest('filter-brightness-input').clear();
-			cy.getByDataTest('filter-brightness-input').type(100);
-		});
+				cy.getByDataTest('filter-brightness-input').clear();
+				cy.getByDataTest('filter-brightness-input').type(100);
+			});
 
 		cy.get('@filters').within(() => {
 			cy.getByAriaLabel('Add New Filter Effect').click();
 		});
 
-		cy.getByDataTest('popover-body').within(() => {
-			cy.getParentContainer('Type', 'base-control').within(() => {
-				cy.get('select').select('invert');
-			});
+		cy.getByDataTest('popover-body')
+			.eq(0)
+			.within(() => {
+				cy.getParentContainer('Type', 'base-control').within(() => {
+					cy.get('select').select('invert');
+				});
 
-			cy.getByDataTest('filter-invert-input').clear();
-			cy.getByDataTest('filter-invert-input').type(50);
-		});
+				cy.getByDataTest('filter-invert-input').clear();
+				cy.getByDataTest('filter-invert-input').type(50);
+			});
 
 		//Check block
 		cy.getBlock('core/paragraph')
