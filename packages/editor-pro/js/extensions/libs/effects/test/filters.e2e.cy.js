@@ -25,16 +25,14 @@ describe('Filters → Functionality', () => {
 			cy.getByAriaLabel('Add New Filter Effect').click();
 		});
 
-		cy.get('.components-popover')
-			.eq(0)
-			.within(() => {
-				cy.getParentContainer('Type').within(() => {
-					cy.get('select').select('brightness');
-				});
-
-				cy.getByDataTest('filter-brightness-input').clear();
-				cy.getByDataTest('filter-brightness-input').type(100);
+		cy.get('.blockera-component-popover').within(() => {
+			cy.getParentContainer('Type').within(() => {
+				cy.get('select').select('brightness');
 			});
+
+			cy.getByDataTest('filter-brightness-input').clear();
+			cy.getByDataTest('filter-brightness-input').type(100);
+		});
 
 		cy.get('@filters').within(() => {
 			cy.getByAriaLabel('Add New Filter Effect').click();
@@ -52,13 +50,11 @@ describe('Filters → Functionality', () => {
 			});
 
 		//Check block
-		cy.getBlock('core/paragraph')
-			.parent()
-			.within(() => {
-				cy.get('style')
-					.invoke('text')
-					.should('include', 'filter: brightness(100%) invert(50%);');
-			});
+		cy.getBlock('core/paragraph').should(
+			'have.css',
+			'filter',
+			'brightness(1) invert(0.5)'
+		);
 
 		//Check store
 		getWPDataObject().then((data) => {
@@ -90,8 +86,10 @@ describe('Filters → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('style#blockera-inline-css-inline-css')
-			.invoke('text')
-			.should('include', 'filter: brightness(100%) invert(50%);');
+		cy.get('.blockera-block').should(
+			'have.css',
+			'filter',
+			'brightness(1) invert(0.5) blur(3px)'
+		);
 	});
 });
