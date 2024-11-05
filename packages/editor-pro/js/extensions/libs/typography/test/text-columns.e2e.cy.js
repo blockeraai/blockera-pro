@@ -33,7 +33,7 @@ describe('Text Columns → Functionality', () => {
 			cy.window().then((win) => {
 				const paragraph = win.getComputedStyle($el[0]);
 				const columnCount = paragraph.getPropertyValue('column-count');
-				expect('initial').to.equal(columnCount);
+				expect('auto').to.equal(columnCount);
 			});
 		});
 
