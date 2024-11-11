@@ -447,7 +447,9 @@ describe('Block State E2E Test', () => {
 						cy.getByDataTest('border-control-color').next().click();
 
 						// dotted border style.
-						cy.get('div[role="listbox"]').within(() =>
+						cy.get(
+							'div[role="listbox"], ul[role="listbox"]'
+						).within(() =>
 							cy.get('div').eq(2).click({ force: true })
 						);
 					});
@@ -458,7 +460,9 @@ describe('Block State E2E Test', () => {
 						cy.getByDataTest('border-control-color').next().click();
 
 						// dotted border style.
-						cy.get('div[role="listbox"]').within(() =>
+						cy.get(
+							'div[role="listbox"], ul[role="listbox"]'
+						).within(() =>
 							cy
 								.get('div')
 								.eq(2)
