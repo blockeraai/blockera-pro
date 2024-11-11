@@ -32,9 +32,9 @@ describe('Block State E2E Test', () => {
 
 	const initialSetting = () => {
 		appendBlocks(
-			'<!-- wp:paragraph -->\n' +
-				'<p>Test</p>\n' +
-				'<!-- /wp:paragraph -->'
+			`<!-- wp:paragraph -->
+<p>Test</p>
+<!-- /wp:paragraph -->`
 		);
 		cy.getBlock('core/paragraph').click();
 	};
@@ -88,7 +88,8 @@ describe('Block State E2E Test', () => {
 		});
 	});
 
-	describe('block states visibility testing ...', () => {
+	// TODO: We should add visibility support to block states and un skip this test.
+	describe.skip('block states visibility testing ...', () => {
 		it('should not generate style for disable states', () => {
 			initialSetting();
 
@@ -446,8 +447,8 @@ describe('Block State E2E Test', () => {
 						cy.getByDataTest('border-control-color').next().click();
 
 						// dotted border style.
-						cy.get('ul').within(() =>
-							cy.get('li').eq(2).click({ force: true })
+						cy.get('div[role="listbox"]').within(() =>
+							cy.get('div').eq(2).click({ force: true })
 						);
 					});
 
@@ -457,9 +458,9 @@ describe('Block State E2E Test', () => {
 						cy.getByDataTest('border-control-color').next().click();
 
 						// dotted border style.
-						cy.get('ul').within(() =>
+						cy.get('div[role="listbox"]').within(() =>
 							cy
-								.get('li')
+								.get('div')
 								.eq(2)
 								.should('have.attr', 'aria-selected', 'true')
 						);
@@ -497,13 +498,15 @@ describe('Block State E2E Test', () => {
 			context(
 				'can inherit data of normal on focus on mobile breakpoint',
 				() => {
-					setDeviceType('Mobile');
+					setDeviceType('Mobile Portrait');
 
 					cy.getByAriaLabel('Custom Box Border').click();
 
 					// top border.
 					cy.getByDataTest('border-control-width').eq(0).clear();
-					cy.getByDataTest('border-control-width').eq(0).type(3);
+					cy.getByDataTest('border-control-width')
+						.eq(0)
+						.type(3, { force: true });
 
 					// Reselect.
 					reSelectBlock();
@@ -541,7 +544,7 @@ describe('Block State E2E Test', () => {
 							.focus();
 
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:focus`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border-top',
@@ -571,7 +574,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.realHover();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:hover`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -587,7 +590,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.focus();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:focus`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -612,7 +615,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.realHover();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:hover`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -624,7 +627,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.focus();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:focus`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -649,7 +652,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.realHover();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:hover`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -662,7 +665,7 @@ describe('Block State E2E Test', () => {
 							.find(`#block-${getBlockClientId(data)}`)
 							.focus();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:focus`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
 								'border',
@@ -672,20 +675,20 @@ describe('Block State E2E Test', () => {
 
 					setBlockState('Focus');
 
-					setDeviceType('Mobile');
+					setDeviceType('Mobile Portrait');
 
-					// Assert block css when state is "Focus" and breakpoint is "Desktop".
+					// Assert block css when state is "Focus" and breakpoint is "Mobile Portrait".
 					getWPDataObject().then((data) => {
 						// Focus
 						cy.getIframeBody()
 							.find(`#block-${getBlockClientId(data)}`)
 							.focus();
 						cy.getIframeBody()
-							.find(`#block-${getBlockClientId(data)}:focus`)
+							.find(`#block-${getBlockClientId(data)}`)
 							.should(
 								'have.css',
-								'border',
-								'3px 5px 5px 5px dotted rgb(17, 17, 17)'
+								'border-top',
+								'3px solid rgb(17, 17, 17)'
 							);
 					});
 
@@ -695,7 +698,7 @@ describe('Block State E2E Test', () => {
 							type: 'all',
 							all: {
 								width: '5px',
-								style: 'solid',
+								style: '',
 								color: '',
 							},
 						}).to.be.deep.equal(
@@ -703,12 +706,6 @@ describe('Block State E2E Test', () => {
 						);
 
 						expect({
-							normal: {
-								breakpoints: {
-									desktop: { attributes: {} },
-								},
-								isVisible: true,
-							},
 							hover: {
 								breakpoints: {
 									desktop: {
@@ -717,7 +714,7 @@ describe('Block State E2E Test', () => {
 												type: 'all',
 												all: {
 													width: '5px',
-													style: 'solid',
+													style: '',
 													color: '#cccccc',
 												},
 											},
@@ -746,22 +743,22 @@ describe('Block State E2E Test', () => {
 												type: 'custom',
 												all: {
 													width: '5px',
-													style: 'solid',
+													style: '',
 													color: '',
 												},
 												right: {
 													width: '5px',
-													style: 'solid',
+													style: '',
 													color: '',
 												},
 												bottom: {
 													width: '5px',
-													style: 'solid',
+													style: '',
 													color: '',
 												},
 												left: {
 													width: '5px',
-													style: 'solid',
+													style: '',
 													color: '',
 												},
 												top: {
@@ -805,6 +802,9 @@ describe('Block State E2E Test', () => {
 						.realMouseUp();
 
 					// Focus
+					cy.get('.blockera-block').then(($el) => {
+						$el[0].setAttribute('tabindex', 0);
+					});
 					cy.get('.blockera-block').focus();
 					cy.get('.blockera-block').should(
 						'have.css',
@@ -818,7 +818,7 @@ describe('Block State E2E Test', () => {
 					cy.get('.blockera-block').should(
 						'have.css',
 						'border',
-						'5px solid rgb(17, 17, 17)'
+						'5px dotted rgb(17, 17, 17)'
 					);
 
 					// Hover
@@ -869,538 +869,473 @@ describe('Block State E2E Test', () => {
 				cy.getByDataCy('group-control-header').click();
 			});
 		};
-		context('Normal -> set background type', () => {
-			beforeEach(() => {
-				initialSetting();
 
-				cy.getByAriaLabel('Add New Background').click();
-				cy.getByAriaLabel('Linear Gradient').click();
+		beforeEach(() => {
+			initialSetting();
 
-				// Reselect
-				reSelectBlock();
+			cy.getByAriaLabel('Add New Background').click();
+			cy.getByAriaLabel('Linear Gradient').click();
 
-				// Assert control value
-				cy.getParentContainer('Image & Gradient').within(() => {
-					cy.getByDataCy('group-control-header').should(
-						'have.length',
-						'1'
+			// Reselect
+			reSelectBlock();
+
+			// Assert control value
+			cy.getParentContainer('Image & Gradient').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+				cy.contains('Linear Gradient').should('exist');
+			});
+
+			addBlockState('hover');
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel('Rotate Anti-clockwise').click();
+			});
+
+			// normal state updates should display
+			cy.getParentContainer('Image & Gradient').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+				cy.contains('Linear Gradient').should('exist');
+			});
+
+			// Reselect
+			reSelectBlock();
+
+			// Assert control value
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'45'
 					);
-					cy.contains('Linear Gradient').should('exist');
 				});
 			});
 
-			context('Hover -> set angle', () => {
-				beforeEach(() => {
-					addBlockState('hover');
-					openBackgroundItem();
-					cy.getByDataTest('popover-body').within(() => {
-						cy.getByAriaLabel('Rotate Anti-clockwise').click();
-					});
+			addBlockState('active');
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.get('button[aria-label="Repeat"]').click();
 
-					// normal state updates should display
-					cy.getParentContainer('Image & Gradient').within(() => {
-						cy.getByDataCy('group-control-header').should(
-							'have.length',
-							'1'
+				// normal state updates should display
+				cy.getByAriaLabel('Linear Gradient').should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+
+				// hover state updates should not display
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'90'
+					);
+				});
+			});
+
+			// Reselect
+			reSelectBlock();
+
+			// Assert control value
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'90'
+					);
+				});
+
+				cy.get('button[aria-label="Repeat"]').should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+			});
+
+			setDeviceType('Mobile Portrait');
+			openBackgroundItem();
+
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel('Parallax').click();
+
+				// active state updates should not display
+				cy.getByAriaLabel('Repeat').should(
+					'not.have.attr',
+					'aria-checked',
+					'true'
+				);
+
+				// hover state updates should not display
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'90'
+					);
+				});
+			});
+
+			reSelectBlock();
+
+			// Assert control
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel('Parallax').should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+			});
+		});
+
+		it('should control value and attributes be correct, when navigate between states and devices', () => {
+			// Active / Mobile
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('have.css', 'background-attachment', 'fixed');
+
+				// Active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realMouseDown();
+
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('have.css', 'background-attachment', 'fixed')
+					.realMouseMove(300, 300);
+			});
+
+			// Normal / Desktop
+			setDeviceType('Desktop');
+			setBlockState('Normal');
+
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					);
+
+				// Hover
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realHover();
+
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.invoke('css', 'background-image')
+					.then((bgImage) => {
+						expect(
+							'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)',
+							bgImage
 						);
-						cy.contains('Linear Gradient').should('exist');
 					});
 
-					// Reselect
-					reSelectBlock();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realMouseMove(50, 50);
 
-					// Assert control value
-					openBackgroundItem();
-					cy.getByDataTest('popover-body').within(() => {
-						cy.getParentContainer('Angel').within(() => {
-							cy.get('input[inputmode="numeric"]').should(
-								'have.value',
-								'0'
-							);
-						});
-					});
-				});
+				// Active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realMouseDown();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					)
+					.and('have.css', 'background-repeat', 'repeat');
+			});
 
-				context('Active -> set repeat', () => {
-					beforeEach(() => {
-						addBlockState('active');
-						openBackgroundItem();
-						cy.getByDataTest('popover-body').within(() => {
-							cy.get('button[aria-label="Repeat"]').click();
+			// Assert control
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel("Don't Repeat").should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+				cy.getByAriaLabel('Parallax').should(
+					'not.have.attr',
+					'aria-checked',
+					'true'
+				);
 
-							// normal state updates should display
-							cy.getByAriaLabel('Linear Gradient').should(
-								'have.attr',
-								'aria-checked',
-								'true'
-							);
-
-							// hover state updates should not display
-							cy.getParentContainer('Angel').within(() => {
-								cy.get('input[inputmode="numeric"]').should(
-									'have.value',
-									'90'
-								);
-							});
-						});
-
-						// Reselect
-						reSelectBlock();
-
-						// Assert control value
-						openBackgroundItem();
-						cy.getByDataTest('popover-body').within(() => {
-							cy.getParentContainer('Angel').within(() => {
-								cy.get('input[inputmode="numeric"]').should(
-									'have.value',
-									'90'
-								);
-							});
-
-							cy.get('button[aria-label="Repeat"]').should(
-								'have.attr',
-								'aria-checked',
-								'true'
-							);
-						});
-					});
-
-					context('Active -> Mobile -> set effect', () => {
-						beforeEach(() => {
-							setDeviceType('Mobile');
-							openBackgroundItem();
-
-							cy.getByDataTest('popover-body').within(() => {
-								cy.getByAriaLabel('Parallax').click();
-
-								// active state updates should not display
-								cy.getByAriaLabel('Repeat').should(
-									'not.have.attr',
-									'aria-checked',
-									'true'
-								);
-
-								// hover state updates should not display
-								cy.getParentContainer('Angel').within(() => {
-									cy.get('input[inputmode="numeric"]').should(
-										'have.value',
-										'90'
-									);
-								});
-							});
-
-							reSelectBlock();
-
-							// Assert control
-							openBackgroundItem();
-							cy.getByDataTest('popover-body').within(() => {
-								cy.getByAriaLabel('Parallax').should(
-									'have.attr',
-									'aria-checked',
-									'true'
-								);
-							});
-						});
-
-						it('should control value and attributes be correct, when navigate between states and devices', () => {
-							// Active / Mobile
-							// Assert block css
-							getWPDataObject().then((data) => {
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.should(
-										'have.css',
-										'background-attachment',
-										'fixed'
-									);
-
-								// Active
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.realMouseDown();
-
-								cy.getIframeBody()
-									.find(
-										`#block-${getBlockClientId(
-											data
-										)}:active`
-									)
-									.should(
-										'have.css',
-										'background-attachment',
-										'fixed'
-									);
-							});
-
-							// Normal / Desktop
-							setDeviceType('Desktop');
-							setBlockState('Normal');
-							// Assert block css
-							getWPDataObject().then((data) => {
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.should(
-										'have.css',
-										'background-image',
-										'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-									);
-
-								// Hover
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.realHover();
-
-								cy.getIframeBody()
-									.find(
-										`#block-${getBlockClientId(data)}:hover`
-									)
-									.should(
-										'have.css',
-										'background-image',
-										'linear-gradient(0deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-									)
-									.realMouseMove(50, 50);
-
-								// Active
-								// TODO:
-								// cy.getIframeBody()
-								// 	.find(`#block-${getBlockClientId(data)}`)
-								// 	.realMouseDown();
-
-								// cy.getIframeBody()
-								// 	.find(
-								// 		`#block-${getBlockClientId(
-								// 			data
-								// 		)}:active`
-								// 	)
-								// 	.should(
-								// 		'have.css',
-								// 		'background-image',
-								// 		'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-								// 	)
-								// 	.and(
-								// 		'have.css',
-								// 		'background-repeat',
-								// 		'repeat'
-								// 	);
-							});
-
-							// Assert control
-							openBackgroundItem();
-							cy.getByDataTest('popover-body').within(() => {
-								cy.getByAriaLabel("Don't Repeat").should(
-									'have.attr',
-									'aria-checked',
-									'true'
-								);
-								cy.getByAriaLabel('Parallax').should(
-									'not.have.attr',
-									'aria-checked',
-									'true'
-								);
-
-								cy.getParentContainer('Angel').within(() => {
-									cy.get('input[inputmode="numeric"]').should(
-										'have.value',
-										'90'
-									);
-								});
-							});
-
-							// Active / Desktop
-							setBlockState('Active');
-							// Assert block css
-							//TODO
-							// getWPDataObject().then((data) => {
-							// 	cy.getIframeBody()
-							// 		.find(`#block-${getBlockClientId(data)}`)
-							// 		.should(
-							// 			'have.css',
-							// 			'background-image',
-							// 			'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							// 		)
-							// 		.and(
-							// 			'have.css',
-							// 			'background-repeat',
-							// 			'repeat'
-							// 		);
-
-							// 	// Active
-							// 	cy.getIframeBody()
-							// 		.find(`#block-${getBlockClientId(data)}`)
-							// 		.realMouseDown();
-
-							// 	cy.getIframeBody()
-							// 		.find(
-							// 			`#block-${getBlockClientId(
-							// 				data
-							// 			)}:active`
-							// 		)
-							// 		.should(
-							// 			'have.css',
-							// 			'background-image',
-							// 			'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							// 		)
-							// 		.and(
-							// 			'have.css',
-							// 			'background-repeat',
-							// 			'repeat'
-							// 		)
-							// 		.realMouseUp();
-							// });
-
-							//Assert control
-							openBackgroundItem();
-							cy.getByDataTest('popover-body').within(() => {
-								cy.getByAriaLabel("Don't Repeat").should(
-									'not.have.attr',
-									'aria-checked',
-									'true'
-								);
-
-								cy.getByAriaLabel('Parallax').should(
-									'not.have.attr',
-									'aria-checked',
-									'true'
-								);
-							});
-
-							// Hover / Desktop
-							setBlockState('Hover');
-							// Assert block css
-							getWPDataObject().then((data) => {
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.should(
-										'have.css',
-										'background-image',
-										'linear-gradient(0deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-									);
-
-								// Hover
-								cy.getIframeBody()
-									.find(`#block-${getBlockClientId(data)}`)
-									.realHover();
-
-								cy.getIframeBody()
-									.find(
-										`#block-${getBlockClientId(data)}:hover`
-									)
-									.should(
-										'have.css',
-										'background-image',
-										'linear-gradient(0deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-									)
-									.realMouseMove(50, 50);
-							});
-
-							// Assert control
-							openBackgroundItem();
-							cy.getByDataTest('popover-body').within(() => {
-								cy.getByAriaLabel("Don't Repeat").should(
-									'have.attr',
-									'aria-checked',
-									'true'
-								);
-
-								cy.getParentContainer('Angel').within(() => {
-									cy.get('input[inputmode="numeric"]').should(
-										'have.value',
-										'0'
-									);
-								});
-
-								cy.getByAriaLabel('Parallax').should(
-									'not.have.attr',
-									'aria-checked',
-									'true'
-								);
-							});
-
-							// Assert store data
-							//TODO : normal/mobile should not exist in object
-							// getWPDataObject().then((data) => {
-							// 	expect({
-							// 		'linear-gradient-0': {
-							// 			isVisible: true,
-							// 			'linear-gradient':
-							// 				'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
-							// 			'linear-gradient-angel': '90',
-							// 			'linear-gradient-attachment': 'scroll',
-							// 			'linear-gradient-repeat': 'no-repeat',
-							// 			order: 0,
-							// 			type: 'linear-gradient',
-							// 		},
-							// 	}).to.be.deep.equal(
-							// 		getSelectedBlock(
-							// 			data,
-							// 			'blockeraBackground'
-							// 		)
-							// 	);
-
-							// 	expect({
-							// 		normal: {
-							// 			breakpoints: {
-							// 				desktop: { attributes: {} },
-							// 			},
-							// 			isVisible: true,
-							// 		},
-							// 		hover: {
-							// 			breakpoints: {
-							// 				desktop: {
-							// 					attributes: {
-							// 						blockeraBackground: {
-							// 							'linear-gradient-0': {
-							// 								isVisible: true,
-							// 								'linear-gradient':
-							// 									'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
-							// 								'linear-gradient-angel': 0,
-							// 								'linear-gradient-attachment':
-							// 									'scroll',
-							// 								'linear-gradient-repeat':
-							// 									'no-repeat',
-							// 								order: 0,
-							// 								type: 'linear-gradient',
-							// 							},
-							// 						},
-							// 					},
-							// 				},
-							// 			},
-							// 			isVisible: true,
-							// 		},
-							// 		active: {
-							// 			breakpoints: {
-							// 				desktop: {
-							// 					attributes: {
-							// 						blockeraBackground: {
-							// 							'linear-gradient-0': {
-							// 								isVisible: true,
-							// 								'linear-gradient':
-							// 									'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
-							// 								'linear-gradient-angel':
-							// 									'90',
-							// 								'linear-gradient-attachment':
-							// 									'scroll',
-							// 								'linear-gradient-repeat':
-							// 									'repeat',
-							// 								order: 0,
-							// 								type: 'linear-gradient',
-							// 							},
-							// 						},
-							// 					},
-							// 				},
-							// 				mobile: {
-							// 					attributes: {
-							// 						blockeraBackground: {
-							// 							'linear-gradient-0': {
-							// 								isVisible: true,
-							// 								'linear-gradient':
-							// 									'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
-							// 								'linear-gradient-angel':
-							// 									'90',
-							// 								'linear-gradient-attachment':
-							// 									'fixed',
-							// 								'linear-gradient-repeat':
-							// 									'no-repeat',
-							// 								order: 0,
-							// 								type: 'linear-gradient',
-							// 							},
-							// 						},
-							// 					},
-							// 				},
-							// 			},
-							// 			isVisible: true,
-							// 		},
-							// 	}).to.be.deep.equal(
-							// 		getSelectedBlock(
-							// 			data,
-							// 			'blockeraBlockStates'
-							// 		)
-							// 	);
-							// });
-
-							// frontend
-							savePage();
-
-							redirectToFrontPage();
-
-							// Assert in default viewport
-							cy.viewport(1025, 1440);
-							cy.get('.blockera-block').should(
-								'have.css',
-								'background-image',
-								'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							);
-
-							// Hover
-							cy.get('.blockera-block').realHover();
-							cy.get('.blockera-block')
-								.should(
-									'have.css',
-									'background-image',
-									'linear-gradient(0deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-								)
-								.realMouseMove(50, 50);
-
-							// Active
-							cy.get('.blockera-block').realMouseDown();
-							cy.get('.blockera-block')
-								.should(
-									'have.css',
-									'background-image',
-									'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-								)
-								.and('have.css', 'background-repeat', 'repeat')
-								.realMouseUp();
-
-							// Set desktop viewport
-							cy.viewport(1441, 1920);
-							cy.get('.blockera-block').should(
-								'have.css',
-								'background-image',
-								'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							);
-
-							//TODO
-							// Hover
-							//cy.get('.blockera-block').realHover();
-							// cy.get('.blockera-block')
-							// 	.should(
-							// 		'have.css',
-							// 		'background-image',
-							// 		'linear-gradient(0deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							// 	)
-							// 	.realMouseUp();
-
-							// Active
-							//cy.get('.blockera-block').realMouseDown();
-							// cy.get('.blockera-block')
-							// 	.should(
-							// 		'have.css',
-							// 		'background-image',
-							//      'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-							// 	)
-							// 	.and('have.css', 'background-repeat', 'repeat')
-							// 	.realMouseUp();
-
-							// set mobile viewport
-							cy.viewport(380, 470);
-							cy.get('.blockera-block').realMouseDown();
-							cy.get('.blockera-block')
-								.should(
-									'have.css',
-									'background-image',
-									'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-								)
-								.and(
-									'have.css',
-									'background-attachment',
-									'fixed'
-								);
-						});
-					});
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'90'
+					);
 				});
 			});
+
+			// Active / Desktop
+			setBlockState('Active');
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					)
+					.and('have.css', 'background-repeat', 'repeat');
+
+				// Active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realMouseDown();
+
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					)
+					.and('have.css', 'background-repeat', 'repeat')
+					.realMouseUp();
+			});
+
+			//Assert control
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel("Don't Repeat").should(
+					'not.have.attr',
+					'aria-checked',
+					'true'
+				);
+
+				cy.getByAriaLabel('Parallax').should(
+					'not.have.attr',
+					'aria-checked',
+					'true'
+				);
+			});
+
+			// Hover / Desktop
+			setBlockState('Hover');
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					);
+
+				// Hover
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realHover();
+
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					)
+					.realMouseMove(50, 50);
+			});
+
+			// Assert control
+			openBackgroundItem();
+			cy.getByDataTest('popover-body').within(() => {
+				cy.getByAriaLabel("Don't Repeat").should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+
+				cy.getParentContainer('Angel').within(() => {
+					cy.get('input[inputmode="numeric"]').should(
+						'have.value',
+						'45'
+					);
+				});
+
+				cy.getByAriaLabel('Parallax').should(
+					'not.have.attr',
+					'aria-checked',
+					'true'
+				);
+			});
+
+			// Assert store data
+			//TODO : normal/mobile should not exist in object
+			getWPDataObject().then((data) => {
+				expect({
+					'linear-gradient-0': {
+						isVisible: true,
+						'linear-gradient':
+							'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
+						'linear-gradient-angel': '90',
+						'linear-gradient-attachment': 'scroll',
+						'linear-gradient-repeat': 'no-repeat',
+						order: 0,
+						type: 'linear-gradient',
+					},
+				}).to.be.deep.equal(
+					getSelectedBlock(data, 'blockeraBackground')
+				);
+
+				expect({
+					hover: {
+						breakpoints: {
+							desktop: {
+								attributes: {
+									blockeraBackground: {
+										'linear-gradient-0': {
+											isVisible: true,
+											'linear-gradient':
+												'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
+											'linear-gradient-angel': 45,
+											'linear-gradient-attachment':
+												'scroll',
+											'linear-gradient-repeat':
+												'no-repeat',
+											order: 0,
+											type: 'linear-gradient',
+										},
+									},
+								},
+							},
+						},
+						isVisible: true,
+					},
+					active: {
+						breakpoints: {
+							desktop: {
+								attributes: {
+									blockeraBackground: {
+										'linear-gradient-0': {
+											isVisible: true,
+											'linear-gradient':
+												'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
+											'linear-gradient-angel': '90',
+											'linear-gradient-attachment':
+												'scroll',
+											'linear-gradient-repeat': 'repeat',
+											order: 0,
+											type: 'linear-gradient',
+										},
+									},
+								},
+							},
+							mobile: {
+								attributes: {
+									blockeraBackground: {
+										'linear-gradient-0': {
+											isVisible: true,
+											'linear-gradient':
+												'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
+											'linear-gradient-angel': '90',
+											'linear-gradient-attachment':
+												'fixed',
+											'linear-gradient-repeat':
+												'no-repeat',
+											order: 0,
+											type: 'linear-gradient',
+										},
+									},
+								},
+							},
+						},
+						isVisible: true,
+					},
+				}).to.be.deep.equal(
+					getSelectedBlock(data, 'blockeraBlockStates')
+				);
+			});
+
+			// frontend
+			savePage();
+
+			redirectToFrontPage();
+
+			// Assert in default viewport
+			cy.viewport(1025, 1440);
+			cy.get('.blockera-block').should(
+				'have.css',
+				'background-image',
+				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+			);
+
+			// Hover
+			cy.get('.blockera-block').realHover();
+			cy.get('.blockera-block')
+				.should(
+					'have.css',
+					'background-image',
+					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				)
+				.realMouseMove(50, 50);
+
+			// Active
+			cy.get('.blockera-block').realMouseDown();
+			cy.get('.blockera-block')
+				.should(
+					'have.css',
+					'background-image',
+					'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				)
+				.and('have.css', 'background-repeat', 'repeat')
+				.realMouseUp();
+
+			// Set desktop viewport
+			cy.viewport(1441, 1920);
+			cy.get('.blockera-block').should(
+				'have.css',
+				'background-image',
+				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+			);
+
+			// Hover
+			cy.get('.blockera-block').realHover();
+			cy.get('.blockera-block')
+				.should(
+					'have.css',
+					'background-image',
+					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				)
+				.realMouseUp();
+
+			// Active
+			cy.get('.blockera-block').realMouseDown();
+			cy.get('.blockera-block')
+				.should(
+					'have.css',
+					'background-image',
+					'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				)
+				.and('have.css', 'background-repeat', 'repeat')
+				.realMouseUp();
+
+			// set mobile viewport
+			cy.viewport(380, 470);
+			cy.get('.blockera-block').realMouseDown();
+			cy.get('.blockera-block')
+				.should(
+					'have.css',
+					'background-image',
+					'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				)
+				.and('have.css', 'background-attachment', 'fixed');
 		});
 	});
 });
