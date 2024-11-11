@@ -450,7 +450,7 @@ describe('Block State E2E Test', () => {
 						cy.get(
 							'div[role="listbox"], ul[role="listbox"]'
 						).within(() =>
-							cy.get('div').eq(2).click({ force: true })
+							cy.get('div, li').eq(2).click({ force: true })
 						);
 					});
 
@@ -464,7 +464,7 @@ describe('Block State E2E Test', () => {
 							'div[role="listbox"], ul[role="listbox"]'
 						).within(() =>
 							cy
-								.get('div')
+								.get('div, li')
 								.eq(2)
 								.should('have.attr', 'aria-selected', 'true')
 						);
