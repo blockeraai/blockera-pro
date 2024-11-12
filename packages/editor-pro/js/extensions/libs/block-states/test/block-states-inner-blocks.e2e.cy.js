@@ -39,874 +39,773 @@ describe('Inner Blocks E2E Test', () => {
 	};
 
 	describe('Master → Normal → InnerBlock → update repeater attributes in multiple states and devices', () => {
-		context('Inner → Normal → add box shadow item and set blur', () => {
-			beforeEach(() => {
-				initialSetting();
-				setInnerBlock('Link');
+		beforeEach(() => {
+			initialSetting();
+			setInnerBlock('elements/link');
 
-				cy.getByAriaLabel('Add New Box Shadow').click();
+			cy.getByAriaLabel('Add New Box Shadow').click();
+			// Set blur
+			cy.getByDataTest('box-shadow-blur-input').type(`{selectall}20`);
+
+			// Alias
+			cy.getParentContainer('Box Shadows').as('box-shadow-container');
+
+			// Reselect
+			reSelectBlock();
+			setInnerBlock('elements/link');
+
+			// Assert control value
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header')
+					.should('have.length', '1')
+					.and('include.text', '20');
+			});
+
+			addBlockState('hover');
+
+			cy.get('@box-shadow-container').within(() => {
+				// normal state updates should display
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+			});
+
+			// set x
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			// alias
+			cy.getByDataTest('popover-body').as('box-shadow-popover');
+			cy.get('@box-shadow-popover').within(() => {
+				// normal state updates should display
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-x-input').type(`{selectall}5`);
+			});
+
+			// Reselect
+			reSelectBlock();
+			setInnerBlock('elements/link');
+
+			// Assert control value
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'5'
+				);
+			});
+
+			addBlockState('active');
+
+			cy.get('@box-shadow-container').within(() => {
+				// normal state updates should display
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+			});
+
+			// hover state updates should not display
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-x-input').should(
+					'not.have.value',
+					'5'
+				);
+
+				// normal state updates should display
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+			});
+
+			// Set data
+			cy.getByAriaLabel('Add New Box Shadow').click();
+			cy.get('@box-shadow-popover')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel('Inner').click();
+				});
+
+			// Reselect
+			reSelectBlock();
+			setInnerBlock('elements/link');
+
+			// Assert control value
+			checkCurrentState('active');
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'2'
+				);
+			});
+
+			cy.openRepeaterItem('Box Shadows', 'Inner');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByAriaLabel('Inner').should(
+					'have.attr',
+					'aria-checked',
+					'true'
+				);
+			});
+
+			setDeviceType('Tablet');
+
+			// normal state updates should display
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header')
+					.should('have.length', '1')
+					.and('include.text', 'Outer');
+			});
+
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				// hover state updates should not display
+				cy.getByDataTest('box-shadow-x-input').should(
+					'not.have.value',
+					'5'
+				);
+
+				// normal state updates should display
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				// Set y
+				cy.getByDataTest('box-shadow-y-input').type('{selectall}50');
+			});
+
+			// Reselect
+			reSelectBlock();
+			setInnerBlock('elements/link');
+
+			// Assert control value
+			checkCurrentState('active');
+
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'50'
+				);
+			});
+
+			setBlockState('Normal');
+
+			// should display only laptop / normal value
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header')
+					.should('have.length', '1')
+					.and('include.text', 'Outer');
+			});
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'10'
+				);
+
 				// Set blur
-				cy.getByDataTest('box-shadow-blur-input').type(`{selectall}20`);
+				cy.getByDataTest('box-shadow-blur-input').type('{selectall}30');
 
-				// Alias
-				cy.getParentContainer('Box Shadows').as('box-shadow-container');
+				// Set spread
+				cy.getByDataTest('box-shadow-spread-input').type(
+					'{selectall}40'
+				);
+			});
+		});
 
-				// Reselect
-				reSelectBlock();
-				setInnerBlock('Link');
+		it.only('should control value and attributes be correct, when navigate between states and devices', () => {
+			// Assert block css (normal/tablet)
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+					);
 
-				// Assert control value
-				cy.get('@box-shadow-container').within(() => {
-					cy.getByDataCy('group-control-header')
-						.should('have.length', '1')
-						.and('include.text', '20');
-				});
+				// Real active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realMouseDown();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
+					);
 			});
 
-			context('Inner → Hover → set x', () => {
-				beforeEach(() => {
-					addBlockState('hover');
+			// Change to hover state (hover/tablet)
+			setBlockState('Hover');
 
-					cy.get('@box-shadow-container').within(() => {
-						// normal state updates should display
-						cy.getByDataCy('group-control-header').should(
-							'have.length',
-							'1'
-						);
-					});
+			// Assert control
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				// value displaying flow → normal / tablet → normal / laptop
+				// should display  normal / tablet value here
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
 
-					// set x
-					cy.openRepeaterItem('Box Shadows', 'Outer');
-					// alias
-					cy.getByDataTest('popover-body').as('box-shadow-popover');
-					cy.get('@box-shadow-popover').within(() => {
-						// normal state updates should display
-						cy.getByDataTest('box-shadow-blur-input').should(
-							'have.value',
-							'20'
-						);
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'10'
+				);
 
-						cy.getByDataTest('box-shadow-x-input').type(
-							`{selectall}5`
-						);
-					});
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'30'
+				);
 
-					// Reselect
-					reSelectBlock();
-					setInnerBlock('Link');
+				cy.getByDataTest('box-shadow-spread-input').should(
+					'have.value',
+					'40'
+				);
+			});
 
-					// Assert control value
-					cy.openRepeaterItem('Box Shadows', 'Outer');
-					cy.get('@box-shadow-popover').within(() => {
-						cy.getByDataTest('box-shadow-x-input').should(
-							'have.value',
-							'5'
-						);
-					});
+			// Change to active state (active/tablet)
+			setBlockState('Active');
+
+			// Assert block css (active/tablet)
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
+					);
+
+				// Real active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realMouseDown();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
+					);
+			});
+
+			// Assert control
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				// it has its own value
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'50'
+				);
+
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-spread-input').should(
+					'have.value',
+					'0'
+				);
+			});
+
+			// Change to laptop device (active/laptop)
+			setDeviceType('Laptop');
+
+			// Assert control value
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'2'
+				);
+			});
+
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				// overwrite normal/laptop value
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-spread-input').should(
+					'have.value',
+					'0'
+				);
+			});
+
+			cy.openRepeaterItem('Box Shadows', 'Inner');
+			cy.get('@box-shadow-popover')
+				.last()
+				.within(() => {
+					// default value
+					cy.getByDataTest('box-shadow-x-input').should(
+						'have.value',
+						'10'
+					);
+
+					cy.getByDataTest('box-shadow-y-input').should(
+						'have.value',
+						'10'
+					);
+
+					cy.getByDataTest('box-shadow-blur-input').should(
+						'have.value',
+						'10'
+					);
+
+					cy.getByDataTest('box-shadow-spread-input').should(
+						'have.value',
+						'0'
+					);
 				});
 
-				context('Inner → Active → set new item', () => {
-					beforeEach(() => {
-						addBlockState('active');
-
-						cy.get('@box-shadow-container').within(() => {
-							// normal state updates should display
-							cy.getByDataCy('group-control-header').should(
-								'have.length',
-								'1'
-							);
-						});
-
-						// hover state updates should not display
-						cy.openRepeaterItem('Box Shadows', 'Outer');
-						cy.get('@box-shadow-popover').within(() => {
-							cy.getByDataTest('box-shadow-x-input').should(
-								'not.have.value',
-								'5'
-							);
-
-							// normal state updates should display
-							cy.getByDataTest('box-shadow-blur-input').should(
-								'have.value',
-								'20'
-							);
-						});
-
-						// Set data
-						cy.getByAriaLabel('Add New Box Shadow').click();
-						cy.get('@box-shadow-popover')
-							.last()
-							.within(() => {
-								cy.getByAriaLabel('Inner').click();
-							});
-
-						// Reselect
-						reSelectBlock();
-						setInnerBlock('Link');
-
-						// Assert control value
-						checkCurrentState('active');
-						cy.get('@box-shadow-container').within(() => {
-							cy.getByDataCy('group-control-header').should(
-								'have.length',
-								'2'
-							);
-						});
-
-						cy.openRepeaterItem('Box Shadows', 'Inner');
-						cy.get('@box-shadow-popover').within(() => {
-							cy.getByAriaLabel('Inner').should(
-								'have.attr',
-								'aria-checked',
-								'true'
-							);
-						});
-					});
-
-					context('Inner → Active → Tablet → set y', () => {
-						beforeEach(() => {
-							setDeviceType('Tablet');
-
-							// normal state updates should display
-							cy.get('@box-shadow-container').within(() => {
-								cy.getByDataCy('group-control-header')
-									.should('have.length', '1')
-									.and('include.text', 'Outer');
-							});
-
-							cy.openRepeaterItem('Box Shadows', 'Outer');
-							cy.get('@box-shadow-popover').within(() => {
-								// hover state updates should not display
-								cy.getByDataTest('box-shadow-x-input').should(
-									'not.have.value',
-									'5'
-								);
-
-								// normal state updates should display
-								cy.getByDataTest(
-									'box-shadow-blur-input'
-								).should('have.value', '20');
-
-								// Set y
-								cy.getByDataTest('box-shadow-y-input').type(
-									'{selectall}50'
-								);
-							});
-
-							// Reselect
-							reSelectBlock();
-							setInnerBlock('Link');
-
-							// Assert control value
-							checkCurrentState('active');
-
-							cy.openRepeaterItem('Box Shadows', 'Outer');
-							cy.get('@box-shadow-popover').within(() => {
-								cy.getByDataTest(
-									'box-shadow-blur-input'
-								).should('have.value', '20');
-
-								cy.getByDataTest('box-shadow-x-input').should(
-									'have.value',
-									'10'
-								);
-
-								cy.getByDataTest('box-shadow-y-input').should(
-									'have.value',
-									'50'
-								);
-							});
-						});
-
-						context(
-							'Inner → Tablet → Normal → set blur and spread',
-							() => {
-								beforeEach(() => {
-									setBlockState('Normal');
-
-									// should display only laptop / normal value
-									cy.get('@box-shadow-container').within(
-										() => {
-											cy.getByDataCy(
-												'group-control-header'
-											)
-												.should('have.length', '1')
-												.and('include.text', 'Outer');
-										}
-									);
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '20');
-
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '10');
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '10');
-
-										// Set blur
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).type('{selectall}30');
-
-										// Set spread
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).type('{selectall}40');
-									});
-								});
-
-								it('should control value and attributes be correct, when navigate between states and devices', () => {
-									// Assert block css (normal/tablet)
-									//TODO:
-									// getWpDataObject().then((data) => {
-									// 	cy.getIframeBody()
-									// 		.find(
-									// 			`#block-${getBlockClientId(
-									// 				data
-									// 			)} a`
-									// 		)
-									// 		.should(
-									// 			'have.css',
-									// 			'box-shadow',
-									// 			'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-									// 		);
-
-									// 		// Real active
-									// 		cy.getIframeBody()
-									// 			.find(`#block-${getBlockClientId(data)} a`)
-									// 			.realMouseDown();
-									// 		cy.getIframeBody()
-									// 			.find(
-									// 				`#block-${getBlockClientId(
-									// 					data
-									// 				)} a:active`
-									// 			)
-									// 			.should(
-									// 				'have.css',
-									// 				'box-shadow',
-									// 				'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
-									// 			);
-									// 	});
-									// });
-
-									// Change to hover state (hover/tablet)
-									setBlockState('Hover');
-
-									// Assert control
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										// value displaying flow → normal / tablet → normal / laptop
-										// should display  normal / tablet value here
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '30');
-
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).should('have.value', '40');
-									});
-
-									// Change to active state (active/tablet)
-									setBlockState('Active');
-
-									// Assert block css (active/tablet)
-									//TODO:
-									// getWPDataObject().then((data) => {
-									// 	cy.getIframeBody()
-									// 		.find(`#block-${getBlockClientId(data)} a`)
-									// 		.should(
-									// 			'have.css',
-									// 			'box-shadow',
-									// 			'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
-									// 		);
-
-									// 	// Real active
-									// 	cy.getIframeBody()
-									// 		.find(`#block-${getBlockClientId(data)} a`)
-									// 		.realMouseDown();
-									// 	cy.getIframeBody()
-									// 		.find(
-									// 			`#block-${getBlockClientId(
-									// 				data
-									// 			)} a:active`
-									// 		)
-									// 		.should(
-									// 			'have.css',
-									// 			'box-shadow',
-									// 			'rgba(0, 0, 0, 0.67) 10px 50px 30px 40px'
-									// 		);
-									// });
-
-									// Assert control
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										// it has its own value
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '50');
-
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '20');
-
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).should('have.value', '0');
-									});
-
-									// Change to laptop device (active/laptop)
-									setDeviceType('Laptop');
-
-									// Assert control value
-									cy.get('@box-shadow-container').within(
-										() => {
-											cy.getByDataCy(
-												'group-control-header'
-											).should('have.length', '2');
-										}
-									);
-
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										// overwrite normal/laptop value
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '20');
-
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).should('have.value', '0');
-									});
-
-									cy.openRepeaterItem('Box Shadows', 'Inner');
-									cy.get('@box-shadow-popover')
-										.last()
-										.within(() => {
-											// default value
-											cy.getByDataTest(
-												'box-shadow-x-input'
-											).should('have.value', '10');
-
-											cy.getByDataTest(
-												'box-shadow-y-input'
-											).should('have.value', '10');
-
-											cy.getByDataTest(
-												'box-shadow-blur-input'
-											).should('have.value', '10');
-
-											cy.getByDataTest(
-												'box-shadow-spread-input'
-											).should('have.value', '0');
-										});
-
-									// Assert block css
-									// TODO:
-									getWPDataObject().then((data) => {
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a`
-											)
-											.should(
-												'have.css',
-												'box-shadow',
-												'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
-											);
-
-										// Real active
-										//TODO
-										// cy.getIframeBody()
-										// 	.find(
-										// 		`#block-${getBlockClientId(
-										// 			data
-										// 		)} a`
-										// 	)
-										// 	.realMouseDown();
-										// cy.getIframeBody()
-										// 	.find(
-										// 		`#block-${getBlockClientId(
-										// 			data
-										// 		)} a:active`
-										// 	)
-										// 	.should(
-										// 		'have.css',
-										// 		'box-shadow',
-										// 		'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
-										// 	);
-									});
-
-									// Change to normal state (normal/laptop)
-									setBlockState('Normal');
-
-									// Assert control value
-									cy.get('@box-shadow-container').within(
-										() => {
-											cy.getByDataCy(
-												'group-control-header'
-											).should('have.length', '1');
-										}
-									);
-
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '20');
-
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).should('have.value', '0');
-									});
-
-									// Assert block css
-									getWPDataObject().then((data) => {
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a`
-											)
-											.should(
-												'have.css',
-												'box-shadow',
-												'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
-											);
-
-										// when real hover and active in normal state : should their css generate
-
-										// Real active
-										//TODO:
-										// cy.getIframeBody()
-										// 	.find(
-										// 		`#block-${getBlockClientId(
-										// 			data
-										// 		)} a`
-										// 	)
-										// 	.realMouseDown();
-										// cy.getIframeBody()
-										// 	.find(
-										// 		`#block-${getBlockClientId(
-										// 			data
-										// 		)} a:active`
-										// 	)
-										// 	.should(
-										// 		'have.css',
-										// 		'box-shadow',
-										// 		'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
-										// 	)
-										// 	.realMouseUp();
-
-										// Real hover
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a`
-											)
-											.realHover();
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a:hover`
-											)
-											.should(
-												'have.css',
-												'box-shadow',
-												'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-											)
-											.realMouseUp();
-									});
-
-									// Change to hover state (hover/laptop)
-									setBlockState('Hover');
-
-									// Assert control
-									cy.get('@box-shadow-container').within(
-										() => {
-											cy.getByDataCy(
-												'group-control-header'
-											).should('have.length', '1');
-										}
-									);
-									cy.openRepeaterItem('Box Shadows', 'Outer');
-									cy.get('@box-shadow-popover').within(() => {
-										cy.getByDataTest(
-											'box-shadow-x-input'
-										).should('have.value', '5');
-
-										cy.getByDataTest(
-											'box-shadow-y-input'
-										).should('have.value', '10');
-
-										cy.getByDataTest(
-											'box-shadow-blur-input'
-										).should('have.value', '20');
-
-										cy.getByDataTest(
-											'box-shadow-spread-input'
-										).should('have.value', '0');
-									});
-
-									// Assert block css
-									getWPDataObject().then((data) => {
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a`
-											)
-											.should(
-												'have.css',
-												'box-shadow',
-												'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-											);
-
-										// Real hover
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a`
-											)
-											.realHover();
-										cy.getIframeBody()
-											.find(
-												`#block-${getBlockClientId(
-													data
-												)} a:hover`
-											)
-											.should(
-												'have.css',
-												'box-shadow',
-												'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-											)
-											.realMouseUp();
-									});
-
-									// Assert data store
-									getWPDataObject().then((data) => {
-										expect({
-											laptop: { attributes: {} },
-											tablet: {
-												attributes: {
-													blockeraInnerBlocks: {
-														link: {
-															attributes: {
-																blockeraBoxShadow:
-																	{
-																		'outer-0':
-																			{
-																				type: 'outer',
-																				x: '10px',
-																				y: '10px',
-																				blur: '30px',
-																				spread: '40px',
-																				color: '#000000ab',
-																				isVisible: true,
-																				order: 0,
-																			},
-																	},
-																blockeraBlockStates:
-																	{
-																		active: {
-																			breakpoints:
-																				{
-																					tablet: {
-																						attributes:
-																							{
-																								blockeraBoxShadow:
-																									{
-																										'outer-0':
-																											{
-																												type: 'outer',
-																												x: '10px',
-																												y: '50px',
-																												blur: '20px',
-																												spread: '0px',
-																												color: '#000000ab',
-																												isVisible: true,
-																												order: 0,
-																											},
-																									},
-																							},
-																					},
-																				},
-																		},
-																	},
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+					);
+
+				// Real active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realMouseDown();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+					);
+			});
+
+			// Change to normal state (normal/laptop)
+			setBlockState('Normal');
+
+			// Assert control value
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+			});
+
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-spread-input').should(
+					'have.value',
+					'0'
+				);
+			});
+
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
+					);
+
+				// when real hover and active in normal state : should their css generate
+
+				// Real active
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realMouseDown();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+					)
+					.realMouseUp();
+
+				// Real hover
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realHover();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
+					)
+					.realMouseUp();
+			});
+
+			// Change to hover state (hover/laptop)
+			setBlockState('Hover');
+
+			// Assert control
+			cy.get('@box-shadow-container').within(() => {
+				cy.getByDataCy('group-control-header').should(
+					'have.length',
+					'1'
+				);
+			});
+			cy.openRepeaterItem('Box Shadows', 'Outer');
+			cy.get('@box-shadow-popover').within(() => {
+				cy.getByDataTest('box-shadow-x-input').should(
+					'have.value',
+					'5'
+				);
+
+				cy.getByDataTest('box-shadow-y-input').should(
+					'have.value',
+					'10'
+				);
+
+				cy.getByDataTest('box-shadow-blur-input').should(
+					'have.value',
+					'20'
+				);
+
+				cy.getByDataTest('box-shadow-spread-input').should(
+					'have.value',
+					'0'
+				);
+			});
+
+			// Assert block css
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
+					);
+
+				// Real hover
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realHover();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should(
+						'have.css',
+						'box-shadow',
+						'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
+					)
+					.realMouseUp();
+			});
+
+			// Assert data store
+			getWPDataObject().then((data) => {
+				expect({
+					tablet: {
+						attributes: {
+							blockeraInnerBlocks: {
+								link: {
+									attributes: {
+										blockeraBoxShadow: {
+											'outer-0': {
+												type: 'outer',
+												x: '10px',
+												y: '10px',
+												blur: '30px',
+												spread: '40px',
+												color: '#000000ab',
+												isVisible: true,
+												order: 0,
+											},
+										},
+										blockeraBlockStates: {
+											active: {
+												breakpoints: {
+													tablet: {
+														attributes: {
+															blockeraBoxShadow: {
+																'outer-0': {
+																	type: 'outer',
+																	x: '10px',
+																	y: '50px',
+																	blur: '20px',
+																	spread: '0px',
+																	color: '#000000ab',
+																	isVisible: true,
+																	order: 0,
+																},
 															},
 														},
 													},
 												},
 											},
-										}).to.be.deep.eq(
-											getSelectedBlock(
-												data,
-												'blockeraBlockStates'
-											).normal.breakpoints
-										);
+										},
+									},
+								},
+							},
+						},
+					},
+				}).to.be.deep.eq(
+					getSelectedBlock(data, 'blockeraBlockStates').normal
+						.breakpoints
+				);
 
-										expect({
-											link: {
-												attributes: {
-													blockeraBoxShadow: {
-														'outer-0': {
-															type: 'outer',
-															x: '10px',
-															y: '10px',
-															blur: '20px',
-															spread: '0px',
-															color: '#000000ab',
-															isVisible: true,
-															order: 0,
-														},
-													},
-													blockeraBlockStates: {
-														normal: {
-															breakpoints: {
-																laptop: {
-																	attributes:
-																		{},
-																},
-															},
-															isVisible: true,
-														},
-														hover: {
-															breakpoints: {
-																laptop: {
-																	attributes:
-																		{
-																			blockeraBoxShadow:
-																				{
-																					'outer-0':
-																						{
-																							type: 'outer',
-																							x: '5px',
-																							y: '10px',
-																							blur: '20px',
-																							spread: '0px',
-																							color: '#000000ab',
-																							isVisible: true,
-																							order: 0,
-																						},
-																				},
-																		},
-																},
-															},
-															isVisible: true,
-														},
-														active: {
-															breakpoints: {
-																laptop: {
-																	attributes:
-																		{
-																			blockeraBoxShadow:
-																				{
-																					'outer-0':
-																						{
-																							type: 'outer',
-																							x: '10px',
-																							y: '10px',
-																							blur: '20px',
-																							spread: '0px',
-																							color: '#000000ab',
-																							isVisible: true,
-																							order: 0,
-																						},
-																					'inner-0':
-																						{
-																							type: 'inner',
-																							x: '10px',
-																							y: '10px',
-																							blur: '10px',
-																							spread: '0px',
-																							color: '#000000ab',
-																							isVisible: true,
-																							order: 1,
-																						},
-																				},
-																		},
-																},
-															},
-															isVisible: true,
-														},
+				expect({
+					link: {
+						attributes: {
+							blockeraBoxShadow: {
+								'outer-0': {
+									type: 'outer',
+									x: '10px',
+									y: '10px',
+									blur: '20px',
+									spread: '0px',
+									color: '#000000ab',
+									isVisible: true,
+									order: 0,
+								},
+							},
+							blockeraBlockStates: {
+								hover: {
+									breakpoints: {
+										laptop: {
+											attributes: {
+												blockeraBoxShadow: {
+													'outer-0': {
+														type: 'outer',
+														x: '5px',
+														y: '10px',
+														blur: '20px',
+														spread: '0px',
+														color: '#000000ab',
+														isVisible: true,
+														order: 0,
 													},
 												},
 											},
-										}).to.be.deep.eq(
-											getSelectedBlock(
-												data,
-												'blockeraInnerBlocks'
-											)
-										);
-									});
-
-									// frontend
-									//TODO
-									savePage();
-
-									redirectToFrontPage();
-
-									// Assert in default viewport
-									cy.viewport(1025, 1440);
-									//TODO:
-									// cy.get('.my-link').should(
-									// 	'have.css',
-									// 	'box-shadow',
-									// 	'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
-									// );
-
-									// Hover
-									cy.get('.my-link').realHover();
-									cy.get('.my-link')
-										.should(
-											'have.css',
-											'box-shadow',
-											'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-										)
-										.realMouseUp();
-
-									// Active
-									cy.get('.my-link').realMouseDown();
-									cy.get('.my-link')
-										.should(
-											'have.css',
-											'box-shadow',
-											'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
-										)
-										.realMouseUp();
-
-									cy.go('back');
-
-									// Set desktop viewport
-									cy.viewport(1441, 1920);
-									//TODO:
-									// cy.get('.my-link').should(
-									// 	'have.css',
-									// 	'box-shadow',
-									// 	'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
-									// );
-
-									// Hover
-									// cy.get('.my-link').realHover();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-									// 	)
-									// 	.realMouseUp();
-
-									// Active
-									// cy.get('.my-link').realMouseDown();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
-									// 	)
-									// 	.realMouseUp();
-
-									//	cy.go('back');
-
-									//  set tablet viewport
-									cy.viewport(768, 1024);
-									// cy.get('.my-link').should(
-									// 	'have.css',
-									// 	'box-shadow',
-									// 	'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-									// );
-
-									// // Hover
-									// cy.get('.my-link').realHover();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-									// 	)
-									// 	.realMouseUp();
-
-									// // Active
-									// cy.get('.my-link').realMouseDown();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
-									// 	)
-									// 	.realMouseUp();
-
-									// cy.go('back');
-
-									// Set mobile viewport (must inherit styles)
-									// cy.viewport(380, 470);
-
-									// cy.get('.my-link').should(
-									// 	'have.css',
-									// 	'box-shadow',
-									// 	'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-									// );
-
-									// // Hover
-									// cy.get('.my-link').realHover();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-									// 	)
-									// 	.realMouseUp();
-
-									// // Active
-									// cy.get('.my-link').realMouseDown();
-									// cy.get('.my-link')
-									// 	.should(
-									// 		'have.css',
-									// 		'box-shadow',
-									// 		'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
-									// 	)
-									// 	.realMouseUp();
-								});
-							}
-						);
-					});
-				});
+										},
+									},
+									isVisible: true,
+								},
+								active: {
+									breakpoints: {
+										laptop: {
+											attributes: {
+												blockeraBoxShadow: {
+													'outer-0': {
+														type: 'outer',
+														x: '10px',
+														y: '10px',
+														blur: '20px',
+														spread: '0px',
+														color: '#000000ab',
+														isVisible: true,
+														order: 0,
+													},
+													'inner-0': {
+														type: 'inner',
+														x: '10px',
+														y: '10px',
+														blur: '10px',
+														spread: '0px',
+														color: '#000000ab',
+														isVisible: true,
+														order: 1,
+													},
+												},
+											},
+										},
+									},
+									isVisible: true,
+								},
+							},
+						},
+					},
+				}).to.be.deep.eq(getSelectedBlock(data, 'blockeraInnerBlocks'));
 			});
+
+			// frontend
+			savePage();
+
+			redirectToFrontPage();
+
+			// Assert in default viewport
+			cy.viewport(1025, 1440);
+			cy.get('.my-link').should(
+				'have.css',
+				'box-shadow',
+				'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
+			);
+
+			// Hover
+			cy.get('.my-link').realHover();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
+				)
+				.realMouseUp();
+
+			// Active
+			cy.get('.my-link').realMouseDown();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+				)
+				.realMouseUp();
+
+			cy.go('back');
+
+			// Set desktop viewport
+			cy.viewport(1441, 1920);
+			cy.get('.my-link').should(
+				'have.css',
+				'box-shadow',
+				'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
+			);
+
+			// Hover
+			cy.get('.my-link').realHover();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
+				)
+				.realMouseUp();
+
+			// Active
+			cy.get('.my-link').realMouseDown();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+				)
+				.realMouseUp();
+
+			cy.go('back');
+
+			//  set tablet viewport
+			cy.viewport(768, 1024);
+			cy.get('.my-link').should(
+				'have.css',
+				'box-shadow',
+				'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+			);
+
+			// Hover
+			cy.get('.my-link').realHover();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+				)
+				.realMouseUp();
+
+			// Active
+			cy.get('.my-link').realMouseDown();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
+				)
+				.realMouseUp();
+
+			cy.go('back');
+
+			// Set mobile viewport (must inherit styles)
+			cy.viewport(380, 470);
+
+			cy.get('.my-link').should(
+				'have.css',
+				'box-shadow',
+				'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+			);
+
+			// Hover
+			cy.get('.my-link').realHover();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+				)
+				.realMouseUp();
+
+			// Active
+			cy.get('.my-link').realMouseDown();
+			cy.get('.my-link')
+				.should(
+					'have.css',
+					'box-shadow',
+					'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
+				)
+				.realMouseUp();
 		});
 	});
 
@@ -914,7 +813,7 @@ describe('Inner Blocks E2E Test', () => {
 		beforeEach(() => {
 			initialSetting();
 			addBlockState('hover');
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 		});
 		it('Normal → default breakpoint(laptop)', () => {
 			//
@@ -934,18 +833,17 @@ describe('Inner Blocks E2E Test', () => {
 
 			// reselect
 			reSelectBlock();
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 
 			// Assert control value
 			cy.checkInputFieldValue('Font Size', 'Typography', 25);
 
 			// Assert block css : inner
-			//TODO : recheck
-			// getWPDataObject().then((data) => {
-			// 	cy.getIframeBody()
-			// 		.find(`#block-${getBlockClientId(data)}:hover a`)
-			// 		.should('have.css', 'font-size', '25px');
-			// });
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}:hover a`)
+					.should('have.css', 'font-size', '25px');
+			});
 
 			// Assert store data
 			getWPDataObject().then((data) => {
@@ -971,7 +869,6 @@ describe('Inner Blocks E2E Test', () => {
 			// default viewport(laptop)
 			cy.viewport(1025, 1440);
 
-			// TODO :
 			// real hover
 			cy.get('.blockera-block').realHover();
 			cy.get('.my-link').should('have.css', 'font-size', '25px');
@@ -979,14 +876,13 @@ describe('Inner Blocks E2E Test', () => {
 			// Set desktop viewport
 			cy.viewport(1441, 1920);
 
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link').should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link').should('have.css', 'font-size', '25px');
 
 			//  set Tablet viewport
 			cy.viewport(768, 1024);
-			//TODO
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link').should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link').should('have.css', 'font-size', '25px');
 		});
 
 		it('Normal → mobile breakpoint', () => {
@@ -1008,18 +904,17 @@ describe('Inner Blocks E2E Test', () => {
 
 			// reselect
 			reSelectBlock();
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 
 			// Assert control value
 			cy.checkInputFieldValue('Font Size', 'Typography', 25);
 
 			// Assert block css : inner
-			//TODO : recheck
-			// getWPDataObject().then((data) => {
-			// 	cy.getIframeBody()
-			// 		.find(`#block-${getBlockClientId(data)}:hover a`)
-			// 		.should('have.css', 'font-size', '25px');
-			// });
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}:hover a`)
+					.should('have.css', 'font-size', '25px');
+			});
 
 			// Assert store data
 			getWPDataObject().then((data) => {
@@ -1057,9 +952,8 @@ describe('Inner Blocks E2E Test', () => {
 
 			//  set mobile viewport
 			cy.viewport(320, 480);
-			//TODO
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link').should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link').should('have.css', 'font-size', '25px');
 		});
 
 		it('Hover → default breakpoint', () => {
@@ -1086,14 +980,13 @@ describe('Inner Blocks E2E Test', () => {
 
 			// reselect
 			reSelectBlock();
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 
 			// Assert control value
 			cy.checkInputFieldValue('Font Size', 'Typography', 25);
 			checkCurrentState('hover');
 
 			// Assert block css : inner
-			//TODO: recheck assertion flow
 			getWPDataObject().then((data) => {
 				cy.getIframeBody()
 					.find(`#block-${getBlockClientId(data)} a`)
@@ -1128,14 +1021,6 @@ describe('Inner Blocks E2E Test', () => {
 										},
 										isVisible: true,
 									},
-									normal: {
-										breakpoints: {
-											laptop: {
-												attributes: {},
-											},
-										},
-										isVisible: true,
-									},
 								},
 							},
 						},
@@ -1154,28 +1039,26 @@ describe('Inner Blocks E2E Test', () => {
 			// default viewport(laptop)
 			cy.viewport(1025, 1440);
 
-			// TODO :
 			// real hover
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link')
-			// 	.realHover()
-			// 	.should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link')
+				.realHover()
+				.should('have.css', 'font-size', '25px');
 
 			// // Set desktop viewport
-			// cy.viewport(1441, 1920);
+			cy.viewport(1441, 1920);
 
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link')
-			// 	.realHover()
-			// 	.should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link')
+				.realHover()
+				.should('have.css', 'font-size', '25px');
 
-			// //  set Tablet viewport
-			// cy.viewport(768, 1024);
-			// //TODO
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link')
-			// 	.realHover()
-			// 	.should('have.css', 'font-size', '25px');
+			//  set Tablet viewport
+			cy.viewport(768, 1024);
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link')
+				.realHover()
+				.should('have.css', 'font-size', '25px');
 		});
 
 		it('Hover → mobile breakpoint', () => {
@@ -1203,14 +1086,13 @@ describe('Inner Blocks E2E Test', () => {
 
 			// reselect
 			reSelectBlock();
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 
 			// Assert control value
 			cy.checkInputFieldValue('Font Size', 'Typography', 25);
 			checkCurrentState('hover');
 
 			// Assert block css : inner
-			//TODO: recheck assertion flow
 			getWPDataObject().then((data) => {
 				cy.getIframeBody()
 					.find(`#block-${getBlockClientId(data)} a`)
@@ -1287,11 +1169,10 @@ describe('Inner Blocks E2E Test', () => {
 
 			//   set mobile viewport
 			cy.viewport(320, 480);
-			// TODO
-			// cy.get('.blockera-block').realHover();
-			// cy.get('.my-link')
-			// 	.realHover()
-			// 	.should('have.css', 'font-size', '25px');
+			cy.get('.blockera-block').realHover();
+			cy.get('.my-link')
+				.realHover()
+				.should('have.css', 'font-size', '25px');
 		});
 
 		describe('update attributes in multiple states and devices', () => {
@@ -1301,7 +1182,7 @@ describe('Inner Blocks E2E Test', () => {
 
 					// Reselect
 					reSelectBlock();
-					setInnerBlock('Link');
+					setInnerBlock('elements/link');
 
 					// Assert Control
 					cy.checkInputFieldValue('Radius', 'Border And Shadow', 5);
@@ -1344,7 +1225,7 @@ describe('Inner Blocks E2E Test', () => {
 
 						// Reselect
 						reSelectBlock();
-						setInnerBlock('Link');
+						setInnerBlock('elements/link');
 
 						// Assert Control
 						checkCurrentState('hover');
@@ -1410,7 +1291,7 @@ describe('Inner Blocks E2E Test', () => {
 
 							// Reselect
 							reSelectBlock();
-							setInnerBlock('Link');
+							setInnerBlock('elements/link');
 
 							// Assert control
 							checkCurrentState('focus');
@@ -1427,9 +1308,7 @@ describe('Inner Blocks E2E Test', () => {
 								beforeEach(() => {
 									setBlockState('Hover');
 									setDeviceType('Mobile');
-									// TODO : remove next line after fix related bug: master → hover → inner → hover → change device → current state ?????
-									setBlockState('Hover');
-									//
+
 									checkBlockCard([
 										{
 											label: 'Hover',
@@ -1469,7 +1348,7 @@ describe('Inner Blocks E2E Test', () => {
 
 									// Reselect
 									reSelectBlock();
-									setInnerBlock('Link');
+									setInnerBlock('elements/link');
 
 									// Assert control
 									checkCurrentState('hover');
@@ -1528,7 +1407,7 @@ describe('Inner Blocks E2E Test', () => {
 
 											// Reselect
 											reSelectBlock();
-											setInnerBlock('Link');
+											setInnerBlock('elements/link');
 
 											// Assert Control
 											checkCurrentState('normal');
@@ -1572,41 +1451,40 @@ describe('Inner Blocks E2E Test', () => {
 										});
 
 										it('should control value and styles be correct, when navigate between states and devices', () => {
-											// (normal/mobile)
-											// // Assert block css
-											//	getWPDataObject().then((data) => {
-											//TODO
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-bottom-right-radius',
-											// 		'30px'
-											// 	);
-											//Real hover
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}`
-											// 	)
-											// 	.realHover();
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}:hover a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-bottom-right-radius',
-											// 		'30px'
-											// 	);
-											//	});
+											normal / mobile;
+											// Assert block css
+											getWPDataObject().then((data) => {
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.should(
+														'have.css',
+														'border-bottom-right-radius',
+														'30px'
+													);
+												// Real hover
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}`
+													)
+													.realHover();
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}:hover a`
+													)
+													.should(
+														'have.css',
+														'border-bottom-right-radius',
+														'30px'
+													);
+											});
 
 											// Change to focus state
 											setBlockState('Focus');
@@ -1748,46 +1626,45 @@ describe('Inner Blocks E2E Test', () => {
 											);
 
 											// Assert block css
-											//getWPDataObject().then((data) => {
-											//TODO
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'10px 5px 5px 5px'
-											// 	);
-											//Real hover
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}`
-											// 	)
-											// 	.realHover();
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.realHover();
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}:hover a:hover`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'10px 5px 5px 5px'
-											// 	);
-											//});
+											getWPDataObject().then((data) => {
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'10px 5px 5px 5px'
+													);
+												// Real hover
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}`
+													)
+													.realHover();
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.realHover();
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}:hover a:hover`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'10px 5px 5px 5px'
+													);
+											});
 
 											// Change state to normal
 											// (normal/laptop)
@@ -1801,39 +1678,38 @@ describe('Inner Blocks E2E Test', () => {
 											);
 
 											// Assert block css
-											//getWPDataObject().then((data) => {
-											//TODO
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'5px'
-											// 	);
-											// //Real hover
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}`
-											// 	)
-											// 	.realHover();
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}:hover a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'5px'
-											// 	);
-											//});
+											getWPDataObject().then((data) => {
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'5px'
+													);
+												//Real hover
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}`
+													)
+													.realHover();
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}:hover a`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'5px'
+													);
+											});
 
 											// Change state to focus
 											// (focus/laptop)
@@ -1847,52 +1723,51 @@ describe('Inner Blocks E2E Test', () => {
 											);
 
 											// Assert block css
-											//getWPDataObject().then((data) => {
-											//TODO
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'15px'
-											// 	);
-											//Real hover
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}`
-											// 	)
-											// 	.realHover();
-											// // Focus
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)} a`
-											// 	)
-											// 	.focus();
-											// cy.getIframeBody()
-											// 	.find(
-											// 		`#block-${getBlockClientId(
-											// 			data
-											// 		)}:hover a:focus`
-											// 	)
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'15px'
-											// 	);
-											//});
+											getWPDataObject().then((data) => {
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'15px'
+													);
+												// Real hover
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}`
+													)
+													.realHover();
+												// Focus
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)} a`
+													)
+													.focus();
+												cy.getIframeBody()
+													.find(
+														`#block-${getBlockClientId(
+															data
+														)}:hover a:focus`
+													)
+													.should(
+														'have.css',
+														'border-radius',
+														'15px'
+													);
+											});
 
 											// Assert store data
 											getWPDataObject().then((data) => {
 												expect({
-													laptop: {
+													desktop: {
 														attributes: {
 															blockeraInnerBlocks:
 																{
@@ -2069,7 +1944,6 @@ describe('Inner Blocks E2E Test', () => {
 											});
 
 											// frontend
-											//TODO
 											savePage();
 
 											redirectToFrontPage();
@@ -2086,25 +1960,25 @@ describe('Inner Blocks E2E Test', () => {
 												'5px'
 											);
 
-											// // Hover
-											// cy.get('.my-link').realHover();
-											// cy.get('.my-link')
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'10px 5px 5px 5px'
-											// 	)
-											// 	.realMouseUp();
+											// Hover
+											cy.get('.my-link').realHover();
+											cy.get('.my-link')
+												.should(
+													'have.css',
+													'border-radius',
+													'10px 5px 5px 5px'
+												)
+												.realMouseUp();
 
-											// // Focus
-											// cy.get('.my-link').focus();
-											// cy.get('.my-link')
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'15px'
-											// 	)
-											// 	.realMouseUp();
+											// Focus
+											cy.get('.my-link').focus();
+											cy.get('.my-link')
+												.should(
+													'have.css',
+													'border-radius',
+													'15px'
+												)
+												.realMouseUp();
 
 											// Set desktop viewport
 											cy.viewport(1441, 1920);
@@ -2112,31 +1986,31 @@ describe('Inner Blocks E2E Test', () => {
 												'.blockera-block'
 											).realHover();
 
-											// cy.get('.my-link').should(
-											// 	'have.css',
-											// 	'border-radius',
-											// 	'5px'
-											// );
+											cy.get('.my-link').should(
+												'have.css',
+												'border-radius',
+												'5px'
+											);
 
 											// Hover
-											// cy.get('.my-link').realHover();
-											// cy.get('.my-link')
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'10px 5px 5px 5px'
-											// 	)
-											// 	.realMouseUp();
+											cy.get('.my-link').realHover();
+											cy.get('.my-link')
+												.should(
+													'have.css',
+													'border-radius',
+													'10px 5px 5px 5px'
+												)
+												.realMouseUp();
 
-											// // Focus
-											// cy.get('.my-link').focus();
-											// cy.get('.my-link')
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'15px'
-											// 	)
-											// 	.realMouseUp();
+											// Focus
+											cy.get('.my-link').focus();
+											cy.get('.my-link')
+												.should(
+													'have.css',
+													'border-radius',
+													'15px'
+												)
+												.realMouseUp();
 
 											// Set mobile viewport
 											cy.viewport(380, 470);
@@ -2144,21 +2018,21 @@ describe('Inner Blocks E2E Test', () => {
 												'.blockera-block'
 											).realHover();
 
-											// cy.get('.my-link').should(
-											// 	'have.css',
-											// 		'border-bottom-right-radius',
-											// 		'30px'
-											// );
+											cy.get('.my-link').should(
+												'have.css',
+												'border-bottom-right-radius',
+												'30px'
+											);
 
 											// Hover
-											// cy.get('.my-link').realHover();
-											// cy.get('.my-link')
-											// 	.should(
-											// 		'have.css',
-											// 		'border-radius',
-											// 		'2px'
-											// 	)
-											// 	.realMouseUp();
+											cy.get('.my-link').realHover();
+											cy.get('.my-link')
+												.should(
+													'have.css',
+													'border-radius',
+													'2px'
+												)
+												.realMouseUp();
 										});
 									}
 								);
@@ -2170,9 +2044,6 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		describe('update repeater attributes in multiple states and devices', () => {
-			// TODO: complete test after fixing related bug
-			// bug : repeater wrong item and value
-
 			context('Normal → add filter item → set drop-shadow-x = 20', () => {
 				beforeEach(() => {
 					//
@@ -2217,7 +2088,7 @@ describe('Inner Blocks E2E Test', () => {
 
 					// Reselect
 					reSelectBlock();
-					setInnerBlock('Link');
+					setInnerBlock('elements/link');
 
 					// Assert control value
 					cy.openRepeaterItem('Filters', 'Drop Shadow');
@@ -2264,7 +2135,7 @@ describe('Inner Blocks E2E Test', () => {
 
 						// Reselect
 						reSelectBlock();
-						setInnerBlock('Link');
+						setInnerBlock('elements/link');
 
 						// Assert control
 						cy.openRepeaterItem('Filters', 'Drop Shadow');
@@ -2323,7 +2194,7 @@ describe('Inner Blocks E2E Test', () => {
 
 							// Reselect
 							reSelectBlock();
-							setInnerBlock('Link');
+							setInnerBlock('elements/link');
 
 							// Assert control
 							cy.get('@filter-items').should('have.length', '2');
@@ -2386,7 +2257,7 @@ describe('Inner Blocks E2E Test', () => {
 
 									// Reselect
 									reSelectBlock();
-									setInnerBlock('Link');
+									setInnerBlock('elements/link');
 
 									// Assert control
 									cy.openRepeaterItem(
@@ -2457,7 +2328,7 @@ describe('Inner Blocks E2E Test', () => {
 
 											// Reselect
 											reSelectBlock();
-											setInnerBlock('Link');
+											setInnerBlock('elements/link');
 
 											// Assert control
 											cy.openRepeaterItem(
