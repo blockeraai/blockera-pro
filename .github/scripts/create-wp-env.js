@@ -42,6 +42,9 @@ switch (category) {
 // Create the .wp-env.json content
 const wpEnvContent = {
 	plugins,
+	config: {
+		BLOCKERA_TELEMETRY_OPT_IN_OFF: true,
+	},
 };
 
 // Write to .wp-env.json
