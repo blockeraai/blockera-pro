@@ -35,7 +35,9 @@ describe('Outline → Functionality', () => {
 				});
 
 				cy.get('[aria-haspopup="listbox"]').click({ force: true });
-				cy.get('div[aria-selected="false"]').eq(1).trigger('click');
+				cy.get('div[aria-selected="false"] span')
+					.eq(1)
+					.trigger('click');
 
 				cy.get('input[type="range"]').setSliderValue(10);
 
