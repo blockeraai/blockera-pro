@@ -81,16 +81,11 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						cy.get('@repeaterBtn').click();
 					});
 
-					// change color to #666 (#666666)
-					cy.get('.components-popover')
-						.first()
-						.within(() => {
-							cy.getParentContainer('Angel').within(() => {
-								cy.get('input[type="number"]').as('angelInput');
-								cy.get('@angelInput').clear();
-								cy.get('@angelInput').type('45');
-							});
-						});
+					cy.getParentContainer('Angel').within(() => {
+						cy.get('input[type="number"]').as('angelInput');
+						cy.get('@angelInput').clear();
+						cy.get('@angelInput').type('45');
+					});
 
 					// Blockera value should be moved to WP data
 					getWPDataObject().then((data) => {
