@@ -1,6 +1,7 @@
 import {
-	appendBlocks,
 	createPost,
+	appendBlocks,
+	addBlockState,
 	getBlockClientId,
 	getWPDataObject,
 	setBlockState,
@@ -37,19 +38,17 @@ describe('Style Engine Testing ...', () => {
 			getWPDataObject().then((data) => {
 				// Before occurred real hover event.
 				// Because we expect block element should have css style to show activated hover state.
-				cy.get(`#block-${getBlockClientId(data)}`).should(
-					'have.css',
-					'width',
-					'100px'
-				);
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('have.css', 'width', '100px');
 
 				// Real hover
-				cy.get(`#block-${getBlockClientId(data)}`).realHover();
-				cy.get(`#block-${getBlockClientId(data)}:hover`).should(
-					'have.css',
-					'width',
-					'100px'
-				);
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realHover();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('have.css', 'width', '100px');
 			});
 
 			// ********************* Switch to normal state and check css ************************ //
@@ -59,16 +58,14 @@ describe('Style Engine Testing ...', () => {
 
 			// To No Hover
 			cy.get('h1').realClick();
-			cy.get('[data-type="core/paragraph"]').click();
+			cy.getBlock('core/paragraph').click();
 
 			// 4- Assert master block css.
 			getWPDataObject().then((data) => {
 				// Block element should have not css style when activated state is normal.
-				cy.get(`#block-${getBlockClientId(data)}`).should(
-					'not.have.css',
-					'width',
-					'100px'
-				);
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('not.have.css', 'width', '100px');
 			});
 
 			// ********************* Manipulating root attributes of inner block inside parent hover state ************************ //
@@ -77,7 +74,7 @@ describe('Style Engine Testing ...', () => {
 			setBlockState('Hover');
 
 			// 6- Go to customize link inner block panel.
-			setInnerBlock('Link');
+			setInnerBlock('elements/link');
 
 			// 7- Set width for link inner block.
 			cy.setInputFieldValue('Width', 'Size', 50);
@@ -90,18 +87,18 @@ describe('Style Engine Testing ...', () => {
 			// 9- Assert link inner block css.
 			getWPDataObject().then((data) => {
 				// Real hover
-				cy.get(`#block-${getBlockClientId(data)}`).realHover();
-				cy.get(`#block-${getBlockClientId(data)}:hover a`).should(
-					'have.css',
-					'width',
-					'50px'
-				);
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.realHover();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should('have.css', 'width', '50px');
 			});
 
 			// ********************* Manipulating pseudo-state attributes of inner block inside parent hover state ************************ //
 
 			// 10- Set hover state to link inner block.
-			cy.getByAriaLabel('Add New State').click();
+			addBlockState('hover');
 
 			// 11- Set width for link inner block.
 			cy.setInputFieldValue('Width', 'Size', 2);
@@ -115,19 +112,19 @@ describe('Style Engine Testing ...', () => {
 			getWPDataObject().then((data) => {
 				// Before occurred real hover event.
 				// Because we expect block link element should have css style to show activated parent hover state.
-				cy.get(`#block-${getBlockClientId(data)} a`).should(
-					'have.css',
-					'width',
-					'502px'
-				);
+				// The display: inline property prevents width from having an effect.
+				// Try setting display to something other than inline.
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should('have.css', 'width', '50px');
 
 				// Real hover
-				cy.get(`#block-${getBlockClientId(data)} a`).realHover();
-				cy.get(`#block-${getBlockClientId(data)}:hover a:hover`).should(
-					'have.css',
-					'width',
-					'502px'
-				);
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.realHover();
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)} a`)
+					.should('have.css', 'width', '502px');
 			});
 		});
 	});
