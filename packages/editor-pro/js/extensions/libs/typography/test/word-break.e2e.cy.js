@@ -21,7 +21,7 @@ describe('Word Break → Functionality', () => {
 		cy.getParentContainer('Breaking').within(() => {
 			cy.get('[aria-haspopup="listbox"]').click();
 
-			cy.get('li').eq(2).trigger('click');
+			cy.get('div[aria-selected="false"]').eq(1).trigger('click');
 		});
 
 		//Check block
