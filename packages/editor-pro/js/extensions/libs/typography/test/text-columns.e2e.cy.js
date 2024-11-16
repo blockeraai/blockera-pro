@@ -112,7 +112,7 @@ describe('Text Columns → Functionality', () => {
 			});
 
 			cy.get('[aria-haspopup="listbox"]').trigger('click');
-			cy.get('li').eq(2).trigger('click');
+			cy.get('div[aria-selected="false"]').eq(1).trigger('click');
 
 			// open color picker
 			cy.getByDataTest('border-control-color').click();
