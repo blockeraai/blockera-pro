@@ -662,7 +662,7 @@ describe('Block State E2E Test', () => {
 								'border',
 								'5px solid rgb(204, 204, 204)'
 							)
-							.realMouseUp();
+							.realMouseMove(50, 50);
 
 						// Focus
 						cy.getIframeBody()
@@ -1047,7 +1047,7 @@ describe('Block State E2E Test', () => {
 
 				cy.getIframeBody()
 					.find(`#block-${getBlockClientId(data)}`)
-					.realMouseMove(50, 50);
+					.realMouseUp();
 
 				// Active
 				cy.getIframeBody()
