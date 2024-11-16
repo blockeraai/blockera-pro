@@ -2072,56 +2072,56 @@ describe('Inner Blocks E2E Test', () => {
 											'filter-drop-shadow-blur-input'
 										).should('have.value', 30);
 									});
-								});
 
-								it('should control value and styles be correct, when navigate between states and devices', () => {
-									setBlockState('Focus');
+									it('should control value and styles be correct, when navigate between states and devices', () => {
+										setBlockState('Focus');
 
-									// mobile/normal updates should display
-									cy.openRepeaterItem(
-										'Filters',
-										'Drop Shadow'
-									);
-									cy.get('@filter-popover').within(() => {
-										cy.getByDataTest(
-											'filter-drop-shadow-x-input'
-										).should('have.value', 5);
+										// mobile/normal updates should display
+										cy.openRepeaterItem(
+											'Filters',
+											'Drop Shadow'
+										);
+										cy.get('@filter-popover').within(() => {
+											cy.getByDataTest(
+												'filter-drop-shadow-x-input'
+											).should('have.value', 5);
 
-										cy.getByDataTest(
-											'filter-drop-shadow-y-input'
-										).should('have.value', 10);
+											cy.getByDataTest(
+												'filter-drop-shadow-y-input'
+											).should('have.value', 10);
 
-										cy.getByDataTest(
-											'filter-drop-shadow-blur-input'
-										).should('have.value', 30);
+											cy.getByDataTest(
+												'filter-drop-shadow-blur-input'
+											).should('have.value', 30);
 
-										// Update y
-										cy.getByDataTest(
-											'filter-drop-shadow-y-input'
-										).type('{selectall}35');
-									});
+											// Update y
+											cy.getByDataTest(
+												'filter-drop-shadow-y-input'
+											).type('{selectall}35');
+										});
 
-									// Reselect
-									reSelectBlock();
-									setInnerBlock('elements/link');
+										// Reselect
+										reSelectBlock();
+										setInnerBlock('elements/link');
 
-									// Assert control
-									cy.openRepeaterItem(
-										'Filters',
-										'Drop Shadow'
-									);
-									cy.get('@filter-popover').within(() => {
-										cy.getByDataTest(
-											'filter-drop-shadow-x-input'
-										).should('have.value', 5);
+										// Assert control
+										cy.openRepeaterItem(
+											'Filters',
+											'Drop Shadow'
+										);
+										cy.get('@filter-popover').within(() => {
+											cy.getByDataTest(
+												'filter-drop-shadow-x-input'
+											).should('have.value', 5);
 
-										cy.getByDataTest(
-											'filter-drop-shadow-y-input'
-										).should('have.value', 35);
+											cy.getByDataTest(
+												'filter-drop-shadow-y-input'
+											).should('have.value', 35);
 
-										cy.getByDataTest(
-											'filter-drop-shadow-blur-input'
-										).should('have.value', 30);
+											cy.getByDataTest(
+												'filter-drop-shadow-blur-input'
+											).should('have.value', 30);
+										});
 									});
 								});
 							}
