@@ -47,7 +47,7 @@ describe('Background Clip → Functionality', () => {
 		cy.get('@clippingContainer').within(() => {
 			cy.get('button').as('clippingBtn');
 			cy.get('@clippingBtn').click();
-			cy.contains('li', /text/i).click();
+			cy.contains('div[aria-selected="false"] span', /text/i).click();
 		});
 
 		//assert data
