@@ -35,16 +35,18 @@ describe('Outline → Functionality', () => {
 				});
 
 				cy.get('[aria-haspopup="listbox"]').click({ force: true });
-				cy.get('li').eq(1).trigger('click');
-
-				cy.get('input[type="range"]').setSliderValue(10);
-
-				cy.getByDataTest('border-control-color').click({ force: true });
+				cy.get('div[aria-selected="false"]').eq(0).click();
 			});
+
+		cy.openRepeaterItem('Outline', 'Outline');
 
 		cy.getByDataTest('popover-body')
 			.last()
 			.within(() => {
+				cy.get('input[type="range"]').setSliderValue(10);
+
+				cy.getByDataTest('border-control-color').click({ force: true });
+
 				cy.get('input[maxlength="9"]').clear({ force: true });
 				cy.get('input[maxlength="9"]').type('c5eef0ab ');
 			});

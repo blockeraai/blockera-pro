@@ -34,23 +34,37 @@ describe('Box Shadow → Functionality', () => {
 			cy.getByDataCy('group-control-header').eq(0).click();
 		});
 
-		cy.getByDataTest('popover-body').within(() => {
-			cy.getByDataTest('box-shadow-x-input').clear({ force: true });
-			cy.getByDataTest('box-shadow-x-input').type(10, { force: true });
+		cy.getByDataTest('popover-body')
+			.eq(0)
+			.within(() => {
+				cy.getByDataTest('box-shadow-x-input').clear({ force: true });
+				cy.getByDataTest('box-shadow-x-input').type(10, {
+					force: true,
+				});
 
-			cy.getByDataTest('box-shadow-y-input').clear({ force: true });
-			cy.getByDataTest('box-shadow-y-input').type(50, { force: true });
+				cy.getByDataTest('box-shadow-y-input').clear({ force: true });
+				cy.getByDataTest('box-shadow-y-input').type(50, {
+					force: true,
+				});
 
-			cy.getByDataTest('box-shadow-blur-input').clear({ force: true });
-			cy.getByDataTest('box-shadow-blur-input').type(30, { force: true });
+				cy.getByDataTest('box-shadow-blur-input').clear({
+					force: true,
+				});
+				cy.getByDataTest('box-shadow-blur-input').type(30, {
+					force: true,
+				});
 
-			cy.getByDataTest('box-shadow-spread-input').clear({ force: true });
-			cy.getByDataTest('box-shadow-spread-input').type(40, {
-				force: true,
+				cy.getByDataTest('box-shadow-spread-input').clear({
+					force: true,
+				});
+				cy.getByDataTest('box-shadow-spread-input').type(40, {
+					force: true,
+				});
+
+				cy.getByDataTest('box-shadow-color-control').click({
+					force: true,
+				});
 			});
-
-			cy.getByDataTest('box-shadow-color-control').click({ force: true });
-		});
 
 		cy.getByDataTest('popover-body')
 			.last()

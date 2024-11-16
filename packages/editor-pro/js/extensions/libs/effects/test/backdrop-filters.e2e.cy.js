@@ -25,7 +25,7 @@ describe('Backdrop Filters → Functionality', () => {
 			cy.getByAriaLabel('Add New Backdrop Filter').click();
 		});
 
-		cy.get('.components-popover').within(() => {
+		cy.get('.blockera-component-popover').within(() => {
 			cy.getParentContainer('Type').within(() => {
 				cy.get('select').select('brightness');
 			});
@@ -38,26 +38,23 @@ describe('Backdrop Filters → Functionality', () => {
 			cy.getByAriaLabel('Add New Backdrop Filter').click();
 		});
 
-		cy.getByDataTest('popover-body').within(() => {
-			cy.getParentContainer('Type', 'base-control').within(() => {
-				cy.get('select').select('invert');
-			});
+		cy.getByDataTest('popover-body')
+			.eq(0)
+			.within(() => {
+				cy.getParentContainer('Type', 'base-control').within(() => {
+					cy.get('select').select('invert');
+				});
 
-			cy.getByDataTest('filter-invert-input').clear();
-			cy.getByDataTest('filter-invert-input').type(50);
-		});
+				cy.getByDataTest('filter-invert-input').clear();
+				cy.getByDataTest('filter-invert-input').type(50);
+			});
 
 		// Check block
-		cy.getBlock('core/paragraph')
-			.parent()
-			.within(() => {
-				cy.get('style')
-					.invoke('text')
-					.should(
-						'include',
-						'backdrop-filter: brightness(100%) invert(50%);'
-					);
-			});
+		cy.getBlock('core/paragraph').should(
+			'have.css',
+			'backdrop-filter',
+			'brightness(1) invert(0.5)'
+		);
 
 		// Check store
 		getWPDataObject().then((data) => {
@@ -91,11 +88,10 @@ describe('Backdrop Filters → Functionality', () => {
 
 		redirectToFrontPage();
 
-		cy.get('style#blockera-inline-css-inline-css')
-			.invoke('text')
-			.should(
-				'include',
-				'backdrop-filter: brightness(100%) invert(50%);'
-			);
+		cy.get('.blockera-block').should(
+			'have.css',
+			'backdrop-filter',
+			'brightness(1) invert(0.5) blur(3px)'
+		);
 	});
 });

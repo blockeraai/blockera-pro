@@ -29,13 +29,13 @@ describe('Text Columns → Functionality', () => {
 		});
 
 		//Check block
-		cy.getBlock('core/paragraph')
-			.parent()
-			.within(() => {
-				cy.get('style')
-					.invoke('text')
-					.should('include', 'column-count: initial');
+		cy.getBlock('core/paragraph').within(($el) => {
+			cy.window().then((win) => {
+				const paragraph = win.getComputedStyle($el[0]);
+				const columnCount = paragraph.getPropertyValue('column-count');
+				expect('auto').to.equal(columnCount);
 			});
+		});
 
 		//Check store
 		getWPDataObject().then((data) => {
@@ -112,7 +112,7 @@ describe('Text Columns → Functionality', () => {
 			});
 
 			cy.get('[aria-haspopup="listbox"]').trigger('click');
-			cy.get('li').eq(2).trigger('click');
+			cy.get('div[aria-selected="false"]').eq(1).trigger('click');
 
 			// open color picker
 			cy.getByDataTest('border-control-color').click();
@@ -146,10 +146,6 @@ describe('Text Columns → Functionality', () => {
 					color: '#36eade',
 					style: 'dotted',
 				},
-				// todo: remove following items because these items are result of a bugs!
-				'divider.width': '1px',
-				'divider.style': 'dotted',
-				'divider.color': '#000000',
 			}).to.be.deep.equal(getSelectedBlock(data, 'blockeraTextColumns'));
 		});
 

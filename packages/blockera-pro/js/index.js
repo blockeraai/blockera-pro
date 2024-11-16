@@ -11,6 +11,7 @@ import { addFilter } from '@wordpress/hooks';
 import { applyControls } from '@blockera/controls-pro';
 import {
 	applyExtensions,
+	applyDefaultBlockStates,
 	registerEditorExtensions,
 } from '@blockera/editor-pro';
 
@@ -19,6 +20,8 @@ const initializeBlockeraPro = () => {
 	applyControls();
 	applyExtensions();
 };
+
+applyDefaultBlockStates();
 
 /**
  * Initialize blockera react application.
