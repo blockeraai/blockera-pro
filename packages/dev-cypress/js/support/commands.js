@@ -676,10 +676,4 @@ export const registerCommands = () => {
 			});
 		});
 	});
-
-	Cypress.Commands.add('openRepeaterItem', (parentContainer, contains) => {
-		cy.getParentContainer(parentContainer).within(() => {
-			cy.getByDataCy('group-control-header').contains(contains).click();
-		});
-	});
 };
