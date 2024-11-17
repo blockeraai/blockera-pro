@@ -1,0 +1,6 @@
+{
+	"plugins": [
+		".",
+		"https://cd.blockera.ai/blockera-207.zip"
+	]
+}
