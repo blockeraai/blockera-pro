@@ -115,7 +115,7 @@ main_plugin_file='blockera-pro.php'
 
 if [ -n "$MAIN_FILE_SUFFIX" ]; then
   main_plugin_file="blockera-pro$MAIN_FILE_SUFFIX.php"
-  cp blockera.php "$main_plugin_file"
+  cp blockera-pro.php "$main_plugin_file"
 fi
 
 vendor_without_blockera_pro=$(
