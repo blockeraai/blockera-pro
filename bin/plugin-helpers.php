@@ -11,7 +11,7 @@ function print_changelog() {
 }
 
 /**
- * Fetch current plugin version from `blockera.php` file.
+ * Fetch current plugin version from `blockera-pro.php` file.
  */
 function get_plugin_version() {
 
@@ -25,7 +25,7 @@ function get_plugin_version() {
 }
 
 /**
- * Fetch required PHP version from `blockera.php` file.
+ * Fetch required PHP version from `blockera-pro.php` file.
  */
 function get_php_version() {
 
@@ -39,7 +39,7 @@ function get_php_version() {
 }
 
 /**
- * Fetch required version from `blockera.php` file.
+ * Fetch required version from `blockera.-prophp` file.
  */
 function get_required_version() {
 
@@ -53,7 +53,7 @@ function get_required_version() {
 }
 
 /**
- * Fetch tested up to version from `blockera.php` file.
+ * Fetch tested up to version from `blockera-pro.php` file.
  */
 function get_tested_version() {
 
@@ -67,7 +67,7 @@ function get_tested_version() {
 }
 
 /**
- * Fetch tested up to version from `blockera.php` file.
+ * Fetch tested up to version from `blockera-pro.php` file.
  */
 function get_short_description() {
 

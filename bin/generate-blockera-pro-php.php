@@ -13,7 +13,7 @@ $plugin_version = null;
 $inside_defines = false;
 
 /**
- * Prints `define` statements for the production version of `blockera.php`
+ * Prints `define` statements for the production version of `blockera-pro.php`
  * (the plugin entry point).
  */
 function print_production_defines() {
