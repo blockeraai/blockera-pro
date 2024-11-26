@@ -27,6 +27,10 @@ jobs:
             # Step 4: Commit and push changes
             - name: Commit and push changes
               run: |
-                  git add .
-                  git commit -m "chore: remove .pr-env.json redundant file"
-                  git push origin master
+                  if [ -f ".pr-env.json" ]; then
+                      git add .
+                      git commit -m "chore: remove .pr-env.json redundant file"
+                      git push origin master
+                  else
+                      echo "No .pr-env.json file found to remove and It is OK ✅"
+                  fi
