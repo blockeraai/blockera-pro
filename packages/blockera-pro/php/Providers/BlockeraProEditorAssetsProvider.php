@@ -94,6 +94,11 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 									allowedUserRoles,
 								},
 							} = blockeraSettings;
+
+							if(!disableRestrictBlockVisibility){
+								return [];
+							}
+
 							const allowedRoles = Object.keys(
 								Object.fromEntries(Object.entries(allowedUserRoles).filter(([id, role]) => role.checked))
 							);
