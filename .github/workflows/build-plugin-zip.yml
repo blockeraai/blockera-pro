@@ -119,7 +119,10 @@ jobs:
                   git checkout "${{ steps.get_version.outputs.release_branch }}"
 
             - name: Clone Blockera Site Builder
-              run: git clone https://github.com/blockeraai/blockera.git
+              run: |
+                  cd ..
+                  git clone https://github.com/blockeraai/blockera.git
+                  cd blockera-pro
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
@@ -188,7 +191,10 @@ jobs:
                   show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
 
             - name: Clone Blockera Site Builder
-              run: git clone https://github.com/blockeraai/blockera.git
+              run: |
+                  cd ..
+                  git clone https://github.com/blockeraai/blockera.git
+                  cd blockera-pro
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
