@@ -10,6 +10,13 @@ use Blockera\Bootstrap\Application;
 class BlockeraPro extends Application {
 
 	/**
+	 * Holds the license.
+	 *
+	 * @var array $license the license.
+	 */
+	protected array $license = [];
+
+	/**
 	 * Blockera constructor.
 	 */
 	public function __construct() {
@@ -20,4 +27,23 @@ class BlockeraPro extends Application {
 		parent::__construct();
 	}
 
+	/**
+	 * Set the license.
+	 *
+	 * @param array $license the license.
+	 */
+	public function setLicense( array $license): void
+	{
+		$this->license = $license;
+	}
+
+	/**
+	 * Get the license.
+	 *
+	 * @return array The license.
+	 */
+	public function getLicense(): array
+	{
+		return $this->license;
+	}
 }

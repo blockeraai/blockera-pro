@@ -43,7 +43,9 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 	protected function getAssets():array {
 
 		return array_merge(
-			blockera_pro_core_config( 'assets.editor.list' ),
+			[
+				'blockera-pro',
+			],
 			parent::getAssets()
 		);
 	}
