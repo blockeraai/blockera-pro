@@ -56,7 +56,10 @@ jobs:
                   composer-options: '--no-dev -o --apcu-autoloader -a'
 
             - name: Clone Blockera Site Builder
-              run: git clone https://github.com/blockeraai/blockera.git
+              run: |
+                  cd ..
+                  git clone https://github.com/blockeraai/blockera.git
+                  cd blockera-pro
 
             - name: Build Plugin Zip File
               uses: ./.github/build-plugin-zip
