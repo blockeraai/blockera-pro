@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: Blockera Pro
  * Plugin URI: https://blockera.ai/products/site-builder/
@@ -16,58 +17,70 @@
  */
 
 // security code.
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 
-	die( 'Access Denied!' );
+    die('Access Denied!');
 }
 
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
 
 // Env Loading ...
-$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
-define( 'BLOCKERA_PRO_FILE', __FILE__ );
-define( 'BLOCKERA_PRO_URI', plugin_dir_url( __FILE__ ) );
-define( 'BLOCKERA_PRO_PATH', plugin_dir_path( __FILE__ ) );
+define('BLOCKERA_PRO_FILE', __FILE__);
+define('BLOCKERA_PRO_URI', plugin_dir_url(__FILE__));
+define('BLOCKERA_PRO_PATH', plugin_dir_path(__FILE__));
 
 ### BEGIN AUTO-GENERATED DEFINES
-define( 'BLOCKERA_PRO_APP_MODE', 'development' );
+define('BLOCKERA_PRO_APP_MODE', 'development');
 // Loads current version for development in the development environment.
 // this code will be replaced by string version of plugin version pulled from header
 // in production build.
-if ( ! function_exists( 'get_plugin_data' ) ) {
-	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+if (! function_exists('get_plugin_data')) {
+    require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 }
-define( 'BLOCKERA_PRO_VERSION', get_plugin_data( __FILE__ )['Version'] );
+define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__)['Version']);
 ### END AUTO-GENERATED DEFINES
 
-add_action( 'plugins_loaded', 'blockera_pro_init', 5 );
+add_action('plugins_loaded', 'blockera_pro_init', 5);
 
-function blockera_pro_init() {
+function blockera_pro_init(): void
+{
+    add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
-	### BEGIN AUTO-GENERATED FRONT CONTROLLERS
-	add_action( 'blockera/before/setup', 'blockera_pro_before_setup_free_version' );
+    /**
+     * Setup premium version of blockera advanced mode for Block editor.
+     *
+     * @return void
+     */
+    function blockera_pro_before_setup_free_version(): void
+    {
+        // loading bootstrapper files.
+        blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
+        blockera_load('vendor.blockera.blockera-pro-admin.php.hooks', __DIR__);
+    }
 
-	/**
-	 * Setup premium version of blockera advanced mode for Block editor.
-	 *
-	 * @return void
-	 */
-	function blockera_pro_before_setup_free_version(): void {
+    add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
-		// loading bootstrapper files.
-		blockera_load( 'packages.blockera-pro.php.hooks', __DIR__ );
-		blockera_load( 'packages.blockera-pro-admin.php.hooks', __DIR__ );
-	}
-
-	add_action( 'blockera/after/setup', 'blockera_pro_after_setup_free_version' );
-
-	function blockera_pro_after_setup_free_version(): void {
-
-		// loading front controller.
-		require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
-	}
-	### END AUTO-GENERATED FRONT CONTROLLERS
+    function blockera_pro_after_setup_free_version(): void
+    {
+        ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
+        // loading front controller.
+        require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
+        ### END AUTO-GENERATED FRONT CONTROLLERS
+    }
 }
+
+if (!class_exists(Blockera\Setup\Blockera::class)) {
+    require_once(ABSPATH . 'wp-content/plugins/blockera/blockera.php');
+}
+
+$jobs = new \Blockera\Auth\Jobs(
+    new \Blockera\WordPress\Sender(),
+    __FILE__,
+    blockera_pro_core_config('auth')
+);
+
+add_action('admin_init', [ $jobs, 'redirectToActivationPage' ]);
