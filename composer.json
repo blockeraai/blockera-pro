@@ -6,6 +6,10 @@
 	"repositories": [
 		{
 			"type": "path",
+			"url": "./packages/auth-pro"
+		},
+		{
+			"type": "path",
 			"url": "./packages/blockera-pro"
 		},
 		{
@@ -15,6 +19,10 @@
 		{
 			"type": "path",
 			"url": "./packages/utils"
+		},
+		{
+			"type": "path",
+			"url": "./packages/guard"
 		}
 	],
 	"authors": [
@@ -25,10 +33,13 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7.4",
+		"blockera/auth-pro": "*",
+		"blockera/guard": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
 		"blockera/utils": "*",
-		"vlucas/phpdotenv": "^5.6@dev"
+		"vlucas/phpdotenv": "^5.6@dev",
+		"league/oauth2-client": "dev-master"
 	},
 	"require-dev": {
 		"symfony/dom-crawler": "5.4.x-dev",
