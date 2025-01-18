@@ -8,7 +8,19 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
-import { restrictBlockVisibilityOnChangeUserRole } from './panels';
+import {
+	proPanelTabs,
+	accountHasHeader,
+	accountShowButtons,
+	filterCallToActions,
+	filterAvailableTabs,
+	filteredIgnoredPanelTabs,
+	accountDescriptionComponent,
+	accountActivePanelComponent,
+	filteredDashboardAvailablePages,
+	filteredDashboardProfileComponent,
+	restrictBlockVisibilityOnChangeUserRole,
+} from './panels';
 
 const initializeBlockeraProAdmin = () => {
 	return () => {
@@ -37,6 +49,20 @@ const initializeBlockeraProAdmin = () => {
 				};
 			}
 		);
+
+		filteredIgnoredPanelTabs();
+
+		filterCallToActions();
+		filterAvailableTabs();
+
+		filteredDashboardAvailablePages();
+		filteredDashboardProfileComponent();
+
+		proPanelTabs();
+		accountHasHeader();
+		accountActivePanelComponent();
+		accountDescriptionComponent();
+		accountShowButtons();
 
 		restrictBlockVisibilityOnChangeUserRole();
 	};
