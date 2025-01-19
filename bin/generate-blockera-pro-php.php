@@ -57,8 +57,8 @@ while ( true ) {
 		case '### BEGIN AUTO-GENERATED FRONT CONTROLLERS':
 			$inside_defines = true;
 			echo $line;
-			echo "// loading front controller.\n
-		require BLOCKERA_PRO_PATH . 'inc/app.php';";
+			echo "// loading front controller.
+		require BLOCKERA_PRO_PATH . 'inc/app.php';\n";
 			break;
 
 		default:
