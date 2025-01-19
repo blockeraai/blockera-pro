@@ -18,10 +18,6 @@
 		},
 		{
 			"type": "path",
-			"url": "./packages/utils"
-		},
-		{
-			"type": "path",
 			"url": "./packages/guard"
 		}
 	],
@@ -37,7 +33,6 @@
 		"blockera/guard": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
-		"blockera/utils": "*",
 		"vlucas/phpdotenv": "^5.6@dev",
 		"league/oauth2-client": "dev-master"
 	},
