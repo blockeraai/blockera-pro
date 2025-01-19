@@ -5,7 +5,7 @@ namespace Blockera\Guard\Providers;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
- * Class AssetsProvider providing all assets.
+ * Class GuardAssetProvider providing all assets for guard.
  *
  * @since 1.0.0
  */
