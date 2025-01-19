@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24c580e71a9fad65bd6f997df41253cd",
+    "content-hash": "5114c4b5510b16270e50a979deafcadb",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -35,7 +35,7 @@
         },
         {
             "name": "blockera/blockera-pro",
-            "version": "dev-master",
+            "version": "dev-feat/oauth-client",
             "dist": {
                 "type": "path",
                 "url": "./packages/blockera-pro",
@@ -62,7 +62,7 @@
         },
         {
             "name": "blockera/blockera-pro-admin",
-            "version": "dev-master",
+            "version": "dev-feat/oauth-client",
             "dist": {
                 "type": "path",
                 "url": "./packages/blockera-pro-admin",
@@ -81,7 +81,7 @@
         },
         {
             "name": "blockera/guard",
-            "version": "dev-master",
+            "version": "dev-feat/oauth-client",
             "dist": {
                 "type": "path",
                 "url": "./packages/guard",
@@ -99,30 +99,6 @@
                 }
             },
             "description": "The Blockera Guard of pro features versus hackers.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "blockera/utils",
-            "version": "1.0.0",
-            "dist": {
-                "type": "path",
-                "url": "./packages/utils",
-                "reference": "3acb9772d2949b4b112ac6772ebecc0c7e067c64"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Blockera\\Utils\\": "php/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Blockera\\Utils\\Tests\\": "php/tests/"
-                }
-            },
-            "description": "The utilities for JavaScript and PHP blockera applications.",
             "transport-options": {
                 "relative": true
             }
@@ -2922,16 +2898,16 @@
         },
         {
             "name": "phpcompatibility/phpcompatibility-wp",
-            "version": "2.1.5",
+            "version": "2.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityWP.git",
-                "reference": "01c1ff2704a58e46f0cb1ca9d06aee07b3589082"
+                "reference": "80ccb1a7640995edf1b87a4409fa584cd5869469"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityWP/zipball/01c1ff2704a58e46f0cb1ca9d06aee07b3589082",
-                "reference": "01c1ff2704a58e46f0cb1ca9d06aee07b3589082",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityWP/zipball/80ccb1a7640995edf1b87a4409fa584cd5869469",
+                "reference": "80ccb1a7640995edf1b87a4409fa584cd5869469",
                 "shasum": ""
             },
             "require": {
@@ -2988,7 +2964,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-04-24T21:37:59+00:00"
+            "time": "2025-01-16T22:34:19+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3315,12 +3291,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2f41cde26ef95a3ee44ae112a65b54893258cd26"
+                "reference": "01e8295d406558f44bf5e07136737bfd7fd72fa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2f41cde26ef95a3ee44ae112a65b54893258cd26",
-                "reference": "2f41cde26ef95a3ee44ae112a65b54893258cd26",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/01e8295d406558f44bf5e07136737bfd7fd72fa8",
+                "reference": "01e8295d406558f44bf5e07136737bfd7fd72fa8",
                 "shasum": ""
             },
             "require": {
@@ -3410,7 +3386,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-13T07:14:15+00:00"
+            "time": "2025-01-15T08:44:56+00:00"
         },
         {
             "name": "psr/container",
@@ -6157,12 +6133,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/core-command.git",
-                "reference": "ab65d194bbf00b018daca9d625b0297c5f813fca"
+                "reference": "42c86f4190ca245b97befd49050769593cba047e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/core-command/zipball/ab65d194bbf00b018daca9d625b0297c5f813fca",
-                "reference": "ab65d194bbf00b018daca9d625b0297c5f813fca",
+                "url": "https://api.github.com/repos/wp-cli/core-command/zipball/42c86f4190ca245b97befd49050769593cba047e",
+                "reference": "42c86f4190ca245b97befd49050769593cba047e",
                 "shasum": ""
             },
             "require": {
@@ -6219,9 +6195,9 @@
             "homepage": "https://github.com/wp-cli/core-command",
             "support": {
                 "issues": "https://github.com/wp-cli/core-command/issues",
-                "source": "https://github.com/wp-cli/core-command/tree/v2.1.19"
+                "source": "https://github.com/wp-cli/core-command/tree/main"
             },
-            "time": "2024-12-20T15:13:02+00:00"
+            "time": "2025-01-15T11:13:21+00:00"
         },
         {
             "name": "wp-cli/cron-command",
@@ -6739,12 +6715,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/export-command.git",
-                "reference": "437b82b62365a60a1c69bb5d8c31f7b4badd97db"
+                "reference": "2eb9ad12c3730473a97aadb7286235a42300b4a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/export-command/zipball/437b82b62365a60a1c69bb5d8c31f7b4badd97db",
-                "reference": "437b82b62365a60a1c69bb5d8c31f7b4badd97db",
+                "url": "https://api.github.com/repos/wp-cli/export-command/zipball/2eb9ad12c3730473a97aadb7286235a42300b4a2",
+                "reference": "2eb9ad12c3730473a97aadb7286235a42300b4a2",
                 "shasum": ""
             },
             "require": {
@@ -6795,7 +6771,7 @@
                 "issues": "https://github.com/wp-cli/export-command/issues",
                 "source": "https://github.com/wp-cli/export-command/tree/main"
             },
-            "time": "2024-11-24T17:35:59+00:00"
+            "time": "2025-01-16T12:53:42+00:00"
         },
         {
             "name": "wp-cli/extension-command",
