@@ -60,6 +60,18 @@ module.exports = {
 				endOfLine: 'auto',
 			},
 		],
+		'import/no-unresolved': [
+			'error',
+			{
+				ignore: [
+					'@blockera/data',
+					'@blockera/utils',
+					'@blockera/icons',
+					'@blockera/controls',
+					'@blockera/classnames',
+				],
+			},
+		],
 		'@wordpress/i18n-no-collapsible-whitespace': 'off',
 		'import/no-extraneous-dependencies': 'off',
 		'@wordpress/no-unsafe-wp-apis': 'off',
