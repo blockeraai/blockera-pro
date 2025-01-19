@@ -80,7 +80,7 @@ if (!class_exists(Blockera\Setup\Blockera::class)) {
 $jobs = new \Blockera\Auth\Jobs(
     new \Blockera\WordPress\Sender(),
     __FILE__,
-    blockera_pro_core_config('auth')
+    include __DIR__ . '/config/auth.php'
 );
 
 add_action('admin_init', [ $jobs, 'redirectToActivationPage' ]);
