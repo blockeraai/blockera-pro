@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Blockera Pro
+ * Plugin Name: Blockera PRO
  * Plugin URI: https://blockera.ai/products/site-builder/
  * Description: The Advanced Mode for Block Editor
  * Requires at least: 6.6
