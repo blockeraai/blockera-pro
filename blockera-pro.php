@@ -73,10 +73,12 @@ function blockera_pro_init(): void
     }
 }
 
-$jobs = new \Blockera\Auth\Jobs(
-    new \Blockera\WordPress\Sender(),
-    __FILE__,
-    include __DIR__ . '/config/auth.php'
-);
+if (class_exists(Blockera\Auth\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
+    $jobs = new \Blockera\Auth\Jobs(
+        new \Blockera\WordPress\Sender(),
+        __FILE__,
+        include __DIR__ . '/config/auth.php'
+    );
 
-add_action('admin_init', [ $jobs, 'redirectToActivationPage' ]);
+    add_action('admin_init', [ $jobs, 'redirectToActivationPage' ]);
+}
