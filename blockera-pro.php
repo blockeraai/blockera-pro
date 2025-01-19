@@ -73,10 +73,6 @@ function blockera_pro_init(): void
     }
 }
 
-if (!class_exists(Blockera\Setup\Blockera::class)) {
-    require_once(ABSPATH . 'wp-content/plugins/blockera/blockera.php');
-}
-
 $jobs = new \Blockera\Auth\Jobs(
     new \Blockera\WordPress\Sender(),
     __FILE__,
