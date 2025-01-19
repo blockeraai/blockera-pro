@@ -59,6 +59,7 @@ jobs:
                       performance
                       plugin_repo
                       accessibility
+                  exclude-directories: 'vendor,.wordpress-org'
 
     test_php_security_check:
         name: PHP Security Check
