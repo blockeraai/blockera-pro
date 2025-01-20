@@ -3,7 +3,7 @@
 $license = blockera_pro_core_config('account.license');
 $is_activated_pro = !empty($license) && 'active' === ($license['status'] ?? 'expired');
 
-if (!$is_activated_pro) {
+if (!$is_activated_pro && !isset($_GET['registered-client'], $_GET['connectedWithYourAccount'])) {
 	$pro_submenu = [
         'activate-pro-license' => [
             'page_title' => __('Activate Pro License', 'blockera'),
