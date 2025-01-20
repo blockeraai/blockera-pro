@@ -1,0 +1,505 @@
+# Copyright (C) 2025 Blockera AI
+# This file is distributed under the GPLv3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Blockera PRO 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/blockera-pro\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-01-20T04:06:55+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: blockera-pro\n"
+
+#. Plugin Name of the plugin
+#: blockera-pro.php
+msgid "Blockera PRO"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: blockera-pro.php
+msgid "https://blockera.ai/products/site-builder/"
+msgstr ""
+
+#. Description of the plugin
+#: blockera-pro.php
+msgid "The Advanced Mode for Block Editor"
+msgstr ""
+
+#. Author of the plugin
+#: blockera-pro.php
+msgid "Blockera AI"
+msgstr ""
+
+#. Author URI of the plugin
+#: blockera-pro.php
+msgid "https://blockera.ai/about/"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11479
+#: dist/controls-pro/controls-pro.js:221
+msgid "Common Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11481
+#: dist/controls-pro/controls-pro.js:223
+msgid "All Properties"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11484
+#: dist/controls-pro/controls-pro.js:226
+msgid "Opacity"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11487
+#: dist/controls-pro/controls-pro.js:229
+msgid "Margin"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11490
+#: dist/controls-pro/controls-pro.js:232
+msgid "Padding"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11493
+#: dist/controls-pro/controls-pro.js:235
+msgid "Border"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11496
+#: dist/controls-pro/controls-pro.js:238
+msgid "Transform"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11499
+#: dist/controls-pro/controls-pro.js:241
+msgid "Filter"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11502
+#: dist/controls-pro/controls-pro.js:244
+msgid "Flex"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11507
+#: dist/controls-pro/controls-pro.js:249
+msgid "Background Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11509
+#: dist/controls-pro/controls-pro.js:251
+msgid "Background Color"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11512
+#: dist/controls-pro/controls-pro.js:254
+msgid "Background Position"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11515
+#: dist/controls-pro/controls-pro.js:257
+msgid "Text Shadow"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11518
+#: dist/controls-pro/controls-pro.js:260
+msgid "Box Shadow"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11523
+#: dist/controls-pro/controls-pro.js:265
+msgid "Size Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11525
+#: dist/controls-pro/controls-pro.js:267
+msgid "Width"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11528
+#: dist/controls-pro/controls-pro.js:270
+msgid "Height"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11531
+#: dist/controls-pro/controls-pro.js:273
+msgid "Max Height"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11534
+#: dist/controls-pro/controls-pro.js:276
+msgid "Max Width"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11537
+#: dist/controls-pro/controls-pro.js:279
+msgid "Min Height"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11540
+#: dist/controls-pro/controls-pro.js:282
+msgid "Min Width"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11545
+#: dist/controls-pro/controls-pro.js:287
+msgid "Borders Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11547
+#: dist/controls-pro/controls-pro.js:289
+msgid "Border Radius"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11550
+#: dist/controls-pro/controls-pro.js:292
+msgid "Border Color"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11553
+#: dist/controls-pro/controls-pro.js:295
+msgid "Border Width"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11558
+#: dist/controls-pro/controls-pro.js:300
+msgid "Typography Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11560
+#: dist/controls-pro/controls-pro.js:302
+msgid "Font Color"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11563
+#: dist/controls-pro/controls-pro.js:305
+msgid "Font Size"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11566
+#: dist/controls-pro/controls-pro.js:308
+msgid "Line Height"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11569
+#: dist/controls-pro/controls-pro.js:311
+msgid "Letter Spacing"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11572
+#: dist/controls-pro/controls-pro.js:314
+msgid "Text Indent"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11575
+#: dist/controls-pro/controls-pro.js:317
+msgid "Word Spacing"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11578
+#: dist/controls-pro/controls-pro.js:320
+msgid "Font Variation"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11581
+#: dist/controls-pro/controls-pro.js:323
+msgid "Text Stroke Color"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11586
+#: dist/controls-pro/controls-pro.js:328
+msgid "Position Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11588
+#: dist/controls-pro/controls-pro.js:330
+msgid "Top"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11591
+#: dist/controls-pro/controls-pro.js:333
+msgid "Right"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11594
+#: dist/controls-pro/controls-pro.js:336
+msgid "Bottom"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11597
+#: dist/controls-pro/controls-pro.js:339
+msgid "Left"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11600
+#: dist/controls-pro/controls-pro.js:342
+msgid "Z-Index"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11605
+#: dist/controls-pro/controls-pro.js:347
+msgid "Margin Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11607
+#: dist/controls-pro/controls-pro.js:349
+msgid "Margin Top"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11610
+#: dist/controls-pro/controls-pro.js:352
+msgid "Margin Right"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11613
+#: dist/controls-pro/controls-pro.js:355
+msgid "Margin Bottom"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11616
+#: dist/controls-pro/controls-pro.js:358
+msgid "Margin Left"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11621
+#: dist/controls-pro/controls-pro.js:363
+msgid "Padding Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11623
+#: dist/controls-pro/controls-pro.js:365
+msgid "Padding Top"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11626
+#: dist/controls-pro/controls-pro.js:368
+msgid "Padding Right"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11629
+#: dist/controls-pro/controls-pro.js:371
+msgid "Padding Bottom"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11632
+#: dist/controls-pro/controls-pro.js:374
+msgid "Padding Left"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11637
+#: dist/controls-pro/controls-pro.js:379
+msgid "Flex Transitions"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11639
+#: dist/controls-pro/controls-pro.js:381
+msgid "Flex Grow"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11642
+#: dist/controls-pro/controls-pro.js:384
+msgid "Flex Shrink"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11645
+#: dist/controls-pro/controls-pro.js:387
+msgid "Flex Basis"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11653
+#: dist/controls-pro/controls-pro.js:395
+msgid "Default Timings"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11655
+#: dist/controls-pro/controls-pro.js:397
+msgid "Linear"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11658
+#: dist/controls-pro/controls-pro.js:400
+msgid "Ease"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11661
+#: dist/controls-pro/controls-pro.js:403
+msgid "Ease In"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11664
+#: dist/controls-pro/controls-pro.js:406
+msgid "Ease Out"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11667
+#: dist/controls-pro/controls-pro.js:409
+msgid "Ease In Out"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11672
+#: dist/controls-pro/controls-pro.js:414
+msgid "Ease In Timings"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11674
+#: dist/controls-pro/controls-pro.js:416
+msgid "Ease In Quad"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11677
+#: dist/controls-pro/controls-pro.js:419
+msgid "Ease In Cubic"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11680
+#: dist/controls-pro/controls-pro.js:422
+msgid "Ease In Quart"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11683
+#: dist/controls-pro/controls-pro.js:425
+msgid "Ease In Quint"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11686
+#: dist/controls-pro/controls-pro.js:428
+msgid "Ease In Sine"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11689
+#: dist/controls-pro/controls-pro.js:431
+msgid "Ease In Expo"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11692
+#: dist/controls-pro/controls-pro.js:434
+msgid "Ease In Circ"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11695
+#: dist/controls-pro/controls-pro.js:437
+msgid "Ease In Back"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11700
+#: dist/controls-pro/controls-pro.js:442
+msgid "Ease Out Timings"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11702
+#: dist/controls-pro/controls-pro.js:444
+msgid "Ease Out Quad"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11705
+#: dist/controls-pro/controls-pro.js:447
+msgid "Ease Out Cubic"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11708
+#: dist/controls-pro/controls-pro.js:450
+msgid "Ease Out Quart"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11711
+#: dist/controls-pro/controls-pro.js:453
+msgid "Ease Out Quint"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11714
+#: dist/controls-pro/controls-pro.js:456
+msgid "Ease Out Sine"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11717
+#: dist/controls-pro/controls-pro.js:459
+msgid "Ease Out Expo"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11720
+#: dist/controls-pro/controls-pro.js:462
+msgid "Ease Out Circ"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11723
+#: dist/controls-pro/controls-pro.js:465
+msgid "Ease Out Back"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11728
+#: dist/controls-pro/controls-pro.js:470
+msgid "Ease In Out Timings"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11730
+#: dist/controls-pro/controls-pro.js:472
+msgid "Ease In Out Quad"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11733
+#: dist/controls-pro/controls-pro.js:475
+msgid "Ease In Out Cubic"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11736
+#: dist/controls-pro/controls-pro.js:478
+msgid "Ease In Out Quart"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11739
+#: dist/controls-pro/controls-pro.js:481
+msgid "Ease In Out Quint"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11742
+#: dist/controls-pro/controls-pro.js:484
+msgid "Ease In Out Sine"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11745
+#: dist/controls-pro/controls-pro.js:487
+msgid "easeInOutExpo"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11748
+#: dist/controls-pro/controls-pro.js:490
+msgid "Ease In Out Circ"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11751
+#: dist/controls-pro/controls-pro.js:493
+msgid "Ease In Out Back"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11821
+#: dist/editor-pro/editor-pro.js:11282
+msgid "None"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11829
+#: dist/editor-pro/editor-pro.js:11290
+msgid "Clip to Padding"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11836
+#: dist/editor-pro/editor-pro.js:11297
+msgid "Clip to Content"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11843
+#: dist/editor-pro/editor-pro.js:11304
+msgid "Clip to Text"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11843
+#: dist/editor-pro/editor-pro.js:11304
+msgid "Pro"
+msgstr ""
+
+#: dist/blockera-pro/blockera-pro.js:11851
+#: dist/editor-pro/editor-pro.js:11312
+msgid "Inherit"
+msgstr ""
