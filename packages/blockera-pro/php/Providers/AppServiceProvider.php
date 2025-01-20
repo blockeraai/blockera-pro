@@ -147,6 +147,8 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function loadTextDomain(): void
     {
+		wp_set_script_translations('@blockera/blockera-pro', 'blockera-pro');
+
         load_plugin_textdomain('blockera-pro', false, dirname(plugin_basename(BLOCKERA_PRO_FILE)) . '/languages');
     }
 }
