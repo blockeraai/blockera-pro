@@ -173,7 +173,8 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
 				window.blockeraConnectActionNonce = "' . wp_create_nonce('blockera-connect-with-your-account') . '";
 				window.blockeraAIAccount = ' . wp_json_encode($account_info) . ';
 				window.wpCreatePageUrl = "' . admin_url('/post-new.php?post_type=page') . '";
-				window.blockeraActivateLicenseUrl = "' . admin_url('admin.php?page=blockera-settings-account') . '";';
+				window.blockeraActivateLicenseUrl = "' . admin_url('admin.php?page=blockera-settings-account') . '";
+				window.blockeraIsConnectedWithYourAccount = "' . ( isset($_GET['registered-client'], $_GET['connectedWithYourAccount']) ? 'true' : 'false' ) . '";';
     }
 
     /**

@@ -19,10 +19,16 @@ export const filterCallToActions = () => {
 		'blockera.pro.admin.dashboard.pro.call.to.actions',
 		(): ComponentType<any> => {
 			const FilteredProCallToActionComponent = () => {
-				const { blockeraPROIsActivated, blockeraActivateLicenseUrl } =
-					window;
+				const {
+					blockeraPROIsActivated,
+					blockeraActivateLicenseUrl,
+					blockeraIsConnectedWithYourAccount,
+				} = window;
 
-				if (!blockeraPROIsActivated) {
+				if (
+					!blockeraPROIsActivated &&
+					!blockeraIsConnectedWithYourAccount
+				) {
 					return (
 						<Button
 							variant="secondary-on-hover"
