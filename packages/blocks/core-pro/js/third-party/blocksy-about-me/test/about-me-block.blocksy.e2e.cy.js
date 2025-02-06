@@ -2,15 +2,11 @@
  * Blockera dependencies
  */
 import {
-	savePage,
-	redirectToFrontPage,
 	appendBlocks,
 	getSelectedBlock,
 	getWPDataObject,
 	createPost,
 	setInnerBlock,
-	setBlockState,
-	setParentBlock,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Blocksy → About Me Block → WP Compatibility', () => {
