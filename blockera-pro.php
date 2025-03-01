@@ -25,9 +25,12 @@ if (! defined('ABSPATH')) {
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
 
-// Env Loading ...
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
+if (file_exists(__DIR__ . '/.env')) {
+	
+	// Env Loading ...
+	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+	$dotenv->safeLoad();
+}
 
 define('BLOCKERA_PRO_FILE', __FILE__);
 define('BLOCKERA_PRO_URI', plugin_dir_url(__FILE__));
