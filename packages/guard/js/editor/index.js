@@ -59,7 +59,9 @@ export const EditorFeatureWrapper = ({
 			subscriberId,
 			nextPaymentDueDate,
 		},
-	} = account;
+	} = account || {
+		subscription: {},
+	};
 
 	const [isAvailable, setIsAvailable] = useState(false);
 
