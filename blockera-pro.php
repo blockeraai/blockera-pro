@@ -44,7 +44,7 @@ define('BLOCKERA_PRO_APP_MODE', 'development');
 if (! function_exists('get_plugin_data')) {
     require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 }
-define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__)['Version']);
+define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__, true, false)['Version']);
 ### END AUTO-GENERATED DEFINES
 
 add_action('plugins_loaded', 'blockera_pro_init', 5);
