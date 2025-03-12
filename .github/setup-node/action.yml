@@ -44,6 +44,6 @@ runs:
               fi
               npm ci
               if [ -n "${{ inputs.dir }}" ]; then
-                  cd ${{ inputs.dir }}
+                  cd ../${{ inputs.dir }}
               fi
           shell: bash
