@@ -40,10 +40,10 @@ runs:
           if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
           run: |
               if [ -n "${{ inputs.chdir }}" ]; then
-                  cd ${inputs.chdir}
+                  cd ${{ inputs.chdir }}
               fi
               npm ci
               if [ -n "${{ inputs.dir }}" ]; then
-                  cd ${inputs.dir}
+                  cd ${{ inputs.dir }}
               fi
           shell: bash
