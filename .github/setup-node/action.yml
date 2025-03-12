@@ -4,6 +4,14 @@ inputs:
     node-version:
         description: 'Optional. The Node.js version to use. When not specified, the version specified in .nvmrc will be used.'
         required: false
+    chdir:
+        description: 'Optional. The directory to run the commands in. When not specified, the current directory will be used.'
+        required: false
+        default: ''
+    dir:
+        description: 'Optional. The directory backtrack to. When not specified, the current directory will be used.'
+        required: false
+        default: ''
 
 runs:
     using: 'composite'
@@ -26,9 +34,16 @@ runs:
           uses: actions/cache@v3
           with:
               path: '**/node_modules'
-              key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+              key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ inputs.chdir}}-${{ hashFiles('package-lock.json') }}
 
         - name: Install npm dependencies
           if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
-          run: npm ci
+          run: |
+              if [ -n "${{ inputs.chdir }}" ]; then
+                  cd ${inputs.chdir}
+              fi
+              npm ci
+              if [ -n "${{ inputs.dir }}" ]; then
+                  cd ${inputs.dir}
+              fi
           shell: bash
