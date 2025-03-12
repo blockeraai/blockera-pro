@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: Blockera PRO
  * Plugin URI: https://blockera.ai/products/site-builder/
