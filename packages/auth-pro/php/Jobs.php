@@ -25,41 +25,14 @@ class Jobs {
 
     /**
      * @param Sender $sender      the sender instance.
-     * @param string $plugin_file the plugin main file path.
      * @param array  $config the config array.
      */
-    public function __construct( Sender $sender, string $plugin_file, array $config) {
+    public function __construct( Sender $sender, array $config) {
         $this->sender = $sender;
         $this->config = new Config($config);
 
-        add_filter('cron_schedules', [ $this, 'addCronInterval' ]);
-        add_action('blockera_pro_each_per_day', [ $this, 'heartbeat' ]);
+        add_action('blockera_pro_each_per_day', [ $this, 'verifyLicenseStatus' ]);
         add_action('blockera_pro_each_per_ten_days', [ $this, 'doRefreshToken' ]);
-
-        register_activation_hook($plugin_file, [ $this, 'activationHook' ]);
-        register_deactivation_hook($plugin_file, [ $this, 'deactivationHook' ]);
-    }
-
-    /**
-     * Add the 1 day schedule on stack.
-     *
-     * @param array $schedules The schedules array.
-     *
-     * @return array the new schedules array.
-     */
-    public function addCronInterval( array $schedules): array
-    {
-        $schedules['blockera_pro_1_day'] = array(
-            'interval' => 60 * 60 * 24,
-            'display'  => esc_html__('Every Day', 'blockera'),
-        );
-
-        $schedules['blockera_pro_10_days'] = array(
-            'interval' => 60 * 60 * 24 * 10,
-            'display'  => esc_html__('Every Ten Days', 'blockera'),
-        );
-
-        return $schedules;
     }
 
     /**
@@ -114,11 +87,11 @@ class Jobs {
     }
 
     /**
-     * Do heartbeat process every 1 day.
+     * Verify license status and update local license data every 1 day.
      *
      * @return void
      */
-    public function heartbeat(): void
+    public function verifyLicenseStatus(): void
     {
         $client_info = $this->config->getClientInfo();
         $license = $this->config->getLicense($client_info);
@@ -173,59 +146,6 @@ class Jobs {
 
         if (isset($mapped_received_licenses[ $license_index ]['isEnabled']) && true === $mapped_received_licenses[ $license_index ]['isEnabled']) {
             update_option(Config::getOptionKey(), $mapped_received_licenses);
-        }
-    }
-
-    /**
-     * Activation plugin hook.
-     *
-     * @return void
-     */
-    public function activationHook(): void
-    {
-        if (! wp_next_scheduled('blockera_pro_each_per_day')) {
-
-            wp_schedule_event(time(), 'blockera_pro_1_day', 'blockera_pro_each_per_day');
-        }
-
-        if (! wp_next_scheduled('blockera_pro_each_per_ten_days')) {
-
-            wp_schedule_event(time(), 'blockera_pro_10_days', 'blockera_pro_each_per_ten_days');
-        }
-
-        add_option($this->config::getOptionKey() . $this->option_key_suffix, true);
-    }
-
-    /**
-     * Deactivation plugin hook.
-     *
-     * @return void
-     */
-    public function deactivationHook(): void
-    {
-        wp_clear_scheduled_hook('blockera_pro_each_per_day');
-    }
-
-    /**
-     * Redirecting your WordPress admin to your plugin activation page after activation it.
-     *
-     * @return void
-     */
-    public function redirectToActivationPage(): void
-    {
-        $optionKey = $this->config::getOptionKey() . $this->option_key_suffix;
-
-        // Check if the redirect flag is set and the user has sufficient permissions.
-        if (get_option($optionKey, false)) {
-
-            delete_option($optionKey);
-
-            if (is_admin() && current_user_can('activate_plugins')) {
-
-                // Redirect to plugin account page to activate the plugin.
-                wp_redirect(admin_url('admin.php?page=blockera-settings-account'));
-                exit;
-            }
         }
     }
 }

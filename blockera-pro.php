@@ -72,15 +72,94 @@ function blockera_pro_init(): void
         // loading front controller.
         require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
         ### END AUTO-GENERATED FRONT CONTROLLERS
+		
+		if (class_exists(Blockera\Auth\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
+			new \Blockera\Auth\Jobs(
+				new \Blockera\WordPress\Sender(),
+				include __DIR__ . '/config/auth.php'
+			);
+		}
     }
 }
 
-if (class_exists(Blockera\Auth\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
-    $jobs = new \Blockera\Auth\Jobs(
-        new \Blockera\WordPress\Sender(),
-        __FILE__,
-        include __DIR__ . '/config/auth.php'
+register_activation_hook(__FILE__, 'blockera_pro_activation');
+
+/**
+ * Activation plugin hook.
+ *
+ * @return void
+ */
+function blockera_pro_activation(): void {
+	
+	if (! wp_next_scheduled('blockera_pro_each_per_day')) {
+
+		wp_schedule_event(time(), 'blockera_pro_1_day', 'blockera_pro_each_per_day');
+	}
+
+	if (! wp_next_scheduled('blockera_pro_each_per_ten_days')) {
+
+		wp_schedule_event(time(), 'blockera_pro_10_days', 'blockera_pro_each_per_ten_days');
+	}
+
+	add_option(Blockera\Auth\Config::getOptionKey() . '_do_activation_redirect', true);
+}
+
+register_deactivation_hook(__FILE__, 'blockera_pro_deactivation');
+
+/**
+ * Deactivation plugin hook.
+ *
+ * @return void
+ */
+function blockera_pro_deactivation(): void {
+
+	wp_clear_scheduled_hook('blockera_pro_each_per_day');
+}
+
+ add_action('admin_notices', 'blockera_pro_redirect_to_activation_page', 9e2);
+
+/**
+ * Redirecting your WordPress admin to your plugin activation page after activation it.
+ *
+ * @return void
+ */
+function blockera_pro_redirect_to_activation_page(): void {
+	
+	$optionKey = Blockera\Auth\Config::getOptionKey() . '_do_activation_redirect';
+
+	// Check if the redirect flag is set and the user has sufficient permissions.
+	if (get_option($optionKey, false)) {
+
+		delete_option($optionKey);
+
+		if (is_admin() && current_user_can('activate_plugins')) {
+
+			// Redirect to plugin account page to activate the plugin.
+			echo '<script>window.location.href = "' . admin_url('admin.php?page=blockera-settings-account') . '";</script>';
+		}
+	}
+}
+
+add_filter('cron_schedules', 'blockera_pro_add_cron_interval');
+
+/**
+ * Add the 1 day schedule on stack.
+ *
+ * @param array $schedules The schedules array.
+ *
+ * @return array the new schedules array.
+ */
+function blockera_pro_add_cron_interval( array $schedules ): array {
+
+    $schedules['blockera_pro_1_day'] = array(
+        'interval' => 60 * 60 * 24,
+        'display'  => esc_html__('Every Day', 'blockera'),
     );
 
-    add_action('admin_init', [ $jobs, 'redirectToActivationPage' ]);
+    $schedules['blockera_pro_10_days'] = array(
+        'interval' => 60 * 60 * 24 * 10,
+        'display'  => esc_html__('Every Ten Days', 'blockera'),
+    );
+
+    return $schedules;
 }
