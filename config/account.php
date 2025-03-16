@@ -1,8 +1,8 @@
 <?php
 
-use Blockera\Auth\Config as AuthConfig;
+use Blockera\Auth\Repositories\OptionRepository;
 
-$oauth_option = get_option(AuthConfig::getOptionKey(), []);
+$oauth_option = OptionRepository::getOption();
 $products_licenses = array_column($oauth_option['licenses'] ?? [], 'productName');
 $license_index = array_search(blockera_pro_core_config('auth.productName'), $products_licenses, true);
 $license = $oauth_option['licenses'][$license_index] ?? [];

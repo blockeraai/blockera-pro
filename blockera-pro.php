@@ -15,6 +15,8 @@
  * @package Blockera Pro
  */
 
+use Blockera\Auth\Repositories\OptionRepository;
+
 // security code.
 if (! defined('ABSPATH')) {
 
@@ -101,7 +103,7 @@ function blockera_pro_activation(): void {
 		wp_schedule_event(time(), 'blockera_pro_10_days', 'blockera_pro_each_per_ten_days');
 	}
 
-	add_option(Blockera\Auth\Config::getOptionKey() . '_do_activation_redirect', true);
+	add_option(OptionRepository::getOptionKey() . '_do_activation_redirect', true);
 }
 
 register_deactivation_hook(__FILE__, 'blockera_pro_deactivation');
@@ -125,7 +127,7 @@ function blockera_pro_deactivation(): void {
  */
 function blockera_pro_redirect_to_activation_page(): void {
 	
-	$optionKey = Blockera\Auth\Config::getOptionKey() . '_do_activation_redirect';
+	$optionKey = OptionRepository::getOptionKey() . '_do_activation_redirect';
 
 	// Check if the redirect flag is set and the user has sufficient permissions.
 	if (get_option($optionKey, false)) {
