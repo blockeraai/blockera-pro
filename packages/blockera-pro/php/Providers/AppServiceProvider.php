@@ -112,7 +112,7 @@ class AppServiceProvider extends ServiceProvider {
         $client_info = get_option(AuthConfig::getOptionKey());
         $config = $this->app->make(AuthConfig::class, $auth_config_array);
 
-        // FIXME: This is a temporary solution to set the plugin icon.
+		// FIXME: This is a temporary icon to set the plugin icon. we need to provide a correct icon.
         $config->setIcons([ blockera_pro_core_config('app.root_url') . '/.wordpress-org/icon-256x256.png' ]);
 
         try {
