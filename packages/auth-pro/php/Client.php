@@ -16,10 +16,13 @@ class Client {
      */
     private GenericProvider $provider;
 
-    public function __construct( array $args = []) {
-        if (! empty($args)) {
-            $this->provider = new GenericProvider($args);
-        }
+	/**
+	 * The constructor.
+	 *
+	 * @param GenericProvider $provider The provider instance.
+	 */
+    public function __construct( GenericProvider $provider) {
+        $this->provider = $provider;
     }
 
     /**

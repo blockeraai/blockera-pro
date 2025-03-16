@@ -5,11 +5,13 @@ namespace Blockera\Pro\Providers;
 use Blockera\Auth\Client;
 use Blockera\Auth\Validator;
 use Blockera\Pro\BlockeraPro;
+use Blockera\Data\Cache\Cache;
 use Blockera\Bootstrap\Application;
 use Blockera\Auth\Upgrade\ProPlugin;
 use Blockera\Auth\Config as AuthConfig;
 use Blockera\Auth\Upgrade\NoticeIssuer;
 use Blockera\Bootstrap\ServiceProvider;
+use League\OAuth2\Client\Provider\GenericProvider;
 
 /**
  * Class AppServiceProvider for providing all application services.
@@ -25,11 +27,24 @@ class AppServiceProvider extends ServiceProvider {
     {
         parent::register();
 
+		global $blockera;
+
+		if ($blockera) {
+
+			$this->app->singleton(
+				Cache::class,
+				function ( Application $app, array $params = []) use ( $blockera) {
+
+					return $blockera->make(Cache::class, $params);
+				}
+			);
+		}
+
         $this->app->singleton(
             Client::class,
             static function ( Application $app, array $args = []) {
 
-                return new Client($args);
+                return new Client(new GenericProvider($args));
             }
         );
 
