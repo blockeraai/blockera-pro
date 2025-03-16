@@ -129,6 +129,7 @@
 		"crypto-js": "^4.2.0",
 		"css-minimizer-webpack-plugin": "^5.0.0",
 		"cypress": "^13.7.3",
+		"cypress-image-diff-js": "^1.1.0",
 		"cypress-log-to-output": "^1.1.2",
 		"cypress-real-events": "^1.12.0",
 		"deep-object-diff": "^1.1.9",
