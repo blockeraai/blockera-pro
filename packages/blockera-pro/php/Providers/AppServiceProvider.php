@@ -9,9 +9,9 @@ use Blockera\Data\Cache\Cache;
 use Blockera\Bootstrap\Application;
 use Blockera\Auth\Upgrade\ProPlugin;
 use Blockera\Auth\Config as AuthConfig;
-use Blockera\Auth\Repositories\OptionRepository;
 use Blockera\Auth\Upgrade\NoticeIssuer;
 use Blockera\Bootstrap\ServiceProvider;
+use Blockera\Auth\Repositories\OptionRepository;
 use League\OAuth2\Client\Provider\GenericProvider;
 
 /**
