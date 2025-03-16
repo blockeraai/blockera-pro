@@ -127,6 +127,8 @@ class Jobs {
 
 		// phpcs:ignore
         if (empty($response_body['success']) || false == $response_body['success'] || empty($response_body['data']['licenses'])) {
+			$this->removeCredentials();
+
             return;
         }
 
@@ -141,11 +143,34 @@ class Jobs {
         $license_index = array_search($license, $mapped_received_licenses, true);
 
         if (false === $license_index) {
-            delete_option(Config::getOptionKey());
+			$this->removeCredentials();
         }
 
         if (isset($mapped_received_licenses[ $license_index ]['isEnabled']) && true === $mapped_received_licenses[ $license_index ]['isEnabled']) {
             update_option(Config::getOptionKey(), $mapped_received_licenses);
         }
+    }
+
+	/**
+     * Remove options and transients related with the blockera product id.
+     *
+     * @return bool true on success, false on failure.
+     */
+    public function removeCredentials(): bool
+    {
+        global $wpdb;
+
+        $deleted_option_keys = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+                '%' . Config::getOptionKey() . '%'
+            )
+        );
+
+        if (is_int($deleted_option_keys)) {
+            $deleted_option_keys = true;
+        }
+
+        return $deleted_option_keys && is_int($deleted_option_keys);
     }
 }
