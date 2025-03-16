@@ -16,20 +16,6 @@ class ConnectionController extends RestController {
 	protected $errors = [];
 
 	/**
-	 * Store the option key.
-	 *
-	 * @var string
-	 */
-	protected $option_key;
-
-	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-         $this->option_key = Config::getOptionKey();
-	}
-
-	/**
 	 * Check if the user has permission to access the resource.
 	 *
 	 * @param \WP_REST_Request $request The request object.
@@ -63,7 +49,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option($this->option_key);
+		$client_info = get_option(Config::getOptionKey());
 
 		if (! $client_info) {
 
@@ -86,7 +72,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option($this->option_key, $info);
+		$updated = update_option(Config::getOptionKey(), $info);
 
 		if (! $updated && $info === $client_info) {
 			return new \WP_REST_Response(
@@ -132,7 +118,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option($this->option_key);
+		$client_info = get_option(Config::getOptionKey());
 
 		if (! $client_info) {
 
@@ -153,7 +139,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option($this->option_key, $info);
+		$updated = update_option(Config::getOptionKey(), $info);
 
 		if (! $updated && $client_info !== $info) {
 			return new \WP_REST_Response(
@@ -189,7 +175,7 @@ class ConnectionController extends RestController {
 	public function isConnected( \WP_REST_Request $request): \WP_REST_Response {
 		$this->validate($request->get_params());
 
-		$client_info = get_option($this->option_key);
+		$client_info = get_option(Config::getOptionKey());
 
 		if (empty($client_info['access_token'])) {
 
@@ -225,7 +211,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option($this->option_key, $info);
+		$updated = update_option(Config::getOptionKey(), $info);
 
 		if (! $updated && $client_info !== $info) {
 			$this->errors['update_failed'] = __('Failed to update connection status.', 'blockera');
@@ -277,7 +263,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option($this->option_key);
+		$client_info = get_option(Config::getOptionKey());
 
 		if (! empty($client_info['licenses']) && empty($request->get_param('force'))) {
 			$account_info = [
@@ -354,12 +340,9 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		// Create a transient key to store the subscription temporary data.
-		$prefix_transient_key = Config::getPrefixTransientKey();
-
 		$licenses = array_map(
-			function ( $license) use ( $prefix_transient_key) {
-				$transient_key = $prefix_transient_key . Utils::snakeCase(explode('- ', $license['name'])[2]);
+			function ( $license) {
+				$transient_key = Config::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $license['name'])[2]);
 
 				set_transient($transient_key, $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
 
@@ -384,7 +367,7 @@ class ConnectionController extends RestController {
 			$info['licenses'] = $licenses;
 		}
 
-		$updated = update_option($this->option_key, $info);
+		$updated = update_option(Config::getOptionKey(), $info);
 
 		if (! $updated && $client_info !== $info) {
 			return new \WP_REST_Response(
