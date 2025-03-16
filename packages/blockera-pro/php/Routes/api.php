@@ -15,16 +15,11 @@ if (! defined('ABSPATH')) {
  */
 
 try {
-
-    
-$routes->post('auth/licenses', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'getLicenses']);
-$routes->post('auth/unsubscribe', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'unsubscribe']);
-$routes->post('auth/is-connected', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'isConnected']);
-$routes->post('auth/create-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'createAccount']);
-$routes->post('auth/connect-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'connectAccount']);
-
-
+	$routes->post('auth/licenses', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'getLicenses']);
+	$routes->post('auth/unsubscribe', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'unsubscribe']);
+	$routes->post('auth/is-connected', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'isConnected']);
+	$routes->post('auth/create-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'createAccount']);
+	$routes->post('auth/connect-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'connectAccount']);
 } catch (Exception $exception) {
-
-    return $exception->getMessage();
+    wp_die($exception->getMessage() . ' ' . $exception->getFile() . ' on line: ' . $exception->getLine() . PHP_EOL . $exception->getTraceAsString());
 }
