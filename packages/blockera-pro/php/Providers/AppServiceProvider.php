@@ -60,38 +60,43 @@ class AppServiceProvider extends ServiceProvider {
         $this->app->singleton(
             Validator::class,
             function ( Application $app, array $args) {
-                return new Validator($app, $args['config_instance']);
+                return new Validator($app, $args['config']);
             }
         );
 
         $this->app->singleton(
             NoticeIssuer::class,
-            function ( Application $app, Validator $validator, array $args) {
-                return new NoticeIssuer($app, $validator, $args);
+            function ( Application $app, array $args) {
+                return new NoticeIssuer($app, $args);
             }
         );
 
         $this->app->singleton(
             ProPlugin::class,
             function ( Application $app, array $args): ProPlugin {
-                $plugin = array_intersect_key($args['config'], array_flip([ 'productName', 'pluginSlug' ]));
+                $plugin = array_intersect_key(
+                    [
+						'productName' => $args['config']->getProductName(),
+						'pluginSlug' => $args['config']->getPluginSlug(),
+					],
+                    array_flip([ 'productName', 'pluginSlug' ])
+                );
 
-                $auth_config = $app->make(AuthConfig::class, $args['config'] ?? []);
-                $auth_config->setProductIdentifier($args['license']['productId']);
-                $auth_config->setIsDev(blockera_core_config('app.debug'));
+                $args['config']->setProductIdentifier($args['license']['productId']);
+                $args['config']->setIsDev(blockera_core_config('app.debug'));
 
                 $app->make(
                     NoticeIssuer::class,
                     [
 						'plugin' => $plugin,
+						'config' => $args['config'],
                         'subscription' => $args['license']['name'] ?? '',
 						'validator' => $app->make(Validator::class, $args),
                     ]
                 );
 
-                unset($args['config']);
-                $args['slug'] = $auth_config->getPluginSlug();
-                $args['name'] = $auth_config->getPluginName();
+                $args['slug'] = $args['config']->getPluginSlug();
+                $args['name'] = $args['config']->getPluginName();
                 $args['id'] = $args['license']['id'];
 
                 return new ProPlugin($app, $args);
@@ -128,9 +133,8 @@ class AppServiceProvider extends ServiceProvider {
                     $pro_plugin = $this->app->make(
                         ProPlugin::class,
                         [
+							'config' => $config,
 							'license' => $license,
-							'config_instance' => $config,
-                            'config' => $auth_config_array,
                         ]
                     );
 

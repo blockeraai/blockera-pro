@@ -36,7 +36,7 @@ trait DynamicPropertyTrait {
 	public function __construct( Application $app, array $args = []) {
 		$this->app = $app;
 		$this->config = $app->make(Config::class);
-		$this->validator = $app->make(Validator::class);
+		$this->validator = $app->make(Validator::class, $args);
 
 		array_map(
 			function ( $key, $value) {
