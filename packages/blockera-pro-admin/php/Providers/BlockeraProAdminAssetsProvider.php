@@ -4,7 +4,7 @@ namespace Blockera\Pro\Admin\Providers;
 
 use Blockera\Auth\Client;
 use Blockera\Bootstrap\AssetsProvider;
-use Blockera\Auth\Config as AuthConfig;
+use Blockera\Auth\Repositories\OptionRepository;
 
 /**
  * Class AssetsProvider providing all assets for admin side.
@@ -83,8 +83,8 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      */
     public function authorizationInlineScript( string $inline_script): string
     {
-        $client_info = AuthConfig::getClientInfo();
-        $license = AuthConfig::getLicense($client_info);
+        $client_info = OptionRepository::getOption();
+        $license = OptionRepository::getLicense($client_info);
         $is_activated_pro = !empty($license) && 'active' === ( $license['status'] ?? 'expired' );
 
         $account_info = array_merge(

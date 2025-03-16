@@ -4,6 +4,7 @@ namespace Blockera\Auth;
 
 use Blockera\Auth\Config;
 use Blockera\Bootstrap\Application;
+use Blockera\Auth\Repositories\OptionRepository;
 
 class Validator {
 
@@ -65,12 +66,20 @@ class Validator {
 	protected Application $app;
 
 	/**
+	 * The config instance.
+	 *
+	 * @var Config $config The config instance.
+	 */
+	protected Config $config;
+
+	/**
 	 * The constructor.
 	 *
 	 * @param Application $app The application instance.
 	 */
-	public function __construct( Application $app) {
+	public function __construct( Application $app, Config $config) {
 		$this->app = $app;
+		$this->config = $config;
 	}
 
 	/**
@@ -97,25 +106,22 @@ class Validator {
 	 */
 	public function updateCheck( string $id): array
 	{
-		$config = $this->app->make(Config::class);
 		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->name . '/' . $this->name . '.php');
 
 		if (empty($data)) {
 			return [];
 		}
 
-		$config = $this->app->make(Config::class);
-		$cache_key = $config->getOptionKey() . '__update_check_' . $id;
+		$cache_key = '__update_check_' . $id;
 
-		// Get the transient.
-		$transient = get_transient($cache_key);
+		$transient = OptionRepository::getTransient($cache_key);
 
 		if (! empty($transient)) {
 			return $transient;
 		}
 
 		$response = wp_remote_post(
-			$config->getApiBaseUrl() . '/license-manager/v1/products/' . $id . '/check-for-updates',
+			$this->config->getApiBaseUrl() . '/license-manager/v1/products/' . $id . '/check-for-updates',
 			[
 				'timeout'     => 30,
 				'redirection' => 5,
@@ -123,7 +129,7 @@ class Validator {
 				// Disable SSL verification.
 				'sslverify'   => Config::isDev(),
 				'headers'     => [
-					'Authorization'    => 'Bearer ' . $config->getToken(),
+					'Authorization'    => 'Bearer ' . (OptionRepository::getOption('access_token') ?? ''),
 				],
 				'body'        => [
 					'id' => $id,
@@ -162,25 +168,22 @@ class Validator {
 			return false;
 		}
 
-		$config = $this->app->make(Config::class);
-
-		$transient_key = $config->getOptionKey() . '__allowed_plans';
-
-		$allowed_plans = get_transient($transient_key);
+		$transient_key = '__allowed_plans';
+		$allowed_plans = OptionRepository::getTransient($transient_key);
 
 		if (! empty($allowed_plans)) {
 			return in_array($plan, $allowed_plans, true);
 		}
 
 		$response = wp_remote_post(
-			$config->getAllowedPlansLink(),
+			$this->config->getAllowedPlansLink(),
 			[
 				'timeout' => 30,
 				'redirection' => 5,
 				'httpversion' => '1.1',
 				'sslverify' => false,
 				'body' => [
-					'id' => $config->getProductIdentifier(),
+					'id' => $this->config->getProductIdentifier(),
 				],
 			]
 		);
@@ -197,7 +200,7 @@ class Validator {
 			return false;
 		}
 
-		set_transient($transient_key, $allowed_plans, 60 * 60 * 24 * 30);
+		OptionRepository::setTransient($transient_key, $allowed_plans, 60 * 60 * 24 * 30);
 
 		return in_array($plan, $allowed_plans, true);
 	}

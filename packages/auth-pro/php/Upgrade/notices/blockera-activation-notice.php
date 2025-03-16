@@ -1,22 +1,26 @@
-<?php if (!\Blockera\Utils\Utils::isPluginInstalled($plugin['pluginSlug'])) : ?>
+<?php
+
+use Blockera\Auth\Repositories\OptionRepository;
+
+if (!\Blockera\Utils\Utils::isPluginInstalled($plugin['pluginSlug'])) : ?>
 	<div class="notice notice-info is-dismissible">
 		<p>
 			<?php
 			// phpcs:disable
 			/* translators: %s: Plugin name */
 			printf(
-				__('You need to Upgrade to PRO to unlock Pro features.', 'blockera'),
-				'<strong>' . esc_html($plugin['productName']) . '</strong>'
-			);
-			?>
+			   __('You need to Upgrade to PRO to unlock Pro features.', 'blockera'),
+			   '<strong>' . esc_html($plugin['productName']) . '</strong>'
+		   );
+		   ?>
 		</p>
 		<p>
 			<a href="<?php echo esc_url(\Blockera\Auth\Config::get('upgrade_url')); ?>" target="_blank" class="button button-primary">
-				<?php _e('Upgrade to Pro', 'blockera'); ?>
+			   <?php _e('Upgrade to Pro', 'blockera'); ?>
 			</a>
 		</p>
 	</div>
-<?php elseif (is_plugin_active($plugin['pluginSlug'] . '/' . $plugin['pluginSlug'] . '.php') && empty(\Blockera\Auth\Config::getClientInfo())): ?>
+<?php elseif (is_plugin_active($plugin['pluginSlug'] . '/' . $plugin['pluginSlug'] . '.php') && empty(OptionRepository::getOption())): ?>
 	<div class="notice notice-info is-dismissible">
 		<p>
 			<?php

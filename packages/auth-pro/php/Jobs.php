@@ -3,6 +3,7 @@
 namespace Blockera\Auth;
 
 use Blockera\WordPress\Sender;
+use Blockera\Auth\Repositories\OptionRepository;
 
 class Jobs {
 
@@ -42,7 +43,7 @@ class Jobs {
      */
     public function doRefreshToken(): void
     {
-        $clientInfo = $this->config->getClientInfo();
+        $clientInfo = OptionRepository::getOption();
 
         $response = wp_remote_post(
             $this->config->getRefreshTokenUrl(),
@@ -72,10 +73,9 @@ class Jobs {
             return;
         }
 
-        update_option(
-            Config::getOptionKey(),
-            array_merge(
-                get_option(Config::getOptionKey()),
+		OptionRepository::setOption(
+			array_merge(
+                OptionRepository::getOption(),
                 [
 					'expires'       => $data['expires_in'] ?? '',
 					'access_token'  => $data['access_token'] ?? '',
@@ -83,7 +83,7 @@ class Jobs {
 					'refresh_token' => $data['refresh_token'] ?? '',
                 ]
             )
-        );
+		);
     }
 
     /**
@@ -93,8 +93,8 @@ class Jobs {
      */
     public function verifyLicenseStatus(): void
     {
-        $client_info = $this->config->getClientInfo();
-        $license = $this->config->getLicense($client_info);
+        $client_info = OptionRepository::getOption();
+        $license = OptionRepository::getLicense($client_info);
 
         if (empty($license)) {
             return;
@@ -147,7 +147,7 @@ class Jobs {
         }
 
         if (isset($mapped_received_licenses[ $license_index ]['isEnabled']) && true === $mapped_received_licenses[ $license_index ]['isEnabled']) {
-            update_option(Config::getOptionKey(), $mapped_received_licenses);
+            OptionRepository::setOption($mapped_received_licenses);
         }
     }
 
@@ -163,7 +163,7 @@ class Jobs {
         $deleted_option_keys = $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
-                '%' . Config::getOptionKey() . '%'
+                '%' . OptionRepository::getOptionKey() . '%'
             )
         );
 

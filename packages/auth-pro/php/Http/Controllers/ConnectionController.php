@@ -3,8 +3,9 @@
 namespace Blockera\Auth\Http\Controllers;
 
 use Blockera\Auth\Config;
-use Blockera\Http\RestController;
 use Blockera\Utils\Utils;
+use Blockera\Http\RestController;
+use Blockera\Auth\Repositories\OptionRepository;
 
 class ConnectionController extends RestController {
 
@@ -49,7 +50,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option(Config::getOptionKey());
+		$client_info = OptionRepository::getOption();
 
 		if (! $client_info) {
 
@@ -72,7 +73,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option(Config::getOptionKey(), $info);
+		$updated = OptionRepository::setOption($info);
 
 		if (! $updated && $info === $client_info) {
 			return new \WP_REST_Response(
@@ -118,7 +119,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option(Config::getOptionKey());
+		$client_info = OptionRepository::getOption();
 
 		if (! $client_info) {
 
@@ -139,7 +140,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option(Config::getOptionKey(), $info);
+		$updated = OptionRepository::setOption($info);
 
 		if (! $updated && $client_info !== $info) {
 			return new \WP_REST_Response(
@@ -175,7 +176,7 @@ class ConnectionController extends RestController {
 	public function isConnected( \WP_REST_Request $request): \WP_REST_Response {
 		$this->validate($request->get_params());
 
-		$client_info = get_option(Config::getOptionKey());
+		$client_info = OptionRepository::getOption();
 
 		if (empty($client_info['access_token'])) {
 
@@ -211,7 +212,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$updated = update_option(Config::getOptionKey(), $info);
+		$updated = OptionRepository::setOption($info);
 
 		if (! $updated && $client_info !== $info) {
 			$this->errors['update_failed'] = __('Failed to update connection status.', 'blockera');
@@ -263,7 +264,7 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		$client_info = get_option(Config::getOptionKey());
+		$client_info = OptionRepository::getOption();
 
 		if (! empty($client_info['licenses']) && empty($request->get_param('force'))) {
 			$account_info = [
@@ -342,9 +343,9 @@ class ConnectionController extends RestController {
 
 		$licenses = array_map(
 			function ( $license) {
-				$transient_key = Config::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $license['name'])[2]);
+				$transient_key = Utils::snakeCase(explode('- ', $license['name'])[2]);
 
-				set_transient($transient_key, $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
+				OptionRepository::setTransient($transient_key, $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
 
 				unset($license['versionId']);
 
@@ -367,7 +368,7 @@ class ConnectionController extends RestController {
 			$info['licenses'] = $licenses;
 		}
 
-		$updated = update_option(Config::getOptionKey(), $info);
+		$updated = OptionRepository::setOption($info);
 
 		if (! $updated && $client_info !== $info) {
 			return new \WP_REST_Response(

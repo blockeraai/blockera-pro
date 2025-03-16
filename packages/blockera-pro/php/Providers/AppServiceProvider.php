@@ -9,6 +9,7 @@ use Blockera\Data\Cache\Cache;
 use Blockera\Bootstrap\Application;
 use Blockera\Auth\Upgrade\ProPlugin;
 use Blockera\Auth\Config as AuthConfig;
+use Blockera\Auth\Repositories\OptionRepository;
 use Blockera\Auth\Upgrade\NoticeIssuer;
 use Blockera\Bootstrap\ServiceProvider;
 use League\OAuth2\Client\Provider\GenericProvider;
@@ -59,14 +60,14 @@ class AppServiceProvider extends ServiceProvider {
         $this->app->singleton(
             Validator::class,
             function ( Application $app, array $args) {
-                return new Validator($app, $args);
+                return new Validator($app, $args['config_instance']);
             }
         );
 
         $this->app->singleton(
             NoticeIssuer::class,
-            function ( Application $app, array $args) {
-                return new NoticeIssuer($app, $args);
+            function ( Application $app, Validator $validator, array $args) {
+                return new NoticeIssuer($app, $validator, $args);
             }
         );
 
@@ -82,8 +83,9 @@ class AppServiceProvider extends ServiceProvider {
                 $app->make(
                     NoticeIssuer::class,
                     [
-                        'plugin' => $plugin,
+						'plugin' => $plugin,
                         'subscription' => $args['license']['name'] ?? '',
+						'validator' => $app->make(Validator::class, $args),
                     ]
                 );
 
@@ -108,8 +110,8 @@ class AppServiceProvider extends ServiceProvider {
 
         add_action('init', [ $this, 'loadTextDomain' ]);
 
+        $client_info = OptionRepository::getOption();
         $auth_config_array = blockera_pro_core_config('auth');
-        $client_info = get_option(AuthConfig::getOptionKey());
         $config = $this->app->make(AuthConfig::class, $auth_config_array);
 
 		// FIXME: This is a temporary icon to set the plugin icon. we need to provide a correct icon.
@@ -126,8 +128,9 @@ class AppServiceProvider extends ServiceProvider {
                     $pro_plugin = $this->app->make(
                         ProPlugin::class,
                         [
+							'license' => $license,
+							'config_instance' => $config,
                             'config' => $auth_config_array,
-                            'license' => $license,
                         ]
                     );
 

@@ -5,6 +5,7 @@ namespace Blockera\Auth;
 use Blockera\Utils\Utils;
 use Blockera\Exceptions\BaseException;
 use Blockera\Auth\Config as AuthConfig;
+use Blockera\Auth\Repositories\OptionRepository;
 use League\OAuth2\Client\Provider\GenericProvider;
 
 class Client {
@@ -35,7 +36,7 @@ class Client {
      */
     public function auth( array $client_info): void
     {
-        $license = AuthConfig::getLicense($client_info);
+        $license = OptionRepository::getLicense($client_info);
 
         if (isset($license['status']) && 'active' !== $license['status']) {
             return;
@@ -178,7 +179,7 @@ class Client {
      */
     public function save(): array
     {
-        $client_info = AuthConfig::getClientInfo();
+        $client_info = OptionRepository::getOption();
 
         if (empty($client_info['access_token'])) {
             throw new BaseException('Access token not found', 500);
@@ -217,14 +218,9 @@ class Client {
             throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
         }
 
-        // Create a transient key to store the subscription temporary data.
-        $prefix_transient_key = AuthConfig::getPrefixTransientKey();
-
         $licenses = array_map(
-            function ($license) use ($prefix_transient_key) {
-                $transient_key = $prefix_transient_key . Utils::snakeCase(explode('- ', $license['name'])[2]);
-
-                set_transient($transient_key, $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
+            function ($license) {
+				OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
 
                 unset($license['versionId']);
 
@@ -245,7 +241,7 @@ class Client {
             $info['licenses'] = $licenses;
         }
 
-        update_option(AuthConfig::getOptionKey(), $info);
+		OptionRepository::setOption($info);
 
         return $info;
     }

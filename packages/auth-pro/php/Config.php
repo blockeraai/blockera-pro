@@ -7,13 +7,6 @@ use Blockera\Utils\Utils;
 class Config {
 
     /**
-     * The option key.
-     *
-     * @var string $option_key The option key.
-     */
-    protected static string $option_key = 'blockera-oauth-credentials';
-
-    /**
      * The account info link.
      *
      * @var string $get_account_info_link The account info link.
@@ -91,13 +84,6 @@ class Config {
     protected static string $resource_owner_details_url;
 
     /**
-     * The prefix transient key.
-     *
-     * @var string $prefix_transient_key The prefix transient key.
-     */
-    protected static string $prefix_transient_key = 'blockera-oauth-subscription__';
-
-    /**
      * The app config.
      *
      * @var array $app_config The app config.
@@ -170,16 +156,6 @@ class Config {
     }
 
     /**
-     * Get the prefix transient key.
-     *
-     * @return string The prefix transient key.
-     */
-    public static function getPrefixTransientKey(): string
-    {
-        return self::$prefix_transient_key;
-    }
-
-    /**
      * Get the allowed plans link.
      *
      * @return string The allowed plans link.
@@ -230,16 +206,6 @@ class Config {
     }
 
     /**
-     * Get the option key.
-     *
-     * @return string The option key.
-     */
-    public static function getOptionKey(): string
-    {
-        return self::$option_key;
-    }
-
-    /**
      * Get the account info link.
      *
      * @return string The account info link.
@@ -277,40 +243,6 @@ class Config {
     public static function getUnsubscribeURL(): string
     {
         return self::$unsubscribe_url;
-    }
-
-    /**
-     * Get the subscription.
-     *
-     * @return array The subscription.
-     */
-    public static function getSubscriptions(): array
-    {
-        $client_info = get_option(self::$option_key);
-
-        return $client_info['subscriptions'] ?? [];
-    }
-
-    /**
-     * Get the client info.
-     *
-     * @return array The client info.
-     */
-    public static function getClientInfo(): array
-    {
-        $client_info = get_option(self::$option_key);
-
-        return empty($client_info) ? [] : $client_info;
-    }
-
-    /**
-     * Get the token.
-     *
-     * @return string The token.
-     */
-    public static function getToken(): string
-    {
-        return self::getClientInfo()['access_token'] ?? '';
     }
 
     /**
@@ -401,20 +333,6 @@ class Config {
     public static function getPluginName(): string
     {
         return self::$plugin_name;
-    }
-
-	/**
-	 * Get the license.
-	 *
-	 * @return array The license.
-	 */
-    public static function getLicense( array $oauth_option = []): array
-    {
-        $oauth_option = empty($oauth_option) ? self::getClientInfo() : $oauth_option;
-        $products_licenses = array_column($oauth_option['licenses'] ?? [], 'productName');
-        $license_index = array_search(self::getProductName(), $products_licenses, true);
-
-        return $oauth_option['licenses'][ $license_index ] ?? [];
     }
 
 	/**
