@@ -77,9 +77,9 @@ class Client {
             }
 
             $allowed_redirect_to = true;
-        } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+        } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException | BaseException $e) {
             // Failed to get the access token or user details.
-            exit($e->getMessage());
+             wp_die($e->getMessage());
         }
 
         if ($allowed_redirect_to) {
@@ -132,7 +132,7 @@ class Client {
 
             $data = $response_object->get_data();
 
-            throw new BaseException(implode(', ', $data['errors']), $data['code']);
+            throw new BaseException(!empty($data['errors']) ? implode(', ', $data['errors']) : 'Rest No Route', 500);
         }
     }
 
@@ -167,7 +167,7 @@ class Client {
 
             $data = $response_object->get_data();
 
-            throw new BaseException(implode(', ', $data['errors']), $data['code']);
+            throw new BaseException(!empty($data['errors']) ? implode(', ', $data['errors']) : 'Rest No Route', 500);
         }
     }
 
