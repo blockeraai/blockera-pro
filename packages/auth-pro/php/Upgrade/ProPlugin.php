@@ -5,6 +5,7 @@ namespace Blockera\Auth\Upgrade;
 use Blockera\Auth\Config;
 use Blockera\Utils\Utils;
 use Blockera\Auth\DynamicPropertyTrait;
+use Blockera\Auth\Repositories\OptionRepository;
 
 class ProPlugin {
 
@@ -181,7 +182,7 @@ class ProPlugin {
 	private function getProPluginFileUrl(): string
 	{
 		// Create a transient key to store the license temporary data.
-		$transient_key = $this->config->getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
+		$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
 		$transient = get_transient($transient_key);
 
 		if (empty($transient)) {
@@ -198,7 +199,7 @@ class ProPlugin {
 			}
 
 			// Create a transient key to store the license temporary data.
-			$transient_key = $this->config->getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
+			$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
 			$transient = get_transient($transient_key);
 
 			if (empty($transient)) {
@@ -210,7 +211,7 @@ class ProPlugin {
 			'timeout' => 30,
 			'sslverify' => Config::isDev(),
 			'headers' => [
-				'Authorization' => 'Bearer ' . $this->config->getToken(),
+				'Authorization' => 'Bearer ' . OptionRepository::getOption('access_token'),
 			],
 			'body' => [
 				'domain' => get_site_url(),
