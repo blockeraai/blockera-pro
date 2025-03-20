@@ -51,22 +51,6 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 	}
 
 	/**
-	 * @return string the blockera pro plugin root URL.
-	 */
-	protected function getURL(): string {
-
-		return blockera_pro_core_config( 'app.root_url' );
-	}
-
-	/**
-	 * @return string the blockera pro plugin root PATH.
-	 */
-	protected function getPATH():string {
-
-		return blockera_pro_core_config( 'app.root_path' );
-	}
-
-	/**
 	 * Localize js variables and scripts on inline script of page.
 	 *
 	 * @return void
@@ -110,8 +94,22 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 							);
 						}
 					);
-				}'
+				}
+			var blockeraAccount = ' . wp_json_encode( blockera_pro_core_config( 'account' ) ) . ';'
 		);
 	}
 
+	/**
+	 * Get fallback arguments.
+	 *
+	 * @return array the fallback arguments.
+	 */
+	protected function getFallbackArgs(): array {
+
+		return [
+			'url'  => blockera_pro_core_config( 'app.root_url' ),
+			'path' => blockera_pro_core_config( 'app.root_path' ),
+			'debug-mode' => blockera_pro_core_config( 'app.debug' ),
+		];
+	}
 }
