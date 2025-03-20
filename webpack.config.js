@@ -51,7 +51,8 @@ module.exports = (env, argv) => {
 
 			if (
 				-1 === name.indexOf(PRO_SUFFIX) &&
-				BLOCKERA_GUARD_NICKNAME !== name
+				BLOCKERA_GUARD_NICKNAME !== name &&
+				'validator' !== name
 			) {
 				const {
 					version: _v,
