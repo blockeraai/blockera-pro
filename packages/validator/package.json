@@ -1,0 +1,24 @@
+{
+	"name": "@blockera/validator",
+	"version": "1.0.0",
+	"description": "The Blockera Validator of pro features versus hackers.",
+	"author": "The Blockera Core Contributors",
+	"license": "ISC",
+	"keywords": [
+		"blockera",
+		"validator"
+	],
+	"homepage": "https://github.com/blockeraai/blockera-pro/blob/master/packages/validator/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/blockeraai/validator",
+		"directory": "packages/validator"
+	},
+	"bugs": {
+		"url": "https://github.com/blockeraai/validator/issues"
+	},
+	"engines": {
+		"node": ">=12"
+	},
+	"main": "js/index.js"
+}

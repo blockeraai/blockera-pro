@@ -17,7 +17,7 @@
 	},
 	"homepage": "https://github.com/blockeraai/blockera-pro#readme",
 	"scripts": {
-		"refactor:validation": "node packages/console/js/commands/validation/command.js packages/guard/js/editor/index.js",
+		"refactor:validation": "node packages/console/js/commands/validation/command.js [packages/guard/js/editor/index.js, packages/editor-pro/js/extensions/libs/block-states/index.js, packages/controls-pro/js/index.js, packages/validator/js/validate-secret-keys.js]",
 		"build": "npm run refactor:validation && wp-scripts build --progress --mode production",
 		"format": "wp-scripts format",
 		"lint:js": "wp-scripts lint-js",
@@ -81,6 +81,7 @@
 		"@blockera/editor-pro": "file:packages/editor-pro",
 		"@blockera/env": "file:../blockera/packages/env",
 		"@blockera/guard": "file:packages/guard",
+		"@blockera/validator": "file:packages/validator",
 		"@blockera/icons": "file:../blockera/packages/icons",
 		"@blockera/storage": "file:../blockera/packages/storage",
 		"@blockera/telemetry": "file:../blockera/packages/telemetry",

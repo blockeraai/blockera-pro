@@ -11,6 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { FeatureWrapper } from '@blockera/controls';
 import { isBoolean, isArray } from '@blockera/utils';
+import { validateSecretKeys } from '@blockera/validator';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import {
 	getBaseBreakpoint,
 	useExtensionsStore,
 } from '@blockera/editor';
-import { validateSecretKeys } from '../validate-secret-keys';
 import type { EditorFeatureWrapperProps } from '../../../blockera-pro/js/types';
 
 export const EditorFeatureWrapper = ({
@@ -51,16 +51,16 @@ export const EditorFeatureWrapper = ({
 		client_secret: clientSecret,
 		access_token: accessToken,
 		refresh_token: refreshToken,
-		subscription: {
+		license: {
 			id,
 			name,
 			status,
 			startDate,
-			subscriberId,
+			licenseKey,
 			nextPaymentDueDate,
 		},
 	} = account || {
-		subscription: {},
+		license: {},
 	};
 
 	const [isAvailable, setIsAvailable] = useState(false);
@@ -75,7 +75,7 @@ export const EditorFeatureWrapper = ({
 			!refreshToken ||
 			!status ||
 			!name ||
-			!subscriberId ||
+			!licenseKey ||
 			!nextPaymentDueDate ||
 			!startDate ||
 			!clientId ||
@@ -93,11 +93,14 @@ export const EditorFeatureWrapper = ({
 			domain,
 			clientId,
 			clientSecret,
-			subscriberId,
+			licenseKey,
 			subscriptionId,
 		});
 
 		if (!validated) {
+			console.warn(
+				'Invalid registered license! please check your domain and license in the https://blockera.ai'
+			);
 			return;
 		}
 		// End Validation: Secret keys.
@@ -121,7 +124,7 @@ export const EditorFeatureWrapper = ({
 		setIsAvailable(true);
 	}, [
 		id,
-		subscriberId,
+		licenseKey,
 		nextPaymentDueDate,
 		startDate,
 		name,
