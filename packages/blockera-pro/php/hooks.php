@@ -18,6 +18,7 @@ if (! function_exists('blockera_pro_get_filtered_entities')) {
     {
 
         $entities['blockera']['locked'] = blockera_pro_core_config('app.name');
+		$entities['blockera']['account'] = blockera_pro_core_config('account');
 
         return $entities;
     }
