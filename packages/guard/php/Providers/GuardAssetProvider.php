@@ -51,9 +51,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 						'path' => $this->getPATH(),
 					],
 					'packages-deps' => [
-						'@blockera/guard' => [
-							'@blockera/blockera',
-						],
+						'@blockera/blockera',
 					],
 					'enqueue-block-assets' => true,
 				],
@@ -79,6 +77,14 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	protected function getPath(): string
 	{
 		return blockera_pro_core_config('app.root_path');
+	}
+
+	/**
+	 * @return bool the blockera pro plugin debug mode.
+	 */
+	protected function getDebugMode(): bool {
+
+		return blockera_pro_core_config( 'app.debug' );
 	}
 
 	/**
