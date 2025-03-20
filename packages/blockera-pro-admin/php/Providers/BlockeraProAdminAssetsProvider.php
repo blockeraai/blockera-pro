@@ -20,6 +20,11 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      */
     public function boot(): void
     {
+		// Skip execution if saving in site editor.
+		if (blockera_is_skip_request()) {
+			return;
+		}
+
         if (empty($_REQUEST['page']) || false === strpos($_REQUEST['page'], 'blockera-settings')) {
             return;
         }
@@ -39,15 +44,13 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
                     'enqueue-admin-assets' => true,
                     'id' => $this->getId(),
                     'packages-deps' => [
-                        '@blockera/auth-pro' => [
-                            '@blockera/utils',
-                            '@blockera/classnames',
-                            '@blockera/icons',
-                            '@blockera/data',
-                            '@blockera/data-editor',
-                            '@blockera/env',
-                            '@blockera/controls',
-                        ],
+                        '@blockera/utils',
+                        '@blockera/classnames',
+                        '@blockera/icons',
+                        '@blockera/data',
+                        '@blockera/data-editor',
+                        '@blockera/env',
+                        '@blockera/controls',
                     ],
                 ],
             ]
@@ -211,4 +214,11 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
         return blockera_pro_core_config('app.root_path');
     }
 
+	/**
+	 * @return bool the blockera pro plugin debug mode.
+	 */
+	protected function getDebugMode(): bool {
+
+		return blockera_pro_core_config( 'app.debug' );
+	}
 }
