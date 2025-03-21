@@ -64,7 +64,7 @@ jobs:
                       accessibility
                   exclude-directories: 'vendor,.wordpress-org'
                   exclude-checks: |
-                      TextDomain
+                      textdomain
 
     test_php_security_check:
         name: PHP Security Check
