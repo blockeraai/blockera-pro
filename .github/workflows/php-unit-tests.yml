@@ -114,6 +114,7 @@ jobs:
                   touch .env
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env
+                  echo CI_ENV=true >> .env
                   cat .env
 
             - name: Start WordPress Environment
