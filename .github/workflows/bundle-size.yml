@@ -59,10 +59,13 @@ jobs:
               run: |
                   cd ..
                   git clone https://github.com/blockeraai/blockera.git
-                  cd blockera
-                  npm ci
-                  npm run build
-                  cd ../blockera-pro
+                  cd blockera-pro
+
+            - name: Install Blockera Site Builder
+              uses: ./.github/setup-node
+              with:
+                  chdir: ../blockera
+                  dir: blockera-pro
 
             - name: Build Plugin Zip File
               uses: ./.github/build-plugin-zip
