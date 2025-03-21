@@ -42,12 +42,17 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 	 */
 	protected function getAssets():array {
 
-		return array_merge(
-			[
-				'blockera-pro',
-			],
-			parent::getAssets()
-		);
+		$assets = parent::getAssets();
+		
+		$icons_index = array_search('icons', $assets, true);
+
+		if ($icons_index) {
+			array_splice($assets, $icons_index + 1, 0, [ 'blockera-pro' ]);
+
+			return $assets;
+		}
+
+		return [];
 	}
 
 	/**

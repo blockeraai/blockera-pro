@@ -135,6 +135,7 @@ module.exports = (env, argv) => {
 		mode: argv?.mode || 'production',
 		externals: {
 			// Externalize the local packages.
+			'@blockera/icons': 'blockeraIcons',
 			'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
 			'@blockera/telemetry':
 				'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
