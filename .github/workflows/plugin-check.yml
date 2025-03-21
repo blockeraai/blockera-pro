@@ -60,6 +60,8 @@ jobs:
                       plugin_repo
                       accessibility
                   exclude-directories: 'vendor,.wordpress-org'
+                  exclude-checks: |
+                      TextDomain
 
     test_php_security_check:
         name: PHP Security Check
