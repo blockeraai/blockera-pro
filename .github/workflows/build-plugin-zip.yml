@@ -122,7 +122,6 @@ jobs:
               run: |
                   cd ..
                   git clone https://github.com/blockeraai/blockera.git
-                  cd blockera-pro
 
             - name: Install Blockera Site Builder
               uses: ./.github/setup-node
@@ -200,7 +199,6 @@ jobs:
               run: |
                   cd ..
                   git clone https://github.com/blockeraai/blockera.git
-                  cd blockera-pro
 
             - name: Install Blockera Site Builder
               uses: ./.github/setup-node
