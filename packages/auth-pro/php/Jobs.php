@@ -75,11 +75,11 @@ class Jobs {
 
 		OptionRepository::setOption(
 			array_merge(
-                OptionRepository::getOption(),
+                $clientInfo,
                 [
+					'has_expired'   => false,
 					'expires'       => $data['expires_in'] ?? '',
 					'access_token'  => $data['access_token'] ?? '',
-					'has_expired'   => false,
 					'refresh_token' => $data['refresh_token'] ?? '',
                 ]
             )
