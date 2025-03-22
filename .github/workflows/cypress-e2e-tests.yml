@@ -49,6 +49,18 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v3
 
+            - name: Clone Blockera Site Builder
+              run: |
+                  cd ..
+                  git clone https://github.com/blockeraai/blockera.git
+                  cd blockera-pro
+
+            - name: Install Blockera Site Builder
+              uses: ./.github/setup-node
+              with:
+                  chdir: ../blockera
+                  dir: blockera-pro
+
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
 
@@ -69,6 +81,7 @@ jobs:
                   touch .env
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env
+                  echo CI_ENV=true >> .env
                   cat .env
 
             - name: Start WordPress Environment

@@ -6,11 +6,23 @@
 	"repositories": [
 		{
 			"type": "path",
+			"url": "./packages/auth-pro"
+		},
+		{
+			"type": "path",
 			"url": "./packages/blockera-pro"
 		},
 		{
 			"type": "path",
 			"url": "./packages/blockera-pro-admin"
+		},
+		{
+			"type": "path",
+			"url": "./packages/guard"
+		},
+		{
+			"type": "path",
+			"url": "./packages/dev-phpunit"
 		},
 		{
 			"type": "path",
@@ -25,12 +37,16 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7.4",
+		"blockera/auth-pro": "*",
+		"blockera/guard": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
 		"blockera/utils": "*",
-		"vlucas/phpdotenv": "^5.6@dev"
+		"vlucas/phpdotenv": "^5.6@dev",
+		"league/oauth2-client": "dev-master"
 	},
 	"require-dev": {
+		"blockera/dev-phpunit": "*",
 		"symfony/dom-crawler": "5.4.x-dev",
 		"symfony/css-selector": "5.4.x-dev",
 		"voku/simple_html_dom": "dev-master",
@@ -43,7 +59,9 @@
 		"wp-phpunit/wp-phpunit": "dev-master",
 		"filp/whoops": "^2.15",
 		"yoast/phpunit-polyfills": "^2.0@dev",
-		"symfony/var-dumper": "5.4.x-dev"
+		"symfony/var-dumper": "5.4.x-dev",
+		"brain/monkey": "^2.0@dev",
+		"mockery/mockery": "1.7.x-dev"
 	},
 	"config": {
 		"process-timeout": 0,

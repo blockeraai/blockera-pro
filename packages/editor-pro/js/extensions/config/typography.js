@@ -20,10 +20,15 @@ const blockeraWordBreak: Object = {
 	isActiveOnFree: true,
 };
 
+const blockeraTextWrap: Object = {
+	isActiveOnFree: true,
+};
+
 export const typographyConfig = {
 	blockeraWordSpacing,
 	blockeraTextIndent,
 	blockeraTextColumns,
 	blockeraTextStroke,
 	blockeraWordBreak,
+	blockeraTextWrap,
 };

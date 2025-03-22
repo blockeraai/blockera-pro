@@ -1,0 +1,14 @@
+{
+	"name": "blockera/guard",
+	"description": "The Blockera Guard of pro features versus hackers.",
+	"autoload": {
+		"psr-4": {
+			"Blockera\\Guard\\": "php/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\Guard\\Tests\\": "php/tests/"
+		}
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"name": "@blockera/guard",
+	"version": "1.0.0",
+	"description": "The Blockera Guard of pro features versus hackers.",
+	"author": "The Blockera Core Contributors",
+	"license": "ISC",
+	"keywords": [
+		"blockera",
+		"guard"
+	],
+	"homepage": "https://github.com/blockeraai/blockera-pro/blob/master/packages/guard/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/blockeraai/guard",
+		"directory": "packages/guard"
+	},
+	"bugs": {
+		"url": "https://github.com/blockeraai/guard/issues"
+	},
+	"engines": {
+		"node": ">=12"
+	},
+	"main": "js/index.js"
+}

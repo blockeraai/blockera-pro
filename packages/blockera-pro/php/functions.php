@@ -16,7 +16,7 @@ if ( ! function_exists( 'blockera_pro_core_config' ) ) {
 	 */
 	function blockera_pro_core_config( string $key ) {
 
-		return blockera_core_config( $key, [ 'root' => BLOCKERA_PRO_PATH ] );
+		return blockera_core_config( $key, [ 'root' => rtrim(BLOCKERA_PRO_PATH, '/') ] );
 	}
 }
 
