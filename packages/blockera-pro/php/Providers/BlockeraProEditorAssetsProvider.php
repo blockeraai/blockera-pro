@@ -42,26 +42,17 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 	 */
 	protected function getAssets():array {
 
-		return array_merge(
-			blockera_pro_core_config( 'assets.editor.list' ),
-			parent::getAssets()
-		);
-	}
+		$assets = parent::getAssets();
+		
+		$icons_index = array_search('icons', $assets, true);
 
-	/**
-	 * @return string the blockera pro plugin root URL.
-	 */
-	protected function getURL(): string {
+		if ($icons_index) {
+			array_splice($assets, $icons_index + 1, 0, [ 'blockera-pro' ]);
 
-		return blockera_pro_core_config( 'app.root_url' );
-	}
+			return $assets;
+		}
 
-	/**
-	 * @return string the blockera pro plugin root PATH.
-	 */
-	protected function getPATH():string {
-
-		return blockera_pro_core_config( 'app.root_path' );
+		return [];
 	}
 
 	/**
@@ -108,8 +99,22 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 							);
 						}
 					);
-				}'
+				}
+			var blockeraAccount = ' . wp_json_encode( blockera_pro_core_config( 'account' ) ) . ';'
 		);
 	}
 
+	/**
+	 * Get fallback arguments.
+	 *
+	 * @return array the fallback arguments.
+	 */
+	protected function getFallbackArgs(): array {
+
+		return [
+			'url'  => blockera_pro_core_config( 'app.root_url' ),
+			'path' => blockera_pro_core_config( 'app.root_path' ),
+			'debug-mode' => blockera_pro_core_config( 'app.debug' ),
+		];
+	}
 }

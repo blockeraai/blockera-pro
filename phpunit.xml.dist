@@ -17,7 +17,6 @@
     <testsuites>
         <testsuite name="Test Suite">
             <directory suffix=".php">./packages/dev-phpunit/php/</directory>
-            <directory suffix=".php">./packages/utils/php/tests/</directory>
             <exclude>./node_modules/</exclude>
             <exclude>./dist/</exclude>
         </testsuite>

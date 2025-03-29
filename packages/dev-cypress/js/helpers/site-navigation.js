@@ -47,15 +47,40 @@ export function goTo(path = '/wp-admin', login = false) {
  * Creates new post
  *
  * @param {postType} string WP post type slug
+ * @param {postTitle} string WP post title
  */
-export function createPost({ postType = 'post' } = {}) {
+export function createPost({ postType = 'post', postTitle = '' } = {}) {
 	goTo('/wp-admin/post-new.php?post_type=' + postType).then(() => {
 		// eslint-disable-next-line
 		cy.wait(2000);
 
+		if (postType === 'page') {
+			cy.wait(7000);
+			cy.get('body').then(($body) => {
+				const selector = 'button[aria-label="Close"]';
+
+				const domElement = $body.find(selector);
+
+				// Check if the element exists in the DOM
+				if (domElement.length > 0) {
+					// If it exists, click on the element
+					cy.get(selector).click();
+				}
+			});
+		}
+
 		if (['post', 'page'].includes(postType)) {
 			disableGutenbergFeatures();
 			setAbsoluteBlockToolbar();
+		}
+
+		if (postTitle) {
+			cy.getIframeBody()
+				.find(
+					'h1.wp-block.wp-block-post-title, textarea[placeholder="Add title"]'
+				)
+				.click()
+				.type(postTitle);
 		}
 	});
 }

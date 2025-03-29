@@ -1,0 +1,166 @@
+.blockera-auth-container {
+	text-align: center;
+
+	.title {
+		margin-bottom: 20px;
+	}
+
+	.description {
+		font-size: 16px;
+		margin-bottom: 50px;
+	}
+
+	.domain {
+		gap: 5px;
+		font-size: 14px;
+		width: auto;
+		height: 29px;
+		color: #ffffff;
+		background-color: var(--blockera-controls-primary-color);
+		margin: 1rem auto 6rem auto;
+		line-height: 29px;
+		border: none;
+		border-radius: 3px;
+		padding: 5px 10px;
+		font-weight: 700;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		span {
+			color: #80adff !important;
+		}
+	}
+
+	.activate-call-to-action {
+		width: 390px;
+		height: 45px;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		margin: 0 auto 1rem auto;
+	}
+
+	.how-to {
+		display: flex;
+		flex-wrap: wrap;
+		font-size: 14px;
+		margin: 20px auto 0 auto;
+		color: #8a8a8a;
+		gap: 5px;
+		width: 72%;
+		justify-content: center;
+
+		a {
+			color: var(--blockera-controls-primary-color);
+			text-decoration: underline;
+		}
+	}
+
+	.blockera-auth-congratulations {
+		line-height: 2;
+	}
+
+	p {
+		font-size: 16px;
+	}
+
+	.blockera-auth-success-buttons {
+		width: 50%;
+		margin: 100px auto 0 auto;
+		justify-content: center;
+
+		.create-page,
+		 .manage-licenses {
+			border-radius: 5px;
+		}
+	}
+}
+
+.blockera-component-blockera-license-container {
+
+	.account-info {
+
+		.blockera-control-account-avatar {
+			width: 50px !important;
+			height: 50px !important;
+		}
+
+		h3 {
+			font-size: 14px;
+		}
+
+		p {
+			font-size: 13px;
+			color: #a3a3a3;
+		}
+	}
+
+	.blockera-licenses-subtitle {
+		font-size: 14px;
+		color: #6c6c6c;
+		font-weight: 500;
+		margin-bottom: 0;
+		text-transform: uppercase;
+
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+
+	.blockera-component-license {
+		background-color: #ffffff;
+		border: solid 1px transparent;
+		border-radius: 3px;
+		padding: 2px 15px;
+		height: 90px;
+		flex: 1;
+		position: relative;
+
+		&.active {
+			border-color: #cfe0ff;
+		}
+
+		&.is-expired {
+			border-color: #e60000;
+		}
+
+		.product-title {
+			margin: 0;
+			padding: 0;
+			text-align: left;
+			font-size: 16px;
+		}
+
+		.product-details {
+			padding: 0;
+			margin: 0;
+			font-size: 14px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: #6c6c6c;
+			font-weight: 400;
+		}
+
+		.product-status {
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			background-color: #17c20033;
+			position: absolute;
+			right: 10px;
+			line-height: 32px;
+			text-align: center;
+
+			svg {
+				fill: #17c200;
+			}
+		}
+
+		.blockera-subscription-actions {
+			right: 10px;
+			position: absolute;
+		}
+	}
+}

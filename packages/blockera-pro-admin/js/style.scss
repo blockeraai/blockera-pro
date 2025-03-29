@@ -1,0 +1,30 @@
+#blockera-admin-settings-container {
+
+	.blockera-settings-tabs {
+
+		.blockera-control-account-avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		.profile-container {
+			width: 310px;
+			padding: 10px;
+			cursor: pointer;
+			margin-top: 460px;
+			border-radius: 8px;
+			background-color: #ffffff;
+
+			h3 {
+				font-size: 14px;
+			}
+
+			p {
+				font-size: 13px;
+				color: #a3a3a3;
+			}
+		}
+	}
+}

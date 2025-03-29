@@ -23,9 +23,20 @@ module.exports = (env, argv) => {
 	}
 
 	const BLOCKERA_NAMESPACE = '@blockera/';
+	const BLOCKERA_GUARD_MAIN_NAME = 'guard';
+	const BLOCKERA_GUARD_NICKNAME = 'feature-manager';
+	const PRO_SUFFIX = '-pro';
 	const blockeraPackages = Object.keys(dependencies)
 		.filter((packageName) => packageName.startsWith(BLOCKERA_NAMESPACE))
-		.map((packageName) => packageName.replace(BLOCKERA_NAMESPACE, ''));
+		.map((packageName) => packageName.replace(BLOCKERA_NAMESPACE, ''))
+		.map((packageName) => {
+			if (BLOCKERA_GUARD_MAIN_NAME === packageName) {
+				// Rename guard package to feature-manager to avoid exposing security functionality
+				packageName = BLOCKERA_GUARD_NICKNAME;
+			}
+
+			return packageName;
+		});
 	const blockeraPackagesVersion = Object.fromEntries(
 		blockeraPackages.map((packageName) => {
 			let parentDirectory = '';
@@ -36,9 +47,29 @@ module.exports = (env, argv) => {
 				name = name.split('blocks-')[1];
 			}
 
-			const {
-				version,
-			} = require(`./packages/${parentDirectory}${name}/package.json`);
+			let version;
+
+			if (
+				-1 === name.indexOf(PRO_SUFFIX) &&
+				BLOCKERA_GUARD_NICKNAME !== name &&
+				'validator' !== name
+			) {
+				const {
+					version: _v,
+				} = require(`../blockera/packages/${parentDirectory}${name}/package.json`);
+
+				version = _v;
+			} else {
+				if (BLOCKERA_GUARD_NICKNAME === name) {
+					packageName = name = 'guard';
+				}
+
+				const {
+					version: _v,
+				} = require(`./packages/${parentDirectory}${name}/package.json`);
+
+				version = _v;
+			}
 
 			return [packageName, version.replace(/\./g, '_')];
 		})
@@ -49,13 +80,23 @@ module.exports = (env, argv) => {
 			return memo;
 		}
 
-		if (!blockeraPackagesVersion[packageName]) {
+		if (
+			!blockeraPackagesVersion[packageName] &&
+			packageName === BLOCKERA_GUARD_NICKNAME &&
+			!blockeraPackagesVersion[BLOCKERA_GUARD_MAIN_NAME]
+		) {
 			return memo;
 		}
 
 		const parentDirectory = '';
-		const _packageName = packageName;
-		const version = blockeraPackagesVersion[packageName];
+		const _packageName =
+			packageName === BLOCKERA_GUARD_NICKNAME
+				? BLOCKERA_GUARD_MAIN_NAME
+				: packageName;
+		const version =
+			packageName === BLOCKERA_GUARD_NICKNAME
+				? blockeraPackagesVersion[BLOCKERA_GUARD_MAIN_NAME]
+				: blockeraPackagesVersion[packageName];
 
 		const name = packageName.startsWith('blockera')
 			? camelCaseDash(packageName + '_' + version)
@@ -78,8 +119,44 @@ module.exports = (env, argv) => {
 
 	return packagesConfig(env, {
 		...argv,
-		entry: blockeraEntries,
+		entry: Object.fromEntries(
+			Object.entries(blockeraEntries).filter(([entry]) => {
+				if (
+					-1 === entry.indexOf(PRO_SUFFIX) &&
+					BLOCKERA_GUARD_NICKNAME !== entry
+				) {
+					return false;
+				}
+
+				return true;
+			})
+		),
 		devtoolNamespace: 'blockera-pro',
 		mode: argv?.mode || 'production',
+		externals: {
+			// Externalize the local packages.
+			'@blockera/icons': 'blockeraIcons',
+			'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
+			'@blockera/telemetry':
+				'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
+			'@blockera/auth': 'blockeraAuth_' + blockeraPackagesVersion.auth,
+			'@blockera/storage':
+				'blockeraStorage_' + blockeraPackagesVersion.storage,
+			'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
+			'@blockera/editor':
+				'blockeraEditor_' + blockeraPackagesVersion.editor,
+			'@blockera/core-blocks':
+				'blockeraBlocksCore_' + blockeraPackagesVersion['blocks-core'],
+			'@blockera/controls':
+				'blockeraControls_' + blockeraPackagesVersion.controls,
+			'@blockera/bootstrap':
+				'blockeraBootstrap_' + blockeraPackagesVersion.bootstrap,
+			'@blockera/wordpress':
+				'blockeraWordpress_' + blockeraPackagesVersion.wordpress,
+			'@blockera/classnames':
+				'blockeraClassnames_' + blockeraPackagesVersion.classnames,
+			'@blockera/data-editor':
+				'blockeraDataEditor_' + blockeraPackagesVersion['data-editor'],
+		},
 	});
 };
