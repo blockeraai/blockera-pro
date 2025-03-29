@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import compareSnapshotCommand from 'cypress-image-diff-js/command';
+/**
  * Blockera dependencies
  */
 import { isString } from '@blockera/utils';
@@ -12,6 +16,9 @@ import {
 } from '../helpers';
 
 export const registerCommands = () => {
+	//This registers the cy.compareSnapshot() custom command provided by the plugin
+	compareSnapshotCommand();
+
 	// Custom uploadFile command
 	Cypress.Commands.add('uploadFile', (fileName, fileType, selector) => {
 		cy.get(selector).then((subject) => {
@@ -77,6 +84,13 @@ export const registerCommands = () => {
 			!Cypress.$(`[aria-label="${selector}"]`).length
 		) {
 			const parsedSelector = selector.split(' ');
+			const parsedLabel = selector.split(':');
+
+			if (parsedLabel?.length > 1) {
+				return cy.get(
+					`[aria-label="${parsedSelector[0].trim()} parent block: ${parsedSelector[1].trim()}"], [aria-label="${parsedLabel[1].trim()}"]`
+				);
+			}
 
 			return cy.get(
 				`[aria-label="${parsedSelector[0].trim()} parent block: ${parsedSelector[1].trim()}"]`
@@ -127,20 +141,22 @@ export const registerCommands = () => {
 					.getIframeBody()
 					.find(`[data-type="${blockName}"]`)
 					.eq(0);
-			} else {
-				cy.getByAriaLabel('Add default block').click();
-				blockName = 'core/paragraph';
-				return cy.get(`[data-type="${blockName}"]`).eq(0);
 			}
+			cy.getByAriaLabel('Add default block').click();
+			blockName = 'core/paragraph';
+			return cy.get(`[data-type="${blockName}"]`).eq(0);
 		}
 
 		if (Cypress.$('iframe[name="editor-canvas"]').length) {
 			return cy
 				.getIframeBody()
 				.find(`${blockTag}[data-type="${blockName}"]`);
-		} else {
-			return cy.get(`${blockTag}[data-type="${blockName}"]`);
 		}
+		return cy.get(`${blockTag}[data-type="${blockName}"]`);
+	});
+
+	Cypress.Commands.add('getSelectedBlock', () => {
+		return cy.getIframeBody().find('.wp-block.is-selected');
 	});
 
 	// Click Value Addon Button to Open Popover
@@ -247,9 +263,12 @@ export const registerCommands = () => {
 					.parent()
 					.next()
 					.within(() => {
-						if (force) cy.get('input').type(`{selectall}${value}`);
+						if (force)
+							cy.get('input').type(`{selectall}${value}`, {
+								force: true,
+							});
 						else {
-							cy.get('input').type(value);
+							cy.get('input').type(`{selectall}${value}`);
 						}
 					});
 			});
@@ -278,7 +297,7 @@ export const registerCommands = () => {
 	Cypress.Commands.add('customSelect', (item) => {
 		cy.get('button[aria-haspopup="listbox"]').click({ force: true });
 
-		cy.get('ul').within(() => {
+		cy.get('[role="listbox"]').within(() => {
 			cy.contains(item).click({ force: true });
 		});
 	});
@@ -629,30 +648,58 @@ export const registerCommands = () => {
 	Cypress.Commands.add(
 		'dragValue',
 		{ prevSubject: 'element' },
-		(subject, type = 'vertical', movement = 10) => {
+		(
+			subject,
+			type = 'vertical',
+			movement = 10,
+			threshold = 5,
+			withShift = false
+		) => {
+			// Initial mousedown
 			cy.wrap(subject[0]).trigger('mousedown', 'topLeft', {
 				which: 1,
 				force: true,
 			});
 
+			// First mousemove to exceed threshold
 			if (type === 'vertical') {
-				// down movement is negative and up movement is positive
+				cy.get('body').trigger('mousemove', {
+					which: 1,
+					clientY:
+						Math.ceil(subject[0].getBoundingClientRect().top) +
+						threshold, // Exceed threshold
+				});
+
+				// Second mousemove for actual movement
 				cy.get('.blockera-virtual-cursor-box').trigger('mousemove', {
 					which: 1,
 					clientY:
 						Math.ceil(subject[0].getBoundingClientRect().top) +
-						movement * -1,
+						(withShift
+							? (movement - threshold + 1) * 5
+							: movement) *
+							-1,
+					shiftKey: withShift,
 				});
 			} else if (type === 'horizontal') {
-				// left movement is negative and right movement is positive
+				cy.get('body').trigger('mousemove', {
+					which: 1,
+					clientX:
+						Math.ceil(subject[0].getBoundingClientRect().left) +
+						threshold,
+				});
+
+				// Second mousemove for actual movement
 				cy.get('.blockera-virtual-cursor-box').trigger('mousemove', {
 					which: 1,
 					clientX:
 						Math.ceil(subject[0].getBoundingClientRect().left) +
-						movement,
+						(withShift ? (movement - threshold + 1) * 5 : movement),
+					shiftKey: withShift,
 				});
 			}
 
+			// Final mouseup
 			cy.get('.blockera-virtual-cursor-box').trigger('mouseup', {
 				which: 1,
 			});
@@ -681,5 +728,22 @@ export const registerCommands = () => {
 		cy.getParentContainer(parentContainer).within(() => {
 			cy.getByDataCy('group-control-header').contains(contains).click();
 		});
+	});
+
+	/**
+	 * Normalize CSS content by removing comments, extra whitespace, and standardizing formatting
+	 * @param {string} cssContent - The CSS content to normalize
+	 * @returns {string} - The normalized CSS content
+	 */
+	Cypress.Commands.add('normalizeCSSContent', (cssContent) => {
+		return cssContent
+			.replace(/\/\*[\s\S]*?\*\//g, '') // Remove CSS comments /* ... */
+			.replace(/[\t\n\r]+/g, ' ') // Replace tabs and newlines with a single space
+			.replace(/\s{2,}/g, ' ') // Replace multiple spaces with a single space
+			.replace(/\s*{\s*/g, '{') // Remove spaces around opening braces
+			.replace(/\s*}\s*/g, '}') // Remove spaces around closing braces
+			.replace(/\s*:\s*/g, ':') // Remove spaces around colons
+			.replace(/\s*;\s*/g, ';') // Remove spaces around semicolons
+			.trim(); // Remove leading/trailing whitespace
 	});
 };
