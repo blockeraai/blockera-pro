@@ -127,7 +127,7 @@ class Validator {
 				'redirection' => 5,
 				'httpversion' => '1.1',
 				// Disable SSL verification.
-				'sslverify'   => Config::isDev(),
+				'sslverify'   => false,
 				'headers'     => [
 					'Authorization'    => 'Bearer ' . (OptionRepository::getOption('access_token') ?? ''),
 				],
