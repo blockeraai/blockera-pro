@@ -81,7 +81,7 @@ class ConnectionController extends RestController {
 					'code'    => 500,
 					'success' => false,
 					'errors'  => [
-						__('Failed to connect to Blockera AI.', 'blockera'),
+						__('Failed to connect to Blockera AI.', 'blockera-pro'),
 					],
 				],
 				500
@@ -93,7 +93,7 @@ class ConnectionController extends RestController {
 				'code'    => 200,
 				'success' => true,
 				'data'    => [
-					'message' => __('Connected to Blockera AI successfully.', 'blockera'),
+					'message' => __('Connected to Blockera AI successfully.', 'blockera-pro'),
 				],
 			]
 		);
@@ -148,7 +148,7 @@ class ConnectionController extends RestController {
 					'code'    => 500,
 					'success' => false,
 					'errors'  => [
-						__('Failed to create client info.', 'blockera'),
+						__('Failed to create client info.', 'blockera-pro'),
 					],
 				],
 				500
@@ -160,7 +160,7 @@ class ConnectionController extends RestController {
 				'code'    => 201,
 				'success' => true,
 				'data'    => [
-					'message' => __('Client info created successfully.', 'blockera'),
+					'message' => __('Client info created successfully.', 'blockera-pro'),
 				],
 			],
 			201
@@ -180,10 +180,10 @@ class ConnectionController extends RestController {
 
 		if (empty($client_info['access_token'])) {
 
-			$this->errors['access_token'] = __('Access token is required.', 'blockera');
+			$this->errors['access_token'] = __('Access token is required.', 'blockera-pro');
 		} elseif (time() > $client_info['expires']) {
 
-			$this->errors['access_token'] = __('Access token has expired.', 'blockera');
+			$this->errors['access_token'] = __('Access token has expired.', 'blockera-pro');
 		}
 
 		if (count($this->errors) > 0) {
@@ -215,7 +215,7 @@ class ConnectionController extends RestController {
 		$updated = OptionRepository::setOption($info);
 
 		if (! $updated && $client_info !== $info) {
-			$this->errors['update_failed'] = __('Failed to update connection status.', 'blockera');
+			$this->errors['update_failed'] = __('Failed to update connection status.', 'blockera-pro');
 
 			return new \WP_REST_Response(
 				[
@@ -248,7 +248,7 @@ class ConnectionController extends RestController {
 	public function getLicenses( \WP_REST_Request $request): \WP_REST_Response {
 
 		if ('licenses' !== $request->get_param('action')) {
-			$this->errors['invalid_action'] = __('Invalid action.', 'blockera');
+			$this->errors['invalid_action'] = __('Invalid action.', 'blockera-pro');
 		}
 
 		$this->validate($request->get_params());
@@ -289,7 +289,7 @@ class ConnectionController extends RestController {
 					'code'    => 400,
 					'success' => false,
 					'errors'  => [
-						'access_token' => __('Access token is required.', 'blockera'),
+						'access_token' => __('Access token is required.', 'blockera-pro'),
 					],
 				],
 				400
@@ -376,7 +376,7 @@ class ConnectionController extends RestController {
 					'code'    => 500,
 					'success' => false,
 					'errors'  => [
-						'subscription_not_found' => __('Failed to updating or creating subscription info proccess.', 'blockera'),
+						'subscription_not_found' => __('Failed to updating or creating subscription info process.', 'blockera-pro'),
 					],
 				],
 				500
@@ -397,7 +397,7 @@ class ConnectionController extends RestController {
 	 */
 	protected function validate( array $params): void {
 		if (empty($params['action'])) {
-			$this->errors['action'] = __('Action Field is required.', 'blockera');
+			$this->errors['action'] = __('Action Field is required.', 'blockera-pro');
 
 			return;
 		}
@@ -405,18 +405,18 @@ class ConnectionController extends RestController {
 		$action = sanitize_text_field($params['action']);
 
 		$required_params = [
-			'action' => __('Action Field is required.', 'blockera'),
+			'action' => __('Action Field is required.', 'blockera-pro'),
 		];
 
 		if ('create_account' === $action) {
-			$required_params['client_id']     = __('Client ID Field is required.', 'blockera');
-			$required_params['code']          = __('Authorization Code Field is required.', 'blockera');
-			$required_params['client_secret'] = __('Client Secret Field is required.', 'blockera');
+			$required_params['client_id']     = __('Client ID Field is required.', 'blockera-pro');
+			$required_params['code']          = __('Authorization Code Field is required.', 'blockera-pro');
+			$required_params['client_secret'] = __('Client Secret Field is required.', 'blockera-pro');
 		} elseif ('connect_account' === $action) {
-			$required_params['token']         = __('Access Token Field is required.', 'blockera');
-			$required_params['expires']       = __('Expires Field is required.', 'blockera');
-			$required_params['has_expired']   = __('Has Expired Field is required.', 'blockera');
-			$required_params['refresh_token'] = __('Refresh Access Token Field is required.', 'blockera');
+			$required_params['token']         = __('Access Token Field is required.', 'blockera-pro');
+			$required_params['expires']       = __('Expires Field is required.', 'blockera-pro');
+			$required_params['has_expired']   = __('Has Expired Field is required.', 'blockera-pro');
+			$required_params['refresh_token'] = __('Refresh Access Token Field is required.', 'blockera-pro');
 		}
 
 		$available_actions = [
@@ -428,7 +428,7 @@ class ConnectionController extends RestController {
 		];
 
 		if (! in_array($action, $available_actions, true)) {
-			$this->errors['invalid_action'] = __('Invalid action.', 'blockera');
+			$this->errors['invalid_action'] = __('Invalid action.', 'blockera-pro');
 		}
 
 		// Validate and sanitize parameters.
