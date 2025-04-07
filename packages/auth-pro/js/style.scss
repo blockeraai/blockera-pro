@@ -1,44 +1,96 @@
 .blockera-auth-container {
 	text-align: center;
-
-	.title {
-		margin-bottom: 20px;
-	}
+    padding: 40px 0;
 
 	.description {
 		font-size: 16px;
-		margin-bottom: 50px;
+		margin-bottom: 20px;
 	}
 
 	.domain {
 		gap: 5px;
 		font-size: 14px;
-		width: auto;
+		width: -moz-fit-content;
+		width: fit-content;
 		height: 29px;
-		color: #ffffff;
-		background-color: var(--blockera-controls-primary-color);
-		margin: 1rem auto 6rem auto;
+		color: var(--blockera-controls-primary-color);
+		background-color: #cfe0ff;
 		line-height: 29px;
 		border: none;
-		border-radius: 3px;
-		padding: 5px 10px;
-		font-weight: 700;
-		display: flex;
+		border-radius: 4px;
+		padding: 2px 12px;
 		justify-content: center;
 		align-items: center;
+		display: flex;
+		flex-direction: row;
+		font-weight: 600;
 
 		span {
 			color: #80adff !important;
 		}
 	}
 
+	.link-icon-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		--line-color: #cfe0ff;
+
+		.dashed-line {
+			width: 2px;
+			height: 40px;
+			position: relative;
+			overflow: hidden;
+
+			&::before {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 200%;
+				background: repeating-linear-gradient(to bottom, var(--blockera-controls-primary-color) 0, var(--blockera-controls-primary-color) 4px, transparent 4px, transparent 8px);
+				animation: moveDashes 1s linear infinite;
+				opacity: 0.5;
+			}
+		}
+
+		&::after {
+
+			.dashed-line::before {
+				animation-delay: 0.5s;
+			}
+		}
+
+		svg {
+			fill: var(--blockera-controls-primary-color);
+			border-radius: 50%;
+			padding: 4px;
+			background-color: var(--line-color);
+		}
+	}
+
+	@keyframes moveDashes {
+
+		from {
+			transform: translateY(-8px);
+		}
+
+		to {
+			transform: translateY(0);
+		}
+	}
+
 	.activate-call-to-action {
-		width: 390px;
+		width: 100%;
+		max-width: 390px;
 		height: 45px;
 		display: flex;
 		align-items: center;
 		gap: 5px;
-		margin: 0 auto 1rem auto;
+		font-size: 15px !important;
+		text-transform: uppercase;
 	}
 
 	.how-to {
@@ -47,7 +99,7 @@
 		font-size: 14px;
 		margin: 20px auto 0 auto;
 		color: #8a8a8a;
-		gap: 5px;
+		gap: 3px;
 		width: 72%;
 		justify-content: center;
 
@@ -75,6 +127,7 @@
 			border-radius: 5px;
 		}
 	}
+
 }
 
 .blockera-component-blockera-license-container {
