@@ -283,109 +283,16 @@ class ConnectionController extends RestController {
 			);
 		}
 
-		if (empty($client_info['access_token'])) {
-			return new \WP_REST_Response(
-				[
-					'code'    => 400,
-					'success' => false,
-					'errors'  => [
-						'access_token' => __('Access token is required.', 'blockera-pro'),
-					],
+		return new \WP_REST_Response(
+			[
+				'code'    => 400,
+				'success' => false,
+				'errors'  => [
+					'access_token' => __('Access token is required.', 'blockera-pro'),
 				],
-				400
-			);
-		}
-
-		$args = [
-			'timeout'     => 30,
-			'redirection' => 5,
-			'httpversion' => '1.1',
-			// Disable SSL verification.
-			'sslverify'   => false,
-			'headers'     => [
-				'Content-Type'  => 'application/json',
-				'Authorization' => 'Bearer ' . $client_info['access_token'],
 			],
-			'body'        => [
-				'domain'     => home_url(),
-				'client_id'  => $client_info['client_id'],
-				'user_email' => wp_get_current_user()->user_email,
-			],
-		];
-
-		$response = wp_remote_get(Config::getAccountInfoLink(), $args);
-
-		if (is_wp_error($response)) {
-			return new \WP_REST_Response(
-				[
-					'code'    => 500,
-					'success' => false,
-					'errors'  => [
-						'subscription_not_found' => $response->get_error_message(),
-					],
-				],
-				500
-			);
-		}
-
-		$response_body = json_decode(wp_remote_retrieve_body($response), true);
-
-		if (! empty($response_body['data']['success']) && false === $response_body['data']['success']) {
-			return new \WP_REST_Response(
-				[
-					'code'    => 500,
-					'success' => false,
-					'errors'  => $response_body['data']['errors'],
-				],
-				500
-			);
-		}
-
-		$licenses = array_map(
-			function ( $license) {
-				$transient_key = Utils::snakeCase(explode('- ', $license['name'])[2]);
-
-				OptionRepository::setTransient($transient_key, $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
-
-				unset($license['versionId']);
-
-				return $license;
-			},
-			$response_body['data']['licenses'] ?? []
+			400
 		);
-
-		if (isset($response_body['data']['licenses'])) {
-			unset($response_body['data']['licenses']);
-		}
-
-		if (! $client_info) {
-
-			$info                  = $response_body['data'];
-			$info['licenses'] = $licenses;
-		} else {
-
-			$info                  = array_merge($client_info, $response_body['data']);
-			$info['licenses'] = $licenses;
-		}
-
-		$updated = OptionRepository::setOption($info);
-
-		if (! $updated && $client_info !== $info) {
-			return new \WP_REST_Response(
-				[
-					'code'    => 500,
-					'success' => false,
-					'errors'  => [
-						'subscription_not_found' => __('Failed to updating or creating subscription info process.', 'blockera-pro'),
-					],
-				],
-				500
-			);
-		}
-
-		$response_body['data']['licenses'] = $licenses;
-
-		return new \WP_REST_Response($response_body);
 	}
 
 	/**

@@ -42,13 +42,13 @@ class Client {
             return;
         }
 
-        if (! isset($_GET['client_id'], $_GET['client_secret'], $_GET['redirect_to'])) {
+		if (isset($_GET['registered-client'], $_GET['connectedWithYourAccount']) && 'true' === $_GET['registered-client'] && 'true' === $_GET['connectedWithYourAccount']) {
+            $this->save();
+
             return;
         }
 
-        if (isset($_GET['registered-client'], $_GET['connectedWithYourAccount']) && 'true' === $_GET['registered-client'] && 'true' === $_GET['connectedWithYourAccount']) {
-            $this->save();
-
+        if (! isset($_GET['client_id'], $_GET['client_secret'], $_GET['redirect_to'])) {
             return;
         }
 
