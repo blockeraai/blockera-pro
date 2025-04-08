@@ -182,7 +182,8 @@ class Client {
         $client_info = OptionRepository::getOption();
 
         if (empty($client_info['access_token'])) {
-            throw new BaseException('Access token not found', 500);
+            echo '<script>window.location.href = "' . admin_url('admin.php?page=blockera-settings-account') . '"</script>';
+            exit;
         }
 
         $args = [
