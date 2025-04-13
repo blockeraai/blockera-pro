@@ -158,7 +158,7 @@ export const ConnectWithBlockera = ({
 					className="link-icon-wrapper"
 					direction="column"
 					alignItems="center"
-					gap={10}
+					gap={4}
 				>
 					<div className="dashed-line" />
 					<Icon library="ui" icon="link" iconSize={24} />
