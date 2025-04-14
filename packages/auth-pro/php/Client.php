@@ -89,7 +89,7 @@ class Client {
             parse_str($parsed_url['query'] ?? '', $parsed_query);
 
 			$parsed_query['authorized'] = true;
-			$parsed_query['product'] = 'Site Builder';//Config::getProductName();
+			$parsed_query['product'] = Config::getProductName();
             $parsed_query['client_id']     = $_GET['client_id'];
             $parsed_query['client_secret'] = $_GET['client_secret'];
 
