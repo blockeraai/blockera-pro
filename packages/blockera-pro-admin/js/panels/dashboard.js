@@ -96,10 +96,12 @@ export const ProfileComponent = (): MixedElement => {
 							alt={blockeraAIAccount?.name}
 							className="account-avatar"
 						/>
-						<Flex direction="column" gap="4">
+
+						<Flex direction="column" gap={4}>
 							<h3 style={{ margin: 0 }}>
 								{blockeraAIAccount?.name}
 							</h3>
+
 							<p style={{ margin: 0 }}>
 								{blockeraAIAccount?.email}
 							</p>
