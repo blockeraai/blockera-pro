@@ -88,6 +88,7 @@ class Client {
             $parsed_query = [];
             parse_str($parsed_url['query'] ?? '', $parsed_query);
 
+			$parsed_query['authorized'] = true;
             $parsed_query['client_id']     = $_GET['client_id'];
             $parsed_query['client_secret'] = $_GET['client_secret'];
 
@@ -181,7 +182,7 @@ class Client {
     {
         $client_info = OptionRepository::getOption();
 
-        if (empty($client_info['access_token'])) {
+        if (empty($client_info['access_token']) && empty($client_info['licenses'])) {
             echo '<script>window.location.href = "' . admin_url('admin.php?page=blockera-settings-account') . '"</script>';
             exit;
         }
