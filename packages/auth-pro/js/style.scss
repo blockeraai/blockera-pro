@@ -2,9 +2,16 @@
 	text-align: center;
     padding: 40px 0;
 
+	.title {
+		font-size: 2em;
+		line-height: 1.5;
+		margin: 0;
+	}
+
 	.description {
 		font-size: 16px;
-		margin-bottom: 30px;
+		line-height: 1.5;
+		margin: 0 0 10px 0;
 	}
 
 	.domain {
@@ -36,12 +43,18 @@
 		justify-content: center;
 		width: 100%;
 		--line-color: #cfe0ff;
+		position: relative;
+		--line-height: 120px;
+		height: var(--line-height);
 
 		.dashed-line {
 			width: 2px;
-			height: 40px;
-			position: relative;
+			height: var(--line-height);
+			position: absolute;
 			overflow: hidden;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
 
 			&::before {
 				content: "";
@@ -68,6 +81,8 @@
 			border-radius: 50%;
 			padding: 4px;
 			background-color: var(--line-color);
+			outline: 4px solid #ffffff;
+			z-index: 1;
 		}
 	}
 

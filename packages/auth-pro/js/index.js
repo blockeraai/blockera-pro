@@ -136,7 +136,7 @@ export const ConnectWithBlockera = ({
 	}
 
 	return (
-		<div className="blockera-auth-container">
+		<Flex className="blockera-auth-container" gap={12} direction="column">
 			<h1 className="title">
 				{__('Connect your site to your Pro license', 'blockera')}
 			</h1>
@@ -162,7 +162,6 @@ export const ConnectWithBlockera = ({
 				>
 					<div className="dashed-line" />
 					<Icon library="ui" icon="link" iconSize={24} />
-					<div className="dashed-line" />
 				</Flex>
 
 				<Button
@@ -174,7 +173,8 @@ export const ConnectWithBlockera = ({
 					}}
 					isBusy={isActivatingBusy}
 				>
-					<Icon library="ui" icon="link" iconSize={24} />
+					<Icon library="ui" icon="unlock" iconSize={24} />
+
 					{__('Activate License', 'blockera')}
 				</Button>
 
@@ -197,6 +197,6 @@ export const ConnectWithBlockera = ({
 					{__('for help.', 'blockera')}
 				</p>
 			</Flex>
-		</div>
+		</Flex>
 	);
 };
