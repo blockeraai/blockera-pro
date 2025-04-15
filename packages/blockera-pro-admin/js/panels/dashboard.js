@@ -11,7 +11,7 @@ import type { MixedElement, ComponentType } from 'react';
  * Blockera dependencies
  */
 import { Icon } from '@blockera/icons';
-import { Flex, Button, Avatar } from '@blockera/controls';
+import { Flex, Button, Avatar, Promoter } from '@blockera/controls';
 
 export const filterCallToActions = () => {
 	addFilter(
@@ -77,7 +77,7 @@ export const ProfileComponent = (): MixedElement => {
 
 	return (
 		<>
-			{blockeraAIAccount?.licenses?.length > 0 && (
+			{blockeraAIAccount?.licenses?.length > 0 ? (
 				<Flex
 					justifyContent="space-between"
 					alignItems="center"
@@ -109,6 +109,23 @@ export const ProfileComponent = (): MixedElement => {
 					</Flex>
 					<Icon icon={'chevron-right'} library="wp" iconSize={22} />
 				</Flex>
+			) : (
+				<Promoter
+					heading={__('Activate Blockera Pro', 'blockera')}
+					buttonText={__('Activate Pro License', 'blockera')}
+					buttonURL={window?.blockeraActivateLicenseUrl}
+					buttonTarget="_self"
+					disableHintsText={true}
+					style={{
+						width: '100%',
+						boxShadow: 'var(--card-box-shadow)',
+						borderRadius: 'var(--card-border-radius)',
+						padding: '25px 35px',
+						backgroundColor: 'var(--card-bg-color)',
+						marginTop: 'auto',
+						boxSizing: 'border-box',
+					}}
+				/>
 			)}
 		</>
 	);
