@@ -221,17 +221,18 @@ class Client {
             throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
         }
 
-        $licenses = array_map(
-            function ($license) {
-				OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
+        // $licenses = array_map(
+        //     function ($license) {
+		// 		OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
 
-                unset($license['versionId']);
+        //         unset($license['versionId']);
 
-                return $license;
-            },
-            $response_body['data']['licenses']
-        );
+        //         return $license;
+        //     },
+        //     $response_body['data']['licenses']
+        // );
 
+		$licenses = $response_body['data']['licenses'];
         unset($response_body['data']['licenses']);
 
         if (! $client_info) {
