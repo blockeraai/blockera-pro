@@ -183,7 +183,7 @@ class Client {
     {
         $client_info = OptionRepository::getOption();
 
-        if (empty($client_info['access_token']) && empty($client_info['licenses'])) {
+        if (empty($client_info['access_token']) || !empty($client_info['licenses'])) {
             echo '<script>window.location.href = "' . admin_url('admin.php?page=blockera-settings-account') . '"</script>';
             exit;
         }

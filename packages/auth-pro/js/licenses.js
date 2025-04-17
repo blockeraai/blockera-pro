@@ -192,12 +192,20 @@ export const Licenses = ({
 
 				{licenses.map(
 					(
-						{ name, status, thumbnail, nextPaymentDueDate }: Object,
+						{
+							name,
+							status,
+							thumbnail,
+							endDate,
+							nextPaymentDueDate,
+						}: Object,
 						index: number
 					) => {
 						const isActive = status === 'active';
 						const isExpired =
-							new Date(nextPaymentDueDate) < new Date();
+							(!endDate
+								? new Date(nextPaymentDueDate)
+								: new Date(endDate)) < new Date();
 
 						return (
 							<License
