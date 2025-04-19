@@ -96,8 +96,9 @@ const License = ({
 					</Flex>
 
 					{!isExpired && (
-						<div className="product-status">
+						<div className="product-status status-active">
 							<Icon icon={'check'} />
+							{__('License activated', 'blockera')}
 						</div>
 					)}
 

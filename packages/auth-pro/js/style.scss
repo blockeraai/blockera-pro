@@ -217,15 +217,29 @@
 		}
 
 		.product-status {
-			width: 24px;
-			height: 24px;
-			border-radius: 50%;
-			background-color: #17c20033;
-			line-height: 32px;
-			text-align: center;
+			--status-color: #0fa600;
+			border-radius: 100px;
+			background-color: color-mix(in srgb, var(--status-color) 17%, #ffffff);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 5px 13px 5px 7px;
+			gap: 5px;
+			font-size: 14px;
+			font-weight: 500;
+			color: var(--status-color);
 
 			svg {
-				fill: #17c200;
+				fill: var(--status-color);
+			}
+
+			&.status-active {
+				--status-color: #0fa600;
+			}
+
+			&.status-expiring,
+			&.status-expired {
+				--status-color: #e60000;
 			}
 		}
 	}
