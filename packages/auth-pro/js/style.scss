@@ -169,6 +169,11 @@
 			font-size: 14px;
 			color: #a3a3a3;
 		}
+
+		.blockera-component-button {
+			font-size: 13px !important;
+			font-weight: 500 !important;
+		}
 	}
 
 	.blockera-licenses-subtitle {
@@ -223,11 +228,12 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			padding: 5px 13px 5px 7px;
+			padding: 4px 13px 4px 7px;
 			gap: 5px;
 			font-size: 14px;
 			font-weight: 500;
 			color: var(--status-color);
+			text-transform: capitalize;
 
 			svg {
 				fill: var(--status-color);
