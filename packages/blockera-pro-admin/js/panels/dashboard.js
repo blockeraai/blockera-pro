@@ -65,7 +65,7 @@ export const filterAvailableTabs = (): void => {
 					name: 'account',
 					settingSlug: 'account',
 					className: 'account-settings-tab',
-					title: __('Account & License', 'blockera'),
+					title: __('Account & Licenses', 'blockera'),
 				},
 			];
 		}
