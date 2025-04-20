@@ -213,12 +213,8 @@ class Client {
 
         $response_body = json_decode(wp_remote_retrieve_body($response), true);
 
-        if (! empty($response_body['data']['success']) && false === $response_body['data']['success']) {
-            throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
-        }
-
-        if (isset($response_body['data']['errors'])) {
-            throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
+        if ((isset($response_body['data']['success']) && false === $response_body['data']['success']) || (isset($response_body['success']) && false === $response_body['success']) || (isset($response_body['data']['errors']) || isset($response_body['errors']))) {
+            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? __('The resource owner or authorization server denied the request.', 'blockera-pro')));
         }
 
         // $licenses = array_map(
