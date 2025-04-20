@@ -16,6 +16,7 @@ jobs:
     detect_categories:
         name: Detecting E2E Test Categories
         runs-on: ubuntu-latest
+        timeout-minutes: 10
         outputs:
             categories: ${{ steps.set_categories.outputs.categories }}
         steps:
@@ -40,6 +41,7 @@ jobs:
         name: Test
         needs: detect_categories
         runs-on: ubuntu-latest
+        timeout-minutes: 60
         if: ${{ github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request' }}
         strategy:
             fail-fast: false
@@ -48,18 +50,6 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v3
-
-            - name: Clone Blockera Site Builder
-              run: |
-                  cd ..
-                  git clone https://github.com/blockeraai/blockera.git
-                  cd blockera-pro
-
-            - name: Install Blockera Site Builder
-              uses: ./.github/setup-node
-              with:
-                  chdir: ../blockera
-                  dir: blockera-pro
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
