@@ -155,7 +155,7 @@ export const ConnectWithBlockera = ({
 				</span>
 
 				<Flex
-					className="link-icon-wrapper"
+					className="site-domain-wrapper"
 					direction="column"
 					alignItems="center"
 					gap={4}
