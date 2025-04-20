@@ -23,15 +23,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: Clone Blockera Site Builder
-              run: |
-                  cd ..
-                  git clone https://github.com/blockeraai/blockera.git
-                  cd blockera
-                  npm ci
-                  npm run build
-                  cd ../blockera-pro
-
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
 

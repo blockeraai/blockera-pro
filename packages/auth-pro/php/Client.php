@@ -42,13 +42,13 @@ class Client {
             return;
         }
 
-        if (! isset($_GET['client_id'], $_GET['client_secret'], $_GET['redirect_to'])) {
+		if (isset($_GET['registered-client'], $_GET['connectedWithYourAccount']) && 'true' === $_GET['registered-client'] && 'true' === $_GET['connectedWithYourAccount']) {
+            $this->save();
+
             return;
         }
 
-        if (isset($_GET['registered-client'], $_GET['connectedWithYourAccount']) && 'true' === $_GET['registered-client'] && 'true' === $_GET['connectedWithYourAccount']) {
-            $this->save();
-
+        if (! isset($_GET['client_id'], $_GET['client_secret'], $_GET['redirect_to'])) {
             return;
         }
 
@@ -88,6 +88,8 @@ class Client {
             $parsed_query = [];
             parse_str($parsed_url['query'] ?? '', $parsed_query);
 
+			$parsed_query['authorized'] = true;
+			$parsed_query['product'] = Config::getProductName();
             $parsed_query['client_id']     = $_GET['client_id'];
             $parsed_query['client_secret'] = $_GET['client_secret'];
 
@@ -181,8 +183,9 @@ class Client {
     {
         $client_info = OptionRepository::getOption();
 
-        if (empty($client_info['access_token'])) {
-            throw new BaseException('Access token not found', 500);
+        if (empty($client_info['access_token']) || !empty($client_info['licenses'])) {
+            echo '<script>window.location.href = "' . admin_url('admin.php?page=blockera-settings-account') . '"</script>';
+            exit;
         }
 
         $args = [
@@ -210,25 +213,22 @@ class Client {
 
         $response_body = json_decode(wp_remote_retrieve_body($response), true);
 
-        if (! empty($response_body['data']['success']) && false === $response_body['data']['success']) {
-            throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
+        if ((isset($response_body['data']['success']) && false === $response_body['data']['success']) || (isset($response_body['success']) && false === $response_body['success']) || (isset($response_body['data']['errors']) || isset($response_body['errors']))) {
+            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? __('The resource owner or authorization server denied the request.', 'blockera-pro')));
         }
 
-        if (isset($response_body['data']['errors'])) {
-            throw new BaseException(implode(', ', $response_body['data']['errors']), 500);
-        }
+        // $licenses = array_map(
+        //     function ($license) {
+		// 		OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
 
-        $licenses = array_map(
-            function ($license) {
-				OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
+        //         unset($license['versionId']);
 
-                unset($license['versionId']);
+        //         return $license;
+        //     },
+        //     $response_body['data']['licenses']
+        // );
 
-                return $license;
-            },
-            $response_body['data']['licenses']
-        );
-
+		$licenses = $response_body['data']['licenses'];
         unset($response_body['data']['licenses']);
 
         if (! $client_info) {
