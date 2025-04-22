@@ -98,7 +98,7 @@ const License = ({
 					{!isExpired && (
 						<div className="product-status status-active">
 							<Icon icon={'check'} />
-							{__('License activated', 'blockera')}
+							{__('Active License', 'blockera')}
 						</div>
 					)}
 
