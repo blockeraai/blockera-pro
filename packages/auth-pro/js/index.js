@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import type { MixedElement } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
@@ -11,7 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Blockera dependencies
  */
-import { Button, Flex } from '@blockera/controls';
+import { Button, Flex, DynamicHtmlFormatter } from '@blockera/controls';
 import { Icon } from '@blockera/icons';
 
 /**
@@ -84,7 +84,12 @@ export const ConnectWithBlockera = ({
 
 	if (isConnected && !isForceManageLicense) {
 		return (
-			<div className="blockera-auth-container">
+			<Flex
+				justifyContent="center"
+				gap={25}
+				className="blockera-auth-container"
+				direction="column"
+			>
 				<h1 className="blockera-auth-congratulations">
 					{__('🎉 Congratulations!', 'blockera')}
 					<span style={{ display: 'block' }}>
@@ -95,21 +100,23 @@ export const ConnectWithBlockera = ({
 					</span>
 				</h1>
 
-				<p>
-					{__(
-						'Blockera Pro is successfully connected to your site!',
-						'blockera'
-					)}
-				</p>
+				<Flex justifyContent="center" gap={10} direction="column">
+					<p>
+						{__(
+							'Blockera Pro is successfully connected to your site!',
+							'blockera'
+						)}
+					</p>
 
-				<p>
-					{__(
-						"You're all set to unlock the full potential of advanced design tools and features.",
-						'blockera'
-					)}
-				</p>
+					<p>
+						{__(
+							"You're all set to unlock the full potential of advanced design tools and features.",
+							'blockera'
+						)}
+					</p>
+				</Flex>
 
-				<Flex gap={10} className="blockera-auth-success-buttons">
+				<Flex justifyContent="center" gap={20}>
 					<Button
 						variant="primary"
 						className="create-page"
@@ -127,7 +134,7 @@ export const ConnectWithBlockera = ({
 						{__('Manage your license', 'blockera')}
 					</Button>
 				</Flex>
-			</div>
+			</Flex>
 		);
 	}
 
@@ -179,22 +186,42 @@ export const ConnectWithBlockera = ({
 				</Button>
 
 				<p className="how-to">
-					{__(
-						'Explore our connection tutorial to learn contact support team for help. ',
-						'blockera'
-					)}
-					<a
-						href="https://blockera.ai/docs/how-to-connect-blockera-to-your-subscription/"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{__('how to activate your license', 'blockera')}
-					</a>
-					{__(', or ', 'blockera')}
-					<a href="mailto:support@blockera.ai">
-						{__('contact support team ', 'blockera')}
-					</a>
-					{__('for help.', 'blockera')}
+					<DynamicHtmlFormatter
+						text={sprintf(
+							/* translators: %1$s is a link to the connection tutorial, %2$s is a link to the contact support team. */
+							__(
+								'Explore our connection tutorial to learn %1$s, or %2$s for help.',
+								'blockera'
+							),
+							'{how-to}',
+							'{contact-support}'
+						)}
+						replacements={{
+							'how-to': (
+								<a
+									href="https://blockera.ai/docs/how-to-connect-blockera-to-your-subscription/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{
+										/* translators: This is a link to the connection tutorial. */
+										__(
+											'how to activate your license',
+											'blockera'
+										)
+									}
+								</a>
+							),
+							'contact-support': (
+								<a href="mailto:support@blockera.ai">
+									{
+										/* translators: This is a link to the contact support team. */
+										__('contact support team', 'blockera')
+									}
+								</a>
+							),
+						}}
+					/>
 				</p>
 			</Flex>
 		</Flex>

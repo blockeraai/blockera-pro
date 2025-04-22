@@ -113,8 +113,10 @@
 		margin: 20px auto 0 auto;
 		color: #8a8a8a;
 		gap: 3px;
-		width: 72%;
+		width: 100%;
 		justify-content: center;
+		text-wrap: pretty;
+		max-width: 430px;
 
 		a {
 			color: var(--blockera-controls-primary-color);
@@ -123,24 +125,16 @@
 	}
 
 	.blockera-auth-congratulations {
-		line-height: 2;
+		line-height: 1.6;
+		margin: 0;
+		text-wrap: pretty;
 	}
 
 	p {
 		font-size: 16px;
+		margin: 0;
+		text-wrap: pretty;
 	}
-
-	.blockera-auth-success-buttons {
-		width: 50%;
-		margin: 100px auto 0 auto;
-		justify-content: center;
-
-		.create-page,
-		 .manage-licenses {
-			border-radius: 5px;
-		}
-	}
-
 }
 
 .blockera-component-blockera-license-container {
