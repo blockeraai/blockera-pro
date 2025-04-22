@@ -52,7 +52,9 @@ module.exports = (env, argv) => {
 			if (
 				-1 === name.indexOf(PRO_SUFFIX) &&
 				BLOCKERA_GUARD_NICKNAME !== name &&
-				'validator' !== name
+				'validator' !== name &&
+				// FIXME: please remove this dependency because it's exists in the free blockera version.
+				'utils' !== name
 			) {
 				const {
 					version: _v,
