@@ -10,6 +10,7 @@ const {
  * Internal dependencies
  */
 const { dependencies } = require('./package');
+const freeDependencies = require('./dependencies.json');
 const packagesConfig = require('./packages/dev-tools/js/webpack/packages');
 
 const exportDefaultPackages = [];
@@ -76,21 +77,9 @@ module.exports = (env, argv) => {
 			return [packageName, version.replace(/\./g, '_')];
 		})
 	);
-	// FIXME: please update the version of the packages to the latest version with the specific workflow in continuous integration.
 	blockeraPackagesVersion = {
+		...freeDependencies,
 		...blockeraPackagesVersion,
-		editor: '1_3_0',
-		icons: '1_0_0',
-		storage: '1_0_0',
-		telemetry: '1_0_2',
-		env: '1_0_0',
-		bootstrap: '1_0_1',
-		wordpress: '1_1_2',
-		classnames: '1_0_0',
-		dataEditor: '1_0_0',
-		blocksCore: '1_2_0',
-		controls: '1_2_0',
-		data: '1_1_0',
 	};
 	const blockeraEntries = blockeraPackages.reduce((memo, packageName) => {
 		// Exclude dev packages.
