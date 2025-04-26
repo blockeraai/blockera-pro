@@ -228,7 +228,6 @@ class Client {
             $response_body['data']['licenses']
         );
 
-		$licenses = $response_body['data']['licenses'];
         unset($response_body['data']['licenses']);
 
         if (! $client_info) {
