@@ -57,8 +57,7 @@ class ProPlugin {
 	 */
 	public function applyHooks(): void
 	{
-		add_filter('pre_set_site_transient_update_plugins', [ $this, 'checkForPluginUpdate' ]);
-		add_filter('plugins_api', [ $this, 'pluginApiCall' ], 10, 3);
+		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
 	}
 
 	/**
@@ -74,13 +73,13 @@ class ProPlugin {
 	}
 
 	/**
-	 * Check for plugin update.
+	 * Sets the update plugin transient.
 	 *
 	 * @param \stdClass $transient The transient object.
 	 *
 	 * @return \stdClass The transient object.
 	 */
-	public function checkForPluginUpdate( \stdClass $transient): \stdClass
+	public function setUpdatePluginTransient( \stdClass $transient): \stdClass
 	{
 		$id = $this->slug . '/' . $this->slug . '.php';
 
@@ -129,52 +128,6 @@ class ProPlugin {
 	}
 
 	/**
-	 * Plugin API call.
-	 *
-	 * @param \stdClass $result The result \stdClass.
-	 * @param string    $action The action.
-	 * @param \stdClass $args The arguments.
-	 *
-	 * @return mixed The result \stdClass.
-	 */
-	public function pluginApiCall( $result, $action, $args) {
-		$file_url = $this->getProPluginFileUrl();
-
-		if (empty($file_url)) {
-			return $result;
-		}
-
-		$this->link = $file_url;
-
-		if ('plugin_information' !== $action) {
-			return $result;
-		}
-
-		if ($args->slug !== $this->slug) {
-			return $result;
-		}
-
-		$plugin_info          = new \stdClass();
-		$plugin_info->name    = $this->name;
-		$plugin_info->slug    = $this->slug;
-		$plugin_info->version = str_replace('v', '', $this->license['productVersion']);
-		$plugin_info->author  = 'blockera.ai';
-		// Minimum WP version.
-		$plugin_info->requires = '6.6';
-		// WP version tested up to.
-		$plugin_info->tested        = '6.7';
-		$plugin_info->last_updated  = gmdate('Y-m-d');
-		// phpcs:disable
-		$plugin_info->sections      = array(
-			'description' => sprintf(__('%s Plugin - Includes advanced features', 'blockera'), $this->name),
-			'changelog'   => __('View the changelog at our website', 'blockera'),
-		);
-		$plugin_info->download_link = $this->link;
-
-		return $plugin_info;
-	}
-
-	/**
 	 * Get the pro plugin file.
 	 *
 	 * @return string The pro plugin file, empty string if no data is found.
@@ -207,17 +160,20 @@ class ProPlugin {
 			}
 		}
 
-		$response = wp_remote_get($this->config->getResourceOwnerDetailsUrl() . '/' . $transient, [
-			'timeout' => 30,
-			'sslverify' => Config::isDev(),
-			'headers' => [
-				'Authorization' => 'Bearer ' . OptionRepository::getOption('access_token'),
-			],
-			'body' => [
-				'domain' => get_site_url(),
-				'license_id' => $this->license['id']
-			],
-		]);
+		$response = wp_remote_get(
+            $this->config->getResourceOwnerDetailsUrl() . '/' . $transient,
+            [
+				'timeout' => 30,
+				'sslverify' => Config::isDev(),
+				'headers' => [
+					'Authorization' => 'Bearer ' . OptionRepository::getOption('access_token'),
+				],
+				'body' => [
+					'domain' => get_site_url(),
+					'license_id' => $this->license['id'],
+				],
+			]
+        );
 
 		if (is_wp_error($response)) {
 			return '';
