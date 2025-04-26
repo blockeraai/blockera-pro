@@ -248,11 +248,9 @@ export const applyDefaultBlockStates = (): void => {
 			for (const stateKey in states) {
 				const state = states[stateKey];
 
-				if (state?.disabled) {
-					state.disabled = false;
+				if (state?.native) {
+					state.native = false;
 				}
-
-				state.label = state.label.replace(' - Upgrade to RPO', '');
 			}
 
 			return states;
