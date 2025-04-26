@@ -135,7 +135,7 @@ class ProPlugin {
 	private function getProPluginFileUrl(): string
 	{
 		// Create a transient key to store the license temporary data.
-		$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
+		$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase($this->license['name']);
 		$transient = get_transient($transient_key);
 
 		if (empty($transient)) {
@@ -152,7 +152,7 @@ class ProPlugin {
 			}
 
 			// Create a transient key to store the license temporary data.
-			$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
+			$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase($this->license['name']);
 			$transient = get_transient($transient_key);
 
 			if (empty($transient)) {
