@@ -35,6 +35,5 @@ return [
 		\Blockera\Pro\Providers\AppServiceProvider::class,
 		\Blockera\Guard\Providers\GuardAssetProvider::class,
 		\Blockera\Pro\Providers\BlockeraPRORestAPIProvider::class,
-		\Blockera\Pro\Admin\Providers\BlockeraProAdminAssetsProvider::class,
 	],
 ];
