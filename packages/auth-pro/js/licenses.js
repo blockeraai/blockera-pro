@@ -24,37 +24,31 @@ const License = ({
 	isActive,
 	thumbnail,
 	isExpired,
-	licenseKey,
-	nextPaymentDueDate,
 }: {
 	name: string,
 	thumbnail: string,
 	isActive: boolean,
 	isExpired: boolean,
-	licenseKey: string,
-	nextPaymentDueDate: string,
 }): MixedElement => {
 	const Renew = (): MixedElement => (
 		<Flex
 			className={classNames('blockera-subscription-actions')}
 			justifyContent="flex-start"
-			gap="30"
+			gap={30}
 		>
 			<Button
-				disabled={!licenseKey}
 				variant="primary"
-				onClick={() => {
-					console.log('Renewing ...');
-				}}
+				href={'https://blockera.ai/my-account/my-subscription/'}
+				size="small"
 			>
-				{__('Renew', 'blockera')}
+				{__('Renew License', 'blockera')}
 			</Button>
 		</Flex>
 	);
 
 	const splitName = name.split(' - ');
 	const productName = splitName[1];
-	const plan = splitName[3] + __(' Subscription', 'blockera');
+	const plan = [splitName[2], splitName[3]].join(' - ');
 
 	return (
 		<div className="license-box-wrapper">
@@ -67,44 +61,48 @@ const License = ({
 					alignItems="center"
 					className={componentInnerClassNames('license', {
 						active: isActive,
-						'is-expired': isExpired,
+						'is-expired-license': isExpired,
 					})}
+					gap={20}
 				>
 					<Image
 						src={thumbnail}
 						alt={name}
-						className={{
-							'division-68': true,
-							'product-logo': true,
-						}}
+						className="product-logo"
 					/>
-					<Flex direction="column">
-						<h3 className="product-title">{productName}</h3>
-						<Flex gap={40}>
-							<p className="product-details">
-								{plan}
-								{'Lifetime' !== splitName[2] && (
-									<>
-										<Icon
-											icon={'lineDotted'}
-											library="wp"
-										/>
-										<span>{nextPaymentDueDate}</span>
-									</>
-								)}
 
-								{'Lifetime' === splitName[2] &&
-									__(' Lifetime', 'blockera')}
-							</p>
+					<Flex direction="column" gap={12} grow={1}>
+						<h3 className="product-title">{productName}</h3>
+
+						<Flex
+							className="product-details"
+							gap={40}
+							direction="row"
+						>
+							<p style={{ margin: 0 }}>{plan}</p>
+
+							{isExpired && (
+								<p
+									style={{
+										margin: 0,
+										color: '#e60000',
+										fontWeight: 500,
+									}}
+								>
+									{__('License Expired!', 'blockera')}
+								</p>
+							)}
 						</Flex>
 					</Flex>
+
 					{!isExpired && (
-						<div className="product-status">
+						<div className="product-status status-active">
 							<Icon icon={'check'} />
+							{__('Active License', 'blockera')}
 						</div>
 					)}
-					{isExpired && <Renew />}
-					{!isActive && <Renew />}
+
+					{(isExpired || !isActive) && <Renew />}
 				</Flex>
 			</Flex>
 		</div>
@@ -139,62 +137,91 @@ export const Licenses = ({
 	return (
 		<Flex
 			direction="column"
-			gap="20"
+			gap={50}
 			className={componentInnerClassNames('blockera-license-container')}
 		>
-			<h6 className="blockera-licenses-subtitle">
-				{__('Your Blockera Account', 'blockera')}
-			</h6>
-			<Flex
-				justifyContent="space-between"
-				alignItems="center"
-				className="account-info"
-			>
-				<Flex gap="16" alignItems="center">
+			<Flex direction="column" gap={20}>
+				<h6 className="blockera-licenses-subtitle">
+					{__('Your Blockera Account', 'blockera')}
+				</h6>
+
+				<Flex alignItems="center" className="account-info" gap={20}>
 					<Avatar
 						src={avatar}
 						alt={name}
 						className="account-avatar"
 					/>
-					<Flex direction="column" gap="4">
+
+					<Flex direction="column" gap={12} grow={1}>
 						<h3 style={{ margin: 0 }}>{name}</h3>
+
 						<p style={{ margin: 0 }}>{email}</p>
+					</Flex>
+
+					<Flex gap={16} alignItems="center">
+						<Button
+							size="small"
+							variant="secondary"
+							href={
+								'https://blockera.ai/my-account/my-subscription/'
+							}
+						>
+							<Icon library={'wp'} icon={'key'} iconSize={20} />
+							{__('Manage Licenses', 'blockera')}
+						</Button>
+
+						<Button
+							size="small"
+							variant="primary"
+							href={'https://blockera.ai/my-account/'}
+						>
+							<Icon
+								library={'wp'}
+								icon={'comment-author-avatar'}
+								iconSize={20}
+							/>
+							{__('Manage Account', 'blockera')}
+						</Button>
 					</Flex>
 				</Flex>
 			</Flex>
-			<h6 className="blockera-licenses-subtitle">
-				{__('Your Blockera Licenses', 'blockera')}
-			</h6>
 
-			{licenses.map(
-				(
-					{
-						name,
-						status,
-						thumbnail,
-						licenseKey,
-						nextPaymentDueDate,
-					}: Object,
-					index: number
-				) => {
-					const isActive = status === 'active';
-					const isExpired = new Date(nextPaymentDueDate) < new Date();
+			<Flex direction="column" gap={20}>
+				<h6 className="blockera-licenses-subtitle">
+					{__('Your Blockera Licenses', 'blockera')}
+				</h6>
 
-					return (
-						<License
-							key={index + name}
-							{...{
-								name,
-								isActive: isActive && !isExpired,
-								isExpired,
-								thumbnail,
-								licenseKey,
-								nextPaymentDueDate,
-							}}
-						/>
-					);
-				}
-			)}
+				{licenses.map(
+					(
+						{
+							name,
+							status,
+							thumbnail,
+							endDate,
+							nextPaymentDueDate,
+						}: Object,
+						index: number
+					) => {
+						const isActive = status === 'active';
+						const isExpired =
+							(!endDate
+								? new Date(nextPaymentDueDate)
+								: new Date(endDate)) < new Date();
+
+						return (
+							<License
+								key={index + name}
+								{...{
+									name,
+									isActive: isActive && !isExpired,
+									isExpired,
+									thumbnail,
+								}}
+							/>
+						);
+					}
+				)}
+			</Flex>
 		</Flex>
 	);
 };

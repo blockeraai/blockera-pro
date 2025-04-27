@@ -44,14 +44,25 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
                     'enqueue-admin-assets' => true,
                     'id' => $this->getId(),
                     'packages-deps' => [
-                        '@blockera/utils',
-                        '@blockera/classnames',
-                        '@blockera/icons',
-                        '@blockera/data',
-                        '@blockera/data-editor',
-                        '@blockera/env',
-                        '@blockera/controls',
-                    ],
+						'@blockera/auth-pro' => [
+							'@blockera/utils',
+							'@blockera/classnames',
+							'@blockera/icons',
+							'@blockera/data',
+							'@blockera/data-editor',
+							'@blockera/env',
+							'@blockera/controls',
+                    	],
+						'@blockera/blockera-pro-admin' => [
+							'@blockera/utils',
+							'@blockera/classnames',
+							'@blockera/icons',
+							'@blockera/data',
+							'@blockera/data-editor',
+							'@blockera/env',
+							'@blockera/controls',
+                    	],
+					],
                 ],
             ]
         );
