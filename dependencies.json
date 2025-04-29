@@ -1,1 +1,23 @@
-{"blockeraAdmin":"1_1_2","blockera":"1_2_4","bootstrap":"1_0_1","classnames":"1_0_0","controls":"1_2_1","dataEditor":"1_0_0","data":"1_1_0","devCypress":"1_0_2","devJest":"1_0_0","devPhpunit":"1_0_1","devStorybook":"1_0_0","devTools":"1_0_0","editor":"1_3_1","env":"1_0_0","exceptions":"1_0_0","http":"1_1_0","icons":"1_0_0","storage":"1_0_0","telemetry":"1_0_2","utils":"1_1_0","wordpress":"1_1_2"}
+{
+	"blockeraAdmin": "1_1_2",
+	"blockera": "1_3_0",
+	"bootstrap": "1_0_1",
+	"classnames": "1_0_0",
+	"controls": "1_2_2",
+	"dataEditor": "1_0_0",
+	"data": "1_1_0",
+	"devCypress": "1_0_2",
+	"devJest": "1_0_0",
+	"devPhpunit": "1_0_1",
+	"devStorybook": "1_0_0",
+	"devTools": "1_0_0",
+	"editor": "1_4_0",
+	"env": "1_0_0",
+	"exceptions": "1_0_0",
+	"http": "1_1_0",
+	"icons": "1_0_0",
+	"storage": "1_0_0",
+	"telemetry": "1_0_2",
+	"utils": "1_2_0",
+	"wordpress": "1_1_2"
+}
