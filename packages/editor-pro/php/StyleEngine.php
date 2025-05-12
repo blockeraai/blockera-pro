@@ -337,6 +337,7 @@ final class StyleEngine {
 				$abstract = '\Blockera\Editor\StyleDefinitions\\' . $supports[ $id ]['definition'];
 
 				$this->definition = $this->app->make($abstract, compact('supports'));
+				$this->definition->setNoChecks(true);
 
 			} catch (\Exception $e) {
 
