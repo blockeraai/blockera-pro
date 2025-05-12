@@ -51,7 +51,7 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
 
         $settings = blockera_get_sanitize_block_attributes($settings);
 
-        if ('custom' === $settings[ $settingName ] && 'order' === $cssProperty) {
+        if (isset($settings[ $settingName ]) && 'custom' === $settings[ $settingName ] && 'order' === $cssProperty) {
 
             $setting = [
                 [
@@ -68,7 +68,7 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
                 [
                     'isVisible'  => true,
                     'type'       => $cssProperty,
-                    $cssProperty => $settings[ $settingName ],
+                    $cssProperty => $settings[ $settingName ] ?? [],
                 ],
             ];
         }

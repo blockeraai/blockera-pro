@@ -328,11 +328,6 @@ class Background extends BaseProStyleDefinition implements Repeater {
 	 */
 	protected function modifyProperties( array $props ): array {
 
-		if ( empty( $this->declarations['image'] ) ) {
-
-			return $props;
-		}
-
 		foreach ( $props as $prop => $propValue ) {
 
 			if ( empty( $this->declarations[ $prop ] ) ) {
