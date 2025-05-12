@@ -2,7 +2,9 @@
 
 namespace Blockera\SiteBuilder\StyleDefinitions;
 
-class Order extends BaseProStyleDefinition {
+use Blockera\Editor\StyleDefinitions\Contracts\CustomStyle;
+
+class Order extends BaseProStyleDefinition implements CustomStyle {
 
     protected function css( array $setting): array
     {
@@ -34,5 +36,43 @@ class Order extends BaseProStyleDefinition {
         $this->setCss($this->declarations);
 
         return $this->css;
+    }
+
+	/**
+     * @inheritDoc
+     *
+     * @param array  $settings
+     * @param string $settingName
+     * @param string $cssProperty
+     *
+     * @return array
+     */
+    public function getCustomSettings( array $settings, string $settingName, string $cssProperty): array {
+
+        $settings = blockera_get_sanitize_block_attributes($settings);
+
+        if ('custom' === $settings[ $settingName ] && 'order' === $cssProperty) {
+
+            $setting = [
+                [
+                    'isVisible'  => true,
+                    'type'       => $cssProperty,
+                    $cssProperty => $settings['blockeraFlexChildOrder'] ?? 'custom',
+                    'custom'     => $settings['blockeraFlexChildOrderCustom'] ?? '',
+                ],
+            ];
+
+        } else {
+
+            $setting = [
+                [
+                    'isVisible'  => true,
+                    'type'       => $cssProperty,
+                    $cssProperty => $settings[ $settingName ],
+                ],
+            ];
+        }
+
+        return $setting;
     }
 }
