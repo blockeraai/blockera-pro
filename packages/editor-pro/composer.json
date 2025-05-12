@@ -1,0 +1,15 @@
+{
+	"name": "blockera/editor-pro",
+	"version": "1.0.0",
+	"description": "Editor Pro functionality implementation",
+	"autoload": {
+		"psr-4": {
+			"Blockera\\SiteBuilder\\": "php/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\SiteBuilder\\Tests\\": "php/tests/"
+		}
+	}
+}
