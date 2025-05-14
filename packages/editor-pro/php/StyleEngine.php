@@ -227,9 +227,11 @@ final class StyleEngine {
 				array_filter(
 					array_map(
                         function( array $stateSettings, string $state): array {
+							$this->pseudo_state = $state;
+
 							return array_map(
-                                function ( $breakpointSettings, string $breakpoint) use ( $state): string {
-                                    return $this->prepareBreakpointStyles($breakpoint, $breakpointSettings['attributes'], $state);
+                                function ( $breakpointSettings, string $breakpoint): string {
+                                    return $this->prepareBreakpointStyles($breakpoint, $breakpointSettings['attributes']);
                                 },
                                 $stateSettings['breakpoints'],
                                 array_keys($stateSettings['breakpoints'])
@@ -257,11 +259,10 @@ final class StyleEngine {
 	 *
 	 * @param string $breakpoint The breakpoint type.
 	 * @param array  $settings The current breakpoint settings.
-	 * @param string $state The block state. Default is 'normal'.
 	 *
 	 * @return string The generated css rule for current breakpoint.
 	 */
-	protected function prepareBreakpointStyles( string $breakpoint, array $settings, string $state = 'normal' ): string {
+	protected function prepareBreakpointStyles( string $breakpoint, array $settings ): string {
 
 		// Get css media queries.
 		$mediaQueries = blockera_get_css_media_queries($this->breakpoints['list']);
@@ -276,7 +277,7 @@ final class StyleEngine {
 		$this->breakpoint = $breakpoint;
 
 		// We should just prepare normal state styles because not exists any other states.
-		$state_css_rules = $this->prepareStateStyles($state, $settings);
+		$state_css_rules = $this->prepareStateStyles($settings);
 
 		// Exclude empty css rules.
 		if ( empty( $state_css_rules ) ) {
@@ -382,14 +383,11 @@ final class StyleEngine {
 	/**
 	 * Preparing css of current state settings.
 	 *
-	 * @param string $state The state name (as pseudo class in css).
-	 * @param array  $settings the breakpoint current state settings.
+	 * @param array $settings the breakpoint current state settings.
 	 *
 	 * @return array The state css rules.
 	 */
-	protected function prepareStateStyles( string $state, array $settings ): array {
-
-		$this->pseudo_state = $state;
+	protected function prepareStateStyles( array $settings ): array {
 
 		$block_css = array_map(
             function ( $settings, string $id): array {
@@ -419,11 +417,10 @@ final class StyleEngine {
 
 										return blockera_array_flat(
 											array_map(
-												function ( array $breakpointSettings) use ( $flattenSupports, $blockType, $state): array {
-
+												function ( array $breakpointSettings) use ( $flattenSupports, $blockType, $state, $settings): array {
 													return blockera_array_flat(
 														array_map(
-															function ( $_settings, string $id) use ( $flattenSupports, $blockType, $state): array {
+															function ( $_settings, string $id) use ( $flattenSupports, $blockType, $state, $settings): array {
 
 																if (empty($flattenSupports) || ! isset($flattenSupports[ $id ])) {
 
@@ -437,7 +434,9 @@ final class StyleEngine {
 																	return [];
 																}
 
-																return $this->generateInnerBlockCss(is_string($_settings) ? [ 'value' => $_settings ] : $_settings, $blockType, compact('id', 'state'));
+																$content = $settings['content'] ?? null;
+
+																return $this->generateInnerBlockCss(is_string($_settings) ? [ 'value' => $_settings ] : $_settings, $blockType, compact('id', 'state', 'content'));
 															},
 															$breakpointSettings['attributes'] ?? [],
 															array_keys($breakpointSettings['attributes'] ?? [])
@@ -506,7 +505,7 @@ final class StyleEngine {
 		$this->definition->setPseudoState( $this->pseudo_state );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
-		$css_rules = $this->definition->getCssRules();
+		$css_rules = $this->definition->getCssRules($this->pseudo_classes[$this->pseudo_state]['content'] ?? null);
 
 		// Only process inline styles for normal state on base breakpoint.
 		if (blockera_is_normal_on_base_breakpoint($this->pseudo_state, $this->breakpoint) && ! empty($this->inline_styles)) {
@@ -659,7 +658,7 @@ final class StyleEngine {
 		$this->definition->setSettings( $settings );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
-		return $this->definition->getCssRules();
+		return $this->definition->getCssRules($args['content'] ?? null);
 	}
 
 	/**
