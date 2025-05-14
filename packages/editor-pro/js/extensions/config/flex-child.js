@@ -1,15 +1,15 @@
 // @flow
 
 const blockeraFlexChildSizing: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraFlexChildAlign: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraFlexChildOrder: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const flexChildConfig = {

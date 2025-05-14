@@ -1,27 +1,27 @@
 // @flow
 
 const blockeraWordSpacing: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraTextIndent: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraTextColumns: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraTextStroke: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraWordBreak: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraTextWrap: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const typographyConfig = {

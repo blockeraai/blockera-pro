@@ -1,7 +1,7 @@
 // @flow
 
 const blockeraAttributes: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const advancedSettingsConfig = {
