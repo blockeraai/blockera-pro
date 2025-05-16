@@ -229,8 +229,23 @@ final class StyleEngine {
                         function( array $stateSettings, string $state): array {
 							$this->pseudo_state = $state;
 
+							if (empty($stateSettings['breakpoints']) && ! empty($stateSettings['content'])) {
+								return [
+									$this->prepareBreakpointStyles(
+                                        $this->breakpoint,
+                                        [
+											'blockeraContentPseudoElement' => '"' . $stateSettings['content'] . '"',
+										]
+                                    ),
+								];
+							}
+
 							return array_map(
-                                function ( $breakpointSettings, string $breakpoint): string {
+                                function ( $breakpointSettings, string $breakpoint) use ( $stateSettings): string  {
+									if (isset($stateSettings['content'])) {
+										$breakpointSettings['attributes']['blockeraContentPseudoElement'] = '"' . $stateSettings['content'] . '"';
+									}
+
                                     return $this->prepareBreakpointStyles($breakpoint, $breakpointSettings['attributes']);
                                 },
                                 $stateSettings['breakpoints'],
@@ -410,7 +425,31 @@ final class StyleEngine {
 								array_map(
 									function ( array $settings, string $state) use ( $flattenSupports, $blockType): array {
 
-										if (empty($settings['breakpoints']) || ( blockera_is_normal_on_base_breakpoint($state, $this->breakpoint) )) {
+										if (empty($settings['breakpoints']) && ! empty($settings['content'])) {
+											$id = 'blockeraContentPseudoElement';
+
+											if (empty($flattenSupports) || ! isset($flattenSupports[ $id ])) {
+
+												return [];
+											}
+
+											$this->setDefinition($flattenSupports, $id);
+
+											if (! $this->definition) {
+
+												return [];
+											}
+
+											return $this->generateInnerBlockCss(
+                                                [
+													'value' => '"' . $settings['content'] . '"',
+												],
+                                                $blockType,
+                                                compact('id', 'state')
+                                            );
+										}
+
+										if (empty($settings['breakpoints']) || blockera_is_normal_on_base_breakpoint($state, $this->breakpoint)) {
 
 											return [];
 										}
@@ -434,9 +473,36 @@ final class StyleEngine {
 																	return [];
 																}
 
-																$content = $settings['content'] ?? null;
+																$css_rules = $this->generateInnerBlockCss(is_string($_settings) ? [ 'value' => $_settings ] : $_settings, $blockType, compact('id', 'state'));
 
-																return $this->generateInnerBlockCss(is_string($_settings) ? [ 'value' => $_settings ] : $_settings, $blockType, compact('id', 'state', 'content'));
+																if (isset($settings['content'])) {
+																	$id = 'blockeraContentPseudoElement';
+																	
+																	if (empty($flattenSupports) || ! isset($flattenSupports[ $id ])) {
+
+																		return [];
+																	}
+
+																	$this->setDefinition($flattenSupports, $id);
+
+																	if (! $this->definition) {
+
+																		return [];
+																	}
+
+																	$css_rules = blockera_get_array_deep_merge(
+                                                                        $css_rules,
+                                                                        $this->generateInnerBlockCss(
+                                                                            [
+																				'value' => '"' . $settings['content'] . '"',
+																			],
+                                                                            $blockType,
+                                                                            compact('id', 'state')
+                                                                        )
+                                                                    );
+																}
+
+																return $css_rules;
 															},
 															$breakpointSettings['attributes'] ?? [],
 															array_keys($breakpointSettings['attributes'] ?? [])
@@ -505,7 +571,7 @@ final class StyleEngine {
 		$this->definition->setPseudoState( $this->pseudo_state );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
-		$css_rules = $this->definition->getCssRules($this->pseudo_classes[$this->pseudo_state]['content'] ?? null);
+		$css_rules = $this->definition->getCssRules();
 
 		// Only process inline styles for normal state on base breakpoint.
 		if (blockera_is_normal_on_base_breakpoint($this->pseudo_state, $this->breakpoint) && ! empty($this->inline_styles)) {
@@ -658,7 +724,7 @@ final class StyleEngine {
 		$this->definition->setSettings( $settings );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
-		return $this->definition->getCssRules($args['content'] ?? null);
+		return $this->definition->getCssRules();
 	}
 
 	/**
