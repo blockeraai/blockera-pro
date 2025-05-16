@@ -1,7 +1,7 @@
 // @flow
 
 const contentField: Object = {
-	onNativeOnStates: ['after', 'before'],
+	onNativeOnStates: ['after', 'before', 'marker'],
 };
 
 export const statesConfig = {
