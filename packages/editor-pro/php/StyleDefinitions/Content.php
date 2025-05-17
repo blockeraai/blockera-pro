@@ -17,11 +17,17 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
 
     /**
      * Validate the setting before generating css.
+	 * 
+	 * @param array $setting The setting to validate.
      *
      * @return boolean true on success, false on failure.
      */
-    protected function validate(): bool
-    {
+    protected function validate( array $setting): bool {
+
+		if (!empty($setting['content'])) {
+
+			return true;
+		}
 
         return in_array($this->pseudo_state, $this->getSupports(false)['blockeraContentPseudoElement']['hasDefaultValueInStates'], true);
     }
