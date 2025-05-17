@@ -26,6 +26,12 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
 
 		if (!empty($setting['content'])) {
 
+			// If the content is equals to double quotes, it means that the content is empty.
+			if ( '""' === $setting['content']) {
+
+				return false;
+			}
+
 			return true;
 		}
 
