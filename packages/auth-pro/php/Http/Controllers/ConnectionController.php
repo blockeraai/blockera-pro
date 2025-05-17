@@ -2,8 +2,6 @@
 
 namespace Blockera\Auth\Http\Controllers;
 
-use Blockera\Auth\Config;
-use Blockera\Utils\Utils;
 use Blockera\Http\RestController;
 use Blockera\Auth\Repositories\OptionRepository;
 
@@ -266,7 +264,7 @@ class ConnectionController extends RestController {
 
 		$client_info = OptionRepository::getOption();
 
-		if (! empty($client_info['licenses']) && empty($request->get_param('force'))) {
+		if (! empty($client_info['licenses'])) {
 			$account_info = [
 				'name'   => $client_info['name'] ?? '',
 				'email'  => $client_info['email'] ?? '',
