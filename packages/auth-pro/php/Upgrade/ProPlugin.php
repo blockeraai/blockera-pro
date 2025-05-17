@@ -2,10 +2,9 @@
 
 namespace Blockera\Auth\Upgrade;
 
-use Blockera\Auth\Config;
-use Blockera\Utils\Utils;
 use Blockera\Auth\DynamicPropertyTrait;
 use Blockera\Auth\Repositories\OptionRepository;
+use stdClass;
 
 class ProPlugin {
 
@@ -58,6 +57,7 @@ class ProPlugin {
 	public function applyHooks(): void
 	{
 		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
+		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
 	}
 
 	/**
@@ -98,7 +98,7 @@ class ProPlugin {
 			$plugin_info->plugin = $id;
 			$plugin_info->icons = $this->config->getIcons();
 			$plugin_info->slug = $this->slug;
-			$plugin_info->package = '';
+			$plugin_info->package = $this->getProPluginFileUrl();
 			$plugin_info->new_version = $result['new_version'];
 			$plugin_info->url = $this->config->getPluginUrl();
 
@@ -134,39 +134,32 @@ class ProPlugin {
 	 */
 	private function getProPluginFileUrl(): string
 	{
-		// Create a transient key to store the license temporary data.
-		$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase($this->license['name']);
-		$transient = get_transient($transient_key);
+		$client_info = OptionRepository::getOption();
 
-		if (empty($transient)) {
-			$request = new \WP_REST_Request('POST', '/blockera/v1/auth/licenses');
-			$request->set_param('force', true);
-			$request->set_param('action', 'licenses');
-			$request->set_header('X-Blockera-Nonce', wp_create_nonce('blockera-connect-with-your-account'));
+		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'versionId'))) {
+			return '';
+		}
 
-			$response = rest_do_request($request);
-			$response = $response->get_data();
+		$licenses = $client_info['licenses'];
+		$products_licenses = array_column($licenses, 'productName');
+		$license_index = array_search($this->config->getProductName(), $products_licenses, true);
+		$license = $licenses[ $license_index ];
 
-			if (empty($response['success'])) {
-				return '';
-			}
+		$version_id = $license['versionId'] ?? '';
 
-			// Create a transient key to store the license temporary data.
-			$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase($this->license['name']);
-			$transient = get_transient($transient_key);
-
-			if (empty($transient)) {
-				return '';
-			}
+		if (empty($version_id)) {
+			return '';
 		}
 
 		$response = wp_remote_get(
-            $this->config->getResourceOwnerDetailsUrl() . '/' . $transient,
+            $this->config->getResourceOwnerDetailsUrl() . '/' . $version_id,
             [
 				'timeout' => 30,
-				'sslverify' => Config::isDev(),
+                'redirection' => 5,
+                'httpversion' => '1.1',
+                'sslverify' => false,
 				'headers' => [
-					'Authorization' => 'Bearer ' . OptionRepository::getOption('access_token'),
+					'Authorization' => sprintf('Bearer %s', $client_info['access_token']),
 				],
 				'body' => [
 					'domain' => get_site_url(),
@@ -186,5 +179,87 @@ class ProPlugin {
 		}
 
 		return $response_body['data']['fileUrl'] ?? '';
+	}
+
+	/**
+	 * Get the plugin information.
+	 *
+	 * @param \stdClass|bool  $result The result.
+	 * @param string          $action The action.
+	 * @param \stdClass|array $args The args.
+	 *
+	 * @return \stdClass|bool The result.
+	 */
+	public function getPluginInformation( $result, string $action, \stdClass $args) {
+		if ($args->slug !== $this->slug) {
+			return $result;
+		}
+
+		if ('plugin_information' !== $action) {
+			return $result;
+		}
+
+		$readme_file = ABSPATH . 'wp-content/plugins/' . $this->slug . '/readme.txt';
+
+		if (! file_exists($readme_file)) {
+			return $result;
+		}
+		
+		$readme_content = file_get_contents($readme_file);
+		
+		if (empty($readme_content)) {
+			return $result;
+		}
+
+		// Convert readme sections to HTML.
+		$sections = [];
+		$current_section = '';
+		$section_content = '';
+		
+		foreach (explode("\n", $readme_content) as $line) {
+			if (preg_match('/^==\s*(.*?)\s*==/', $line, $matches)) {
+				if ('' !== $current_section) {
+					$sections[$current_section] = trim($section_content);
+				}
+				$current_section = strtolower($matches[1]);
+				$section_content = '';
+			} else {
+				$section_content .= $line . "\n";
+			}
+		}
+		
+		if ('' !== $current_section) {
+			$sections[$current_section] = trim($section_content);
+		}
+
+		// Convert markdown to HTML.
+		foreach ($sections as $key => $content) {
+			$content = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $content);
+			$content = preg_replace('/`(.*?)`/', '<code>$1</code>', $content);
+			$content = preg_replace('/=(.*?)=/', '<strong>$1</strong>', $content);
+			$content = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $content);
+			$sections[$key] = wpautop($content);
+		}
+
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
+
+		$info = new \stdClass();
+		$info->name = $plugin_data['Name'];
+		$info->slug = $this->slug;
+		$info->version = $plugin_data['Version'];
+		$info->author = $plugin_data['Author'];
+		$info->author_profile = $plugin_data['AuthorURI'] ?? '';
+		$info->requires = $plugin_data['RequiresWP'] ?? '';
+		$info->tested = $plugin_data['TestedUpTo'] ?? '';
+		$info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+		$info->last_updated = $plugin_data['UpdatedTime'] ?? '';
+		$info->added = '';
+		$info->homepage = $plugin_data['PluginURI'] ?? '';
+		$info->sections = $sections;
+		$info->download_link = '';
+		$info->banners = [];
+		$info->contributors = [];
+
+		return $info;
 	}
 }
