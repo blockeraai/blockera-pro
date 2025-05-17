@@ -217,27 +217,14 @@ class Client {
             wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? __('The resource owner or authorization server denied the request.', 'blockera-pro')));
         }
 
-        $licenses = array_map(
-            function ($license) {
-				OptionRepository::setTransient(Utils::snakeCase($license['name']), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
-
-                unset($license['versionId']);
-
-                return $license;
-            },
-            $response_body['data']['licenses']
-        );
-
-        unset($response_body['data']['licenses']);
-
         if (! $client_info) {
 
             $info                  = $response_body['data'];
-            $info['licenses'] = $licenses;
+            $info['licenses'] =  $response_body['data']['licenses'];
         } else {
 
             $info                  = array_merge($client_info, $response_body['data']);
-            $info['licenses'] = $licenses;
+            $info['licenses'] =  $response_body['data']['licenses'];
         }
 
 		OptionRepository::setOption($info);
