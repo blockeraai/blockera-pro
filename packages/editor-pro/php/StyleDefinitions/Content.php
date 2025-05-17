@@ -24,17 +24,19 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
      */
     protected function validate( array $setting): bool {
 
+		$existing_state = in_array($this->pseudo_state, $this->getSupports(false)['blockeraContentPseudoElement']['hasDefaultValueInStates'], true);
+
 		if (!empty($setting['content'])) {
 
 			// If the content is equals to double quotes, it means that the content is empty.
 			if ( '""' === $setting['content']) {
 
-				return false;
+				return $existing_state;
 			}
 
 			return true;
 		}
 
-        return in_array($this->pseudo_state, $this->getSupports(false)['blockeraContentPseudoElement']['hasDefaultValueInStates'], true);
+        return $existing_state;
     }
 }
