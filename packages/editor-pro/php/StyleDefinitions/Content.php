@@ -14,4 +14,15 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
 
         return 'content';
     }
+
+    /**
+     * Validate the setting before generating css.
+     *
+     * @return boolean true on success, false on failure.
+     */
+    protected function validate(): bool
+    {
+
+        return in_array($this->pseudo_state, $this->getSupports(false)['blockeraContentPseudoElement']['hasDefaultValueInStates'], true);
+    }
 }
