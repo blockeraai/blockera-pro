@@ -112,14 +112,6 @@ class Validator {
 			return [];
 		}
 
-		$cache_key = '__update_check_' . $id;
-
-		$transient = OptionRepository::getTransient($cache_key);
-
-		if (! empty($transient)) {
-			return $transient;
-		}
-
 		$response = wp_remote_post(
 			$this->config->getApiBaseUrl() . '/license-manager/v1/products/' . $id . '/check-for-updates',
 			[
@@ -133,7 +125,7 @@ class Validator {
 				],
 				'body'        => [
 					'id' => $id,
-					'current_version' => $data['Version'],
+					'current_version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
 					'domain' => get_site_url(),
 				],
 			]
@@ -148,9 +140,6 @@ class Validator {
 		if (empty($responseBody['success']) || true !== $responseBody['success']) {
 			return [];
 		}
-
-		// Set the transient for 24 hours.
-		set_transient($cache_key, $responseBody['data'], 60 * 60 * 24);
 
 		return $responseBody['data'];
 	}
