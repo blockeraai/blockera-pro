@@ -4,7 +4,6 @@ namespace Blockera\Auth\Upgrade;
 
 use Blockera\Auth\DynamicPropertyTrait;
 use Blockera\Auth\Repositories\OptionRepository;
-use stdClass;
 
 class ProPlugin {
 
@@ -90,44 +89,28 @@ class ProPlugin {
 
 		$this->validator->name($this->slug);
 
-		$result = $this->validator->updateCheck($this->config->getProductIdentifier());
-		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
+		$result = $this->getProPluginUpdate();
 
-		if (! empty($result['update_available']) && ! empty($result['new_version'])) {
-			$plugin_info = new \stdClass();
-
-			$plugin_info->id = $this->config->getPluginUrl();
-			$plugin_info->plugin = $id;
-			$plugin_info->icons = $this->config->getIcons();
-			$plugin_info->slug = $this->slug;
-			$plugin_info->package = $this->getProPluginFileUrl();
-			$plugin_info->new_version = $result['new_version'];
-			$plugin_info->url = $this->config->getPluginUrl();
-			$plugin_info->requires = $plugin_data['RequiresWP'] ?? '';
-			$plugin_info->tested = $plugin_data['TestedUpTo'] ?? '';
-			$plugin_info->requires_php = $plugin_data['RequiresPHP'] ?? '';
-			$plugin_info->requires_plugins = [];
-
-			$transient->response[ $plugin_info->plugin ] = $plugin_info;
-		} else {
-
-			$item = (object) array(
-				'id'            => $id,
-				'slug'          => $this->slug,
-				'plugin'        => $id,
-				'new_version'   => $plugin_data['Version'],
-				'url'           => '',
-				'package'       => '',
-				'icons'         => array(),
-				'banners'       => array(),
-				'banners_rtl'   => array(),
-				'tested'        => '',
-				'requires_php'  => '',
-				'compatibility' => new \stdClass(),
-			);
-
-			$transient->no_update[ $id ] = $item;
+		if (! $result instanceof \stdClass || ! isset($result->url, $result->new_version) || empty($result->url) || empty($result->new_version)) {
+			return $transient;
 		}
+
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
+		
+		$plugin_info = new \stdClass();
+		$plugin_info->id = $this->config->getPluginUrl();
+		$plugin_info->plugin = $id;
+		$plugin_info->icons = $this->config->getIcons();
+		$plugin_info->slug = $this->slug;
+		$plugin_info->package = $result->url;
+		$plugin_info->new_version = $result->new_version;
+		$plugin_info->url = $this->config->getPluginUrl();
+		$plugin_info->requires = $plugin_data['RequiresWP'] ?? '';
+		$plugin_info->tested = $plugin_data['TestedUpTo'] ?? '';
+		$plugin_info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+		$plugin_info->requires_plugins = [];
+
+		$transient->response[ $plugin_info->plugin ] = $plugin_info;
 
 		return $transient;
 	}
@@ -135,14 +118,15 @@ class ProPlugin {
 	/**
 	 * Get the pro plugin file.
 	 *
-	 * @return string The pro plugin file, empty string if no data is found.
+	 * @return \stdClass The pro plugin update.
 	 */
-	private function getProPluginFileUrl(): string
+	private function getProPluginUpdate(): \stdClass
 	{
+		$result = new \StdClass();
 		$client_info = OptionRepository::getOption();
 
 		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'licenseKey'))) {
-			return '';
+			return $result;
 		}
 
 		$licenses = $client_info['licenses'];
@@ -151,13 +135,13 @@ class ProPlugin {
 		$license = $licenses[ $license_index ];
 
 		if (empty($license['licenseKey'])) {
-			return '';
+			return $result;
 		}
 
 		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
 
 		if (empty($data)) {
-			return [];
+			return $result;
 		}
 
 		$response = wp_remote_get(
@@ -173,22 +157,26 @@ class ProPlugin {
 				'body' => [
 					'domain' => get_site_url(),
 					'license_id' => $this->license['id'],
+					'id' => $this->config->getProductIdentifier(),
 					'version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
 				],
 			]
         );
 
 		if (is_wp_error($response)) {
-			return '';
+			return $result;
 		}
 
 		$response_body = json_decode($response['body'], true);
 
 		if (empty($response_body['success'])) {
-			return '';
+			return $result;
 		}
 
-		return $response_body['data']['fileUrl'] ?? '';
+		$result->url = $response_body['data']['fileUrl'] ?? '';
+		$result->new_version = $response_body['data']['newVersion'] ?? '';
+
+		return $result;
 	}
 
 	/**
