@@ -141,7 +141,7 @@ class ProPlugin {
 	{
 		$client_info = OptionRepository::getOption();
 
-		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'versionId'))) {
+		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'licenseKey'))) {
 			return '';
 		}
 
@@ -150,14 +150,18 @@ class ProPlugin {
 		$license_index = array_search($this->config->getProductName(), $products_licenses, true);
 		$license = $licenses[ $license_index ];
 
-		$version_id = $license['versionId'] ?? '';
-
-		if (empty($version_id)) {
+		if (empty($license['licenseKey'])) {
 			return '';
 		}
 
+		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
+
+		if (empty($data)) {
+			return [];
+		}
+
 		$response = wp_remote_get(
-            $this->config->getResourceOwnerDetailsUrl() . '/' . $version_id,
+            $this->config->getResourceOwnerDetailsUrl(),
             [
 				'timeout' => 30,
                 'redirection' => 5,
@@ -169,6 +173,7 @@ class ProPlugin {
 				'body' => [
 					'domain' => get_site_url(),
 					'license_id' => $this->license['id'],
+					'version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
 				],
 			]
         );
