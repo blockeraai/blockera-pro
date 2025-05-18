@@ -98,53 +98,6 @@ class Validator {
 	}
 
 	/**
-	 * Check update.
-	 *
-	 * @param string $id The id.
-	 *
-	 * @return array The result.
-	 */
-	public function updateCheck( string $id): array
-	{
-		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->name . '/' . $this->name . '.php');
-
-		if (empty($data)) {
-			return [];
-		}
-
-		$response = wp_remote_post(
-			$this->config->getApiBaseUrl() . '/license-manager/v1/products/' . $id . '/check-for-updates',
-			[
-				'timeout'     => 30,
-				'redirection' => 5,
-				'httpversion' => '1.1',
-				// Disable SSL verification.
-				'sslverify'   => false,
-				'headers'     => [
-					'Authorization'    => 'Bearer ' . (OptionRepository::getOption('access_token') ?? ''),
-				],
-				'body'        => [
-					'id' => $id,
-					'current_version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
-					'domain' => get_site_url(),
-				],
-			]
-		);
-
-		if (is_wp_error($response)) {
-			return [];
-		}
-
-		$responseBody = json_decode(wp_remote_retrieve_body($response), true);
-
-		if (empty($responseBody['success']) || true !== $responseBody['success']) {
-			return [];
-		}
-
-		return $responseBody['data'];
-	}
-
-	/**
 	 * Check if the plan is allowed.
 	 *
 	 * @param string $plan The plan.
