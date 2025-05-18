@@ -91,26 +91,31 @@ class ProPlugin {
 		$this->validator->name($this->slug);
 
 		$result = $this->validator->updateCheck($this->config->getProductIdentifier());
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
 
 		if (! empty($result['update_available']) && ! empty($result['new_version'])) {
 			$plugin_info = new \stdClass();
 
+			$plugin_info->id = $this->config->getPluginUrl();
 			$plugin_info->plugin = $id;
 			$plugin_info->icons = $this->config->getIcons();
 			$plugin_info->slug = $this->slug;
 			$plugin_info->package = $this->getProPluginFileUrl();
 			$plugin_info->new_version = $result['new_version'];
 			$plugin_info->url = $this->config->getPluginUrl();
+			$plugin_info->requires = $plugin_data['RequiresWP'] ?? '';
+			$plugin_info->tested = $plugin_data['TestedUpTo'] ?? '';
+			$plugin_info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+			$plugin_info->requires_plugins = [];
 
 			$transient->response[ $plugin_info->plugin ] = $plugin_info;
 		} else {
-			$plugin_info = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
 
 			$item = (object) array(
 				'id'            => $id,
 				'slug'          => $this->slug,
 				'plugin'        => $id,
-				'new_version'   => $plugin_info['Version'],
+				'new_version'   => $plugin_data['Version'],
 				'url'           => '',
 				'package'       => '',
 				'icons'         => array(),
