@@ -32,7 +32,7 @@ return [
     | to properly identify the Pro plugin for updates and license verification.
     |
     */
-	'productName' => blockera_core_env('PRODUCT_NAME', 'blockera-pro'),
+	'productName' => blockera_core_env('PRODUCT_NAME', 'blockera-site-builder-pro'),
 
 	/*
     |--------------------------------------------------------------------------
