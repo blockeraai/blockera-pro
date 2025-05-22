@@ -1,4 +1,4 @@
-== Blockera PRO ==
+== Blockera Site Builder [Pro] ==
 Contributors: blockeraai
 Tags: gutenberg blocks, wordPress blocks, site editor, block Editor, page Builder
 Requires at least: ### AUTO-GENERATED
