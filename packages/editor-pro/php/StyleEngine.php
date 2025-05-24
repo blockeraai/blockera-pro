@@ -685,6 +685,7 @@ final class StyleEngine {
 		$this->definition->setInnerPseudoState( $args['state'] ?? '' );
 		$this->definition->setPseudoState( $this->pseudo_state );
 		$this->definition->setSettings( $settings );
+		$this->definition->setNoChecks( true );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
 		return $this->definition->getCssRules();
