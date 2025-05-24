@@ -189,7 +189,7 @@ class ProPlugin {
 	 * @return \stdClass|bool The result.
 	 */
 	public function getPluginInformation( $result, string $action, \stdClass $args) {
-		if(!isset($args->slug)) {
+		if (!isset($args->slug)) {
 			return $result;
 		}
 
