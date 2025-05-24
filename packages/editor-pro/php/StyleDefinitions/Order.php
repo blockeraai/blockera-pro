@@ -51,14 +51,14 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
 
         $settings = blockera_get_sanitize_block_attributes($settings);
 
-        if (isset($settings[ $settingName ]) && 'custom' === $settings[ $settingName ] && 'order' === $cssProperty) {
+        if (isset($settings['value']) && 'custom' === $settings['value'] && 'order' === $cssProperty) {
 
             $setting = [
                 [
                     'isVisible'  => true,
                     'type'       => $cssProperty,
-                    $cssProperty => $settings['blockeraFlexChildOrder'] ?? 'custom',
-                    'custom'     => $settings['blockeraFlexChildOrderCustom'] ?? '',
+                    $cssProperty => $settings['value']['blockeraFlexChildOrder'] ?? 'custom',
+                    'custom'     => $settings['value']['blockeraFlexChildOrderCustom'] ?? '',
                 ],
             ];
 
@@ -68,7 +68,7 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
                 [
                     'isVisible'  => true,
                     'type'       => $cssProperty,
-                    $cssProperty => $settings[ $settingName ] ?? [],
+                    $cssProperty => $settings['value'] ?? [],
                 ],
             ];
         }
