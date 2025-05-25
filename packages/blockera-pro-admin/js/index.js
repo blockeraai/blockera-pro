@@ -34,14 +34,28 @@ const initializeBlockeraProAdmin = () => {
 						...config.general,
 						restrictBlockVisibility: {
 							...config.general.restrictBlockVisibility,
-							isActiveOnFree: true,
+							onNative: false,
 							config: {
 								...config.general.restrictBlockVisibility
 									.config,
 								userRole: {
 									...config.general.restrictBlockVisibility
 										.config.userRole,
-									isActiveOnFree: true,
+									onNative: false,
+								},
+							},
+						},
+						restrictBlockVisibilityByPostType: {
+							...config.general.restrictBlockVisibilityByPostType,
+							onNative: false,
+							config: {
+								...config.general
+									.restrictBlockVisibilityByPostType.config,
+								postType: {
+									...config.general
+										.restrictBlockVisibilityByPostType
+										.config.postType,
+									onNative: false,
 								},
 							},
 						},

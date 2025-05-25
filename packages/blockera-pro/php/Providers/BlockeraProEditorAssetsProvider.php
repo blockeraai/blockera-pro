@@ -62,44 +62,60 @@ class BlockeraProEditorAssetsProvider extends EditorAssetsProvider {
 	 */
 	public function localization(): void {
 
-		$userRoles = blockera_normalized_user_roles();
-
 		wp_add_inline_script(
 			'wp-blocks',
-			'var blockeraAvailableUserRoles = ' . wp_json_encode( $userRoles ) . ';
-				if(window?.wp){
-					wp.hooks.addFilter(
-						"blockera.editor.extensions.currentUser",
-						"blockera.unstableBootstrapServerSideCurrentUser",
-						() => {						
-							return ' . wp_json_encode( wp_get_current_user() ) . ';
+			'if(window?.wp){
+				wp.hooks.addFilter(
+					"blockera.editor.extensions.currentUser",
+					"blockera.unstableBootstrapServerSideCurrentUser",
+					() => {						
+						return ' . wp_json_encode( wp_get_current_user() ) . ';
+					}
+				);
+				wp.hooks.addFilter(
+					"blockera.editor.extensions.hooks.withBlockSettings.allowedUsers",
+					"blockera.unstableBootstrapServerSideAllowedUsers",
+					() => {
+						const {
+							general: {
+								disableRestrictBlockVisibility,
+								allowedUserRoles,
+							},
+						} = blockeraSettings;
+						if(!disableRestrictBlockVisibility){
+							return [];
 						}
-					);
-					wp.hooks.addFilter(
-						"blockera.editor.extensions.hooks.withBlockSettings.notAllowedUsers",
-						"blockera.unstableBootstrapServerSideNotAllowedUsers",
-						() => {
-							const {
-								general: {
-									disableRestrictBlockVisibility,
-									allowedUserRoles,
-								},
-							} = blockeraSettings;
 
-							if(!disableRestrictBlockVisibility){
-								return [];
-							}
+						const allowedRoles = Object.keys(
+							Object.fromEntries(Object.entries(allowedUserRoles).filter(([id, checked]) => checked))
+						);
 
-							const allowedRoles = Object.keys(
-								Object.fromEntries(Object.entries(allowedUserRoles).filter(([id, role]) => role.checked))
-							);
+						allowedRoles.push("administrator");
 
-							return Object.keys(
-								Object.fromEntries(Object.entries(blockeraAvailableUserRoles).filter(([id]) => !allowedRoles.includes(id)))
-							);
+						return allowedRoles;
+					}
+				);
+				wp.hooks.addFilter(
+					"blockera.editor.extensions.hooks.withBlockSettings.allowedPostTypes",
+					"blockera.unstableBootstrapServerSideAllowedPostTypes",
+					() => {
+						const {
+							general: {
+								allowedPostTypes,
+								disableRestrictBlockVisibilityByPostType,
+							},
+						} = blockeraSettings;
+						if(!disableRestrictBlockVisibilityByPostType){
+							return [];
 						}
-					);
-				}
+
+						return Object.keys(
+							Object.fromEntries(Object.entries(allowedPostTypes).filter(([id, checked]) => checked))
+						);
+					}
+				);
+			}
+			var blockeraCurrentPostType = ' . wp_json_encode( get_post_type() ) . ';
 			var blockeraAccount = ' . wp_json_encode( blockera_pro_core_config( 'account' ) ) . ';'
 		);
 	}

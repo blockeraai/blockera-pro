@@ -37,6 +37,36 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 	);
 
 	addFilter(
+		'blockera.admin.general.panel.disableRestrictBlockVisibilityByPostType.onChange',
+		'blockera.pro.admin.general.panel.onChangeBlockVisibilityByPostTypeControl',
+		(
+			noop,
+			{
+				setHasUpdates,
+				generalSettings,
+				setSettings,
+				settings,
+				savedGeneralSettings,
+			}
+		) => {
+			return (checked: boolean) => {
+				setHasUpdates(
+					checked !==
+						savedGeneralSettings.disableRestrictBlockVisibilityByPostType
+				);
+
+				setSettings({
+					...settings,
+					general: {
+						...generalSettings,
+						disableRestrictBlockVisibilityByPostType: checked,
+					},
+				});
+			};
+		}
+	);
+
+	addFilter(
 		'blockera.admin.general.panel.restrictBlockVisibility.userRole.onChange',
 		'blockera.pro.admin.general.panel.onChangeUserRole',
 		(
@@ -52,8 +82,7 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 		) => {
 			return (checked: boolean) => {
 				setHasUpdates(
-					checked !==
-						savedGeneralSettings.allowedUserRoles[id].checked
+					checked !== savedGeneralSettings.allowedUserRoles[id]
 				);
 
 				setSettings({
@@ -62,10 +91,40 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 						...generalSettings,
 						allowedUserRoles: {
 							...generalSettings.allowedUserRoles,
-							[id]: {
-								...generalSettings.allowedUserRoles[id],
-								checked,
-							},
+							[id]: checked,
+						},
+					},
+				});
+			};
+		}
+	);
+
+	addFilter(
+		'blockera.admin.general.panel.restrictBlockVisibilityByPostType.postType.onChange',
+		'blockera.pro.admin.general.panel.onChangePostType',
+		(
+			noop,
+			{
+				setHasUpdates,
+				generalSettings,
+				id,
+				setSettings,
+				settings,
+				savedGeneralSettings,
+			}
+		) => {
+			return (checked: boolean) => {
+				setHasUpdates(
+					checked !== savedGeneralSettings.allowedPostTypes[id]
+				);
+
+				setSettings({
+					...settings,
+					general: {
+						...generalSettings,
+						allowedPostTypes: {
+							...generalSettings.allowedPostTypes,
+							[id]: checked,
 						},
 					},
 				});

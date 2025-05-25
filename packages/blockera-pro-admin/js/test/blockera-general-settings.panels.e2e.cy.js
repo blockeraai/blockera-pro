@@ -28,7 +28,7 @@ describe('Blockera general settings testing...', () => {
 		cy.get('label')
 			.contains('Restrict Blockera blocks to selected user roles.')
 			.click();
-		cy.get('label').contains('Editor').click();
+		cy.get('label').contains('editor').click();
 
 		cy.getByDataTest('update-settings').as('update');
 		cy.get('@update').then(() => {
@@ -47,7 +47,7 @@ describe('Blockera general settings testing...', () => {
 
 			cy.getBlock('core/paragraph').click();
 
-			cy.getByAriaLabel('Add New Background').click();
+			cy.getByAriaLabel('Add New Background').should('not.exist');
 
 			cy.logout();
 			cy.login('contributor', 'contributor');
@@ -58,7 +58,30 @@ describe('Blockera general settings testing...', () => {
 
 			cy.getBlock('core/paragraph').click();
 
-			cy.getByAriaLabel('Add New Background').should('not.exist');
+			cy.getByAriaLabel('Add New Background').click();
+		});
+	});
+
+	it('should restrict block visibility controls with selected post types', () => {
+		resetPanelSettings();
+
+		cy.get('label')
+			.contains('Restrict Blockera blocks to selected user roles.')
+			.click();
+		cy.get('label').contains('post').click();
+
+		cy.getByDataTest('update-settings').as('update');
+		cy.get('@update').then(() => {
+			cy.get('@update').click();
+			cy.wait(2000);
+
+			createPost();
+
+			appendBlocks(`<!-- wp:paragraph /-->`);
+
+			cy.getBlock('core/paragraph').click();
+
+			cy.getByAriaLabel('Add New Background').click();
 		});
 	});
 });
