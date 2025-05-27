@@ -87,9 +87,9 @@ jobs:
             - name: Run Cypress E2E Tests
               run: |
                   if [ "${{ matrix.category }}" != "general" ]; then
-                    spec_pattern="packages/(blockera-pro-**|**-pro)/**/*.${{ matrix.category }}.e2e.cy.js"
+                    spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.e2e.cy.js"
                   else
-                    spec_pattern="packages/(blockera-pro-**|**-pro)/**/*.e2e.cy.js"
+                    spec_pattern="packages/**-pro(-**|)/**/*.e2e.cy.js"
                   fi
                   npm run test:e2e -- --spec "$spec_pattern"
 
