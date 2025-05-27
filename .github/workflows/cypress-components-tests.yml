@@ -25,7 +25,7 @@ jobs:
 
             - name: Find Specs Files
               id: find_specs_files
-              run: echo "file_count=$(find ./packages -name "*.component.cy.js" | wc -l)" >> $GITHUB_OUTPUT
+              run: echo "file_count=$(find ./packages/blockera-pro-* ./packages/*-pro -name "*.component.cy.js" | wc -l)" >> $GITHUB_OUTPUT
 
             - name: Setup Node.js and install dependencies
               # Only run if Specs files are found.
@@ -40,4 +40,4 @@ jobs:
             - name: Run Cypress Tests
               # Only run if Specs files are found.
               if: steps.find_specs_files.outputs.file_count != '0'
-              run: npm run test:ct
+              run: npm run test:ct -- --spec "./packages/blockera-pro-*/**/*.component.cy.js" "./packages/*-pro/**/*.component.cy.js"
