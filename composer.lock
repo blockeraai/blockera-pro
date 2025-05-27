@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4bbc1286970217268febb847f76be867",
+    "content-hash": "f004296ac37234f861d5dd4db3db23e6",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -80,6 +80,160 @@
             }
         },
         {
+            "name": "blockera/blocks-core",
+            "version": "1.4.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/blocks/core",
+                "reference": "bd38bac5e5f9426dd358c0b8b2e682020b1fab53"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Blocks\\Core\\": "php/"
+                },
+                "files": [
+                    "./php/functions.php"
+                ]
+            },
+            "description": "The WordPress core blocks package for Blockera editor.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/bootstrap",
+            "version": "1.0.1",
+            "dist": {
+                "type": "path",
+                "url": "packages/bootstrap",
+                "reference": "ee84efe1533418a928ec12421067df0cde6dab84"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Bootstrap\\": "php/"
+                }
+            },
+            "description": "The initializer blockera any application on wordpress site.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/classnames",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/classnames",
+                "reference": "e59f023e2a96600fb4a4575c703e1342b899b004"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Classnames\\": "php/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Classnames\\Tests\\": "php/tests/"
+                }
+            },
+            "description": "Css classnames generator for Blockera Core.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/controls",
+            "version": "1.3.3",
+            "dist": {
+                "type": "path",
+                "url": "packages/controls",
+                "reference": "20dab6a10489b2d5a0fedf9429e14958c780e205"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Controls\\": "php/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Controls\\Tests\\": "php/tests/"
+                }
+            },
+            "description": "UI react.js components as controls for Blockera Core.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/data",
+            "version": "1.1.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/data",
+                "reference": "fe8ab2b95f5b0d30a04bbf06b95c14bc987fc462"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Data\\": "php/"
+                }
+            },
+            "description": "Core Data is a data module intended to simplify access and manipulation to core WordPress and entities.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/data-editor",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/data-editor",
+                "reference": "b7fc5f5dceb989ba71288002d42ffd371ecc6fae"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\DataEditor\\": "php/"
+                }
+            },
+            "description": "Blockera Data Editor package to access all property value with tokenized string.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/editor",
+            "version": "1.7.1",
+            "dist": {
+                "type": "path",
+                "url": "packages/editor",
+                "reference": "f5169933576e82468adc4ff5bbe0d0e5ba101213"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Editor\\": "php/"
+                },
+                "files": [
+                    "php/helpers.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Editor\\Tests": "php/tests/"
+                }
+            },
+            "description": "Blockera Editor php package to implements WordPress block and site editor functionalities on admin and front-end.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "blockera/editor-pro",
             "version": "1.0.0",
             "dist": {
@@ -99,6 +253,47 @@
                 }
             },
             "description": "Editor Pro functionality implementation",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/env",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/env",
+                "reference": "9e78bd120c211f116b3fcb8df02665e949c38f6d"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Env\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "description": "The env package to read environment variables of json related files at the root of any project.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/exceptions",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/exceptions",
+                "reference": "1582e294ef2e373f8f0ce86a79edf7490e5c22d0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Exceptions\\": "php/"
+                }
+            },
+            "description": "The blockera exceptions package.",
             "transport-options": {
                 "relative": true
             }
@@ -128,11 +323,81 @@
             }
         },
         {
+            "name": "blockera/http",
+            "version": "1.1.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/http",
+                "reference": "7026fc9166a4911fbf2ced23cd81d0d05f37b828"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Http\\": "php/"
+                }
+            },
+            "description": "The blockera http abstraction package.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/icons",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/icons",
+                "reference": "78160ddbc8b98b7d783d3dc89630c7a3dc6565a3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Icons\\": "php/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Icons\\Tests\\": "php/tests/"
+                }
+            },
+            "description": "The blockera icons package.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/telemetry",
+            "version": "1.0.2",
+            "dist": {
+                "type": "path",
+                "url": "packages/telemetry",
+                "reference": "1d122a201f8c6c7f7dabea49c887903f6a4a7c29"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Telemetry\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Telemetry\\Test\\": "php/tests/"
+                }
+            },
+            "description": "The telemetry system for blockera products by collecting necessary data of user and website to connect with Blockera API.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "blockera/utils",
             "version": "1.2.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/utils",
+                "url": "packages/utils",
                 "reference": "9c685d4a77eed3c425a277c6129240eceb1d087d"
             },
             "type": "library",
@@ -150,6 +415,33 @@
                 }
             },
             "description": "The utilities for JavaScript and PHP blockera applications.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/wordpress",
+            "version": "1.1.4",
+            "dist": {
+                "type": "path",
+                "url": "packages/wordpress",
+                "reference": "67f5105b1dcd55e6dd0374879c3b4538e66e61f1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\WordPress\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\WordPress\\Test\\": "php/tests/"
+                }
+            },
+            "description": "The utilities for blockera on WordPress CMS.",
             "transport-options": {
                 "relative": true
             }
