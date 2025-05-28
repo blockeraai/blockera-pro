@@ -123,8 +123,10 @@ class AssetsLoader {
 			return;
 		}
 
+		$assets = $this->prepareAssets();
+
 		array_map(
-			function ( array $asset ): void {
+			function ( array $asset ) use ($assets) : void {
 
 				$package_version = $this->getPackageVersion(str_replace(['@blockera/', '-styles'], '', $asset['name']));
 				$package_version = str_replace('.', '-', $package_version);
@@ -150,6 +152,14 @@ class AssetsLoader {
 
 				array_map( 'wp_enqueue_script', $this->packages_deps[ $asset['name'] ] ?? [] );
 
+				foreach($this->packages_deps[ $asset['name'] ] ?? [] as $index => $dep){
+					
+					$version = $this->getPackageVersion(str_replace('@blockera/', '', $dep));
+					$version = str_replace('.', '-', $version);
+
+					$this->packages_deps[$asset['name']][$index] .= '-' . $version;
+				}
+
 				wp_enqueue_script(
 					$asset['name'] . '-' . $package_version,
 					str_replace( '\\', DIRECTORY_SEPARATOR, $asset['script'] ),
@@ -164,7 +174,7 @@ class AssetsLoader {
 				);
 
 			},
-			$this->prepareAssets()
+			$assets
 		);
 
 		/**
@@ -369,15 +379,28 @@ class AssetsLoader {
 	 */
 	private function getPackageVersion(string $name): string {
 
+		if (str_contains($name, 'blocks-')) {
+			$name = str_replace('blocks-', 'blocks/', $name);
+		}
+
 		$package_json = sprintf(
-			'%1$spackages/%2$s/package.json',
+			'%1$svendor/blockera/%2$s/package.json',
 			$this->root_info['path'],
 			$name,
 		);
 
 		if ( ! file_exists( $package_json ) ) {
+			
+			$package_json = sprintf(
+				'%1$svendor/blockera/%2$s/package.json',
+				$this->fallback_args['path'] ?? '',
+				$name,
+			);
 
-			return '';
+			if ( ! file_exists( $package_json ) ) {
+
+				return '';
+			}
 		}
 
 		global $wp_filesystem;
