@@ -1,6 +1,6 @@
 <?php
 
-if ( function_exists('blockera_auth_pro_cleanup_auth_data')) {
+if ( !function_exists('blockera_auth_pro_cleanup_auth_data')) {
 	/**
 	 * Cleanup authorization data while occurred problems on the blockera.ai server.
 	 *
