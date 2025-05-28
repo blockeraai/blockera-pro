@@ -214,7 +214,7 @@ class Client {
         $response_body = json_decode(wp_remote_retrieve_body($response), true);
 
         if ((isset($response_body['data']['success']) && false === $response_body['data']['success']) || (isset($response_body['success']) && false === $response_body['success']) || (isset($response_body['data']['errors']) || isset($response_body['errors']))) {
-            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? __('The resource owner or authorization server denied the request.', 'blockera-pro')));
+            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? [__('The resource owner or authorization server denied the request.', 'blockera-pro')]));
         }
 
         if (! $client_info) {
