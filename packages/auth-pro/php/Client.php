@@ -39,8 +39,6 @@ class Client {
         $license = OptionRepository::getLicense($client_info);
 
         if (isset($license['status']) && 'active' !== $license['status']) {
-			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
-
             return;
         }
 
