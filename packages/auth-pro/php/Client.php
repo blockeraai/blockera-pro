@@ -49,8 +49,6 @@ class Client {
         }
 
         if (! isset($_GET['client_id'], $_GET['client_secret'], $_GET['redirect_to'])) {
-			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
-
             return;
         }
 
