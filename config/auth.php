@@ -53,14 +53,4 @@ return [
     |
     */
 	'pluginUrl' => blockera_core_env('PLUGIN_URL', 'https://blockera.ai/products/site-builder'),
-
-	/*
-    |--------------------------------------------------------------------------
-    | Refresh Token URL
-    |--------------------------------------------------------------------------
-    |
-    | This value represents the URL of the Blockera Pro plugin.
-    |
-    */
-	'refreshTokenUrl' => blockera_core_env('REFRESH_TOKEN_URL', 'https://api.blockera.ai/auth/v1/refresh-token'),
 ];

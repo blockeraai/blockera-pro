@@ -47,29 +47,13 @@ module.exports = (env, argv) => {
 				name = name.split('blocks-')[1];
 			}
 
-			let version;
-
-			if (
-				-1 === name.indexOf(PRO_SUFFIX) &&
-				BLOCKERA_GUARD_NICKNAME !== name &&
-				'validator' !== name
-			) {
-				const {
-					version: _v,
-				} = require(`../blockera/packages/${parentDirectory}${name}/package.json`);
-
-				version = _v;
-			} else {
-				if (BLOCKERA_GUARD_NICKNAME === name) {
-					packageName = name = 'guard';
-				}
-
-				const {
-					version: _v,
-				} = require(`./packages/${parentDirectory}${name}/package.json`);
-
-				version = _v;
+			if (BLOCKERA_GUARD_NICKNAME === name) {
+				name = BLOCKERA_GUARD_MAIN_NAME;
 			}
+
+			const {
+				version,
+			} = require(`./packages/${parentDirectory}${name}/package.json`);
 
 			return [packageName, version.replace(/\./g, '_')];
 		})
@@ -88,19 +72,29 @@ module.exports = (env, argv) => {
 			return memo;
 		}
 
-		const parentDirectory = '';
-		const _packageName =
+		let parentDirectory = '';
+		let _packageName =
 			packageName === BLOCKERA_GUARD_NICKNAME
 				? BLOCKERA_GUARD_MAIN_NAME
 				: packageName;
+		if (-1 !== packageName.indexOf('blocks-')) {
+			parentDirectory = 'blocks/';
+			_packageName = _packageName.split('blocks-')[1];
+		}
 		const version =
 			packageName === BLOCKERA_GUARD_NICKNAME
 				? blockeraPackagesVersion[BLOCKERA_GUARD_MAIN_NAME]
 				: blockeraPackagesVersion[packageName];
 
-		const name = packageName.startsWith('blockera')
+		let name = packageName.startsWith('blockera')
 			? camelCaseDash(packageName + '_' + version)
 			: camelCaseDash('blockera-' + packageName + '_' + version);
+
+		if ('icons' === packageName) {
+			name = packageName.startsWith('blockera')
+				? camelCaseDash(packageName)
+				: camelCaseDash('blockera-' + packageName);
+		}
 
 		return {
 			...memo,
@@ -121,10 +115,7 @@ module.exports = (env, argv) => {
 		...argv,
 		entry: Object.fromEntries(
 			Object.entries(blockeraEntries).filter(([entry]) => {
-				if (
-					-1 === entry.indexOf(PRO_SUFFIX) &&
-					BLOCKERA_GUARD_NICKNAME !== entry
-				) {
+				if (BLOCKERA_GUARD_NICKNAME === entry) {
 					return false;
 				}
 
@@ -139,10 +130,10 @@ module.exports = (env, argv) => {
 			'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
 			'@blockera/telemetry':
 				'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
-			'@blockera/auth': 'blockeraAuth_' + blockeraPackagesVersion.auth,
 			'@blockera/storage':
 				'blockeraStorage_' + blockeraPackagesVersion.storage,
 			'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
+			'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
 			'@blockera/editor':
 				'blockeraEditor_' + blockeraPackagesVersion.editor,
 			'@blockera/core-blocks':
@@ -157,6 +148,8 @@ module.exports = (env, argv) => {
 				'blockeraClassnames_' + blockeraPackagesVersion.classnames,
 			'@blockera/data-editor':
 				'blockeraDataEditor_' + blockeraPackagesVersion['data-editor'],
+			'@blockera/feature-manager':
+				'blockeraFeatureManager_' + blockeraPackagesVersion.guard,
 		},
 	});
 };

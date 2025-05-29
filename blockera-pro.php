@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Blockera PRO
- * Plugin URI: https://blockera.ai/products/site-builder/
- * Description: The Advanced Mode for Block Editor
+ * Plugin Name: Blockera Site Builder [PRO]
+ * Plugin URI: https://blockera.ai/products/site-builder/pricing/
+ * Description: Unlock the full power of Blockera Site Builder with the PRO version.
  * Requires at least: 6.6
- * Tested up to: 6.7
+ * Tested up to: 6.8
  * Requires PHP: 7.4
  * Author: Blockera AI
  * Author URI: https://blockera.ai/about/
- * Version: 1.0.0
+ * Version: 1.0.0-rc.4
  * Text Domain: blockera-pro
  * License: GPLv3 or later
  *
