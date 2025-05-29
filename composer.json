@@ -26,7 +26,67 @@
 		},
 		{
 			"type": "path",
-			"url": "./packages/utils"
+			"url": "./packages/editor-pro"
+		},
+		{
+			"type": "path",
+			"url": "packages/bootstrap"
+		},
+		{
+			"type": "path",
+			"url": "packages/editor"
+		},
+		{
+			"type": "path",
+			"url": "packages/utils"
+		},
+		{
+			"type": "path",
+			"url": "packages/wordpress"
+		},
+		{
+			"type": "path",
+			"url": "packages/exceptions"
+		},
+		{
+			"type": "path",
+			"url": "packages/data"
+		},
+		{
+			"type": "path",
+			"url": "packages/data-editor"
+		},
+		{
+			"type": "path",
+			"url": "packages/controls"
+		},
+		{
+			"type": "path",
+			"url": "packages/classnames"
+		},
+		{
+			"type": "path",
+			"url": "packages/icons"
+		},
+		{
+			"type": "path",
+			"url": "packages/http"
+		},
+		{
+			"type": "path",
+			"url": "packages/blocks/core"
+		},
+		{
+			"type": "path",
+			"url": "packages/env"
+		},
+		{
+			"type": "path",
+			"url": "packages/dev-phpunit"
+		},
+		{
+			"type": "path",
+			"url": "packages/telemetry"
 		}
 	],
 	"authors": [
@@ -39,9 +99,23 @@
 		"php": ">=7.4",
 		"blockera/auth-pro": "*",
 		"blockera/guard": "*",
+		"blockera/editor-pro": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
+		"blockera/editor": "*",
 		"blockera/utils": "*",
+		"blockera/classnames": "*",
+		"blockera/controls": "*",
+		"blockera/icons": "*",
+		"blockera/http": "*",
+		"blockera/blocks-core": "*",
+		"blockera/env": "*",
+		"blockera/data": "*",
+		"blockera/data-editor": "*",
+		"blockera/telemetry": "*",
+		"blockera/wordpress": "*",
+		"blockera/exceptions": "*",
+		"blockera/bootstrap": "*",
 		"vlucas/phpdotenv": "^5.6@dev",
 		"league/oauth2-client": "dev-master"
 	},

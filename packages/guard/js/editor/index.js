@@ -69,7 +69,7 @@ export const EditorFeatureWrapper = ({
 		const domain = window.location.origin;
 		const subscriptionId = id;
 
-		if (!process.env.CI_ENV) {
+		if ('false' === process.env.CI_ENV) {
 			if (
 				!id ||
 				!accessToken ||
@@ -99,25 +99,42 @@ export const EditorFeatureWrapper = ({
 			});
 
 			if (!validated) {
-				console.warn(
-					'Invalid registered license! please check your domain and license in the https://blockera.ai'
-				);
+				if (process.env.NODE_ENV === 'development') {
+					console.warn(
+						'Invalid registered license! please check your domain and license in the https://blockera.ai'
+					);
+				}
 				return;
 			}
 			// End Validation: Secret keys.
 
 			// Validation: Subscription name.
 			if (-1 === name.startsWith(`#${id} - `)) {
+				if (process.env.NODE_ENV === 'development') {
+					console.warn(
+						'Invalid registered license! please check your domain and license in the https://blockera.ai'
+					);
+				}
 				return;
 			}
 
 			// Validation: Next payment due date.
 			if (new Date(nextPaymentDueDate) < new Date()) {
+				if (process.env.NODE_ENV === 'development') {
+					console.warn(
+						'Your license is expired! please check your domain and license in the https://blockera.ai'
+					);
+				}
 				return;
 			}
 
 			// Validation: Start date.
 			if (new Date(startDate) > new Date()) {
+				if (process.env.NODE_ENV === 'development') {
+					console.warn(
+						'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
+					);
+				}
 				return;
 			}
 		}

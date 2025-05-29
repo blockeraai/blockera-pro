@@ -13,6 +13,7 @@ use Blockera\Auth\Upgrade\NoticeIssuer;
 use Blockera\Bootstrap\ServiceProvider;
 use Blockera\Auth\Repositories\OptionRepository;
 use League\OAuth2\Client\Provider\GenericProvider;
+use Blockera\SiteBuilder\StyleEngine as SiteBuilderStyleEngine;
 
 /**
  * Class AppServiceProvider for providing all application services.
@@ -39,6 +40,20 @@ class AppServiceProvider extends ServiceProvider {
 					return $blockera->make(Cache::class, $params);
 				}
 			);
+
+			$blockera->singleton(
+				SiteBuilderStyleEngine::class,
+				function ( Application $app, array $params = []) use ( $blockera) {
+					$style_engine = new SiteBuilderStyleEngine($params['block'], $params['fallbackSelector']);
+
+					$style_engine->setApp($blockera);
+					$style_engine->setBreakpoints(blockera_core_config('breakpoints'));
+
+					return $style_engine;
+				}
+			);
+
+			$this->registerSiteBuilderStyleEngine($blockera);
 		}
 
         $this->app->singleton(
@@ -172,5 +187,54 @@ class AppServiceProvider extends ServiceProvider {
 		wp_set_script_translations('@blockera/blockera-pro', 'blockera-pro');
 
         load_plugin_textdomain('blockera-pro', false, dirname(plugin_basename(BLOCKERA_PRO_FILE)) . '/languages');
+    }
+
+	/**
+     * Registration Styles with Definitions.
+     *
+     * @return void
+     */
+    public function registerSiteBuilderStyleEngine( Application $app): void
+    {
+        $styleDefinitions = [
+            'AlignContent' => \Blockera\SiteBuilder\StyleDefinitions\AlignContent::class,
+			'AlignSelf' => \Blockera\SiteBuilder\StyleDefinitions\AlignSelf::class,
+            'BackdropFilter' => \Blockera\SiteBuilder\StyleDefinitions\BackdropFilter::class,
+            'BackfaceVisibility' => \Blockera\SiteBuilder\StyleDefinitions\BackfaceVisibility::class,
+            'Background' => \Blockera\SiteBuilder\StyleDefinitions\Background::class,
+            'BoxShadow' => \Blockera\SiteBuilder\StyleDefinitions\BoxShadow::class,
+            'ChildOrigin' => \Blockera\SiteBuilder\StyleDefinitions\ChildOrigin::class,
+            'ChildPerspective' => \Blockera\SiteBuilder\StyleDefinitions\ChildPerspective::class,
+            'ColumnCount' => \Blockera\SiteBuilder\StyleDefinitions\ColumnCount::class,
+            'Content' => \Blockera\SiteBuilder\StyleDefinitions\Content::class,
+            'Filter' => \Blockera\SiteBuilder\StyleDefinitions\Filter::class,
+            'Mouse' => \Blockera\SiteBuilder\StyleDefinitions\Mouse::class,
+            'Order' => \Blockera\SiteBuilder\StyleDefinitions\Order::class,
+            'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
+            'SelfOrigin' => \Blockera\SiteBuilder\StyleDefinitions\SelfOrigin::class,
+            'TextIndent' => \Blockera\SiteBuilder\StyleDefinitions\TextIndent::class,
+            'TextShadow' => \Blockera\SiteBuilder\StyleDefinitions\TextShadow::class,
+            'TextWrap' => \Blockera\SiteBuilder\StyleDefinitions\TextWrap::class,
+            'Transform' => \Blockera\SiteBuilder\StyleDefinitions\Transform::class,
+            'Transition' => \Blockera\SiteBuilder\StyleDefinitions\Transition::class,
+            'WebkitTextStrokeColor' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeColor::class,
+            'WebkitTextStrokeWidth' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeWidth::class,
+            'WordBreak' => \Blockera\SiteBuilder\StyleDefinitions\WordBreak::class,
+            'WordSpacing' => \Blockera\SiteBuilder\StyleDefinitions\WordSpacing::class,
+        ];
+
+        foreach ($styleDefinitions as $key => $definition) {
+			// Remove existing binding if it exists.
+            if ($app->bound($key)) {
+                $app->forgetInstance($key);
+            }
+
+            $app->singleton(
+                $key,
+                function ( Application $app, array $args) use ( $definition) {
+                    return new $definition($args['supports']);
+                }
+            );
+        }
     }
 }

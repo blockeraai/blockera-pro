@@ -1,15 +1,15 @@
 // @flow
 
 const blockeraTransformSelfPerspective: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraBackfaceVisibility: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraTransformChildPerspective: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const effectsConfig = {

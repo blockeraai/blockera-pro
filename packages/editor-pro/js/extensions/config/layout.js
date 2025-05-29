@@ -1,7 +1,7 @@
 // @flow
 
 const blockeraAlignContent: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const layoutConfig = {

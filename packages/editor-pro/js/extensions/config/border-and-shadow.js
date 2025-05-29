@@ -1,7 +1,7 @@
 // @flow
 
 const blockeraOutline: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const borderAndShadowConfig = {

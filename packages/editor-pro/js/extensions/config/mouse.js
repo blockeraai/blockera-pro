@@ -1,15 +1,15 @@
 // @flow
 
 const blockeraCursor: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraUserSelect: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 const blockeraPointerEvents: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const mouseConfig = {

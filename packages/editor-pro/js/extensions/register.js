@@ -15,10 +15,10 @@ import { validateSecretKeys } from '@blockera/validator';
  * Internal dependencies
  */
 import * as config from './config';
-import { applyBlockStates } from './libs';
+import { applyBlockStates, clearCache } from './libs';
 
 export const registerEditorExtensions = () => {
-	if (!process.env.CI_ENV) {
+	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
 		const {
 			client_id: clientId,
@@ -51,16 +51,20 @@ export const registerEditorExtensions = () => {
 			!clientId ||
 			!clientSecret
 		) {
-			console.warn(
-				'Invalid registered license! please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Invalid registered license! please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 
 		if ('active' !== status) {
-			console.warn(
-				'Your license is not active! please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Your license is not active! please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 
@@ -74,33 +78,41 @@ export const registerEditorExtensions = () => {
 		});
 
 		if (!validated) {
-			console.warn(
-				'Invalid registered license! please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Invalid registered license! please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
-			console.warn(
-				'Invalid registered license! please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Invalid registered license! please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 
 		// Validation: Next payment due date.
 		if (new Date(nextPaymentDueDate) < new Date()) {
-			console.warn(
-				'Your license is expired! please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Your license is expired! please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 
 		// Validation: Start date.
 		if (new Date(startDate) > new Date()) {
-			console.warn(
-				'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
-			);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn(
+					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
+				);
+			}
 			return;
 		}
 	}
@@ -126,5 +138,6 @@ export const registerEditorExtensions = () => {
 };
 
 export const applyExtensions = (): void => {
+	clearCache();
 	applyBlockStates();
 };

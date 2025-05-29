@@ -2,8 +2,6 @@
 
 namespace Blockera\Auth\Upgrade;
 
-use Blockera\Auth\Config;
-use Blockera\Utils\Utils;
 use Blockera\Auth\DynamicPropertyTrait;
 use Blockera\Auth\Repositories\OptionRepository;
 
@@ -57,8 +55,8 @@ class ProPlugin {
 	 */
 	public function applyHooks(): void
 	{
-		add_filter('pre_set_site_transient_update_plugins', [ $this, 'checkForPluginUpdate' ]);
-		add_filter('plugins_api', [ $this, 'pluginApiCall' ], 10, 3);
+		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
+		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
 	}
 
 	/**
@@ -74,13 +72,13 @@ class ProPlugin {
 	}
 
 	/**
-	 * Check for plugin update.
+	 * Sets the update plugin transient.
 	 *
 	 * @param \stdClass $transient The transient object.
 	 *
 	 * @return \stdClass The transient object.
 	 */
-	public function checkForPluginUpdate( \stdClass $transient): \stdClass
+	public function setUpdatePluginTransient( \stdClass $transient): \stdClass
 	{
 		$id = $this->slug . '/' . $this->slug . '.php';
 
@@ -91,62 +89,107 @@ class ProPlugin {
 
 		$this->validator->name($this->slug);
 
-		$result = $this->validator->updateCheck($this->config->getProductIdentifier());
+		$result = $this->getProPluginUpdate();
 
-		if (! empty($result['update_available']) && ! empty($result['new_version'])) {
-			$plugin_info = new \stdClass();
-
-			$plugin_info->plugin = $id;
-			$plugin_info->icons = $this->config->getIcons();
-			$plugin_info->slug = $this->slug;
-			$plugin_info->package = '';
-			$plugin_info->new_version = $result['new_version'];
-			$plugin_info->url = $this->config->getPluginUrl();
-
-			$transient->response[ $plugin_info->plugin ] = $plugin_info;
-		} else {
-			$plugin_info = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
-
-			$item = (object) array(
-				'id'            => $id,
-				'slug'          => $this->slug,
-				'plugin'        => $id,
-				'new_version'   => $plugin_info['Version'],
-				'url'           => '',
-				'package'       => '',
-				'icons'         => array(),
-				'banners'       => array(),
-				'banners_rtl'   => array(),
-				'tested'        => '',
-				'requires_php'  => '',
-				'compatibility' => new \stdClass(),
-			);
-
-			$transient->no_update[ $id ] = $item;
+		if (! $result instanceof \stdClass || ! isset($result->url, $result->new_version) || empty($result->url) || empty($result->new_version)) {
+			return $transient;
 		}
+
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
+		
+		$plugin_info = new \stdClass();
+		$plugin_info->id = $this->config->getPluginUrl();
+		$plugin_info->plugin = $id;
+		$plugin_info->icons = $this->config->getIcons();
+		$plugin_info->slug = $this->slug;
+		$plugin_info->package = $result->url;
+		$plugin_info->new_version = $result->new_version;
+		$plugin_info->url = $this->config->getPluginUrl();
+		$plugin_info->requires = $plugin_data['RequiresWP'] ?? '';
+		$plugin_info->tested = $plugin_data['TestedUpTo'] ?? '';
+		$plugin_info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+		$plugin_info->requires_plugins = [];
+
+		$transient->response[ $plugin_info->plugin ] = $plugin_info;
 
 		return $transient;
 	}
 
 	/**
-	 * Plugin API call.
+	 * Get the pro plugin file.
 	 *
-	 * @param \stdClass $result The result \stdClass.
-	 * @param string    $action The action.
-	 * @param \stdClass $args The arguments.
-	 *
-	 * @return mixed The result \stdClass.
+	 * @return \stdClass The pro plugin update.
 	 */
-	public function pluginApiCall( $result, $action, $args) {
-		$file_url = $this->getProPluginFileUrl();
+	private function getProPluginUpdate(): \stdClass
+	{
+		$result = new \StdClass();
+		$client_info = OptionRepository::getOption();
 
-		if (empty($file_url)) {
+		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'licenseKey'))) {
 			return $result;
 		}
 
-		$this->link = $file_url;
+		$licenses = $client_info['licenses'];
+		$products_licenses = array_column($licenses, 'productName');
+		$license_index = array_search($this->config->getProductName(), $products_licenses, true);
+		$license = $licenses[ $license_index ];
 
-		if ('plugin_information' !== $action) {
+		if (empty($license['licenseKey'])) {
+			return $result;
+		}
+
+		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
+
+		if (empty($data)) {
+			return $result;
+		}
+
+		$response = wp_remote_get(
+            $this->config->getResourceOwnerDetailsUrl(),
+            [
+				'timeout' => 30,
+                'redirection' => 5,
+                'httpversion' => '1.1',
+                'sslverify' => false,
+				'headers' => [
+					'Authorization' => sprintf('Bearer %s', $client_info['access_token']),
+				],
+				'body' => [
+					'domain' => get_site_url(),
+					'license_id' => $this->license['id'],
+					'id' => $this->config->getProductIdentifier(),
+					'version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
+				],
+			]
+        );
+
+		if (is_wp_error($response)) {
+			return $result;
+		}
+
+		$response_body = json_decode($response['body'], true);
+
+		if (empty($response_body['success'])) {
+			return $result;
+		}
+
+		$result->url = $response_body['data']['fileUrl'] ?? '';
+		$result->new_version = $response_body['data']['newVersion'] ?? '';
+
+		return $result;
+	}
+
+	/**
+	 * Get the plugin information.
+	 *
+	 * @param \stdClass|bool  $result The result.
+	 * @param string          $action The action.
+	 * @param \stdClass|array $args The args.
+	 *
+	 * @return \stdClass|bool The result.
+	 */
+	public function getPluginInformation( $result, string $action, \stdClass $args) {
+		if (!isset($args->slug)) {
 			return $result;
 		}
 
@@ -154,81 +197,71 @@ class ProPlugin {
 			return $result;
 		}
 
-		$plugin_info          = new \stdClass();
-		$plugin_info->name    = $this->name;
-		$plugin_info->slug    = $this->slug;
-		$plugin_info->version = str_replace('v', '', $this->license['productVersion']);
-		$plugin_info->author  = 'blockera.ai';
-		// Minimum WP version.
-		$plugin_info->requires = '6.6';
-		// WP version tested up to.
-		$plugin_info->tested        = '6.7';
-		$plugin_info->last_updated  = gmdate('Y-m-d');
-		// phpcs:disable
-		$plugin_info->sections      = array(
-			'description' => sprintf(__('%s Plugin - Includes advanced features', 'blockera'), $this->name),
-			'changelog'   => __('View the changelog at our website', 'blockera'),
-		);
-		$plugin_info->download_link = $this->link;
+		if ('plugin_information' !== $action) {
+			return $result;
+		}
 
-		return $plugin_info;
-	}
+		$readme_file = ABSPATH . 'wp-content/plugins/' . $this->slug . '/readme.txt';
 
-	/**
-	 * Get the pro plugin file.
-	 *
-	 * @return string The pro plugin file, empty string if no data is found.
-	 */
-	private function getProPluginFileUrl(): string
-	{
-		// Create a transient key to store the license temporary data.
-		$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
-		$transient = get_transient($transient_key);
+		if (! file_exists($readme_file)) {
+			return $result;
+		}
+		
+		$readme_content = file_get_contents($readme_file);
+		
+		if (empty($readme_content)) {
+			return $result;
+		}
 
-		if (empty($transient)) {
-			$request = new \WP_REST_Request('POST', '/blockera/v1/auth/licenses');
-			$request->set_param('force', true);
-			$request->set_param('action', 'licenses');
-			$request->set_header('X-Blockera-Nonce', wp_create_nonce('blockera-connect-with-your-account'));
-
-			$response = rest_do_request($request);
-			$response = $response->get_data();
-
-			if (empty($response['success'])) {
-				return '';
-			}
-
-			// Create a transient key to store the license temporary data.
-			$transient_key = OptionRepository::getPrefixTransientKey() . Utils::snakeCase(explode('- ', $this->license['name'])[2]);
-			$transient = get_transient($transient_key);
-
-			if (empty($transient)) {
-				return '';
+		// Convert readme sections to HTML.
+		$sections = [];
+		$current_section = '';
+		$section_content = '';
+		
+		foreach (explode("\n", $readme_content) as $line) {
+			if (preg_match('/^==\s*(.*?)\s*==/', $line, $matches)) {
+				if ('' !== $current_section) {
+					$sections[$current_section] = trim($section_content);
+				}
+				$current_section = strtolower($matches[1]);
+				$section_content = '';
+			} else {
+				$section_content .= $line . "\n";
 			}
 		}
-
-		$response = wp_remote_get($this->config->getResourceOwnerDetailsUrl() . '/' . $transient, [
-			'timeout' => 30,
-			'sslverify' => Config::isDev(),
-			'headers' => [
-				'Authorization' => 'Bearer ' . OptionRepository::getOption('access_token'),
-			],
-			'body' => [
-				'domain' => get_site_url(),
-				'license_id' => $this->license['id']
-			],
-		]);
-
-		if (is_wp_error($response)) {
-			return '';
+		
+		if ('' !== $current_section) {
+			$sections[$current_section] = trim($section_content);
 		}
 
-		$response_body = json_decode($response['body'], true);
-
-		if (empty($response_body['success'])) {
-			return '';
+		// Convert markdown to HTML.
+		foreach ($sections as $key => $content) {
+			$content = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $content);
+			$content = preg_replace('/`(.*?)`/', '<code>$1</code>', $content);
+			$content = preg_replace('/=(.*?)=/', '<strong>$1</strong>', $content);
+			$content = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $content);
+			$sections[$key] = wpautop($content);
 		}
 
-		return $response_body['data']['fileUrl'] ?? '';
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
+
+		$info = new \stdClass();
+		$info->name = $plugin_data['Name'];
+		$info->slug = $this->slug;
+		$info->version = $plugin_data['Version'];
+		$info->author = $plugin_data['Author'];
+		$info->author_profile = $plugin_data['AuthorURI'] ?? '';
+		$info->requires = $plugin_data['RequiresWP'] ?? '';
+		$info->tested = $plugin_data['TestedUpTo'] ?? '';
+		$info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+		$info->last_updated = $plugin_data['UpdatedTime'] ?? '';
+		$info->added = '';
+		$info->homepage = $plugin_data['PluginURI'] ?? '';
+		$info->sections = $sections;
+		$info->download_link = '';
+		$info->banners = [];
+		$info->contributors = [];
+
+		return $info;
 	}
 }
