@@ -3,21 +3,31 @@
 /**
  * External dependencies
  */
-import { addFilter } from '@wordpress/hooks';
+import { select } from '@wordpress/data';
+import { addAction } from '@wordpress/hooks';
 
 /**
  * Blockera dependencies
  */
-import { mergeObject } from '@blockera/utils';
+import { setItem } from '@blockera/storage';
 import { validateSecretKeys } from '@blockera/validator';
 
-/**
- * Internal dependencies
- */
-import * as config from './config';
-import { applyBlockStates, clearCache } from './libs';
+const STORE_NAME = 'blockera/extensions/config';
 
-export const registerEditorExtensions = () => {
+export const clearCache = (): void => {
+	const resetCacheData = () => {
+		addAction(
+			'blockera.editor.extensions.sharedExtension.blockSupports.cacheData',
+			'blockera',
+			(cacheKey: string, props: Object): void => {
+				const { getExtensions } = select(STORE_NAME);
+				const extensions = getExtensions(props.name);
+
+				setItem(cacheKey, extensions);
+			}
+		);
+	};
+
 	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
 		const {
@@ -56,6 +66,9 @@ export const registerEditorExtensions = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
+
+			resetCacheData();
+
 			return;
 		}
 
@@ -65,6 +78,9 @@ export const registerEditorExtensions = () => {
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
 			}
+
+			resetCacheData();
+
 			return;
 		}
 
@@ -83,6 +99,9 @@ export const registerEditorExtensions = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
+
+			resetCacheData();
+
 			return;
 		}
 
@@ -93,6 +112,9 @@ export const registerEditorExtensions = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
+
+			resetCacheData();
+
 			return;
 		}
 
@@ -103,6 +125,9 @@ export const registerEditorExtensions = () => {
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
 			}
+
+			resetCacheData();
+
 			return;
 		}
 
@@ -113,31 +138,8 @@ export const registerEditorExtensions = () => {
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+
+			resetCacheData();
 		}
 	}
-
-	addFilter(
-		'blocks.registerBlockType',
-		'blockeraPro-editorExtensions',
-		(settings: Object, name: Object): Object => {
-			const blockName = name.replace(/\//g, '-');
-
-			Object.entries(config).forEach(([supportId, next]) =>
-				addFilter(
-					`blockera-${blockName}-extension-${supportId}`,
-					'blockeraPro-editorBlockCustomizeExtension',
-					(previous: Object) => mergeObject(previous, next)
-				)
-			);
-
-			return settings;
-		},
-		10
-	);
-};
-
-export const applyExtensions = (): void => {
-	clearCache();
-	applyBlockStates();
 };
