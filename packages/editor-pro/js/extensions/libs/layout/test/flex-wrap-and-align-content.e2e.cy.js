@@ -18,12 +18,6 @@ describe('Children Wrap and Align Content → Functionality', () => {
 	});
 
 	it('functionality of flex-wrap and align-content', () => {
-		// activate flex wrap feature
-		cy.activateMoreSettingsItem(
-			'More Layout Settings',
-			'Flex Children Wrap'
-		);
-
 		cy.getParentContainer('Children Wrap').within(() => {
 			cy.getByAriaLabel('Wrap').click();
 		});

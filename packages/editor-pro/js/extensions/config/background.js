@@ -13,18 +13,18 @@ import { Icon } from '@blockera/icons';
 const blockeraBackground: Object = {
 	config: {
 		meshGradientColors: {
-			isActiveOnFree: true,
+			onNative: false,
 		},
 	},
-	isActiveOnStatesOnFree: true,
-	isActiveOnBreakpointsOnFree: true,
-	isActiveOnInnerBlocksOnFree: true,
+	onNativeOnStates: false,
+	onNativeOnBreakpoints: false,
+	onNativeOnInnerBlocks: false,
 };
 
 const blockeraBackgroundClip: Object = {
-	isActiveOnStatesOnFree: true,
-	isActiveOnBreakpointsOnFree: true,
-	isActiveOnInnerBlocksOnFree: true,
+	onNativeOnStates: false,
+	onNativeOnBreakpoints: false,
+	onNativeOnInnerBlocks: false,
 	config: {
 		options: [
 			{

@@ -118,9 +118,11 @@ class Config {
      */
     public function __construct( array $config) {
         self::$api_base_url = $_ENV['API_BASE_URL'] ?? 'https://api.blockera.ai';
+		self::$refresh_token_url = $_ENV['REFRESH_TOKEN_URL'] ?? 'https://api.blockera.ai/auth/v1/refresh-token';
         self::$unsubscribe_url = $_ENV['UNSUBSCRIBE_URL'] ?? 'https://api.blockera.ai/license-manager/v1/domains';
         self::$get_account_info_link = $_ENV['ACCOUNT_INFO_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/licenses';
         self::$get_allowed_plans_link = $_ENV['ALLOWED_PLANS_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/products/allowed-plans';
+		self::$resource_owner_details_url = $_ENV['RESOURCE_OWNER_DETAILS_URL'] ?? 'https://api.blockera.ai/files/v1/download';
 
         array_map([ $this, 'setProperties' ], array_keys($config), $config);
     }

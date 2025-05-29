@@ -79,7 +79,7 @@ class NoticeIssuer {
 
 		$plugin = $this->plugin;
 
-		if ($this->config::isDev() || ! Utils::isPluginInstalled($plugin['slug'])) {
+		if ($this->config::isDev() || ! Utils::isPluginInstalled($plugin['pluginSlug'])) {
 			ob_start();
 
 			include __DIR__ . '/notices/blockera-activation-notice.php';

@@ -51,7 +51,9 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 						'path' => $this->getPATH(),
 					],
 					'packages-deps' => [
-						'@blockera/blockera',
+						'@blockera/feature-manager' => [
+							'@blockera/blockera',
+						],
 					],
 					'enqueue-block-assets' => true,
 				],

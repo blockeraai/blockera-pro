@@ -79,6 +79,8 @@ class Client {
 
             $allowed_redirect_to = true;
         } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException | BaseException $e) {
+			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
+
             // Failed to get the access token or user details.
              wp_die($e->getMessage());
         }
@@ -133,6 +135,8 @@ class Client {
 
         if ($response_object->is_error()) {
 
+			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
+
             $data = $response_object->get_data();
 
             throw new BaseException(!empty($data['errors']) ? implode(', ', $data['errors']) : 'Rest No Route', 500);
@@ -167,6 +171,8 @@ class Client {
         $response_object = rest_do_request($connect_account_request);
 
         if ($response_object->is_error()) {
+
+			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
 
             $data = $response_object->get_data();
 
@@ -208,37 +214,27 @@ class Client {
         $response = wp_remote_get(AuthConfig::getAccountInfoLink(), $args);
 
         if (is_wp_error($response)) {
+			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
+
             throw new BaseException($response->get_error_message(), 500);
         }
 
         $response_body = json_decode(wp_remote_retrieve_body($response), true);
 
         if ((isset($response_body['data']['success']) && false === $response_body['data']['success']) || (isset($response_body['success']) && false === $response_body['success']) || (isset($response_body['data']['errors']) || isset($response_body['errors']))) {
-            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? __('The resource owner or authorization server denied the request.', 'blockera-pro')));
+			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
+
+            wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? [__('The resource owner or authorization server denied the request.', 'blockera-pro')]));
         }
-
-        // $licenses = array_map(
-        //     function ($license) {
-		// 		OptionRepository::setTransient(Utils::snakeCase(explode('- ', $license['name'])[2]), $license['versionId'], 60 * 60 * 3); // Available for 3 hours.
-
-        //         unset($license['versionId']);
-
-        //         return $license;
-        //     },
-        //     $response_body['data']['licenses']
-        // );
-
-		$licenses = $response_body['data']['licenses'];
-        unset($response_body['data']['licenses']);
 
         if (! $client_info) {
 
-            $info                  = $response_body['data'];
-            $info['licenses'] = $licenses;
+            $info             = $response_body['data'];
+            $info['licenses'] =  $response_body['data']['licenses'];
         } else {
 
-            $info                  = array_merge($client_info, $response_body['data']);
-            $info['licenses'] = $licenses;
+            $info             = array_merge($client_info, $response_body['data']);
+            $info['licenses'] =  $response_body['data']['licenses'];
         }
 
 		OptionRepository::setOption($info);

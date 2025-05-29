@@ -1,7 +1,7 @@
 // @flow
 
 const blockeraCustomCSS: Object = {
-	isActiveOnFree: true,
+	onNative: false,
 };
 
 export const customStyleConfig = {
