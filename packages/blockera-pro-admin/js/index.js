@@ -24,46 +24,6 @@ import {
 
 const initializeBlockeraProAdmin = () => {
 	return () => {
-		addFilter(
-			'blockera.admin.panel.settings.config',
-			'blockera.pro.admin.bootstrapper',
-			(config: Object): Object => {
-				return {
-					...config,
-					general: {
-						...config.general,
-						restrictBlockVisibility: {
-							...config.general.restrictBlockVisibility,
-							onNative: false,
-							config: {
-								...config.general.restrictBlockVisibility
-									.config,
-								userRole: {
-									...config.general.restrictBlockVisibility
-										.config.userRole,
-									onNative: false,
-								},
-							},
-						},
-						restrictBlockVisibilityByPostType: {
-							...config.general.restrictBlockVisibilityByPostType,
-							onNative: false,
-							config: {
-								...config.general
-									.restrictBlockVisibilityByPostType.config,
-								postType: {
-									...config.general
-										.restrictBlockVisibilityByPostType
-										.config.postType,
-									onNative: false,
-								},
-							},
-						},
-					},
-				};
-			}
-		);
-
 		filteredIgnoredPanelTabs();
 
 		filterCallToActions();
