@@ -65,7 +65,7 @@
 		"plugin:deactivate": "wp-env run tests-cli wp plugin deactivate blockera-pro"
 	},
 	"dependencies": {
-		"@blockera/blocks-core": "file:packages/block/core",
+		"@blockera/blocks-core": "file:packages/blocks/core",
 		"@blockera/bootstrap": "file:packages/bootstrap",
 		"@blockera/classnames": "file:packages/classnames",
 		"@blockera/controls": "file:packages/controls",
