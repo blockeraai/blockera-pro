@@ -345,7 +345,7 @@ final class StyleEngine {
 		// Attempt to create new instance.
 		try {
 			$this->definition = $this->app->make($definition, [ 'supports' => $this->supports ]);
-		} catch (\Exception) {
+		} catch (\Exception $e) {
 			return;
 		}
 	}
