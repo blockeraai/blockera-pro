@@ -4,8 +4,7 @@ namespace Blockera\SiteBuilder\StyleDefinitions;
 
 class ColumnCount extends BaseProStyleDefinition {
 
-    protected function css( array $setting): array
-    {
+    protected function css( array $setting): array {
 
         $declaration = [];
         $cssProperty = $setting['type'];

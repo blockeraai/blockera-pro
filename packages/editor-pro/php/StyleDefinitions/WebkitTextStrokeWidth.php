@@ -9,8 +9,7 @@ class WebkitTextStrokeWidth extends BaseProStyleDefinition implements StandardDe
 
     use SimpleDefinitionTrait;
 
-    public function getCssProperty(): string
-    {
+    public function getCssProperty(): string {
 
         return '-webkit-text-stroke-width';
     }

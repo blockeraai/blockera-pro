@@ -34,8 +34,7 @@ class Client {
      *
      * @return void
      */
-    public function auth( array $client_info): void
-    {
+    public function auth( array $client_info): void {
         $license = OptionRepository::getLicense($client_info);
 
         if (isset($license['status']) && 'active' !== $license['status']) {

@@ -6,8 +6,7 @@ use Blockera\Editor\StyleDefinitions\BaseStyleDefinition;
 
 class ChildPerspective extends BaseStyleDefinition {
 
-    protected function css( array $setting): array
-    {
+    protected function css( array $setting): array {
 
         $declaration = [];
         $cssProperty = $setting['type'];

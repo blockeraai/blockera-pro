@@ -46,7 +46,7 @@ class Background extends BaseProStyleDefinition implements Repeater {
 			return false;
 		}
 
-		return ! empty( $setting['isVisible'] ) || ! empty( $setting[$setting['type']] );
+		return ! empty( $setting['isVisible'] ) || ! empty( $setting[ $setting['type'] ] );
 	}
 
 	/**

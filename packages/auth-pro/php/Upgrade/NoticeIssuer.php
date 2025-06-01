@@ -51,13 +51,13 @@ class NoticeIssuer {
 	 * @param array       $args The args.
 	 */
 	public function __construct( Application $app, array $args = []) {
-		$this->app = $app;
+		$this->app          = $app;
 		$this->subscription = $args['subscription'] ?? [];
-		$this->config = $args['config'];
-		$this->validator = $args['validator'];
+		$this->config       = $args['config'];
+		$this->validator    = $args['validator'];
 
 		$parsed_subscription = explode(' - ', $this->subscription);
-		$plan = ( $parsed_subscription[2] ?? '' ) . ' - ' . $parsed_subscription[ array_key_last($parsed_subscription) ];
+		$plan                = ( $parsed_subscription[2] ?? '' ) . ' - ' . $parsed_subscription[ array_key_last($parsed_subscription) ];
 
 		if ($this->validator->isAllowedPlan($plan)) {
 			// Initialize required plugins.

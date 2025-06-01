@@ -117,11 +117,11 @@ class Config {
      * @param array $config The config.
      */
     public function __construct( array $config) {
-        self::$api_base_url = $_ENV['API_BASE_URL'] ?? 'https://api.blockera.ai';
-		self::$refresh_token_url = $_ENV['REFRESH_TOKEN_URL'] ?? 'https://api.blockera.ai/auth/v1/refresh-token';
-        self::$unsubscribe_url = $_ENV['UNSUBSCRIBE_URL'] ?? 'https://api.blockera.ai/license-manager/v1/domains';
-        self::$get_account_info_link = $_ENV['ACCOUNT_INFO_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/licenses';
-        self::$get_allowed_plans_link = $_ENV['ALLOWED_PLANS_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/products/allowed-plans';
+        self::$api_base_url               = $_ENV['API_BASE_URL'] ?? 'https://api.blockera.ai';
+		self::$refresh_token_url          = $_ENV['REFRESH_TOKEN_URL'] ?? 'https://api.blockera.ai/auth/v1/refresh-token';
+        self::$unsubscribe_url            = $_ENV['UNSUBSCRIBE_URL'] ?? 'https://api.blockera.ai/license-manager/v1/domains';
+        self::$get_account_info_link      = $_ENV['ACCOUNT_INFO_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/licenses';
+        self::$get_allowed_plans_link     = $_ENV['ALLOWED_PLANS_URL'] ?? 'https://blockera.ai/wp-json/auth/v1/products/allowed-plans';
 		self::$resource_owner_details_url = $_ENV['RESOURCE_OWNER_DETAILS_URL'] ?? 'https://api.blockera.ai/files/v1/download';
 
         array_map([ $this, 'setProperties' ], array_keys($config), $config);
@@ -148,8 +148,7 @@ class Config {
      * @param string $key The key.
      * @param string $value The value.
      */
-    private function setProperties( string $key, string $value): void
-    {
+    private function setProperties( string $key, string $value): void {
         $snake_case_key = Utils::snakeCase($key);
 
         if (property_exists($this, $snake_case_key)) {
@@ -162,8 +161,7 @@ class Config {
      *
      * @return string The allowed plans link.
      */
-    public static function getAllowedPlansLink(): string
-    {
+    public static function getAllowedPlansLink(): string {
         return self::$get_allowed_plans_link;
     }
 
@@ -172,8 +170,7 @@ class Config {
      *
      * @param string $product_identifier The product identifier.
      */
-    public function setProductIdentifier( string $product_identifier): void
-    {
+    public function setProductIdentifier( string $product_identifier): void {
         self::$product_identifier = $product_identifier;
     }
 
@@ -182,8 +179,7 @@ class Config {
      *
      * @return string The product identifier.
      */
-    public static function getProductIdentifier(): string
-    {
+    public static function getProductIdentifier(): string {
         return self::$product_identifier;
     }
 
@@ -192,8 +188,7 @@ class Config {
      *
      * @return string The API base URL.
      */
-    public static function getApiBaseUrl(): string
-    {
+    public static function getApiBaseUrl(): string {
         return self::$api_base_url;
     }
 
@@ -202,8 +197,7 @@ class Config {
      *
      * @return string The product name.
      */
-    public static function getProductName(): string
-    {
+    public static function getProductName(): string {
         return self::$product_name;
     }
 
@@ -212,8 +206,7 @@ class Config {
      *
      * @return string The account info link.
      */
-    public static function getAccountInfoLink(): string
-    {
+    public static function getAccountInfoLink(): string {
         return self::$get_account_info_link;
     }
 
@@ -222,8 +215,7 @@ class Config {
      *
      * @param string $link The account info link.
      */
-    public static function setAccountInfoLink( string $link): void
-    {
+    public static function setAccountInfoLink( string $link): void {
         self::$get_account_info_link = $link;
     }
 
@@ -232,8 +224,7 @@ class Config {
      *
      * @param string $link The unsubscribe URL.
      */
-    public static function setUnsubscribeURL( string $link): void
-    {
+    public static function setUnsubscribeURL( string $link): void {
         self::$unsubscribe_url = $link;
     }
 
@@ -242,8 +233,7 @@ class Config {
      *
      * @return string The unsubscribe URL.
      */
-    public static function getUnsubscribeURL(): string
-    {
+    public static function getUnsubscribeURL(): string {
         return self::$unsubscribe_url;
     }
 
@@ -252,8 +242,7 @@ class Config {
      *
      * @return string The get zip file URL.
      */
-    public static function getZipFileURL(): string
-    {
+    public static function getZipFileURL(): string {
         return self::$get_zip_file_url;
     }
 
@@ -262,8 +251,7 @@ class Config {
      *
      * @param bool $is_dev The is dev flag.
      */
-    public static function setIsDev( bool $is_dev): void
-    {
+    public static function setIsDev( bool $is_dev): void {
         self::$is_dev = $is_dev;
     }
 
@@ -272,8 +260,7 @@ class Config {
      *
      * @return bool True if the plugin is in development mode, false otherwise.
      */
-    public static function isDev(): bool
-    {
+    public static function isDev(): bool {
         return static::$is_dev;
     }
 
@@ -282,8 +269,7 @@ class Config {
      *
      * @return string The plugin URL.
      */
-    public static function getPluginUrl(): string
-    {
+    public static function getPluginUrl(): string {
         return self::$plugin_url;
     }
 
@@ -292,8 +278,7 @@ class Config {
      *
      * @param array $icons The plugin icons.
      */
-    public static function setIcons( array $icons): void
-    {
+    public static function setIcons( array $icons): void {
         self::$plugin_icons = $icons;
     }
 
@@ -302,8 +287,7 @@ class Config {
      *
      * @return array The plugin icons.
      */
-    public static function getIcons(): array
-    {
+    public static function getIcons(): array {
         return self::$plugin_icons;
     }
 
@@ -312,8 +296,7 @@ class Config {
      *
      * @return string The resource owner details URL.
      */
-    public static function getResourceOwnerDetailsUrl(): string
-    {
+    public static function getResourceOwnerDetailsUrl(): string {
         return self::$resource_owner_details_url;
     }
 
@@ -322,8 +305,7 @@ class Config {
      *
      * @return string The plugin slug.
      */
-    public static function getPluginSlug(): string
-    {
+    public static function getPluginSlug(): string {
         return self::$plugin_slug;
     }
 
@@ -332,8 +314,7 @@ class Config {
      *
      * @return string The plugin name.
      */
-    public static function getPluginName(): string
-    {
+    public static function getPluginName(): string {
         return self::$plugin_name;
     }
 
@@ -342,8 +323,7 @@ class Config {
 	 * 
 	 * @return string The refresh token URL.
 	 */
-	public static function getRefreshTokenUrl(): string
-	{
+	public static function getRefreshTokenUrl(): string {
 		return self::$refresh_token_url;
 	}
 }

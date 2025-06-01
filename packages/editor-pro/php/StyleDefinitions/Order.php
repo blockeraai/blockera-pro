@@ -6,8 +6,7 @@ use Blockera\Editor\StyleDefinitions\Contracts\CustomStyle;
 
 class Order extends BaseProStyleDefinition implements CustomStyle {
 
-    protected function css( array $setting): array
-    {
+    protected function css( array $setting): array {
 
         $declaration = [];
         $cssProperty = $setting['type'];

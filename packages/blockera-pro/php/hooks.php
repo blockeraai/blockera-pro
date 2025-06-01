@@ -14,8 +14,7 @@ if (! function_exists('blockera_pro_get_filtered_entities')) {
      *
      * @return array the filtered entities.
      */
-    function blockera_pro_get_filtered_entities( array $entities): array
-    {
+    function blockera_pro_get_filtered_entities( array $entities): array {
 		$entities['blockera']['account'] = blockera_pro_core_config('account');
 
         return $entities;
@@ -31,8 +30,7 @@ if (! function_exists('blockera_pro_override_editor_assets_provider')) {
      *
      * @return array the filtered application provider.
      */
-    function blockera_pro_override_editor_assets_provider( array $providers): array
-    {
+    function blockera_pro_override_editor_assets_provider( array $providers): array {
         $key = array_search(EditorAssetsProvider::class, $providers, true);
 
         $providers[ $key ] = BlockeraProEditorAssetsProvider::class;

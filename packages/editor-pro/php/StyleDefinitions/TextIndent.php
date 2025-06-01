@@ -9,8 +9,7 @@ class TextIndent extends BaseProStyleDefinition implements StandardDefinition {
 
     use SimpleDefinitionTrait;
 
-    public function getCssProperty(): string
-    {
+    public function getCssProperty(): string {
 
         return 'text-indent';
     }

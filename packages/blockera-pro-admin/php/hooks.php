@@ -9,8 +9,7 @@ if (! function_exists('blockera_pro_override_providers')) {
      *
      * @return array the filtered application provider.
      */
-    function blockera_pro_override_providers( array $providers): array
-    {
+    function blockera_pro_override_providers( array $providers): array {
         $key = array_search(\Blockera\Admin\Providers\AdminAssetsProvider::class, $providers, true);
 
         $providers[ $key ] = \Blockera\Pro\Admin\Providers\BlockeraProAdminAssetsProvider::class;
@@ -21,7 +20,7 @@ if (! function_exists('blockera_pro_override_providers')) {
     }
 }
 
-if (!function_exists('blockera_pro_add_account_menu')) {
+if (! function_exists('blockera_pro_add_account_menu')) {
     /**
      * Add account menu.
      *
@@ -29,8 +28,7 @@ if (!function_exists('blockera_pro_add_account_menu')) {
      *
      * @return array the filtered menu.
      */
-    function blockera_pro_add_account_menu( array $menu): array
-    {
+    function blockera_pro_add_account_menu( array $menu): array {
         // Remove upgrade to pro menu item, because in this state we don't need it.
         unset($menu['submenus']['upgrade-to-pro']);
 

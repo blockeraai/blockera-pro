@@ -11,8 +11,7 @@ class Mouse extends BaseProStyleDefinition {
      *
      * @return array
      */
-    public function css( array $setting): array
-    {
+    public function css( array $setting): array {
 
         $cssProperty = $setting['type'];
 

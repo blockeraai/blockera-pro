@@ -9,8 +9,7 @@ class BackfaceVisibility extends BaseProStyleDefinition implements StandardDefin
 
     use SimpleDefinitionTrait;
 
-    public function getCssProperty(): string
-    {
+    public function getCssProperty(): string {
 
         return 'backface-visibility';
     }

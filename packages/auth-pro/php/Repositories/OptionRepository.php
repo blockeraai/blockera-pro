@@ -25,8 +25,7 @@ class OptionRepository {
      *
      * @return string The option key.
      */
-    public static function getOptionKey(): string
-    {
+    public static function getOptionKey(): string {
         return self::$option_key;
     }
 
@@ -35,8 +34,7 @@ class OptionRepository {
      *
      * @return string The prefix transient key.
      */
-    public static function getPrefixTransientKey(): string
-    {
+    public static function getPrefixTransientKey(): string {
         return self::$prefix_transient_key;
     }
 
@@ -47,8 +45,7 @@ class OptionRepository {
 	 *
 	 * @return bool true on success, false on failure.
 	 */
-    public static function setOption( $value): bool
-    {
+    public static function setOption( $value): bool {
 		return update_option(self::$option_key, $value);
     }
 
@@ -67,7 +64,7 @@ class OptionRepository {
 			return $options;
 		}
 
-		return $options[$key] ?? null;
+		return $options[ $key ] ?? null;
 	}
 
 	/**
@@ -84,7 +81,7 @@ class OptionRepository {
 			return $transients;
 		}
 
-		return $transients[$key] ?? null;
+		return $transients[ $key ] ?? null;
 	}
 
 	/**
@@ -96,8 +93,7 @@ class OptionRepository {
 	 *
 	 * @return bool true on success, false on failure.
 	 */
-	public static function setTransient( string $key, $value, int $expiration = 60 * 60 * 24): bool
-	{
+	public static function setTransient( string $key, $value, int $expiration = 60 * 60 * 24): bool {
 		return set_transient(self::$option_key . self::$prefix_transient_key . $key, $value, $expiration);
 	}
 
@@ -106,11 +102,10 @@ class OptionRepository {
 	 *
 	 * @return array The license.
 	 */
-    public static function getLicense( array $oauth_option = []): array
-    {
-        $oauth_option = empty($oauth_option) ? self::getOption() : $oauth_option;
+    public static function getLicense( array $oauth_option = []): array {
+        $oauth_option      = empty($oauth_option) ? self::getOption() : $oauth_option;
         $products_licenses = array_column($oauth_option['licenses'] ?? [], 'productName');
-        $license_index = array_search(Config::getProductName(), $products_licenses, true);
+        $license_index     = array_search(Config::getProductName(), $products_licenses, true);
 
         return $oauth_option['licenses'][ $license_index ] ?? [];
     }

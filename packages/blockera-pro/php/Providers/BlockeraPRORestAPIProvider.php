@@ -13,8 +13,7 @@ class BlockeraPRORestAPIProvider extends RestAPIProvider {
      * @throws BindingResolutionException The BindingResolutionException for not bounded object.
      * @return array the list of registered routes.
      */
-    public function initializeRestAPI(): array
-    {
+    public function initializeRestAPI(): array {
         $routes = $this->app->make(Routes::class);
 
         if (function_exists('blockera_load')) {

@@ -53,8 +53,7 @@ class ProPlugin {
 	 *
 	 * @return void
 	 */
-	public function applyHooks(): void
-	{
+	public function applyHooks(): void {
 		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
 		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
 	}
@@ -66,8 +65,7 @@ class ProPlugin {
 	 *
 	 * @return void
 	 */
-	public function setLink( string $downloadLink): void
-	{
+	public function setLink( string $downloadLink): void {
 		$this->link = $downloadLink;
 	}
 
@@ -78,8 +76,7 @@ class ProPlugin {
 	 *
 	 * @return \stdClass The transient object.
 	 */
-	public function setUpdatePluginTransient( \stdClass $transient): \stdClass
-	{
+	public function setUpdatePluginTransient( \stdClass $transient): \stdClass {
 		$id = $this->slug . '/' . $this->slug . '.php';
 
 		// Check if pro version is not activated.
@@ -97,17 +94,17 @@ class ProPlugin {
 
 		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
 		
-		$plugin_info = new \stdClass();
-		$plugin_info->id = $this->config->getPluginUrl();
-		$plugin_info->plugin = $id;
-		$plugin_info->icons = $this->config->getIcons();
-		$plugin_info->slug = $this->slug;
-		$plugin_info->package = $result->url;
-		$plugin_info->new_version = $result->new_version;
-		$plugin_info->url = $this->config->getPluginUrl();
-		$plugin_info->requires = $plugin_data['RequiresWP'] ?? '';
-		$plugin_info->tested = $plugin_data['TestedUpTo'] ?? '';
-		$plugin_info->requires_php = $plugin_data['RequiresPHP'] ?? '';
+		$plugin_info                   = new \stdClass();
+		$plugin_info->id               = $this->config->getPluginUrl();
+		$plugin_info->plugin           = $id;
+		$plugin_info->icons            = $this->config->getIcons();
+		$plugin_info->slug             = $this->slug;
+		$plugin_info->package          = $result->url;
+		$plugin_info->new_version      = $result->new_version;
+		$plugin_info->url              = $this->config->getPluginUrl();
+		$plugin_info->requires         = $plugin_data['RequiresWP'] ?? '';
+		$plugin_info->tested           = $plugin_data['TestedUpTo'] ?? '';
+		$plugin_info->requires_php     = $plugin_data['RequiresPHP'] ?? '';
 		$plugin_info->requires_plugins = [];
 
 		$transient->response[ $plugin_info->plugin ] = $plugin_info;
@@ -120,19 +117,18 @@ class ProPlugin {
 	 *
 	 * @return \stdClass The pro plugin update.
 	 */
-	private function getProPluginUpdate(): \stdClass
-	{
-		$result = new \StdClass();
+	private function getProPluginUpdate(): \stdClass {
+		$result      = new \StdClass();
 		$client_info = OptionRepository::getOption();
 
-		if (!isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'licenseKey'))) {
+		if (! isset($client_info['licenses'], $client_info['access_token']) || empty(array_column($client_info['licenses'], 'licenseKey'))) {
 			return $result;
 		}
 
-		$licenses = $client_info['licenses'];
+		$licenses          = $client_info['licenses'];
 		$products_licenses = array_column($licenses, 'productName');
-		$license_index = array_search($this->config->getProductName(), $products_licenses, true);
-		$license = $licenses[ $license_index ];
+		$license_index     = array_search($this->config->getProductName(), $products_licenses, true);
+		$license           = $licenses[ $license_index ];
 
 		if (empty($license['licenseKey'])) {
 			return $result;
@@ -173,7 +169,7 @@ class ProPlugin {
 			return $result;
 		}
 
-		$result->url = $response_body['data']['fileUrl'] ?? '';
+		$result->url         = $response_body['data']['fileUrl'] ?? '';
 		$result->new_version = $response_body['data']['newVersion'] ?? '';
 
 		return $result;
@@ -189,7 +185,7 @@ class ProPlugin {
 	 * @return \stdClass|bool The result.
 	 */
 	public function getPluginInformation( $result, string $action, \stdClass $args) {
-		if (!isset($args->slug)) {
+		if (! isset($args->slug)) {
 			return $result;
 		}
 
@@ -214,14 +210,14 @@ class ProPlugin {
 		}
 
 		// Convert readme sections to HTML.
-		$sections = [];
+		$sections        = [];
 		$current_section = '';
 		$section_content = '';
 		
 		foreach (explode("\n", $readme_content) as $line) {
 			if (preg_match('/^==\s*(.*?)\s*==/', $line, $matches)) {
 				if ('' !== $current_section) {
-					$sections[$current_section] = trim($section_content);
+					$sections[ $current_section ] = trim($section_content);
 				}
 				$current_section = strtolower($matches[1]);
 				$section_content = '';
@@ -231,36 +227,36 @@ class ProPlugin {
 		}
 		
 		if ('' !== $current_section) {
-			$sections[$current_section] = trim($section_content);
+			$sections[ $current_section ] = trim($section_content);
 		}
 
 		// Convert markdown to HTML.
 		foreach ($sections as $key => $content) {
-			$content = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $content);
-			$content = preg_replace('/`(.*?)`/', '<code>$1</code>', $content);
-			$content = preg_replace('/=(.*?)=/', '<strong>$1</strong>', $content);
-			$content = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $content);
-			$sections[$key] = wpautop($content);
+			$content          = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $content);
+			$content          = preg_replace('/`(.*?)`/', '<code>$1</code>', $content);
+			$content          = preg_replace('/=(.*?)=/', '<strong>$1</strong>', $content);
+			$content          = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $content);
+			$sections[ $key ] = wpautop($content);
 		}
 
 		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
 
-		$info = new \stdClass();
-		$info->name = $plugin_data['Name'];
-		$info->slug = $this->slug;
-		$info->version = $plugin_data['Version'];
-		$info->author = $plugin_data['Author'];
+		$info                 = new \stdClass();
+		$info->name           = $plugin_data['Name'];
+		$info->slug           = $this->slug;
+		$info->version        = $plugin_data['Version'];
+		$info->author         = $plugin_data['Author'];
 		$info->author_profile = $plugin_data['AuthorURI'] ?? '';
-		$info->requires = $plugin_data['RequiresWP'] ?? '';
-		$info->tested = $plugin_data['TestedUpTo'] ?? '';
-		$info->requires_php = $plugin_data['RequiresPHP'] ?? '';
-		$info->last_updated = $plugin_data['UpdatedTime'] ?? '';
-		$info->added = '';
-		$info->homepage = $plugin_data['PluginURI'] ?? '';
-		$info->sections = $sections;
-		$info->download_link = '';
-		$info->banners = [];
-		$info->contributors = [];
+		$info->requires       = $plugin_data['RequiresWP'] ?? '';
+		$info->tested         = $plugin_data['TestedUpTo'] ?? '';
+		$info->requires_php   = $plugin_data['RequiresPHP'] ?? '';
+		$info->last_updated   = $plugin_data['UpdatedTime'] ?? '';
+		$info->added          = '';
+		$info->homepage       = $plugin_data['PluginURI'] ?? '';
+		$info->sections       = $sections;
+		$info->download_link  = '';
+		$info->banners        = [];
+		$info->contributors   = [];
 
 		return $info;
 	}

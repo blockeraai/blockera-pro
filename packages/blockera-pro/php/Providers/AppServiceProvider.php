@@ -25,8 +25,7 @@ class AppServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function register(): void
-    {
+    public function register(): void {
         parent::register();
 
 		global $blockera;
@@ -112,7 +111,7 @@ class AppServiceProvider extends ServiceProvider {
 
                 $args['slug'] = $args['config']->getPluginSlug();
                 $args['name'] = $args['config']->getPluginName();
-                $args['id'] = $args['license']['id'];
+                $args['id']   = $args['license']['id'];
 
                 return new ProPlugin($app, $args);
             }
@@ -124,25 +123,24 @@ class AppServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function boot(): void
-    {
+    public function boot(): void {
         parent::boot();
 
         add_action('init', [ $this, 'loadTextDomain' ]);
 
-        $client_info = OptionRepository::getOption();
+        $client_info       = OptionRepository::getOption();
         $auth_config_array = blockera_pro_core_config('auth');
-        $config = $this->app->make(AuthConfig::class, $auth_config_array);
+        $config            = $this->app->make(AuthConfig::class, $auth_config_array);
 
 		// FIXME: This is a temporary icon to set the plugin icon. we need to provide a correct icon.
         $config->setIcons([ blockera_pro_core_config('app.root_url') . '/.wordpress-org/icon-256x256.png' ]);
 
         try {
             if (is_admin() && current_user_can('manage_options') && ! empty($client_info['licenses'])) {
-                $licenses = $client_info['licenses'];
+                $licenses          = $client_info['licenses'];
                 $products_licenses = array_column($licenses, 'productName');
-                $license_index = array_search($auth_config_array['productName'], $products_licenses, true);
-                $license = $licenses[ $license_index ];
+                $license_index     = array_search($auth_config_array['productName'], $products_licenses, true);
+                $license           = $licenses[ $license_index ];
 
                 if ($license) {
                     $pro_plugin = $this->app->make(
@@ -182,8 +180,7 @@ class AppServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function loadTextDomain(): void
-    {
+    public function loadTextDomain(): void {
 		wp_set_script_translations('@blockera/blockera-pro', 'blockera-pro');
 
         load_plugin_textdomain('blockera-pro', false, dirname(plugin_basename(BLOCKERA_PRO_FILE)) . '/languages');
@@ -194,8 +191,7 @@ class AppServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function registerSiteBuilderStyleEngine( Application $app): void
-    {
+    public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
             'AlignContent' => \Blockera\SiteBuilder\StyleDefinitions\AlignContent::class,
 			'AlignSelf' => \Blockera\SiteBuilder\StyleDefinitions\AlignSelf::class,

@@ -2,7 +2,7 @@
 
 use Blockera\Auth\Repositories\OptionRepository;
 
-if (!\Blockera\Utils\Utils::isPluginInstalled($plugin['pluginSlug'])) : ?>
+if (! \Blockera\Utils\Utils::isPluginInstalled($plugin['pluginSlug'])) : ?>
 	<div class="notice notice-info is-dismissible">
 		<p>
 			<?php

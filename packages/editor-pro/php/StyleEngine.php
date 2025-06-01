@@ -111,9 +111,9 @@ final class StyleEngine {
 			'attrs' => $settings,
 		] = $block;
 
-		$this->block       = $block;
-		$this->settings    = $settings;
-		$this->selector    = $fallbackSelector;
+		$this->block    = $block;
+		$this->settings = $settings;
+		$this->selector = $fallbackSelector;
 	}
 
 	/**
@@ -179,7 +179,7 @@ final class StyleEngine {
 
 			// prepare all block states and breakpoints.
 			$this->pseudo_classes = $states;
-			$breakpoints = array_keys(blockera_array_flat(array_column($states, 'breakpoints')));
+			$breakpoints          = array_keys(blockera_array_flat(array_column($states, 'breakpoints')));
 
 			// Add force base breakpoint if not exists.
 			if (! in_array($this->breakpoint, $breakpoints, true)) {
@@ -335,12 +335,12 @@ final class StyleEngine {
 		
 		// Early returns for invalid conditions.
 		if (empty($this->supports) ||
-			!isset($this->supports[$id], $this->supports[$id]['definition'])) {
+			! isset($this->supports[ $id ], $this->supports[ $id ]['definition'])) {
 			return;
 		}
 
 		// Get definition class name.
-		$definition = $this->supports[$id]['definition'];
+		$definition = $this->supports[ $id ]['definition'];
 
 		// Attempt to create new instance.
 		try {

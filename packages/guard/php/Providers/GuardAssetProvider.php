@@ -16,8 +16,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 *
 	 * @return string the loader identifier.
 	 */
-	public function getId(): string
-	{
+	public function getId(): string {
 		return 'guard';
 	}
 
@@ -26,8 +25,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 *
 	 * @return string the handler name.
 	 */
-	public function getHandler(): string
-	{
+	public function getHandler(): string {
 		return '@blockera/guard';
 	}
 
@@ -37,8 +35,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 * @throws BindingResolutionException Binding resolution exception error handle.
 	 * @return void
 	 */
-	public function boot(): void
-	{
+	public function boot(): void {
 		add_filter('blockera/wordpress/' . $this->getId() . '/handle/inline-script', [ $this, 'getHandler' ]);
 
 		$this->app->make(
@@ -66,8 +63,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 *
 	 * @return string
 	 */
-	protected function getURL(): string
-	{
+	protected function getURL(): string {
 		return blockera_pro_core_config('app.root_url');
 	}
 
@@ -76,8 +72,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 *
 	 * @return string
 	 */
-	protected function getPath(): string
-	{
+	protected function getPath(): string {
 		return blockera_pro_core_config('app.root_path');
 	}
 
@@ -94,8 +89,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 *
 	 * @return array the assets list to load on page.
 	 */
-	protected function getAssets(): array
-	{
+	protected function getAssets(): array {
 		return [
 			'feature-manager',
 		];
