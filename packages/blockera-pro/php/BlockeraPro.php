@@ -32,8 +32,7 @@ class BlockeraPro extends Application {
 	 *
 	 * @param array $license the license.
 	 */
-	public function setLicense( array $license): void
-	{
+	public function setLicense( array $license): void {
 		$this->license = $license;
 	}
 
@@ -42,8 +41,7 @@ class BlockeraPro extends Application {
 	 *
 	 * @return array The license.
 	 */
-	public function getLicense(): array
-	{
+	public function getLicense(): array {
 		return $this->license;
 	}
 }

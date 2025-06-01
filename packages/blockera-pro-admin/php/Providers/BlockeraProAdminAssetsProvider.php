@@ -18,8 +18,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      *
      * @return void
      */
-    public function boot(): void
-    {
+    public function boot(): void {
 		// Skip execution if saving in site editor.
 		if (blockera_is_skip_request()) {
 			return;
@@ -73,8 +72,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      *
      * @var string $id the loader identifier.
      */
-    public function getId(): string
-    {
+    public function getId(): string {
         return 'blockera-pro-admin-assets-loader';
     }
 
@@ -83,8 +81,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      *
      * @return string
      */
-    public function getHandler(): string
-    {
+    public function getHandler(): string {
 		$path = blockera_pro_core_config('app.vendor_path') . 'blockera/blockera-pro-admin/package.json';
 
         return '@blockera/blockera-pro-admin-' . $this->getPackageVersion($path);
@@ -97,11 +94,10 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      *
      * @return string the filtered inline js script.
      */
-    public function authorizationInlineScript( string $inline_script): string
-    {
-        $client_info = OptionRepository::getOption();
-        $license = OptionRepository::getLicense($client_info);
-        $is_activated_pro = !empty($license) && 'active' === ( $license['status'] ?? 'expired' );
+    public function authorizationInlineScript( string $inline_script): string {
+        $client_info      = OptionRepository::getOption();
+        $license          = OptionRepository::getLicense($client_info);
+        $is_activated_pro = ! empty($license) && 'active' === ( $license['status'] ?? 'expired' );
 
         $account_info = array_merge(
             [ 'product_id' => blockera_pro_core_config('auth.productName') ],
@@ -198,8 +194,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
      *
      * @return array the assets to load.
      */
-    protected function getAssets(): array
-    {
+    protected function getAssets(): array {
         return array_merge(
             [
                 'auth-pro',
@@ -214,16 +209,14 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
     /**
      * @return string the blockera pro plugin root URL.
      */
-    protected function getURL(): string
-    {
+    protected function getURL(): string {
         return blockera_pro_core_config('app.root_url');
     }
 
     /**
      * @return string the blockera pro plugin root PATH.
      */
-    protected function getPATH(): string
-    {
+    protected function getPATH(): string {
         return blockera_pro_core_config('app.root_path');
     }
 

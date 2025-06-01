@@ -9,8 +9,7 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
 
     use SimpleDefinitionTrait;
 
-    public function getCssProperty(): string
-    {
+    public function getCssProperty(): string {
 
         return 'content';
     }
@@ -26,7 +25,7 @@ class Content extends BaseProStyleDefinition implements StandardDefinition {
 
 		$existing_state = in_array($this->pseudo_state, $this->getSupports(false)['blockeraContentPseudoElement']['hasDefaultValueInStates'], true);
 
-		if (!empty($setting['content'])) {
+		if (! empty($setting['content'])) {
 
 			// If the content is equals to double quotes, it means that the content is empty.
 			if ( '""' === $setting['content']) {

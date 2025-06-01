@@ -78,7 +78,7 @@ class Validator {
 	 * @param Application $app The application instance.
 	 */
 	public function __construct( Application $app, Config $config) {
-		$this->app = $app;
+		$this->app    = $app;
 		$this->config = $config;
 	}
 
@@ -90,8 +90,7 @@ class Validator {
 	 *
 	 * @return void
 	 */
-	public function __call( string $name, array $arguments): void
-	{
+	public function __call( string $name, array $arguments): void {
 		if (property_exists($this, $name)) {
 			$this->$name = $arguments[0];
 		}
@@ -104,8 +103,7 @@ class Validator {
 	 *
 	 * @return bool True if the plan is allowed, false otherwise.
 	 */
-	public function isAllowedPlan( string $plan): bool
-	{
+	public function isAllowedPlan( string $plan): bool {
 		if (empty($plan)) {
 			return false;
 		}

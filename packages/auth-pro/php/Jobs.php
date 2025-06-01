@@ -41,8 +41,7 @@ class Jobs {
      *
      * @return void
      */
-    public function doRefreshToken(): void
-    {
+    public function doRefreshToken(): void {
         $clientInfo = OptionRepository::getOption();
 
         $response = wp_remote_post(
@@ -69,7 +68,7 @@ class Jobs {
 
         $data = json_decode(wp_remote_retrieve_body($response), true);
 
-        if (!isset($data['access_token'])) {
+        if (! isset($data['access_token'])) {
             return;
         }
 
@@ -91,10 +90,9 @@ class Jobs {
      *
      * @return void
      */
-    public function verifyLicenseStatus(): void
-    {
+    public function verifyLicenseStatus(): void {
         $client_info = OptionRepository::getOption();
-        $license = OptionRepository::getLicense($client_info);
+        $license     = OptionRepository::getLicense($client_info);
 
         if (empty($license)) {
             return;

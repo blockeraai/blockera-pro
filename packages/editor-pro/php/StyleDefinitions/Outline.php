@@ -13,8 +13,7 @@ class Outline extends BaseProStyleDefinition implements Repeater {
      *
      * @return array
      */
-    protected function css( array $setting): array
-    {
+    protected function css( array $setting): array {
 
         $cssProperty = $setting['type'];
 
@@ -44,8 +43,7 @@ class Outline extends BaseProStyleDefinition implements Repeater {
      *
      * @return bool true if the setting is valid, false otherwise.
      */
-    public function isValidSetting( array $setting): bool
-    {
+    public function isValidSetting( array $setting): bool {
 
         return ! empty($setting['isVisible']);
     }
@@ -57,8 +55,7 @@ class Outline extends BaseProStyleDefinition implements Repeater {
      *
      * @return void
      */
-    protected function setOutline( array $setting): void
-    {
+    protected function setOutline( array $setting): void {
 
         $this->setDeclaration(
             'outline',
