@@ -48,7 +48,8 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
      */
     public function getCustomSettings( array $settings, string $settingName, string $cssProperty): array {
 
-        $settings = blockera_get_sanitize_block_attributes($settings);
+        $settings                  = blockera_get_sanitize_block_attributes($settings);
+		$currentBreakpointSettings = $this->getCurrentBreakpointSettings();
 
         if (isset($settings['value']) && 'custom' === $settings['value'] && 'order' === $cssProperty) {
 
@@ -56,8 +57,8 @@ class Order extends BaseProStyleDefinition implements CustomStyle {
                 [
                     'isVisible'  => true,
                     'type'       => $cssProperty,
-                    $cssProperty => $settings['value']['blockeraFlexChildOrder'] ?? 'custom',
-                    'custom'     => $settings['value']['blockeraFlexChildOrderCustom'] ?? '',
+                    $cssProperty => $currentBreakpointSettings['blockeraFlexChildOrder']['value'] ?? $currentBreakpointSettings['blockeraFlexChildOrder'] ?? 'custom',
+                    'custom'     => $currentBreakpointSettings['blockeraFlexChildOrderCustom']['value'] ?? $currentBreakpointSettings['blockeraFlexChildOrderCustom'] ?? '',
                 ],
             ];
 
