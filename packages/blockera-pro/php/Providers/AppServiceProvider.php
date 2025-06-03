@@ -204,6 +204,7 @@ class AppServiceProvider extends ServiceProvider {
             'ColumnCount' => \Blockera\SiteBuilder\StyleDefinitions\ColumnCount::class,
             'Content' => \Blockera\SiteBuilder\StyleDefinitions\Content::class,
             'Filter' => \Blockera\SiteBuilder\StyleDefinitions\Filter::class,
+			'Flex' => \Blockera\SiteBuilder\StyleDefinitions\Flex::class,
             'Mouse' => \Blockera\SiteBuilder\StyleDefinitions\Mouse::class,
             'Order' => \Blockera\SiteBuilder\StyleDefinitions\Order::class,
             'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
