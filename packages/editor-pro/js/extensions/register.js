@@ -127,7 +127,22 @@ export const registerEditorExtensions = () => {
 				addFilter(
 					`blockera-${blockName}-extension-${supportId}`,
 					'blockeraPro-editorBlockCustomizeExtension',
-					(previous: Object) => mergeObject(previous, next)
+					(previous: Object) => {
+						const merged = mergeObject(previous, next);
+
+						// Remove label property from each property in the merged object.
+						Object.keys(merged).forEach((key) => {
+							if (
+								merged[key] &&
+								typeof merged[key] === 'object' &&
+								merged[key].label
+							) {
+								delete merged[key].label;
+							}
+						});
+
+						return merged;
+					}
 				)
 			);
 
