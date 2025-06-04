@@ -142,9 +142,6 @@ export const registerEditorExtensions = () => {
 
 							const item = merged[key];
 
-							if (item.label) {
-								delete item.label;
-							}
 							if (
 								!item.hasOwnProperty('onNativeOnInnerBlocks') ||
 								true === item.onNativeOnInnerBlocks
