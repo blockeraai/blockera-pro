@@ -121,6 +121,7 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 					restrictBlockVisibility: {
 						...config.general.restrictBlockVisibility,
 						onNative: false,
+						isParentActive: true,
 						config: {
 							...config.general.restrictBlockVisibility.config,
 							userRole: {
@@ -133,6 +134,7 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 					restrictBlockVisibilityByPostType: {
 						...config.general.restrictBlockVisibilityByPostType,
 						onNative: false,
+						isParentActive: true,
 						config: {
 							...config.general.restrictBlockVisibilityByPostType
 								.config,
