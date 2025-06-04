@@ -2,6 +2,7 @@
 
 const blockeraAttributes: Object = {
 	onNative: false,
+	onNativeOnInnerBlocks: false,
 };
 
 export const advancedSettingsConfig = {

@@ -130,14 +130,26 @@ export const registerEditorExtensions = () => {
 					(previous: Object) => {
 						const merged = mergeObject(previous, next);
 
-						// Remove label property from each property in the merged object.
+						// Remove label property from each support config in the merged object.
+						// Modified the onNativeOnInnerBlocks property from each support config in the merged object.
 						Object.keys(merged).forEach((key) => {
 							if (
-								merged[key] &&
-								typeof merged[key] === 'object' &&
-								merged[key].label
+								!merged[key] ||
+								'object' !== typeof merged[key]
 							) {
-								delete merged[key].label;
+								return;
+							}
+
+							const item = merged[key];
+
+							if (item.label) {
+								delete item.label;
+							}
+							if (
+								!item.hasOwnProperty('onNativeOnInnerBlocks') ||
+								true === item.onNativeOnInnerBlocks
+							) {
+								item.onNativeOnInnerBlocks = false;
 							}
 						});
 

@@ -2,6 +2,7 @@
 
 const blockeraCustomCSS: Object = {
 	onNative: false,
+	onNativeOnInnerBlocks: false,
 };
 
 export const customStyleConfig = {
