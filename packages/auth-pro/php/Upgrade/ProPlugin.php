@@ -2,6 +2,7 @@
 
 namespace Blockera\Auth\Upgrade;
 
+use Blockera\Notice\Notice;
 use Blockera\Auth\DynamicPropertyTrait;
 use Blockera\Auth\Repositories\OptionRepository;
 
@@ -91,6 +92,43 @@ class ProPlugin {
 		if (! $result instanceof \stdClass || ! isset($result->url, $result->new_version) || empty($result->url) || empty($result->new_version)) {
 			return $transient;
 		}
+		
+		$new_version_id     = str_replace('.', '_', $result->new_version);
+		$new_cache_key      = sprintf('%s_version_%s_notice_id', $this->slug, $new_version_id);
+		$current_version_id = str_replace('.', '_', $result->current_version);
+		$prev_cache_key     = sprintf('%s_version_%s_notice_id', $this->slug, $current_version_id);
+
+		// Add the notice if it doesn't exist.
+		if (! get_option($new_cache_key)) {
+			
+			$notice_id = Notice::add_warning(
+				sprintf(
+					'A new version (%s) of the %s plugin is available. Please update for new features and security fixes.',
+					$result->new_version,
+					$this->name
+				),
+				'Update Available',
+				[
+					'persistent' => true,
+					'actions' => [
+						[
+							'label' => 'Update Now',
+							'url' => $result->url,
+							'class' => 'button-primary',
+						],
+					],
+				]
+			);
+
+			// Remove the previous notice if it exists.
+			if (get_option($prev_cache_key)) {
+				Notice::remove_notice(get_option($prev_cache_key));
+				delete_option($prev_cache_key);
+			}
+
+			// Add the new notice identifier.
+			update_option($new_cache_key, $notice_id);
+		}
 
 		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
 		
@@ -154,7 +192,7 @@ class ProPlugin {
 					'domain' => get_site_url(),
 					'license_id' => $this->license['id'],
 					'id' => $this->config->getProductIdentifier(),
-					'version' => preg_replace('/(-(alpha|beta|\w+)-\d+)?$/', '', $data['Version']),
+					'version' => $data['Version'],
 				],
 			]
         );
@@ -169,8 +207,9 @@ class ProPlugin {
 			return $result;
 		}
 
-		$result->url         = $response_body['data']['fileUrl'] ?? '';
-		$result->new_version = $response_body['data']['newVersion'] ?? '';
+		$result->current_version = $data['Version'];
+		$result->url             = $response_body['data']['fileUrl'] ?? '';
+		$result->new_version     = $response_body['data']['newVersion'] ?? '';
 
 		return $result;
 	}
