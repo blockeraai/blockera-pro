@@ -67,6 +67,7 @@
 	"dependencies": {
 		"@blockera/blocks-core": "file:packages/block/core",
 		"@blockera/bootstrap": "file:packages/bootstrap",
+		"@blockera/notice": "file:packages/notice",
 		"@blockera/classnames": "file:packages/classnames",
 		"@blockera/controls": "file:packages/controls",
 		"@blockera/data": "file:packages/data",
