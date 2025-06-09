@@ -143,6 +143,12 @@ function blockera_pro_redirect_to_activation_page(): void {
 	// Check if the redirect flag is set and the user has sufficient permissions.
 	if (get_option($optionKey, false)) {
 
+		if (! is_plugin_active('blockera/blockera.php')) {
+
+			// Blockera is not active, so we don't need to redirect because blockera settings page is not available.
+			return;
+		}
+
 		delete_option($optionKey);
 
 		if (is_admin() && current_user_can('activate_plugins')) {
