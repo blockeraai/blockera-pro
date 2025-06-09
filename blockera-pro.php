@@ -50,8 +50,7 @@ define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__, true, false)['Version']
 
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
-function blockera_pro_init(): void
-{
+function blockera_pro_init(): void {
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
     /**
@@ -59,8 +58,7 @@ function blockera_pro_init(): void
      *
      * @return void
      */
-    function blockera_pro_before_setup_free_version(): void
-    {
+    function blockera_pro_before_setup_free_version(): void {
         // loading bootstrapper files.
         blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
         blockera_load('vendor.blockera.blockera-pro-admin.php.hooks', __DIR__);
@@ -68,8 +66,7 @@ function blockera_pro_init(): void
 
     add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
-    function blockera_pro_after_setup_free_version(): void
-    {
+    function blockera_pro_after_setup_free_version(): void {
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
         require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
@@ -82,6 +79,20 @@ function blockera_pro_init(): void
 			);
 		}
     }
+}
+
+add_action('admin_init', 'blockera_pro_init_notice');
+
+/**
+ * Initialize the notice package.
+ *
+ * @return void
+ */
+function blockera_pro_init_notice(): void {
+	require_once __DIR__ . '/packages/notice/php/Notice.php';
+	\Blockera\Notice\Notice::init();
+
+	require_once __DIR__ . '/packages/blockera-pro/php/notices.php';
 }
 
 register_activation_hook(__FILE__, 'blockera_pro_activation');
@@ -118,7 +129,7 @@ function blockera_pro_deactivation(): void {
 	wp_clear_scheduled_hook('blockera_pro_each_per_day');
 }
 
- add_action('admin_notices', 'blockera_pro_redirect_to_activation_page', 9e2);
+add_action('admin_notices', 'blockera_pro_redirect_to_activation_page', 9e2);
 
 /**
  * Redirecting your WordPress admin to your plugin activation page after activation it.
