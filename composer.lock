@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f004296ac37234f861d5dd4db3db23e6",
+    "content-hash": "62fe90203ff85d01b7dc8a6c04ea9f62",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -35,7 +35,7 @@
         },
         {
             "name": "blockera/blockera-pro",
-            "version": "dev-fix/plugin-info",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/blockera-pro",
@@ -62,7 +62,7 @@
         },
         {
             "name": "blockera/blockera-pro-admin",
-            "version": "dev-fix/plugin-info",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/blockera-pro-admin",
@@ -300,7 +300,7 @@
         },
         {
             "name": "blockera/guard",
-            "version": "dev-fix/plugin-info",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/guard",
@@ -361,6 +361,31 @@
                 }
             },
             "description": "The blockera icons package.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/notice",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "packages/notice",
+                "reference": "5b5de2c8dd204a48d1075159dbc8436981cc811d"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Notice\\": "php/"
+                }
+            },
+            "license": [
+                "ISC"
+            ],
+            "description": "WordPress Notice API integration for Blockera",
             "transport-options": {
                 "relative": true
             }
@@ -1803,12 +1828,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "b27b2bff5e83df4977bf6da2fce4eecb8dfc0644"
+                "reference": "73dd304dc820196ab859003d822ea6656a0e243d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/b27b2bff5e83df4977bf6da2fce4eecb8dfc0644",
-                "reference": "b27b2bff5e83df4977bf6da2fce4eecb8dfc0644",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/73dd304dc820196ab859003d822ea6656a0e243d",
+                "reference": "73dd304dc820196ab859003d822ea6656a0e243d",
                 "shasum": ""
             },
             "require": {
@@ -1869,7 +1894,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-24T16:38:27+00:00"
+            "time": "2025-05-28T11:35:56+00:00"
         },
         {
             "name": "composer/composer",
@@ -1877,12 +1902,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "aa2a468cd2f9d75ff1c9103e2cbe2d03d982c4e8"
+                "reference": "8d239c7d3d6b7cff416f4ce3546a0b2b7633cb30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/aa2a468cd2f9d75ff1c9103e2cbe2d03d982c4e8",
-                "reference": "aa2a468cd2f9d75ff1c9103e2cbe2d03d982c4e8",
+                "url": "https://api.github.com/repos/composer/composer/zipball/8d239c7d3d6b7cff416f4ce3546a0b2b7633cb30",
+                "reference": "8d239c7d3d6b7cff416f4ce3546a0b2b7633cb30",
                 "shasum": ""
             },
             "require": {
@@ -1984,7 +2009,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-26T13:20:53+00:00"
+            "time": "2025-05-28T12:50:59+00:00"
         },
         {
             "name": "composer/metadata-minifier",
@@ -2062,12 +2087,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/pcre.git",
-                "reference": "deb3871d20d5012eb5faa5a9caa71c44f151db49"
+                "reference": "fadb6382c5d62e4e59ca45a4e77d3a356b40c594"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/pcre/zipball/deb3871d20d5012eb5faa5a9caa71c44f151db49",
-                "reference": "deb3871d20d5012eb5faa5a9caa71c44f151db49",
+                "url": "https://api.github.com/repos/composer/pcre/zipball/fadb6382c5d62e4e59ca45a4e77d3a356b40c594",
+                "reference": "fadb6382c5d62e4e59ca45a4e77d3a356b40c594",
                 "shasum": ""
             },
             "require": {
@@ -2135,7 +2160,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-20T09:10:58+00:00"
+            "time": "2025-05-28T08:54:55+00:00"
         },
         {
             "name": "composer/semver",
@@ -2571,16 +2596,16 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.18.0",
+            "version": "2.18.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "a7de6c3c6c3c022f5cfc337f8ede6a14460cf77e"
+                "reference": "8fcc6a862f2e7b94eb4221fd0819ddba3d30ab26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/a7de6c3c6c3c022f5cfc337f8ede6a14460cf77e",
-                "reference": "a7de6c3c6c3c022f5cfc337f8ede6a14460cf77e",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/8fcc6a862f2e7b94eb4221fd0819ddba3d30ab26",
+                "reference": "8fcc6a862f2e7b94eb4221fd0819ddba3d30ab26",
                 "shasum": ""
             },
             "require": {
@@ -2630,7 +2655,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.18.0"
+                "source": "https://github.com/filp/whoops/tree/2.18.1"
             },
             "funding": [
                 {
@@ -2638,7 +2663,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-15T12:00:00+00:00"
+            "time": "2025-06-03T18:56:14+00:00"
         },
         {
             "name": "gettext/gettext",
@@ -2854,12 +2879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "b209eb8f203fd36284b2c7470b3d65d0c0b8dff0"
+                "reference": "ce1fd2d47799bb60668643bc6220f6278a4c1d02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/b209eb8f203fd36284b2c7470b3d65d0c0b8dff0",
-                "reference": "b209eb8f203fd36284b2c7470b3d65d0c0b8dff0",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/ce1fd2d47799bb60668643bc6220f6278a4c1d02",
+                "reference": "ce1fd2d47799bb60668643bc6220f6278a4c1d02",
                 "shasum": ""
             },
             "require": {
@@ -2920,9 +2945,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/master"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/6.4.2"
             },
-            "time": "2025-05-07T19:56:24+00:00"
+            "time": "2025-06-03T18:27:04+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -3238,16 +3263,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.4.0",
+            "version": "v5.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "447a020a1f875a434d62f2a401f53b82a396e494"
+                "reference": "ae59794362fe85e051a58ad36b289443f57be7a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/447a020a1f875a434d62f2a401f53b82a396e494",
-                "reference": "447a020a1f875a434d62f2a401f53b82a396e494",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/ae59794362fe85e051a58ad36b289443f57be7a9",
+                "reference": "ae59794362fe85e051a58ad36b289443f57be7a9",
                 "shasum": ""
             },
             "require": {
@@ -3290,9 +3315,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.4.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.5.0"
             },
-            "time": "2024-12-30T11:07:19+00:00"
+            "time": "2025-05-31T08:24:38+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -5368,12 +5393,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "038b4a1e2d86d247e435aafeea9c550e99c7cbb4"
+                "reference": "15ce011a1d1a4e97df597dfd16b0b9080ce580f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/038b4a1e2d86d247e435aafeea9c550e99c7cbb4",
-                "reference": "038b4a1e2d86d247e435aafeea9c550e99c7cbb4",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/15ce011a1d1a4e97df597dfd16b0b9080ce580f6",
+                "reference": "15ce011a1d1a4e97df597dfd16b0b9080ce580f6",
                 "shasum": ""
             },
             "require": {
@@ -5445,7 +5470,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-05-19T16:07:24+00:00"
+            "time": "2025-06-09T04:52:41+00:00"
         },
         {
             "name": "symfony/console",

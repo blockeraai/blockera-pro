@@ -87,6 +87,10 @@
 		{
 			"type": "path",
 			"url": "packages/telemetry"
+		},
+		{
+			"type": "path",
+			"url": "packages/notice"
 		}
 	],
 	"authors": [
@@ -104,6 +108,7 @@
 		"blockera/blockera-pro-admin": "*",
 		"blockera/editor": "*",
 		"blockera/utils": "*",
+		"blockera/notice": "*",
 		"blockera/classnames": "*",
 		"blockera/controls": "*",
 		"blockera/icons": "*",
