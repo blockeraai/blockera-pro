@@ -1,0 +1,126 @@
+// Notice Package Styles
+
+// Import component styles
+@import "components/admin-notice";
+@import "components/inline-notice";
+@import "components/toast-notice";
+@import "components/snackbar-notice";
+@import "components/dismissible-notice";
+@import "components/bulk-notice";
+@import "components/meta-box-notice";
+@import "components/notice-container";
+
+
+// Base notice styles
+
+.blockera-notice {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 12px;
+	border-radius: 4px;
+	font-size: 14px;
+	line-height: 1.4;
+
+	&--success {
+		background-color: #f0f9ff;
+		border-left: 4px solid #10b981;
+		color: #065f46;
+	}
+
+	&--error {
+		background-color: #fef2f2;
+		border-left: 4px solid #ef4444;
+		color: #991b1b;
+	}
+
+	&--warning {
+		background-color: #fffbeb;
+		border-left: 4px solid #f59e0b;
+		color: #92400e;
+	}
+
+	&--info,
+	&--information {
+		background-color: #f0f9ff;
+		border-left: 4px solid #3b82f6;
+		color: #1e40af;
+	}
+
+	&--dismissible {
+		padding-right: 40px;
+	}
+
+	&__icon {
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	&__content {
+		flex: 1;
+	}
+
+	&__title {
+		margin: 0 0 4px 0;
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	&__message {
+		margin: 0;
+	}
+
+	&__actions {
+		margin-top: 8px;
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+
+	&__dismiss {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 4px;
+		border-radius: 2px;
+		opacity: 0.7;
+		transition: opacity 0.2s ease;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}
+
+
+// Notice container base styles
+
+.notice-container {
+
+	&--fixed {
+		position: fixed;
+		z-index: 9999;
+	}
+
+	&--relative {
+		position: relative;
+	}
+
+	&--absolute {
+		position: absolute;
+	}
+
+	&--toast {
+		position: fixed;
+		z-index: 10000;
+		pointer-events: none;
+
+		> * {
+			pointer-events: auto;
+		}
+	}
+}

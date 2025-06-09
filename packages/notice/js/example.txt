@@ -1,0 +1,200 @@
+// @flow
+
+/**
+ * External dependencies
+ */
+import { useState } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import {
+	NoticeProvider,
+	useNotices,
+	useWordPressNotices,
+	NoticeContainer,
+	AdminNotice,
+	InlineNotice,
+	ToastNotice,
+	SnackbarNotice,
+	DismissibleNotice,
+	BulkNotice,
+	MetaBoxNotice,
+} from './index';
+
+/**
+ * Example component demonstrating notice usage
+ */
+function NoticeExample() {
+	const {
+		addSuccessNotice,
+		addErrorNotice,
+		addWarningNotice,
+		addInfoNotice,
+	} = useNotices();
+	const { createNotice } = useWordPressNotices();
+
+	// Example: Basic success notice
+	const showSuccessNotice = () => {
+		addSuccessNotice('Operation completed successfully!', {
+			title: 'Success',
+			autoClose: true,
+			duration: 3000,
+		});
+	};
+
+	// Example: Error notice with actions
+	const showErrorNotice = () => {
+		addErrorNotice('Something went wrong.', {
+			title: 'Error',
+			actions: [
+				{
+					label: 'Retry',
+					onClick: () => console.log('Retrying...'),
+					variant: 'primary',
+				},
+				{
+					label: 'Cancel',
+					onClick: () => console.log('Cancelled'),
+					variant: 'secondary',
+				},
+			],
+		});
+	};
+
+	// Example: Warning notice with custom icon
+	const showWarningNotice = () => {
+		addWarningNotice('Please backup before proceeding.', {
+			title: 'Warning',
+			icon: 'warning-triangle',
+			persistent: true,
+		});
+	};
+
+	// Example: Info notice with WordPress integration
+	const showWordPressNotice = async () => {
+		await createNotice({
+			type: 'info',
+			title: 'WordPress Notice',
+			message: 'This notice is stored in WordPress.',
+			context: 'admin',
+			persistent: true,
+		});
+	};
+
+	return (
+		<div className="notice-examples">
+			{/* Container for admin notices */}
+			<NoticeContainer context="admin">
+				<AdminNotice
+					type="info"
+					title="Welcome"
+					message="This is an example of an admin notice."
+					isDismissible={true}
+				/>
+			</NoticeContainer>
+
+			{/* Inline notice example */}
+			<InlineNotice
+				type="success"
+				message="Your changes have been saved."
+				compact={true}
+				bordered={true}
+			/>
+
+			{/* Toast notice example */}
+			<ToastNotice
+				type="warning"
+				title="Attention"
+				message="Your session will expire soon."
+				position="top-right"
+				autoClose={true}
+				duration={5000}
+			/>
+
+			{/* Snackbar notice example */}
+			<SnackbarNotice
+				type="info"
+				message="New updates available"
+				actions={[
+					{
+						label: 'Update Now',
+						onClick: () => console.log('Updating...'),
+					},
+				]}
+			/>
+
+			{/* Dismissible notice example */}
+			<DismissibleNotice
+				type="error"
+				message="Please fix the following errors"
+				dismissText="Got it"
+			>
+				<ul>
+					<li>Invalid email format</li>
+					<li>Password too short</li>
+				</ul>
+			</DismissibleNotice>
+
+			{/* Meta box notice example */}
+			<MetaBoxNotice
+				type="info"
+				title="SEO Tips"
+				message="Optimize your content for better search rankings."
+				metaBoxId="seo-metabox"
+			/>
+
+			{/* Bulk notice example */}
+			<BulkNotice
+				title="Multiple Updates"
+				notices={[
+					{
+						type: 'success',
+						message: 'Plugin updated successfully',
+					},
+					{
+						type: 'warning',
+						message: 'Theme update available',
+					},
+					{
+						type: 'info',
+						message: 'New feature available',
+					},
+				]}
+				maxVisible={2}
+				showCount={true}
+			/>
+
+			{/* Buttons to trigger notices */}
+			<div className="notice-actions">
+				<button onClick={showSuccessNotice}>Show Success Notice</button>
+				<button onClick={showErrorNotice}>Show Error Notice</button>
+				<button onClick={showWarningNotice}>Show Warning Notice</button>
+				<button onClick={showWordPressNotice}>
+					Show WordPress Notice
+				</button>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Example usage with NoticeProvider
+ */
+export default function App() {
+	return (
+		<NoticeProvider
+			initialNotices={[
+				{
+					type: 'info',
+					title: 'Welcome',
+					message: 'Welcome to the notice example.',
+					context: 'admin',
+				},
+			]}
+			persistDismissed={true}
+		>
+			<NoticeExample />
+		</NoticeProvider>
+	);
+}

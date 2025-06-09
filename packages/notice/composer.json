@@ -1,0 +1,14 @@
+{
+	"name": "blockera/notice",
+	"type": "library",
+	"description": "WordPress Notice API integration for Blockera",
+	"license": "ISC",
+	"require": {
+		"php": ">=7.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"Blockera\\Notice\\": "php/"
+		}
+	}
+}
