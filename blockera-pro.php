@@ -89,10 +89,10 @@ add_action('admin_init', 'blockera_pro_init_notice');
  * @return void
  */
 function blockera_pro_init_notice(): void {
-	require_once __DIR__ . '/packages/notice/php/Notice.php';
+	require_once __DIR__ . '/vendor/blockera/notice/php/Notice.php';
 	\Blockera\Notice\Notice::init();
 
-	require_once __DIR__ . '/packages/blockera-pro/php/notices.php';
+	require_once __DIR__ . '/vendor/blockera/blockera-pro/php/notices.php';
 }
 
 register_activation_hook(__FILE__, 'blockera_pro_activation');
