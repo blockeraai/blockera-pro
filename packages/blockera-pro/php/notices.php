@@ -45,8 +45,8 @@ if (! $cached_notice_id) {
 	$notice_id = Notice::add_notice(
         [
 			'type' => 'error',
-			'title' => '🚨 Blockera is required',
-			'message' => 'Blockera is not active. Please activate it to unlock the full power of Blockera Pro and enjoy an enhanced site building experience.',
+			'title' => '🚨 Blockera plugin is required',
+			'message' => 'Blockera plugin is not active. Please activate it to unlock the full power of Blockera Pro and enjoy an enhanced site building experience.',
 			'dismissible' => true,
 			'persistent' => true,
 			'actions' => [
