@@ -9,7 +9,6 @@ use Blockera\Data\Cache\Cache;
 use Blockera\Bootstrap\Application;
 use Blockera\Auth\Upgrade\ProPlugin;
 use Blockera\Auth\Config as AuthConfig;
-use Blockera\Auth\Upgrade\NoticeIssuer;
 use Blockera\Bootstrap\ServiceProvider;
 use Blockera\Auth\Repositories\OptionRepository;
 use League\OAuth2\Client\Provider\GenericProvider;
@@ -79,13 +78,6 @@ class AppServiceProvider extends ServiceProvider {
         );
 
         $this->app->singleton(
-            NoticeIssuer::class,
-            function ( Application $app, array $args) {
-                return new NoticeIssuer($app, $args);
-            }
-        );
-
-        $this->app->singleton(
             ProPlugin::class,
             function ( Application $app, array $args): ProPlugin {
                 $plugin = array_intersect_key(
@@ -98,17 +90,6 @@ class AppServiceProvider extends ServiceProvider {
 
                 $args['config']->setProductIdentifier($args['license']['productId']);
                 $args['config']->setIsDev(blockera_core_config('app.debug'));
-
-                $app->make(
-                    NoticeIssuer::class,
-                    [
-						'plugin' => $plugin,
-						'config' => $args['config'],
-                        'subscription' => $args['license']['name'] ?? '',
-						'validator' => $app->make(Validator::class, $args),
-                    ]
-                );
-
                 $args['slug'] = $args['config']->getPluginSlug();
                 $args['name'] = $args['config']->getPluginName();
                 $args['id']   = $args['license']['id'];
@@ -131,9 +112,8 @@ class AppServiceProvider extends ServiceProvider {
         $client_info       = OptionRepository::getOption();
         $auth_config_array = blockera_pro_core_config('auth');
         $config            = $this->app->make(AuthConfig::class, $auth_config_array);
-
-		// FIXME: This is a temporary icon to set the plugin icon. we need to provide a correct icon.
-        $config->setIcons([ blockera_pro_core_config('app.root_url') . '/.wordpress-org/icon-256x256.png' ]);
+        
+		$config->setIcons([ blockera_pro_core_config('app.root_url') . '/assets/icon-256x256.png' ]);
 
         try {
             if (is_admin() && current_user_can('manage_options') && ! empty($client_info['licenses'])) {
