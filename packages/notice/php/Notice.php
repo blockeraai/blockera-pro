@@ -131,49 +131,7 @@ class Notice {
      * @return void
      */
     public static function render_notice( array $notice): void {
-        $classes = [ 'notice' ];
-
-        switch ($notice['type']) {
-            case 'success':
-                $classes[] = 'notice-success';
-                break;
-            case 'error':
-                $classes[] = 'notice-error';
-                break;
-            case 'warning':
-                $classes[] = 'notice-warning';
-                break;
-            case 'info':
-            default:
-                $classes[] = 'notice-info';
-                break;
-        }
-
-        if ($notice['dismissible']) {
-            $classes[] = 'is-dismissible';
-        }
-
-        $class_string = implode(' ', $classes);
-        ?>
-		<div class="<?php echo esc_attr($class_string); ?>" data-notice-id="<?php echo esc_attr($notice['id']); ?>">
-			<?php if (! empty($notice['title'])) : ?>
-				<h3><?php echo esc_html($notice['title']); ?></h3>
-			<?php endif; ?>
-			
-			<p><?php echo wp_kses_post($notice['message']); ?></p>
-
-			<?php if (! empty($notice['actions'])) : ?>
-				<p>
-					<?php foreach ($notice['actions'] as $action) : ?>
-						<a href="<?php echo esc_url($action['url']); ?>" 
-						   class="button <?php echo esc_attr($action['class'] ?? 'button-secondary'); ?>">
-							<?php echo esc_html($action['label']); ?>
-						</a>
-					<?php endforeach; ?>
-				</p>
-			<?php endif; ?>
-		</div>
-		<?php
+        include_once __DIR__ . '/templates/base-notice.php';
     }
 
     /**
