@@ -102,6 +102,11 @@ class ProPlugin {
 		// Add the notice if it doesn't exist.
 		if (! get_option($new_cache_key)) {
 			
+			$update_url = wp_nonce_url(
+				self_admin_url('update.php?action=upgrade-plugin&plugin=' . urlencode($id)),
+				'upgrade-plugin_' . $id
+			);
+
 			$notice_id = Notice::add_warning(
 				sprintf(
 					'A new version (%s) of the %s plugin is available. Please update for new features and security fixes.',
@@ -114,7 +119,7 @@ class ProPlugin {
 					'actions' => [
 						[
 							'label' => 'Update Now',
-							'url' => $result->url,
+							'url' => $update_url,
 							'class' => 'button-primary',
 						],
 					],
