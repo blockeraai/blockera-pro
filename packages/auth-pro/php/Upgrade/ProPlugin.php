@@ -57,6 +57,7 @@ class ProPlugin {
 	public function applyHooks(): void {
 		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
 		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
+		add_action('upgrader_process_complete', [ $this, 'removeUpdateNotice' ], 10, 2);
 	}
 
 	/**
@@ -298,5 +299,27 @@ class ProPlugin {
 		$info->contributors   = [];
 
 		return $info;
+	}
+
+	/**
+	 * Remove the update notice.
+	 *
+	 * @param \stdClass $upgrader_object The upgrader object.
+	 * @param array     $options The options.
+	 * 
+	 * @return void
+	 */
+	public function removeUpdateNotice( \stdClass $upgrader_object, array $options): void {
+		if (! isset($options['action'], $options['type'], $options['bulk']) || 'update' !== $options['action'] || 'plugin' !== $options['type']) {
+			return;
+		}
+
+		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
+
+		if (empty($data)) {
+			return;
+		}
+
+		Notice::remove_notice(get_option($this->slug . '_version_' . $data['Version'] . '_notice_id'));
 	}
 }
