@@ -107,7 +107,7 @@ class ProPlugin {
 					$result->new_version,
 					$this->name
 				),
-				'Update Available',
+				'💡 Blockera Pro Update Available',
 				[
 					'persistent' => true,
 					'actions' => [
