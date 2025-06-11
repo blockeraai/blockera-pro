@@ -6,9 +6,22 @@ on:
         branches: [master]
     workflow_dispatch:
         inputs:
-            version:
-                description: 'rc or stable?'
+            release_type:
+                description: 'Your release type?'
                 required: true
+                type: 'choice'
+                options:
+                    - 'rc'
+                    - 'stable'
+            version_type:
+                description: 'Your version type?'
+                required: true
+                default: 'patch'
+                type: 'choice'
+                options:
+                    - 'major'
+                    - 'minor'
+                    - 'patch'
 
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
@@ -18,49 +31,46 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    compute-stable-branches:
-        name: Compute current and next stable release branches
+    compute-next-stable-branch:
+        name: Compute next stable release branches
         runs-on: ubuntu-latest
         if: ${{ github.event_name == 'workflow_dispatch' }}
         outputs:
-            current_stable_branch: ${{ steps.get_branches.outputs.current_stable_branch }}
             next_stable_branch: ${{ steps.get_branches.outputs.next_stable_branch }}
-
         steps:
             - name: Get current and next stable release branches
               id: get_branches
               run: |
-                  curl \
-                    -H "Accept: application/vnd.github.v3+json" \
-                    -o latest.json \
-                    "https://api.github.com/repos/${{ github.repository }}/releases/latest"
-                  LATEST_STABLE_TAG=$(jq --raw-output '.tag_name' latest.json)
+                  LATEST_STABLE_TAG=$(git tag --list 'v*' | sort -V | tail -n 1)
                   IFS='.' read LATEST_STABLE_MAJOR LATEST_STABLE_MINOR LATEST_STABLE_PATCH <<< "${LATEST_STABLE_TAG#v}"
-                  echo "current_stable_branch=release/${LATEST_STABLE_MAJOR}.${LATEST_STABLE_MINOR}" >> $GITHUB_OUTPUT
-                  if [[ ${LATEST_STABLE_MINOR} == "9" ]]; then
+                  VERSION_TYPE="${{ github.event.inputs.version_type }}"
+                  if [[ $VERSION_TYPE == "major" ]]; then
                     echo "next_stable_branch=release/$((LATEST_STABLE_MAJOR + 1)).0" >> $GITHUB_OUTPUT
-                  else
+                  elif [[ $VERSION_TYPE == "minor" ]]; then
                     echo "next_stable_branch=release/${LATEST_STABLE_MAJOR}.$((LATEST_STABLE_MINOR + 1))" >> $GITHUB_OUTPUT
+                  else
+                    echo "next_stable_branch=release/${LATEST_STABLE_MAJOR}.${LATEST_STABLE_MINOR}.$((LATEST_STABLE_PATCH + 1))" >> $GITHUB_OUTPUT
                   fi
 
     bump-version:
         name: Bump version
         runs-on: ubuntu-latest
-        needs: compute-stable-branches
+        needs: compute-next-stable-branch
         if: |
             github.event_name == 'workflow_dispatch' && (
               (
                 github.ref == 'refs/heads/master' ||
-                endsWith( github.ref, needs.compute-stable-branches.outputs.next_stable_branch )
+                endsWith( github.ref, needs.compute-next-stable-branch.outputs.next_stable_branch )
               ) && (
-                github.event.inputs.version == 'rc' ||
-                github.event.inputs.version == 'stable'
+                github.event.inputs.release_type == 'rc' ||
+                github.event.inputs.release_type == 'stable'
               ) || (
                 startsWith( github.ref, 'refs/heads/release/' ) &&
-                github.event.inputs.version == 'stable'
+                github.event.inputs.release_type == 'stable'
               )
             )
         outputs:
+            changelog: ${{ steps.update_packages.outputs.changelog }}
             old_version: ${{ steps.get_version.outputs.old_version }}
             new_version: ${{ steps.get_version.outputs.new_version }}
             release_branch: ${{ steps.get_version.outputs.release_branch }}
@@ -79,24 +89,31 @@ jobs:
               run: |
                   OLD_VERSION=$(jq --raw-output '.version' package.json)
                   echo "old_version=${OLD_VERSION}" >> $GITHUB_OUTPUT
-                  if [[ ${{ github.event.inputs.version }} == 'stable' ]]; then
-                    NEW_VERSION=$(npx semver $OLD_VERSION -i patch)
+                  if [[ ${{ github.event.inputs.release_type }} == 'stable' ]]; then
+                    IFS='.' read -r -a OLD_VERSION_ARRAY <<< "$OLD_VERSION"
+                    if [[ ${{ github.event.inputs.version_type }} == "major" ]]; then
+                      NEW_VERSION=$(npx semver $OLD_VERSION -i major)
+                    elif [[ ${{ github.event.inputs.version_type }} == "minor" ]]; then
+                      NEW_VERSION=$(npx semver $OLD_VERSION -i minor)
+                    else
+                      NEW_VERSION=$(npx semver $OLD_VERSION -i patch)
+                    fi
                   else
                     if [[ $OLD_VERSION == *"rc"* ]]; then
                       NEW_VERSION=$(npx semver $OLD_VERSION -i prerelease)
                     else
-                      # WordPress version guidelines: If minor is 9, bump major instead.
-                      IFS='.' read -r -a OLD_VERSION_ARRAY <<< "$OLD_VERSION"
-                      if [[ ${OLD_VERSION_ARRAY[1]} == "9" ]]; then
+                      if [[ ${{ github.event.inputs.version_type }} == "major" ]]; then
                         NEW_VERSION="$(npx semver $OLD_VERSION -i major)-rc.1"
-                      else
+                      elif [[ ${{ github.event.inputs.version_type }} == "minor" ]]; then
                         NEW_VERSION="$(npx semver $OLD_VERSION -i minor)-rc.1"
+                      else
+                        NEW_VERSION="$(npx semver $OLD_VERSION -i patch)-rc.1"
                       fi
                     fi
                   fi
                   echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
                   IFS='.' read -r -a NEW_VERSION_ARRAY <<< "$NEW_VERSION"
-                  RELEASE_BRANCH="release/${NEW_VERSION_ARRAY[0]}.${NEW_VERSION_ARRAY[1]}"
+                  RELEASE_BRANCH="release/${NEW_VERSION_ARRAY[0]}.${NEW_VERSION_ARRAY[1]}.${NEW_VERSION_ARRAY[2]}"
                   echo "release_branch=${RELEASE_BRANCH}" >> $GITHUB_OUTPUT
 
             - name: Configure git user name and email
@@ -198,18 +215,10 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
-                  name: blockera-pro-${{ github.event.pull_request.number }}
+                  name: blockera-pro
                   path: ./blockera-pro.zip
 
-            - name: Get artifact ID
-              id: get_artifact_id
-              run: |
-                  ARTIFACTS_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts"
-                  ARTIFACT_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  $ARTIFACTS_URL | jq '.artifacts[] | select(.name == "blockera-pro-${{ github.event.pull_request.number }}") | .id')
-                  echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_ENV
-
-            - name: Build release notes
+            - name: Build release notes draft
               if: ${{ needs.bump-version.outputs.new_version }}
               env:
                   VERSION: ${{ needs.bump-version.outputs.new_version }}
@@ -280,7 +289,7 @@ jobs:
                   git push --set-upstream origin master
 
     create-release:
-        name: Create Release and Attach Asset
+        name: Create Release Draft and Attach Asset
         needs: [bump-version, build]
         runs-on: ubuntu-latest
 
@@ -294,14 +303,14 @@ jobs:
             - name: Download Plugin Zip Artifact
               uses: actions/download-artifact@v4
               with:
-                  name: blockera-pro-${{ github.event.pull_request.number }}
+                  name: blockera-pro
 
             - name: Download Release Notes Artifact
               uses: actions/download-artifact@v4
               with:
                   name: release-notes
 
-            - name: Create Release
+            - name: Create Release Draft
               id: create_release
               uses: actions/create-release@v1
               env:
