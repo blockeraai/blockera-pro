@@ -24,19 +24,17 @@ const gitRepoOwner = 'blockeraai';
  * @type {WPPluginCLIConfig}
  */
 const config = {
-	slug: 'blockera-pro',
-	name: 'Blockera PRO',
+	slug: 'blockera',
+	name: 'Blockera',
 	team: 'Blockeraai',
 	versionMilestoneFormat: '%(name)s %(major)s.%(minor)s',
 	githubRepositoryOwner: gitRepoOwner,
-	githubRepositoryName: 'blockera-pro',
-	pluginEntryPoint: 'blockera-pro.php',
+	githubRepositoryName: 'blockera',
+	pluginEntryPoint: 'blockera.php',
 	buildZipCommand: '/bin/bash bin/build-plugin-zip.temp.sh',
 	githubRepositoryURL: 'https://github.com/' + gitRepoOwner + '/blockera/',
-	wpRepositoryReleasesURL:
-		'https://github.com/' + gitRepoOwner + '/blockera-pro/releases',
-	gitRepositoryURL:
-		'https://github.com/' + gitRepoOwner + '/blockera-pro.git',
+	wpRepositoryReleasesURL: 'https://github.com/blockeraai/blockera/releases/',
+	gitRepositoryURL: 'https://github.com/' + gitRepoOwner + '/blockera.git',
 	svnRepositoryURL: 'https://plugins.svn.wordpress.org/blockera',
 };
 
