@@ -112,10 +112,13 @@ async function updatePackages(config) {
 	const { minimumVersionBump, releaseType, version } = config;
 
 	const changelogFiles = await glob(
-		path.resolve(process.cwd(), 'packages/*/CHANGELOG.md')
+		path.resolve(process.cwd(), 'packages/(*|**/*)/CHANGELOG.md')
 	);
 
-	updateChangelog(changelogFiles, version);
+	// e.g. "2022-11-01T00:13:26.102Z" -> "2022-11-01"
+	const publishDate = new Date().toISOString().split('T')[0];
+
+	updateChangelog(changelogFiles, version, publishDate);
 
 	const processedPackages = await Promise.all(
 		changelogFiles.map(async (changelogPath) => {
@@ -162,10 +165,14 @@ async function updatePackages(config) {
 				jsonData = readJSONFile(composerJSONPath);
 			}
 
+			let nextVersion = null;
 			const { version } = jsonData;
 
-			const nextVersion =
-				versionBump !== null ? semverInc(version, versionBump) : null;
+			if ('0' === version[0] || '9' === version.split('.')[1]) {
+				nextVersion = semverInc(version, 'major');
+			} else if (versionBump !== null) {
+				nextVersion = semverInc(version, versionBump);
+			}
 
 			return {
 				version,
@@ -191,8 +198,6 @@ async function updatePackages(config) {
 		'>> Recommended version bumps based on the changes detected in CHANGELOG files:'
 	);
 
-	// e.g. "2022-11-01T00:13:26.102Z" -> "2022-11-01"
-	const publishDate = new Date().toISOString().split('T')[0];
 	await Promise.all(
 		packagesToUpdate.map(
 			async ({
