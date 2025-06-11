@@ -1,0 +1,36 @@
+== Changelog ==
+
+### Version 1.0.0-rc.4 - 2025-06-10
+
+### New Features
+- Added new notification system to keep users informed about updates and requirements
+- Improved notification display and management
+- Enhanced plugin activation process
+- Added new styling options for flexible layouts in the Pro version
+- Implemented automatic system maintenance and optimization features
+- Added improved user authentication and verification system
+
+### Improvements & Fixes
+- Updated plugin thumbnail to display correctly on WordPress updates page
+- Fixed plugin activation redirection issues
+- Resolved various directory path issues
+- Improved handling of admin settings configuration
+- Fixed styling issues related to order display
+- Corrected import statement problems
+- Enhanced notification text messages
+- Fixed several undefined function errors
+- Improved cleanup processes during activation
+
+### Under the Hood
+- Synchronized shared packages across multiple repositories
+- Improved compatibility with PHP 7.4
+- Restructured extension configuration system
+- Code reformatting and cleanup
+- Removed redundant properties
+- Modified configuration files for better synchronization
+
+### Notes
+- This release marks version 1.0.0 of the plugin
+- Several improvements to the development process have been implemented
+- Multiple package synchronizations have been performed to ensure consistency
+- Enhanced overall system stability and performance
