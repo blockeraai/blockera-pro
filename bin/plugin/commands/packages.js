@@ -139,6 +139,18 @@ async function updatePackages(config) {
 			const packageName = `@blockera/${
 				changelogPath.split('/').reverse()[1]
 			}`;
+
+			if (
+				-1 === packageName.indexOf('-pro') &&
+				![
+					'@blockera/notice',
+					'@blockera/validator',
+					'@blockera/guard',
+				].includes(packageName)
+			) {
+				return;
+			}
+
 			// Enforce version bump for all packages when
 			// the stable minor or major version bump requested.
 			if (
@@ -185,9 +197,9 @@ async function updatePackages(config) {
 		})
 	);
 
-	const packagesToUpdate = processedPackages.filter(
-		({ nextVersion }) => nextVersion
-	);
+	const packagesToUpdate = processedPackages
+		.filter((item) => item)
+		.filter(({ nextVersion }) => nextVersion);
 
 	if (packagesToUpdate.length === 0) {
 		log('>> No changes in CHANGELOG files detected.');
