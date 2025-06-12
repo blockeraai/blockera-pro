@@ -1,0 +1,15 @@
+{
+	"name": "blockera/validator",
+	"version": "1.0.0",
+	"description": "The Blockera Validator of pro features versus hackers.",
+	"autoload": {
+		"psr-4": {
+			"Blockera\\Validator\\": "js/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\Validator\\Test\\": "php/tests/"
+		}
+	}
+}
