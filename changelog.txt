@@ -1,36 +1,38 @@
 == Changelog ==
 
-### Version 1.0.0-rc.4 - 2025-06-10
+### Version 1.0.0 - 2025-06-12
 
 ### New Features
-- Added new notification system to keep users informed about updates and requirements
-- Improved notification display and management
-- Enhanced plugin activation process
-- Added new styling options for flexible layouts in the Pro version
-- Implemented automatic system maintenance and optimization features
-- Added improved user authentication and verification system
+- Added OAuth 2-step verification client for activating purchased licenses on the website.
+- Implemented UI/UX improvements for the license activation process.
+- Introduced the blockera-pro upgrader module for initialization.
+- Configure authorization and authentication system for activating license.
+- Improved asset loading performance on admin pages.
+- Enhanced the UI components for a more intuitive and seamless user experience, including updated button styles, improved form layouts, and refined color schemes for better accessibility and visual consistency.
+- Added a new feature that helps you easily display important messages and notifications across your website, making it simpler to keep your visitors informed.
 
-### Improvements & Fixes
-- Updated plugin thumbnail to display correctly on WordPress updates page
-- Fixed plugin activation redirection issues
-- Resolved various directory path issues
-- Improved handling of admin settings configuration
-- Fixed styling issues related to order display
-- Corrected import statement problems
-- Enhanced notification text messages
-- Fixed several undefined function errors
-- Improved cleanup processes during activation
+### Improvements
+- Made it easier and more reliable to check and confirm your license, so you can use the product without interruptions.
 
-### Under the Hood
-- Synchronized shared packages across multiple repositories
-- Improved compatibility with PHP 7.4
-- Restructured extension configuration system
-- Code reformatting and cleanup
-- Removed redundant properties
-- Modified configuration files for better synchronization
+### Bug Fixes
+- Fixed an issue that caused license activation to fail.
+- Fixed an issue where version comparison was incorrect during the update check process.
 
-### Notes
-- This release marks version 1.0.0 of the plugin
-- Several improvements to the development process have been implemented
-- Multiple package synchronizations have been performed to ensure consistency
-- Enhanced overall system stability and performance
+### Bug Fixed
+- Fixed an issue where advanced mode block card was shown when `Basic Mode` was enabled.
+
+### What's New
+- Improved how the validator checks your data, making it more reliable.
+- Fixed some issues that could cause errors when entering information.
+- Made the validator easier to use and understand.
+- Updated messages to be clearer when something needs to be fixed.
+- General improvements for better performance and stability.
+
+### Automated Tests
+- Added end-to-end (e2e) tests for several blocks to ensure their functionality and stability. These tests cover user interactions and verify that the blocks behave as expected in different scenarios.
+
+### More
+
+This release includes 0 commits since the last release.
+
+To read the changelog for older Blockera releases, please navigate to the [releases page](https://community.blockera.ai/changelog-9l8hbrv0).

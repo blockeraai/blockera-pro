@@ -1,13 +1,13 @@
 {
 	"name": "@blockera/blockera-pro",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "The bootstrapper for blockera PRO react application for WordPress site and block editors.",
 	"author": "The Blockera Core Contributors",
 	"license": "ISC",
 	"keywords": [
 		"blockera",
 		"bootstrap",
-	  	"initliazer",
+		"initliazer",
 		"blockera-setup"
 	],
 	"homepage": "https://github.com/blockeraai/blockera-pro/blob/master/packages/blockera-pro/README.md",

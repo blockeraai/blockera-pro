@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 1.0.1 (2025-06-12)
+
 ### What's New
 - Improved how the validator checks your data, making it more reliable.
 - Fixed some issues that could cause errors when entering information.

@@ -10,5 +10,6 @@
 		"psr-4": {
 			"Blockera\\Guard\\Tests\\": "php/tests/"
 		}
-	}
+	},
+	"version": "1.0.1"
 }

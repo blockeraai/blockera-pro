@@ -3,7 +3,8 @@
 	"description": "The bootstrapper for blockera PRO Admin php application for WordPress for WordPress admin panel.",
 	"autoload": {
 		"psr-4": {
-		 	"Blockera\\Pro\\Admin\\": "php/"
+			"Blockera\\Pro\\Admin\\": "php/"
 		}
-	}
+	},
+	"version": "1.1.0"
 }

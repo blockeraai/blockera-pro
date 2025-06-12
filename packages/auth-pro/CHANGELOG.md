@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 1.1.0 (2025-06-12)
+
 ### Bug Fixes
 - Fixed an issue that caused license activation to fail.
 - Fixed an issue where version comparison was incorrect during the update check process.
