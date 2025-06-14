@@ -118,6 +118,15 @@ export const registerEditorExtensions = () => {
 	}
 
 	addFilter(
+		'blockera.editor.components.editorFeatureWrapper.editorStoreParams',
+		'blockeraPro.provide.editorStoreParams',
+		(params: Object) => ({
+			...params,
+			list: true,
+		})
+	);
+
+	addFilter(
 		'blocks.registerBlockType',
 		'blockeraPro-editorExtensions',
 		(settings: Object, name: Object): Object => {
