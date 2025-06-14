@@ -1,0 +1,58 @@
+name: Update Version and upload Blockera (PRO) plugin to Blockera AI website.
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    get-release-branch:
+        name: Get release branch name
+        runs-on: ubuntu-latest
+        outputs:
+            release_branch: ${{ steps.get_release_branch.outputs.release_branch }}
+        steps:
+            - name: Compute release branch name
+              id: get_release_branch
+              env:
+                  TAG: ${{ github.event.release.tag_name }}
+              run: |
+                  IFS='.' read -r -a VERSION_ARRAY <<< "${TAG#v}"
+                  RELEASE_BRANCH="release/${VERSION_ARRAY[0]}.${VERSION_ARRAY[1]}.${VERSION_ARRAY[2]}"
+                  echo "release_branch=${RELEASE_BRANCH}" >> $GITHUB_OUTPUT
+
+    upload:
+        name: Upload release to Blockera AI
+        runs-on: ubuntu-latest
+        if: ${{ !github.event.release.prerelease && github.event.release.assets[0] }}
+        env:
+            BLOCKERAAI_PRODUCT_ID: ${{ secrets.BLOCKERAAI_PRODUCT_ID }}
+            RELEASE_META_KEY: ${{ secrets.RELEASE_META_KEY }}
+            RELEASE_ACTION: ${{ secrets.RELEASE_ACTION }}
+            RELEASE_ENDPOINT: ${{ secrets.RELEASE_ENDPOINT }}
+            BLOCKERABOT_API_KEY: ${{ secrets.BLOCKERABOT_API_KEY }}
+            PLUGIN_URL: ${{ github.event.release.assets[0].browser_download_url }}
+            PLUGIN_VERSION: ${{ github.event.release.tag_name }}
+
+        steps:
+            - name: Download release asset
+              run: |
+                  curl -L -o blockera-pro.zip "${PLUGIN_URL}"
+
+            - name: Upload to Blockera AI
+              run: |
+                  curl -X POST "${RELEASE_ENDPOINT}" \
+                    -H "Content-Type: multipart/form-data" \
+                    -F "product_id=${BLOCKERAAI_PRODUCT_ID}" \
+                    -F "product_version=${PLUGIN_VERSION}" \
+                    -F "metaKey=${RELEASE_META_KEY}" \
+                    -F "filename=blockera-pro.zip" \
+                    -F "action=${RELEASE_ACTION}" \
+                    -F "api_key=${BLOCKERABOT_API_KEY}" \
+                    -F "file=@blockera-pro.zip"
+
+            # Optionally, you can add a step to clean up the zip file
+            - name: Clean up
+              run: rm -f blockera-pro.zip
+
+            - name: Checkout code
+              uses: actions/checkout@v4
