@@ -8,7 +8,6 @@ use Blockera\Auth\Repositories\OptionRepository;
 
 class ProPlugin {
 
-
 	/**
 	 * Use the dynamic property trait.
 	 */
@@ -81,16 +80,13 @@ class ProPlugin {
 	public function setUpdatePluginTransient( \stdClass $transient): \stdClass {
 		$id = $this->slug . '/' . $this->slug . '.php';
 
-		// Check if pro version is not activated.
-		if (! is_plugin_active($id)) {
-			return $transient;
-		}
-
 		$this->validator->name($this->slug);
 
 		$result = $this->getProPluginUpdate();
 
 		if (! $result instanceof \stdClass || ! isset($result->url, $result->new_version) || empty($result->url) || empty($result->new_version)) {
+			$this->removeUpdateNotice();
+
 			return $transient;
 		}
 		
@@ -308,23 +304,24 @@ class ProPlugin {
 
 	/**
 	 * Remove the update notice.
-	 *
-	 * @param \stdClass $upgrader_object The upgrader object.
-	 * @param array     $options The options.
 	 * 
 	 * @return void
 	 */
-	public function removeUpdateNotice( \stdClass $upgrader_object, array $options): void {
-		if (! isset($options['action'], $options['type'], $options['bulk']) || 'update' !== $options['action'] || 'plugin' !== $options['type']) {
-			return;
-		}
-
-		$data = get_plugin_data(WP_PLUGIN_DIR . '/' . $this->slug . '/' . $this->slug . '.php');
-
+	public function removeUpdateNotice(): void {
+		$plugin_path = $this->slug . '/' . $this->slug . '.php';
+		$data        = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin_path);
+		
 		if (empty($data)) {
 			return;
 		}
 
-		Notice::remove_notice(get_option($this->slug . '_version_' . $data['Version'] . '_notice_id'));
+		$version_id = str_replace('.', '_', $data['Version']);
+		$cache_key  = sprintf('%s_version_%s_notice_id', $this->slug, $version_id);
+		
+		$notice_id = get_option($cache_key);
+		if ($notice_id) {
+			Notice::remove_notice($notice_id);
+			delete_option($cache_key);
+		}
 	}
 }
