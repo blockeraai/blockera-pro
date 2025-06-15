@@ -1,6 +1,6 @@
 {
 	"name": "@blockera/notice",
-	"version": "1.1.1",
+	"version": "1.1.0",
 	"description": "Handle all notice for blockera react application based on WordPress API.",
 	"author": "The Blockera Core Contributors",
 	"license": "ISC",

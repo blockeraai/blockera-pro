@@ -1,7 +1,5 @@
 ## Unreleased
 
-## 1.1.1 (2025-06-15)
-
 ### Bug Fixes
 - Fixed an issue where the plugin update notification persisted in the WordPress admin dashboard even after successfully updating the plugin. This ensures that outdated update notices are properly cleared once updates are completed.
 

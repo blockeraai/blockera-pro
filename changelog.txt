@@ -1,16 +1,32 @@
 == Changelog ==
 
-### Version 1.0.1 - 2025-06-15
+### Version 1.0.0 - 2025-06-12
+
+### New Features
+- Added OAuth 2-step verification client for activating purchased licenses on the website.
+- Implemented UI/UX improvements for the license activation process.
+- Introduced the blockera-pro upgrader module for initialization.
+- Configure authorization and authentication system for activating license.
+- Improved asset loading performance on admin pages.
+- Enhanced the UI components for a more intuitive and seamless user experience, including updated button styles, improved form layouts, and refined color schemes for better accessibility and visual consistency.
+- Added a new feature that helps you easily display important messages and notifications across your website, making it simpler to keep your visitors informed.
 
 ### Improvements
-- Improved UX by showing all available states in editor store, making it easier to manage block states.
-- Enhanced the notice system with a new method to update notifications, making it easier to modify and refresh your website's messages without reloading the page.
+- Made it easier and more reliable to check and confirm your license, so you can use the product without interruptions.
 
 ### Bug Fixes
-- Fixed an issue where the plugin update notification persisted in the WordPress admin dashboard even after successfully updating the plugin. This ensures that outdated update notices are properly cleared once updates are completed.
+- Fixed an issue that caused license activation to fail.
+- Fixed an issue where version comparison was incorrect during the update check process.
 
 ### Bug Fixed
 - Fixed an issue where advanced mode block card was shown when `Basic Mode` was enabled.
+
+### What's New
+- Improved how the validator checks your data, making it more reliable.
+- Fixed some issues that could cause errors when entering information.
+- Made the validator easier to use and understand.
+- Updated messages to be clearer when something needs to be fixed.
+- General improvements for better performance and stability.
 
 ### Automated Tests
 - Added end-to-end (e2e) tests for several blocks to ensure their functionality and stability. These tests cover user interactions and verify that the blocks behave as expected in different scenarios.
