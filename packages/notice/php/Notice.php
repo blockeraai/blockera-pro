@@ -54,6 +54,21 @@ class Notice {
         );
     }
 
+	/**
+	 * Update a notice
+	 * 
+	 * @param string $notice_id Notice ID
+	 * @param array  $notice Notice data
+	 * @return bool Success
+	 */
+	public static function update_admin_notice( string $notice_id, array $notice): bool {
+		$notices = get_option('blockera_admin_notices', []);
+		$notices[ $notice_id ] = $notice;
+		update_option('blockera_admin_notices', $notices);
+
+		return true;
+	}
+
     /**
      * Add a notice
      * 

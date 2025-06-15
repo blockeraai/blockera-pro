@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Improvements
+- Enhanced the notice system with a new method to update notifications, making it easier to modify and refresh your website's messages without reloading the page.
+
 ## 1.1.0 (2025-06-12)
 
 ### New Features
