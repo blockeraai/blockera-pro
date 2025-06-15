@@ -57,6 +57,8 @@ class ProPlugin {
 		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
 		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
 		add_action('upgrader_process_complete', [ $this, 'removeUpdateNotice' ], 10, 2);
+
+		$this->modifyTheUpdateUrl();
 	}
 
 	/**
@@ -322,6 +324,48 @@ class ProPlugin {
 		if ($notice_id) {
 			Notice::remove_notice($notice_id);
 			delete_option($cache_key);
+		}
+	}
+
+	/**
+	 * Modify the update url in notice related to the pro plugin Update.
+	 *
+	 * @return void
+	 */
+	protected function modifyTheUpdateUrl(): void {
+		$id         = $this->slug . '/' . $this->slug . '.php';
+		$update_url = wp_nonce_url(
+			self_admin_url('update.php?action=upgrade-plugin&plugin=' . urlencode($id)),
+			'upgrade-plugin_' . $id
+		);
+
+		global $wpdb;
+		
+		$update_notice = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT option_value as notice_id FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$this->slug . '_version_%_notice_id'
+			)
+		);
+
+		if (! $update_notice || ! isset($update_notice->notice_id)) {
+			return;
+		}
+
+		$notices = Notice::get_admin_notices();
+
+		foreach ($notices as $notice_id => $notice) {
+			if ($notice_id !== $update_notice->notice_id) {
+				continue;
+			}
+
+			if ($notice['actions'][0]['url'] === $update_url) {
+				continue;
+			}
+
+			$notice['actions'][0]['url'] = $update_url;
+
+			Notice::update_admin_notice($notice_id, $notice);
 		}
 	}
 }
