@@ -31,7 +31,7 @@ jobs:
             RELEASE_ENDPOINT: ${{ secrets.RELEASE_ENDPOINT }}
             BLOCKERABOT_API_KEY: ${{ secrets.BLOCKERABOT_API_KEY }}
             PLUGIN_URL: ${{ github.event.release.assets[0].browser_download_url }}
-            PLUGIN_VERSION: ${{ github.event.release.tag_name }}
+            PLUGIN_VERSION: ${{ github.event.release.tag_name#v }}
 
         steps:
             - name: Download release asset
