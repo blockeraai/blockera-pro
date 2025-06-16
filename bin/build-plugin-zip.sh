@@ -79,7 +79,7 @@ if [ -z "$NO_INSTALL_NPM" ]; then
 fi
 
 status "Generating build... 🗂"
-npm run build
+npm run build CI_ENV=false
 
 
 # Temporarily modify `blockera-pro.php` with production constants defined.
