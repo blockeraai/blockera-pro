@@ -114,6 +114,7 @@ class ProPlugin {
 				'💡 Blockera Pro Update Available',
 				[
 					'persistent' => true,
+					'notice_for' => $result->new_version,
 					'actions' => [
 						[
 							'label' => 'Update Now',
@@ -352,10 +353,16 @@ class ProPlugin {
 			return;
 		}
 
-		$notices = Notice::get_admin_notices();
+		$notices     = Notice::get_admin_notices();
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $id);
 
 		foreach ($notices as $notice_id => $notice) {
 			if ($notice_id !== $update_notice->notice_id) {
+				continue;
+			}
+
+			if (! empty($plugin_data['Version']) && $plugin_data['Version'] === $notice['notice_for']) {
+				Notice::remove_notice($notice_id);
 				continue;
 			}
 

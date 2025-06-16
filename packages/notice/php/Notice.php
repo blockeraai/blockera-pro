@@ -87,6 +87,7 @@ class Notice {
 				'title' => '',
 				'dismissible' => true,
 				'persistent' => false,
+				'notice_for' => '',
 				'context' => 'admin',
 				'actions' => [],
 			]
