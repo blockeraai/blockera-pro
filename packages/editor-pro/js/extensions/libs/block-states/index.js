@@ -123,22 +123,6 @@ export const applyBlockStates = (): void => {
 			};
 		}
 	);
-
-	addFilter(
-		'blockera.editor.styleEngine.allowedStates',
-		'blockera.pro.editor.styleEngine.customization',
-		(allowedStates: Array<string>): Array<string> => [
-			...allowedStates,
-			'active',
-			'focus',
-			'visited',
-			'before',
-			'after',
-			'custom-class',
-			'parent-class',
-			'parent-hover',
-		]
-	);
 };
 
 export const applyDefaultBlockStates = (): void => {
