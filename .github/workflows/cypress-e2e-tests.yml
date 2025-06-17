@@ -62,10 +62,6 @@ jobs:
 
             - name: Create required environment files
               run: |
-                  # Step 1: Read the .pr-env.json
-                  PLUGINS_ARRAY=$(jq '.plugins' .pr-env.json)
-
-                  # Step 2: Add new requirements plugins to the .wp-env.json plugins property
                   node .github/scripts/create-wp-env.js '${{ matrix.category }}'
                   cat .wp-env.json
                   touch .env
