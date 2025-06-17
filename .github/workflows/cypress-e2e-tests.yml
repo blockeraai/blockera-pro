@@ -85,7 +85,11 @@ jobs:
                   if [ "${{ matrix.category }}" != "general" ]; then
                     spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.e2e.cy.js"
                   else
-                    spec_pattern="packages/**-pro(-**|)/**/[^.]*\.e2e.cy.js"
+                    spec_pattern="packages/**-pro(-**|)/**/*.e2e.cy.js"
+                    # Exclude files that have additional categories (contain an extra dot before e2e)
+                    exclude_pattern="packages/**-pro(-**|)/**/*.*.e2e.cy.js"
+                    npm run test:e2e -- --spec "$spec_pattern" --exclude "$exclude_pattern"
+                    exit 0
                   fi
                   npm run test:e2e -- --spec "$spec_pattern"
 
