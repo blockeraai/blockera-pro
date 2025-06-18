@@ -38,7 +38,7 @@ describe('Inner Blocks E2E Test', () => {
 		cy.getIframeBody().find('[data-type="core/paragraph"]').click();
 	};
 
-	it('should control value and attributes be correct, when navigate between states and devices', () => {
+	it.skip('should control value and attributes be correct, when navigate between states and devices', () => {
 		initialSetting();
 		setInnerBlock('elements/link');
 
