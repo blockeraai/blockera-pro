@@ -25,7 +25,7 @@ describe('Style Engine Testing ...', () => {
 	describe('Testing Hover State. Tips of describe: other pseudo-classes like [hover,active,visited,before,after]', () => {
 		beforeEach(() => {
 			// Set hover state.
-			cy.getByAriaLabel('Add New State').click();
+			cy.getByAriaLabel('Add New').click();
 		});
 
 		it('should generate css for hover pseudo-class of master block', () => {
