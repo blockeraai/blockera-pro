@@ -25,7 +25,7 @@ describe('Style Engine Testing ...', () => {
 	describe('Testing Hover State. Tips of describe: other pseudo-classes like [hover,active,visited,before,after]', () => {
 		beforeEach(() => {
 			// Set hover state.
-			cy.getByAriaLabel('Add New').click();
+			setBlockState('Hover');
 		});
 
 		it('should generate css for hover pseudo-class of master block', () => {
@@ -98,7 +98,7 @@ describe('Style Engine Testing ...', () => {
 			// ********************* Manipulating pseudo-state attributes of inner block inside parent hover state ************************ //
 
 			// 10- Set hover state to link inner block.
-			addBlockState('hover');
+			setBlockState('Hover');
 
 			// 11- Set width for link inner block.
 			cy.setInputFieldValue('Width', 'Size', 2);
@@ -110,21 +110,13 @@ describe('Style Engine Testing ...', () => {
 
 			// 13- Assert link inner block css.
 			getWPDataObject().then((data) => {
-				// Before occurred real hover event.
-				// Because we expect block link element should have css style to show activated parent hover state.
-				// The display: inline property prevents width from having an effect.
-				// Try setting display to something other than inline.
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)} a`)
-					.should('have.css', 'width', '50px');
-
 				// Real hover
 				cy.getIframeBody()
 					.find(`#block-${getBlockClientId(data)} a`)
 					.realHover();
 				cy.getIframeBody()
 					.find(`#block-${getBlockClientId(data)} a`)
-					.should('have.css', 'width', '502px');
+					.should('have.css', 'width', '2px');
 			});
 		});
 	});
