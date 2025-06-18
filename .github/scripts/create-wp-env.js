@@ -43,6 +43,8 @@ switch (category) {
 const wpEnvContent = {
 	plugins,
 	config: {
+		WP_DEBUG: false,
+		SCRIPT_DEBUG: false,
 		BLOCKERA_TELEMETRY_OPT_IN_OFF: true,
 	},
 };
