@@ -659,8 +659,8 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Set font-size
 		cy.getParentContainer('Size').within(() => {
-			cy.get('input[type="number"]').clear();
-			cy.get('input[type="number"]').type(25, {
+			cy.get('input[type="text"]').clear();
+			cy.get('input[type="text"]').type(25, {
 				force: true,
 			});
 		});
@@ -727,8 +727,8 @@ describe('Inner Blocks E2E Test', () => {
 		setDeviceType('Mobile Portrait');
 		// Set font-size
 		cy.getParentContainer('Size').within(() => {
-			cy.get('input[type="number"]').clear();
-			cy.get('input[type="number"]').type(25, {
+			cy.get('input[type="text"]').clear();
+			cy.get('input[type="text"]').type(25, {
 				force: true,
 			});
 		});
@@ -797,8 +797,8 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Set font-size
 		cy.getParentContainer('Size').within(() => {
-			cy.get('input[type="number"]').clear();
-			cy.get('input[type="number"]').type(25, {
+			cy.get('input[type="text"]').clear();
+			cy.get('input[type="text"]').type(25, {
 				force: true,
 			});
 		});
@@ -896,7 +896,7 @@ describe('Inner Blocks E2E Test', () => {
 		cy.getByAriaLabel('Custom Border Radius').click();
 		cy.getParentContainer('Radius').within(() => {
 			// Top Left
-			cy.get('input[type="number"]').eq(0).type('{selectall}10');
+			cy.get('input[type="text"]').eq(0).type('{selectall}10');
 		});
 
 		// Reselect
@@ -907,20 +907,20 @@ describe('Inner Blocks E2E Test', () => {
 		cy.getParentContainer('Radius').as('radius-container');
 		cy.get('@radius-container').within(() => {
 			// Top Left
-			cy.get('input[type="number"]').eq(0).should('have.value', 10);
-			cy.get('input[type="number"]').eq(1).should('have.value', 5);
-			cy.get('input[type="number"]').eq(2).should('have.value', 5);
-			cy.get('input[type="number"]').eq(3).should('have.value', 5);
+			cy.get('input[type="text"]').eq(0).should('have.value', 10);
+			cy.get('input[type="text"]').eq(1).should('have.value', 5);
+			cy.get('input[type="text"]').eq(2).should('have.value', 5);
+			cy.get('input[type="text"]').eq(3).should('have.value', 5);
 		});
 
-		addBlockState('Focus');
+		addBlockState('focus');
 
 		// Normal state updates should display
 		cy.checkInputFieldValue('Radius', 'Border And Shadow', 5);
 
 		// Hover state updates should not display
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').should('have.length', 1);
+			cy.get('input[type="text"]').should('have.length', 1);
 		});
 
 		// Set
@@ -941,7 +941,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Hover state updates should not display
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').should('have.length', 1);
+			cy.get('input[type="text"]').should('have.length', 1);
 		});
 
 		// Set
@@ -961,14 +961,14 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Hover state updates should not display
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').should('have.length', 1);
+			cy.get('input[type="text"]').should('have.length', 1);
 		});
 
 		// Set
 		cy.getByAriaLabel('Custom Border Radius').click();
 		cy.getParentContainer('Radius').within(() => {
 			// Bottom Right
-			cy.get('input[type="number"]').eq(3).type('{selectall}30');
+			cy.get('input[type="text"]').eq(3).type('{selectall}30');
 		});
 
 		// Reselect
@@ -976,10 +976,10 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').eq(0).should('have.value', 5);
-			cy.get('input[type="number"]').eq(1).should('have.value', 5);
-			cy.get('input[type="number"]').eq(2).should('have.value', 5);
-			cy.get('input[type="number"]').eq(3).should('have.value', 30);
+			cy.get('input[type="text"]').eq(0).should('have.value', 5);
+			cy.get('input[type="text"]').eq(1).should('have.value', 5);
+			cy.get('input[type="text"]').eq(2).should('have.value', 5);
+			cy.get('input[type="text"]').eq(3).should('have.value', 30);
 		});
 
 		// normal / mobile;
@@ -1001,10 +1001,10 @@ describe('Inner Blocks E2E Test', () => {
 		// (focus/mobile)
 		// Assert control value (display normal/mobile value)
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').eq(0).should('have.value', 5);
-			cy.get('input[type="number"]').eq(1).should('have.value', 5);
-			cy.get('input[type="number"]').eq(2).should('have.value', 5);
-			cy.get('input[type="number"]').eq(3).should('have.value', 30);
+			cy.get('input[type="text"]').eq(0).should('have.value', 5);
+			cy.get('input[type="text"]').eq(1).should('have.value', 5);
+			cy.get('input[type="text"]').eq(2).should('have.value', 5);
+			cy.get('input[type="text"]').eq(3).should('have.value', 30);
 		});
 
 		// No need to assert block css, no attribute updated
@@ -1038,10 +1038,10 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Assert control
 		cy.get('@radius-container').within(() => {
-			cy.get('input[type="number"]').eq(0).should('have.value', 10);
-			cy.get('input[type="number"]').eq(1).should('have.value', 5);
-			cy.get('input[type="number"]').eq(2).should('have.value', 5);
-			cy.get('input[type="number"]').eq(3).should('have.value', 5);
+			cy.get('input[type="text"]').eq(0).should('have.value', 10);
+			cy.get('input[type="text"]').eq(1).should('have.value', 5);
+			cy.get('input[type="text"]').eq(2).should('have.value', 5);
+			cy.get('input[type="text"]').eq(3).should('have.value', 5);
 		});
 
 		// Assert block css
@@ -1338,7 +1338,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Add new item
 		cy.getByAriaLabel('Add New Filter Effect').click();
-		cy.get('@filter-popover').within(() => {
+		cy.get('@filter-popover').each(() => {
 			// Set blur
 			cy.getByDataTest('filter-blur-input').type('{selectall}5');
 		});
