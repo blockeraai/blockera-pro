@@ -953,15 +953,18 @@ describe('Block State E2E Test', () => {
 				.realMouseMove(50, 50);
 
 			// Focus
-			cy.get('.blockera-block').realMouseDown();
+			cy.get('.blockera-block').then(($el) => {
+				$el[0].setAttribute('tabindex', 0);
+			});
+			cy.get('.blockera-block').focus();
 			cy.get('.blockera-block')
 				.should(
 					'have.css',
 					'background-image',
 					'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 				)
-				.and('have.css', 'background-repeat', 'repeat')
-				.realMouseMove(50, 50);
+				.and('have.css', 'background-repeat', 'repeat');
+			cy.get('body').click(); // Unfocus by clicking elsewhere
 
 			// Set desktop viewport
 			cy.viewport(1441, 1920);
@@ -982,15 +985,18 @@ describe('Block State E2E Test', () => {
 				.realMouseUp();
 
 			// Focus
-			cy.get('.blockera-block').realMouseDown();
+			cy.get('.blockera-block').then(($el) => {
+				$el[0].setAttribute('tabindex', 0);
+			});
+			cy.get('.blockera-block').focus();
 			cy.get('.blockera-block')
 				.should(
 					'have.css',
 					'background-image',
 					'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 				)
-				.and('have.css', 'background-repeat', 'repeat')
-				.realMouseUp();
+				.and('have.css', 'background-repeat', 'repeat');
+			cy.get('body').click(); // Unfocus by clicking elsewhere
 
 			// set mobile viewport
 			cy.viewport(380, 470);
