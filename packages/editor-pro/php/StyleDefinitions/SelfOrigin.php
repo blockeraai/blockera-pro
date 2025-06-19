@@ -14,8 +14,8 @@ class SelfOrigin extends BaseProStyleDefinition {
             return $declaration;
         }
 
-        $top  = isset($settings[ $cssProperty ]['top']) ? blockera_get_value_addon_real_value($settings[ $cssProperty ]['top']) : '';
-        $left = isset($settings[ $cssProperty ]['left']) ? blockera_get_value_addon_real_value($settings[ $cssProperty ]['left']) : '';
+        $top  = isset($setting[ $cssProperty ]['top']) ? blockera_get_value_addon_real_value($setting[ $cssProperty ]['top']) : '';
+        $left = isset($setting[ $cssProperty ]['left']) ? blockera_get_value_addon_real_value($setting[ $cssProperty ]['left']) : '';
 
         if (! empty($top) && ! empty($left)) {
 
