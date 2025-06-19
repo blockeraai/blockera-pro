@@ -26,9 +26,9 @@ describe('Transforms Settings → Functionality', () => {
 		cy.getParentContainer('Self Perspective')
 			// .first()
 			.within(() => {
-				cy.get('input[type="number"]').focus();
-				cy.get('input[type="number"]').clear();
-				cy.get('input[type="number"]').type(150);
+				cy.get('input[type="text"]').focus();
+				cy.get('input[type="text"]').clear();
+				cy.get('input[type="text"]').type(150);
 			});
 
 		//Check block
@@ -136,9 +136,9 @@ describe('Transforms Settings → Functionality', () => {
 
 		cy.getParentContainer('Child Perspective', 'base-control').within(
 			() => {
-				cy.get('input[type="number"]').focus();
-				cy.get('input[type="number"]').clear();
-				cy.get('input[type="number"]').type(150);
+				cy.get('input[type="text"]').focus();
+				cy.get('input[type="text"]').clear();
+				cy.get('input[type="text"]').type(150);
 			}
 		);
 
