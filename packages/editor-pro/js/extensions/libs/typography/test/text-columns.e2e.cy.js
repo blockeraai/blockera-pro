@@ -71,8 +71,8 @@ describe('Text Columns → Functionality', () => {
 		});
 
 		cy.getParentContainer('Gap').within(() => {
-			cy.get('input[type=number]').clear({ force: true });
-			cy.get('input[type=number]').type(5, { force: true });
+			cy.get('input[type=text]').clear({ force: true });
+			cy.get('input[type=text]').type(5, { force: true });
 			cy.get('select').select('px', { force: true });
 		});
 
