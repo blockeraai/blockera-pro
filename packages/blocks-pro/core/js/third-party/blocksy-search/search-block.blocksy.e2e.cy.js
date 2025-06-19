@@ -7,6 +7,7 @@ import {
 	getWPDataObject,
 	createPost,
 	setInnerBlock,
+	setBlockState,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Blocksy → Search Block → WP Compatibility', () => {
