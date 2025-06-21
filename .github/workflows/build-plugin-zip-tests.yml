@@ -61,6 +61,7 @@ jobs:
                   mkdir packages
                   mkdir packages/blockera-pro
                   mkdir packages/blockera-pro/tests
+                  cd ../..
                   node .github/scripts/create-wp-env.js "general"
                   cat .wp-env.json
                   touch cypress.env.json
@@ -71,6 +72,8 @@ jobs:
                   cp ./package.json ./build/blockera
                   cp -r ./node_modules ./build/blockera
                   cp ./cypress.config.js ./build/blockera
+                  cp .wp-env.json ./build/blockera
+                  cp .env ./build/blockera
                   cp -r ./packages/dev-cypress ./build/blockera/packages
                   find ./packages/ -type f \( -name "*.build.e2e.cy.js" \) -exec cp {} ./build/blockera/packages/blockera/tests \;
 
