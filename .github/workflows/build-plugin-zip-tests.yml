@@ -71,7 +71,6 @@ jobs:
                   cp -r ./node_modules ./build/blockera-pro
                   cp ./cypress.config.js ./build/blockera-pro
                   cp .wp-env.json ./build/blockera-pro
-                  cp .env ./build/blockera-pro
                   cp -r ./packages/dev-cypress ./build/blockera-pro/packages
                   find ./packages -path "*-pro*" -name "*.build.e2e.cy.js" -type f -exec cp {} ./build/blockera-pro/packages/blockera-pro/tests \;
 
