@@ -77,7 +77,7 @@ jobs:
                   cat .wp-env.json
 
                   # Copy the base configuration and add PHP version
-                  cp .github/wp-env-configs/base.json .wp-env.json
+                  cp .github/wp-env-configs/general.json .wp-env.json
                   jq --arg php "${{ matrix.php }}" '. + {"phpVersion": $php}' .wp-env.json > .wp-env.json.tmp && mv .wp-env.json.tmp .wp-env.json
 
                   touch cypress.env.json
