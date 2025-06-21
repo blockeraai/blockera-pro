@@ -5,10 +5,16 @@ const [category] = process.argv.slice(2);
 
 // Read the .pr-env.json file.
 const prEnv = JSON.parse(fs.readFileSync('.pr-env.json', 'utf-8'));
+
+let wpEnvFilePath = '.github/wp-env-configs/' + category + '.json';
+
+// While env file not exists we should use of general env file.
+if (!fs.existsSync(wpEnvFilePath)) {
+	wpEnvFilePath = '.github/wp-env-configs/general.json';
+}
+
 // Read the config from wp-env-configs files.
-const wpEnvConfig = JSON.parse(
-	fs.readFileSync('.github/wp-env-configs/' + category + '.json', 'utf-8')
-);
+const wpEnvConfig = JSON.parse(fs.readFileSync(wpEnvFilePath, 'utf-8'));
 
 // Create the .wp-env.json content.
 const wpEnvContent = {
