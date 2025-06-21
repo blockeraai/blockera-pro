@@ -68,14 +68,13 @@ jobs:
                   echo '{"isLogin": false,"wpUsername": "admin","wpPassword": "password","testURL": "http://localhost:8888","e2e": {"excludeSpecPattern": [],"specPattern": ["packages/**/*.build.e2e.cy.js"]}}' >> cypress.env.json
                   cat cypress.env.json
                   cd ../..
-                  cp -r ./cypress ./build/blockera
                   cp ./package.json ./build/blockera
                   cp -r ./node_modules ./build/blockera
                   cp ./cypress.config.js ./build/blockera
                   cp .wp-env.json ./build/blockera
                   cp .env ./build/blockera
                   cp -r ./packages/dev-cypress ./build/blockera/packages
-                  find ./packages/ -type f \( -name "*.build.e2e.cy.js" \) -exec cp {} ./build/blockera/packages/blockera/tests \;
+                  find ./packages -path "*-pro*" -name "*.build.e2e.cy.js" -type f -exec cp {} ./build/blockera-pro/packages/blockera-pro/tests \;
 
             - name: Setup and Run E2E tests on Blockera build
               # Only run if Specs files are found.
