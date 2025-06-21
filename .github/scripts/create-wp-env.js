@@ -32,6 +32,9 @@ const wpEnvContent = {
 		SCRIPT_DEBUG: false,
 		BLOCKERA_TELEMETRY_OPT_IN_OFF: true,
 	},
+	...(wpEnvConfig.hasOwnProperty('lifecycleScripts')
+		? { lifecycleScripts: wp.EnvConfig.lifecycleScripts }
+		: {}),
 };
 
 // Write to .wp-env.json
