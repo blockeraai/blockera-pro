@@ -67,7 +67,6 @@ jobs:
                   touch cypress.env.json
                   echo '{"isLogin": false,"wpUsername": "admin","wpPassword": "password","testURL": "http://localhost:8888","e2e": {"excludeSpecPattern": [],"specPattern": ["packages/**/*.build.e2e.cy.js"]}}' >> cypress.env.json
                   cat cypress.env.json
-                  cd ../..
                   cp ./package.json ./build/blockera
                   cp -r ./node_modules ./build/blockera
                   cp ./cypress.config.js ./build/blockera
