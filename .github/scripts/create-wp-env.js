@@ -33,7 +33,7 @@ const wpEnvContent = {
 		BLOCKERA_TELEMETRY_OPT_IN_OFF: true,
 	},
 	...(wpEnvConfig.hasOwnProperty('lifecycleScripts')
-		? { lifecycleScripts: wp.EnvConfig.lifecycleScripts }
+		? { lifecycleScripts: wpEnvConfig.lifecycleScripts }
 		: {}),
 };
 
