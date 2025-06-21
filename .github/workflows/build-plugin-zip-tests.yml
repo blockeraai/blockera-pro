@@ -78,7 +78,7 @@ jobs:
               # Only run if Specs files are found.
               if: steps.find_specs_files.outputs.file_count != '0'
               run: |
-                  cd ./build/blockera
+                  cd ./build/blockera-pro
                   npx cypress install
                   npm run env:start
                   npm run test:e2e
