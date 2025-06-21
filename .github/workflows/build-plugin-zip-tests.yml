@@ -70,7 +70,7 @@ jobs:
 
                   # Copy the setup script and configs
                   cp ../../.github/scripts/setup-wp-env.js .github/scripts/
-                  cp ../../.github/wp-env-configs/base.json .github/wp-env-configs/
+                  cp ../../.github/wp-env-configs/general.json .github/wp-env-configs/
 
                   cd ../..
                   node .github/scripts/create-wp-env.js "general"
