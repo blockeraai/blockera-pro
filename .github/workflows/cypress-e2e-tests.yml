@@ -62,6 +62,12 @@ jobs:
 
             - name: Create required environment files
               run: |
+                  touch cypress.env.json
+                  echo '{
+                    "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
+                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}",
+                  }' >> cypress.env.json
+                  cat cypress.env.json
                   node .github/scripts/create-wp-env.js '${{ matrix.category }}'
                   cat .wp-env.json
                   touch .env
