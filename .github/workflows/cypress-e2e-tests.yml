@@ -65,7 +65,7 @@ jobs:
                   touch cypress.env.json
                   echo '{
                     "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
-                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}",
+                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}"
                   }' >> cypress.env.json
                   cat cypress.env.json
                   node .github/scripts/create-wp-env.js '${{ matrix.category }}'
