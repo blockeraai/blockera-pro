@@ -81,3 +81,6 @@ packages/dev-cypress/js/videos
 inc
 cypress.env.json
 Scratch
+
+# Github Directory some files
+.github/wp-env-configs/development.json
