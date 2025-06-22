@@ -7,10 +7,10 @@ describe('Activate License', () => {
 
 		cy.url().then((url) => {
 			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login').type(Cypress.env('wpUsername'), {
+				cy.get('#user_login').type(Cypress.env('blockeraUserName'), {
 					delay: 0,
 				});
-				cy.get('#user_pass').type(Cypress.env('wpPassword'), {
+				cy.get('#user_pass').type(Cypress.env('blockeraPassword'), {
 					delay: 0,
 				});
 				cy.get('#wp-submit').click();
