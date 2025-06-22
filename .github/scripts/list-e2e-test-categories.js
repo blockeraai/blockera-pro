@@ -40,7 +40,7 @@ const main = () => {
 
 	const generalFiles = getFiles(
 		'packages',
-		/\/(blockera-pro-.*|.*-pro)\/[\w-]+\.e2e\.cy\.js/
+		/\/(.*-pro*|validator|guard|console)\/.*\/[\w-]+\.e2e\.cy\.js/
 	);
 	if (generalFiles.length) {
 		categories.add('general');
