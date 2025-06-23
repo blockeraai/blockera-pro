@@ -14,6 +14,10 @@ const loginToBlockerAI = () => {
 
 describe('Activate License', () => {
 	it('should activate license', () => {
+		goTo('/wp-admin/options-permalink.php');
+		cy.get('label').contains('Post name').click();
+		cy.get('input[type="submit"').click();
+
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 		cy.getByDataTest('activate-license-button').click();
 
@@ -55,12 +59,6 @@ describe('Activate License', () => {
 	});
 
 	it('should clear registered licenses and try again to login and activate license', () => {
-		goTo('/wp-admin/options-permalink.php');
-
-		cy.get('label').contains('Post name').click();
-
-		cy.get('input[type="submit"').click();
-
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 
 		cy.request(
