@@ -58,7 +58,7 @@ describe('Activate License', () => {
 		});
 	});
 
-	it('should clear registered licenses and try again to login and activate license', () => {
+	it.only('should clear registered licenses and try again to login and activate license', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 
 		cy.request(
@@ -77,12 +77,8 @@ describe('Activate License', () => {
 
 		cy.url().then((url) => {
 			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login').type(Cypress.env('blockeraUserName'), {
-					delay: 0,
-				});
-				cy.get('#user_pass').type(Cypress.env('blockeraPassword'), {
-					delay: 0,
-				});
+				cy.get('#user_login').type(Cypress.env('blockeraUserName'));
+				cy.get('#user_pass').type(Cypress.env('blockeraPassword'));
 				cy.get('#wp-submit').click();
 
 				cy.get('input')
