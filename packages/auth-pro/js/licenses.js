@@ -79,7 +79,12 @@ const License = ({
 							gap={40}
 							direction="row"
 						>
-							<p style={{ margin: 0 }}>{plan}</p>
+							<p
+								data-test={plan.toLowerCase().replace(' ', '-')}
+								style={{ margin: 0 }}
+							>
+								{plan}
+							</p>
 
 							{isExpired && (
 								<p
