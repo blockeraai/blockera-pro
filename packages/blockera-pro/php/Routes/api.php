@@ -20,6 +20,7 @@ try {
 	$routes->post('auth/is-connected', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'isConnected']);
 	$routes->post('auth/create-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'createAccount']);
 	$routes->post('auth/connect-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'connectAccount']);
+	$routes->post('auth/clear-licenses', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'clearLicenses']);
 } catch (Exception $exception) {
     wp_die($exception->getMessage() . ' ' . $exception->getFile() . ' on line: ' . $exception->getLine() . PHP_EOL . $exception->getTraceAsString());
 }
