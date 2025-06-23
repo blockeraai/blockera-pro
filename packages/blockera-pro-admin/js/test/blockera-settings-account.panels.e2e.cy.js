@@ -58,7 +58,7 @@ describe('Activate License', () => {
 		});
 	});
 
-	it.only('should clear registered licenses and try again to login and activate license', () => {
+	it('should clear registered licenses and try again to login and activate license', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 
 		cy.request(
