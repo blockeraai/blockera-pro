@@ -6,6 +6,8 @@ const loginToBlockerAI = () => {
 			cy.get('input#username').type(Cypress.env('blockeraUserName'));
 			cy.get('input#password').type(Cypress.env('blockeraPassword'));
 			cy.get('button[type="submit"]').click();
+
+			cy.get('div[role="alert"]').should('not.be.visible');
 		}
 	});
 };
