@@ -1,5 +1,15 @@
 import { goTo } from '@blockera/dev-cypress/js/helpers';
 
+const loginToBlockerAI = () => {
+	cy.get('body').then(($body) => {
+		if ($body.find('input#username').length > 0) {
+			cy.get('input#username').type(Cypress.env('blockeraUserName'));
+			cy.get('input#password').type(Cypress.env('blockeraPassword'));
+			cy.get('button[type="submit"]').click();
+		}
+	});
+};
+
 describe('Activate License', () => {
 	it('should activate license', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
@@ -31,9 +41,7 @@ describe('Activate License', () => {
 				// Goto BlockeraAi website license panel for blockerabot account.
 				cy.visit('https://blockera.ai/my-account/licenses');
 
-				cy.get('input#username').type(Cypress.env('blockeraUserName'));
-				cy.get('input#password').type(Cypress.env('blockeraPassword'));
-				cy.get('button[type="submit"]').click();
+				loginToBlockerAI();
 
 				cy.getByDataTest('website-url')
 					.eq(0)
@@ -91,9 +99,7 @@ describe('Activate License', () => {
 				// Goto BlockeraAi website license panel for blockerabot account.
 				cy.visit('https://blockera.ai/my-account/licenses');
 
-				cy.get('input#username').type(Cypress.env('blockeraUserName'));
-				cy.get('input#password').type(Cypress.env('blockeraPassword'));
-				cy.get('button[type="submit"]').click();
+				loginToBlockerAI();
 
 				cy.getByDataTest('website-url')
 					.eq(0)
