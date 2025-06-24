@@ -87,6 +87,7 @@
 		"@blockera/validator": "file:packages/validator",
 		"@blockera/wordpress": "file:packages/wordpress",
 		"@wordpress/icons": "^10.0.0",
+		"@wordpress/plugins": "^7.25.0",
 		"fast-deep-equal": "^3.1.3",
 		"fast-memoize": "^2.5.2",
 		"fastest-json-copy": "^1.0.1",
