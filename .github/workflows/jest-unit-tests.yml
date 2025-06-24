@@ -35,4 +35,4 @@ jobs:
               run: npm run build
 
             - name: Running the tests
-              run: npm run test:js -- --ci --maxWorkers=2 --cacheDirectory="$HOME/.jest-cache" "packages/**-pro(-**|)/**/*.spec.js"
+              run: npm run test:js -- --ci --maxWorkers=2 --cacheDirectory="$HOME/.jest-cache"
