@@ -12,6 +12,48 @@ const loginToBlockerAI = () => {
 	});
 };
 
+const tryToActivatingLicense = () => {
+	cy.url({ timeout: 10000 }).then((url) => {
+		if (url.includes('/wp-login.php')) {
+			// eslint-disable-next-line
+			cy.wait(1000);
+
+			cy.get('#user_login', { timeout: 10000 })
+				.should('be.visible')
+				.type(Cypress.env('blockeraUserName'));
+			cy.get('#user_pass')
+				.should('be.visible')
+				.type(Cypress.env('blockeraPassword'));
+			cy.get('#wp-submit').should('be.visible').click();
+
+			cy.get('input')
+				.eq(0)
+				.parent()
+				.then(($parent) => {
+					if (!$parent.hasClass('is-checked')) {
+						cy.get('input').eq(0).click();
+					}
+				});
+
+			cy.getByDataTest('connect-button').should('be.visible').click();
+			cy.getByDataTest('create-page-button').should('be.visible');
+			cy.getByDataTest('manage-licenses-button')
+				.should('be.visible')
+				.click();
+			cy.getByDataTest('account-info').should('be.visible');
+
+			// Goto BlockeraAi website license panel for blockerabot account.
+			cy.visit('https://blockera.ai/my-account/licenses');
+
+			loginToBlockerAI();
+
+			cy.getByDataTest('website-url')
+				.eq(0)
+				.contains(Cypress.env('testURL').replace(/https?:\/\//, ''));
+		}
+	});
+};
+
 describe('Activate License', () => {
 	it('should activate license', () => {
 		goTo('/wp-admin/options-permalink.php');
@@ -21,44 +63,7 @@ describe('Activate License', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 		cy.getByDataTest('activate-license-button').click();
 
-		cy.url({ timeout: 10000 }).then((url) => {
-			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login', { timeout: 10000 })
-					.should('be.visible')
-					.type(Cypress.env('blockeraUserName'));
-				cy.get('#user_pass')
-					.should('be.visible')
-					.type(Cypress.env('blockeraPassword'));
-				cy.get('#wp-submit').should('be.visible').click();
-
-				cy.get('input')
-					.eq(0)
-					.parent()
-					.then(($parent) => {
-						if (!$parent.hasClass('is-checked')) {
-							cy.get('input').eq(0).click();
-						}
-					});
-
-				cy.getByDataTest('connect-button').should('be.visible').click();
-				cy.getByDataTest('create-page-button').should('be.visible');
-				cy.getByDataTest('manage-licenses-button')
-					.should('be.visible')
-					.click();
-				cy.getByDataTest('account-info').should('be.visible');
-
-				// Goto BlockeraAi website license panel for blockerabot account.
-				cy.visit('https://blockera.ai/my-account/licenses');
-
-				loginToBlockerAI();
-
-				cy.getByDataTest('website-url')
-					.eq(0)
-					.contains(
-						Cypress.env('testURL').replace(/https?:\/\//, '')
-					);
-			}
-		});
+		tryToActivatingLicense();
 	});
 
 	it('should clear registered licenses and try again to login and activate license', () => {
@@ -78,43 +83,6 @@ describe('Activate License', () => {
 
 		cy.getByDataTest('activate-license-button').click();
 
-		cy.url({ timeout: 10000 }).then((url) => {
-			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login', { timeout: 10000 })
-					.should('be.visible')
-					.type(Cypress.env('blockeraUserName'));
-				cy.get('#user_pass')
-					.should('be.visible')
-					.type(Cypress.env('blockeraPassword'));
-				cy.get('#wp-submit').should('be.visible').click();
-
-				cy.get('input')
-					.eq(0)
-					.parent()
-					.then(($parent) => {
-						if (!$parent.hasClass('is-checked')) {
-							cy.get('input').eq(0).click();
-						}
-					});
-
-				cy.getByDataTest('connect-button').should('be.visible').click();
-				cy.getByDataTest('create-page-button').should('be.visible');
-				cy.getByDataTest('manage-licenses-button')
-					.should('be.visible')
-					.click();
-				cy.getByDataTest('account-info').should('be.visible');
-
-				// Goto BlockeraAi website license panel for blockerabot account.
-				cy.visit('https://blockera.ai/my-account/licenses');
-
-				loginToBlockerAI();
-
-				cy.getByDataTest('website-url')
-					.eq(0)
-					.contains(
-						Cypress.env('testURL').replace(/https?:\/\//, '')
-					);
-			}
-		});
+		tryToActivatingLicense();
 	});
 });
