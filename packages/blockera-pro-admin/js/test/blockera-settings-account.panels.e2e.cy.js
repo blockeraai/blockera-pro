@@ -21,11 +21,15 @@ describe('Activate License', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 		cy.getByDataTest('activate-license-button').click();
 
-		cy.url().then((url) => {
+		cy.url({ timeout: 10000 }).then((url) => {
 			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login').type(Cypress.env('blockeraUserName'));
-				cy.get('#user_pass').type(Cypress.env('blockeraPassword'));
-				cy.get('#wp-submit').click();
+				cy.get('#user_login', { timeout: 10000 })
+					.should('be.visible')
+					.type(Cypress.env('blockeraUserName'));
+				cy.get('#user_pass')
+					.should('be.visible')
+					.type(Cypress.env('blockeraPassword'));
+				cy.get('#wp-submit').should('be.visible').click();
 
 				cy.get('input')
 					.eq(0)
@@ -36,12 +40,11 @@ describe('Activate License', () => {
 						}
 					});
 
-				cy.getByDataTest('connect-button').click();
+				cy.getByDataTest('connect-button').should('be.visible').click();
 				cy.getByDataTest('create-page-button').should('be.visible');
-				cy.getByDataTest('manage-licenses-button').should('be.visible');
-
-				cy.getByDataTest('manage-licenses-button').click();
-
+				cy.getByDataTest('manage-licenses-button')
+					.should('be.visible')
+					.click();
 				cy.getByDataTest('account-info').should('be.visible');
 
 				// Goto BlockeraAi website license panel for blockerabot account.
@@ -75,11 +78,15 @@ describe('Activate License', () => {
 
 		cy.getByDataTest('activate-license-button').click();
 
-		cy.url().then((url) => {
+		cy.url({ timeout: 10000 }).then((url) => {
 			if (url.includes('/wp-login.php')) {
-				cy.get('#user_login').type(Cypress.env('blockeraUserName'));
-				cy.get('#user_pass').type(Cypress.env('blockeraPassword'));
-				cy.get('#wp-submit').click();
+				cy.get('#user_login', { timeout: 10000 })
+					.should('be.visible')
+					.type(Cypress.env('blockeraUserName'));
+				cy.get('#user_pass')
+					.should('be.visible')
+					.type(Cypress.env('blockeraPassword'));
+				cy.get('#wp-submit').should('be.visible').click();
 
 				cy.get('input')
 					.eq(0)
@@ -90,12 +97,11 @@ describe('Activate License', () => {
 						}
 					});
 
-				cy.getByDataTest('connect-button').click();
+				cy.getByDataTest('connect-button').should('be.visible').click();
 				cy.getByDataTest('create-page-button').should('be.visible');
-				cy.getByDataTest('manage-licenses-button').should('be.visible');
-
-				cy.getByDataTest('manage-licenses-button').click();
-
+				cy.getByDataTest('manage-licenses-button')
+					.should('be.visible')
+					.click();
 				cy.getByDataTest('account-info').should('be.visible');
 
 				// Goto BlockeraAi website license panel for blockerabot account.
