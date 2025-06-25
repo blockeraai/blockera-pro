@@ -32,7 +32,7 @@ describe('Children Wrap and Align Content → Functionality', () => {
 
 		getWPDataObject().then((data) => {
 			expect({
-				value: 'wrap',
+				val: 'wrap',
 				reverse: false,
 			}).to.be.deep.equal(getSelectedBlock(data, 'blockeraFlexWrap'));
 
@@ -52,7 +52,7 @@ describe('Children Wrap and Align Content → Functionality', () => {
 
 		getWPDataObject().then((data) => {
 			expect({
-				value: 'wrap',
+				val: 'wrap',
 				reverse: true,
 			}).to.be.deep.equal(getSelectedBlock(data, 'blockeraFlexWrap'));
 		});

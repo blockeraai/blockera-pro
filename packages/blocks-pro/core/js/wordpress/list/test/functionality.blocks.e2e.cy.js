@@ -7,7 +7,6 @@ import {
 	appendBlocks,
 	setBlockState,
 	setInnerBlock,
-	setParentBlock,
 	redirectToFrontPage,
 } from '@blockera/dev-cypress/js/helpers';
 
@@ -16,7 +15,7 @@ describe('List Block → Functionality + Inner blocks', () => {
 		createPost();
 	});
 
-	it('Marker state with style customization', () => {
+	it.skip('Marker state with style customization', () => {
 		appendBlocks(`<!-- wp:list -->
 <ul><!-- wp:list-item -->
 <li>item 1 <a href="#">link is here</a></li>

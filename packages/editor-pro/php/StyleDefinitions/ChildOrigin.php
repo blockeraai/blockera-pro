@@ -14,8 +14,8 @@ class ChildOrigin extends BaseProStyleDefinition {
             return $declaration;
         }
 
-        $top  = $settings[ $cssProperty ]['top'] ?? '';
-        $left = $settings[ $cssProperty ]['left'] ?? '';
+        $top  = $setting[ $cssProperty ]['top'] ?? '';
+        $left = $setting[ $cssProperty ]['left'] ?? '';
 
         if (! empty($top) && ! empty($left)) {
             $this->setDeclaration('perspective-origin', "{$top} {$left}");

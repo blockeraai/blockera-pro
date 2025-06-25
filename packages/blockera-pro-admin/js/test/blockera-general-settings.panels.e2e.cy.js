@@ -26,7 +26,7 @@ describe('Blockera general settings testing...', () => {
 		resetPanelSettings();
 
 		cy.get('label')
-			.contains('Restrict Blockera blocks to selected user roles.')
+			.contains('Enable Blockera blocks for selected user roles:')
 			.click();
 		cy.get('label').contains('editor').click();
 
@@ -66,7 +66,7 @@ describe('Blockera general settings testing...', () => {
 		resetPanelSettings();
 
 		cy.get('label')
-			.contains('Restrict Blockera blocks to selected user roles.')
+			.contains('Enable Blockera blocks for selected user roles:')
 			.click();
 		cy.get('label').contains('post').click();
 

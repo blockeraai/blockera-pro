@@ -95,7 +95,7 @@ describe('Flex Child → Self Size', () => {
 				force: true,
 			});
 			cy.getByAriaLabel('Select Unit').last().select('%');
-			cy.getByAriaLabel('Custom Basis').type(10, {
+			cy.getByAriaLabel('Flex Basis').type(10, {
 				force: true,
 			});
 		});

@@ -31,7 +31,7 @@ describe('Text Stroke → Functionality', () => {
 
 		cy.getByDataTest('popover-body').within(() => {
 			cy.get('input[maxlength="9"]').clear();
-			cy.get('input[maxlength="9"]').type('5a22a4');
+			cy.get('input[maxlength="9"]').type('5a22a4', { delay: 0 });
 		});
 
 		//Check block
@@ -51,8 +51,8 @@ describe('Text Stroke → Functionality', () => {
 
 		/* Width */
 		cy.getParentContainer('Text Stroke').within(() => {
-			cy.get('input[type="number"]').clear();
-			cy.get('input[type="number"]').type(10, { force: true });
+			cy.get('input[type="text"]').clear();
+			cy.get('input[type="text"]').type(10, { force: true });
 		});
 
 		//Check block

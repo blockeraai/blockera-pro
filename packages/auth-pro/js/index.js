@@ -118,6 +118,7 @@ export const ConnectWithBlockera = ({
 
 				<Flex justifyContent="center" gap={20}>
 					<Button
+						data-test="create-page-button"
 						variant="primary"
 						className="create-page"
 						onClick={() =>
@@ -127,6 +128,7 @@ export const ConnectWithBlockera = ({
 						{__('Create a Page', 'blockera')}
 					</Button>
 					<Button
+						data-test="manage-licenses-button"
 						variant="secondary"
 						className="manage-licenses"
 						onClick={fetchLicenses}
@@ -172,6 +174,7 @@ export const ConnectWithBlockera = ({
 				</Flex>
 
 				<Button
+					data-test="activate-license-button"
 					className="activate-call-to-action"
 					variant="primary"
 					onClick={() => {

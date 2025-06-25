@@ -18,6 +18,10 @@ jobs:
         name: Building and Run E2E Tests
         runs-on: ubuntu-latest
         if: ${{ github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request' }}
+        strategy:
+            fail-fast: true
+            matrix:
+                php: ['7.4', '8.0', '8.1', '8.2']
 
         steps:
             - name: Checkout
@@ -25,7 +29,7 @@ jobs:
 
             - name: Find Specs Files
               id: find_specs_files
-              run: echo "file_count=$(find ./packages -name "*.build.e2e.cy.js" | wc -l)" >> $GITHUB_OUTPUT
+              run: echo "file_count=$(find ./packages -path "*-pro*" -name "*.build.e2e.cy.js" | wc -l)" >> $GITHUB_OUTPUT
 
             - name: Setup Node.js and install dependencies
               # Only run if Specs files are found.
@@ -61,24 +65,36 @@ jobs:
                   mkdir packages
                   mkdir packages/blockera-pro
                   mkdir packages/blockera-pro/tests
+                  mkdir -p .github/scripts
+                  mkdir -p .github/wp-env-configs
+
+                  # Copy the setup script and configs
+                  cp ../../.github/scripts/setup-wp-env.js .github/scripts/
+                  cp ../../.github/wp-env-configs/general.json .github/wp-env-configs/
+
+                  cd ../..
                   node .github/scripts/create-wp-env.js "general"
                   cat .wp-env.json
+
+                  # Copy the base configuration and add PHP version
+                  cp .github/wp-env-configs/general.json .wp-env.json
+                  jq --arg php "${{ matrix.php }}" '. + {"phpVersion": $php}' .wp-env.json > .wp-env.json.tmp && mv .wp-env.json.tmp .wp-env.json
+
                   touch cypress.env.json
                   echo '{"isLogin": false,"wpUsername": "admin","wpPassword": "password","testURL": "http://localhost:8888","e2e": {"excludeSpecPattern": [],"specPattern": ["packages/**/*.build.e2e.cy.js"]}}' >> cypress.env.json
                   cat cypress.env.json
-                  cd ../..
-                  cp -r ./cypress ./build/blockera
-                  cp ./package.json ./build/blockera
-                  cp -r ./node_modules ./build/blockera
-                  cp ./cypress.config.js ./build/blockera
-                  cp -r ./packages/dev-cypress ./build/blockera/packages
-                  find ./packages/ -type f \( -name "*.build.e2e.cy.js" \) -exec cp {} ./build/blockera/packages/blockera/tests \;
+                  cp ./package.json ./build/blockera-pro
+                  cp -r ./node_modules ./build/blockera-pro
+                  cp ./cypress.config.js ./build/blockera-pro
+                  cp .wp-env.json ./build/blockera-pro
+                  cp -r ./packages/dev-cypress ./build/blockera-pro/packages
+                  find ./packages -path "*-pro*" -name "*.build.e2e.cy.js" -type f -exec cp {} ./build/blockera-pro/packages/blockera-pro/tests \;
 
             - name: Setup and Run E2E tests on Blockera build
               # Only run if Specs files are found.
               if: steps.find_specs_files.outputs.file_count != '0'
               run: |
-                  cd ./build/blockera
+                  cd ./build/blockera-pro
                   npx cypress install
                   npm run env:start
                   npm run test:e2e

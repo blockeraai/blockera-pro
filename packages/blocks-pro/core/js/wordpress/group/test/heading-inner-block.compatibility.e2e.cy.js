@@ -21,15 +21,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 			describe('Linear Gradient Background', () => {
 				it('Simple Value', () => {
 					appendBlocks(
-						'<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"linear-gradient(135deg,rgb(135,254,56) 1%,rgb(255,147,147) 97%)"}}}},"layout":{"type":"constrained"}} -->\n' +
-							'<div class="wp-block-group"><!-- wp:heading -->\n' +
-							'<h2 class="wp-block-heading">Heading text</h2>\n' +
-							'<!-- /wp:heading -->\n' +
-							'\n' +
-							'<!-- wp:paragraph -->\n' +
-							'<p>paragraph text</p>\n' +
-							'<!-- /wp:paragraph --></div>\n' +
-							'<!-- /wp:group -->'
+						`<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"linear-gradient(135deg,rgb(135,254,56) 1%,rgb(255,147,147) 97%)"}}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group"><!-- wp:heading -->
+<h2 class="wp-block-heading">Heading text</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>paragraph text</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->`
 					);
 
 					// Select target block
@@ -81,7 +81,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						cy.get('@repeaterBtn').click();
 					});
 
-					cy.getParentContainer('Angel').within(() => {
+					cy.getParentContainer('Angle').within(() => {
 						cy.get('input[type="number"]').as('angelInput');
 						cy.get('@angelInput').clear();
 						cy.get('@angelInput').type('45');
@@ -148,15 +148,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 
 				it.skip('Variable', () => {
 					appendBlocks(
-						'<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"var:preset|gradient|gradient-4"}}}},"layout":{"type":"constrained"}} -->\n' +
-							'<div class="wp-block-group"><!-- wp:heading -->\n' +
-							'<h2 class="wp-block-heading">Heading text</h2>\n' +
-							'<!-- /wp:heading -->\n' +
-							'\n' +
-							'<!-- wp:paragraph -->\n' +
-							'<p>paragraph text</p>\n' +
-							'<!-- /wp:paragraph --></div>\n' +
-							'<!-- /wp:group -->'
+						`<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"var:preset|gradient|gradient-4"}}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group"><!-- wp:heading -->
+<h2 class="wp-block-heading">Heading text</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>paragraph text</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->`
 					);
 
 					// Select target block
@@ -313,15 +313,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 			describe('Radial Gradient Background', () => {
 				it('Simple Value', () => {
 					appendBlocks(
-						'<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"radial-gradient(#B1C5A4 0%,#F9F9F9 100%)"}}}},"layout":{"type":"constrained"}} -->\n' +
-							'<div class="wp-block-group"><!-- wp:heading -->\n' +
-							'<h2 class="wp-block-heading">Heading text</h2>\n' +
-							'<!-- /wp:heading -->\n' +
-							'\n' +
-							'<!-- wp:paragraph -->\n' +
-							'<p>paragraph text</p>\n' +
-							'<!-- /wp:paragraph --></div>\n' +
-							'<!-- /wp:group -->'
+						`<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"radial-gradient(#B1C5A4 0%,#F9F9F9 100%)"}}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group"><!-- wp:heading -->
+<h2 class="wp-block-heading">Heading text</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>paragraph text</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->`
 					);
 
 					// Select target block
@@ -376,12 +376,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						cy.get('@repeaterBtn').click();
 					});
 
-					cy.getParentContainer('Position')
+					cy.getByDataTest('position-button').click();
+					cy.getByDataTest('popover-body')
 						.eq(1)
 						.within(() => {
-							cy.get('input').each(($input) => {
-								cy.wrap($input).clear();
-								cy.wrap($input).type('20');
+							cy.getParentContainer('Position').within(() => {
+								cy.get('input').each(($input) => {
+									cy.wrap($input).clear();
+									cy.wrap($input).type('20');
+								});
 							});
 						});
 
@@ -453,15 +456,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 		describe('BG Color & Gradient At Same Time', () => {
 			it.skip('Both BG color and gradient (BG color have more priority)', () => {
 				appendBlocks(
-					'<!-- wp:group {"style":{"elements":{"heading":{"color":{"background":"#ffcaca"}}}},"layout":{"type":"constrained"}} -->\n' +
-						'<div class="wp-block-group"><!-- wp:heading -->\n' +
-						'<h2 class="wp-block-heading">Heading text</h2>\n' +
-						'<!-- /wp:heading -->\n' +
-						'\n' +
-						'<!-- wp:paragraph -->\n' +
-						'<p>paragraph text</p>\n' +
-						'<!-- /wp:paragraph --></div>\n' +
-						'<!-- /wp:group -->'
+					`<!-- wp:group {"style":{"elements":{"heading":{"color":{"background":"#ffcaca"}}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group"><!-- wp:heading -->
+<h2 class="wp-block-heading">Heading text</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>paragraph text</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->`
 				);
 
 				// Select target block

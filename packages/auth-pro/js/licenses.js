@@ -79,7 +79,12 @@ const License = ({
 							gap={40}
 							direction="row"
 						>
-							<p style={{ margin: 0 }}>{plan}</p>
+							<p
+								data-test={plan.toLowerCase().replace(' ', '-')}
+								style={{ margin: 0 }}
+							>
+								{plan}
+							</p>
 
 							{isExpired && (
 								<p
@@ -145,7 +150,12 @@ export const Licenses = ({
 					{__('Your Blockera Account', 'blockera')}
 				</h6>
 
-				<Flex alignItems="center" className="account-info" gap={20}>
+				<Flex
+					data-test="account-info"
+					alignItems="center"
+					className="account-info"
+					gap={20}
+				>
 					<Avatar
 						src={avatar}
 						alt={name}

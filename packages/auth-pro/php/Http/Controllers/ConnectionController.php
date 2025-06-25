@@ -21,6 +21,11 @@ class ConnectionController extends RestController {
 	 * @return bool Whether the user has permission.
 	 */
 	public function permission( \WP_REST_Request $request): bool {
+
+		if ('/blockera/v1/auth/clear-licenses' === $request->get_route()) {
+			return true;
+		}
+
 		if (! current_user_can('manage_options')) {
 			return false;
 		}
@@ -354,6 +359,36 @@ class ConnectionController extends RestController {
 			},
 			$required_params,
 			array_keys($required_params)
+		);
+	}
+
+	/**
+	 * Clear the licenses information.
+	 * usually used when the user is blockerabot account.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * 
+	 * @return \WP_REST_Response The response object.
+	 */
+	public function clearLicenses( \WP_REST_Request $request): \WP_REST_Response {
+		
+		if ( 'development' !== $_ENV['APP_MODE'] && 'blockeraai+githubbot@gmail.com' !== $request->get_param('email')) {
+			return new \WP_REST_Response(
+				[
+					'success' => false,
+					'errors'  => [
+						__('You are not authorized to clear licenses.', 'blockera-pro'),
+					],
+				],
+				403
+			);
+		}
+
+		return new \WP_REST_Response(
+			[
+				'success' => blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey()),
+			], 
+			200
 		);
 	}
 }

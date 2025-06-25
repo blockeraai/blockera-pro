@@ -84,7 +84,7 @@ describe('Page List Block', () => {
 		});
 	});
 
-	it.only('Marker - no style - custom content', () => {
+	it('Marker - no style - custom content', () => {
 		appendBlocks(`<!-- wp:page-list /-->\n `);
 
 		// Select target block
