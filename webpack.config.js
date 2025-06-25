@@ -25,7 +25,6 @@ module.exports = (env, argv) => {
 	const BLOCKERA_NAMESPACE = '@blockera/';
 	const BLOCKERA_GUARD_MAIN_NAME = 'guard';
 	const BLOCKERA_GUARD_NICKNAME = 'feature-manager';
-	const PRO_SUFFIX = '-pro';
 	const blockeraPackages = Object.keys(dependencies)
 		.filter((packageName) => packageName.startsWith(BLOCKERA_NAMESPACE))
 		.map((packageName) => packageName.replace(BLOCKERA_NAMESPACE, ''))

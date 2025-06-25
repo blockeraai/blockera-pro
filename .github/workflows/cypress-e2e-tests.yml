@@ -62,10 +62,12 @@ jobs:
 
             - name: Create required environment files
               run: |
-                  # Step 1: Read the .pr-env.json
-                  PLUGINS_ARRAY=$(jq '.plugins' .pr-env.json)
-
-                  # Step 2: Add new requirements plugins to the .wp-env.json plugins property
+                  touch cypress.env.json
+                  echo '{
+                    "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
+                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}"
+                  }' >> cypress.env.json
+                  cat cypress.env.json
                   node .github/scripts/create-wp-env.js '${{ matrix.category }}'
                   cat .wp-env.json
                   touch .env
@@ -89,7 +91,7 @@ jobs:
                   if [ "${{ matrix.category }}" != "general" ]; then
                     spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.e2e.cy.js"
                   else
-                    spec_pattern="packages/**-pro(-**|)/**/*.e2e.cy.js"
+                    spec_pattern="packages/**-pro(-**|)/**/!(*.*.e2e).cy.js"
                   fi
                   npm run test:e2e -- --spec "$spec_pattern"
 

@@ -12,7 +12,10 @@ let env = {
 
 // This is a workaround for localization of the cypress env file.
 try {
-	env = require('./cypress.env.json');
+	env = {
+		...env,
+		...require('./cypress.env.json'),
+	};
 } catch (error) {
 	console.log(error);
 }
