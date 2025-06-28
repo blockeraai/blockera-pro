@@ -1,12 +1,9 @@
 == Changelog ==
 
-### Version 1.0.1 - 2025-06-16
+### Version 1.0.2 - 2025-06-28
 
 ### Improvements
-- Enhanced the notice system with a new method to update notifications, making it easier to modify and refresh your website's messages without reloading the page.
-
-### Bug Fixes
-- Fixed an issue where the plugin update notification persisted in the WordPress admin dashboard even after successfully updating the plugin. This ensures that outdated update notices are properly cleared once updates are completed.
+- Improved the update notice by adding a clearer version number comparison and ensuring proper cleanup of old notices.
 
 ### Automated Tests
 - Added end-to-end (e2e) tests for several blocks to ensure their functionality and stability. These tests cover user interactions and verify that the blocks behave as expected in different scenarios.
