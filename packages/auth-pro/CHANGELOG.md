@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 1.1.2 (2025-06-28)
+
 ### Improvements
 - Improved the update notice by adding a clearer version number comparison and ensuring proper cleanup of old notices.
 
