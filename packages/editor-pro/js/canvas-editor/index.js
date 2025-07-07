@@ -1,12 +1,79 @@
 // @flow
 
 /**
- * External dependncies
+ * External dependencies
  */
+import { select } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
 import { addFilter } from '@wordpress/hooks';
+
+/**
+ * Blockera dependencies
+ */
+import { validateSecretKeys } from '@blockera/validator';
 
 export const bootstrapCanvasEditor = () => {
 	if ('false' === process.env.CI_ENV) {
+		const resetBreakpoints = () => {
+			addFilter(
+				'blockera.breakpoints.defaultRepeaterItemValue',
+				'blockeraPro.canvasEditor',
+				(defaultRepeaterItemValue) => {
+					return {
+						...defaultRepeaterItemValue,
+						native: true,
+					};
+				}
+			);
+
+			addFilter(
+				'blockera.breakpoints',
+				'blockeraPro.canvasEditor',
+				(breakpoints) => {
+					breakpoints = Object.fromEntries(
+						Object.entries(breakpoints).map(([key, breakpoint]) => {
+							if (['desktop', 'tablet', 'mobile'].includes(key)) {
+								return [key, breakpoint];
+							}
+
+							return [
+								key,
+								{
+									...breakpoint,
+									native: true,
+									status: false,
+									settings: {
+										...breakpoint.settings,
+										picked: false,
+									},
+								},
+							];
+						})
+					);
+
+					const { getCurrentUser } = select('core');
+					const { id: userId } = getCurrentUser();
+					console.log(userId);
+
+					apiFetch({
+						path: '/blockera/v1/users',
+						method: 'POST',
+						headers: {
+							'X-Blockera-Nonce': blockeraEditorNonce,
+						},
+						data: {
+							user_id: userId,
+							settings: {
+								breakpoints,
+							},
+						},
+					});
+
+					return breakpoints;
+				}
+			);
+		};
+
 		const { blockeraAccount: account } = window;
 		const {
 			client_id: clientId,
@@ -44,7 +111,7 @@ export const bootstrapCanvasEditor = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 
 		if ('active' !== status) {
@@ -53,7 +120,7 @@ export const bootstrapCanvasEditor = () => {
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 
 		// Start Validation: Secret keys.
@@ -71,7 +138,7 @@ export const bootstrapCanvasEditor = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 
 		// Validation: Subscription name.
@@ -81,7 +148,7 @@ export const bootstrapCanvasEditor = () => {
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 
 		// Validation: Next payment due date.
@@ -91,7 +158,7 @@ export const bootstrapCanvasEditor = () => {
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 
 		// Validation: Start date.
@@ -101,7 +168,7 @@ export const bootstrapCanvasEditor = () => {
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);
 			}
-			return;
+			return resetBreakpoints();
 		}
 	}
 
