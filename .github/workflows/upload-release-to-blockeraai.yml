@@ -33,6 +33,7 @@ jobs:
             BLOCKERABOT_API_KEY: ${{ secrets.BLOCKERABOT_API_KEY }}
             PLUGIN_URL: ${{ github.event.release.assets[0].browser_download_url }}
             PLUGIN_VERSION: ${{ github.event.release.tag_name }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         steps:
             - name: Checkout code
@@ -42,7 +43,10 @@ jobs:
 
             - name: Download release asset
               run: |
-                  curl -L -o blockera-pro.zip "${PLUGIN_URL}"
+                  curl -L \
+                    -H "Accept: application/octet-stream" \
+                    -H "Authorization: Bearer ${GH_TOKEN}" \
+                    -o blockera-pro.zip "${PLUGIN_URL}"
 
             - name: Upload to Blockera AI
               run: |
