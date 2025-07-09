@@ -173,6 +173,17 @@ export const bootstrapCanvasEditor = () => {
 	}
 
 	addFilter(
+		`blockera.controls.breakpoints.props`,
+		'blockera.pro.controls.breakpoints.props',
+		(props: Object) => {
+			return {
+				...props,
+				PromoComponent: null,
+			};
+		}
+	);
+
+	addFilter(
 		'blockera.breakpoints.defaultRepeaterItemValue',
 		'blockeraPro.canvasEditor',
 		(defaultRepeaterItemValue) => {
