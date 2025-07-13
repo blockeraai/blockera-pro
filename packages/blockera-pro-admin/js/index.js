@@ -14,12 +14,13 @@ import {
 	accountShowButtons,
 	filterCallToActions,
 	filterAvailableTabs,
+	bootstrapBreakpoints,
+	bootstrapGeneralPanel,
 	filteredIgnoredPanelTabs,
 	accountDescriptionComponent,
 	accountActivePanelComponent,
 	filteredDashboardAvailablePages,
 	filteredDashboardProfileComponent,
-	restrictBlockVisibilityOnChangeUserRole,
 } from './panels';
 
 const initializeBlockeraProAdmin = () => {
@@ -38,7 +39,8 @@ const initializeBlockeraProAdmin = () => {
 		accountDescriptionComponent();
 		accountShowButtons();
 
-		restrictBlockVisibilityOnChangeUserRole();
+		bootstrapBreakpoints();
+		bootstrapGeneralPanel();
 	};
 };
 

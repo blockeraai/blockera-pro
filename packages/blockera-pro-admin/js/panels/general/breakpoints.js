@@ -3,21 +3,24 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
-import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
+import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * Blockera dependencies
  */
+import { isEquals, mergeObject } from '@blockera/utils';
 import { validateSecretKeys } from '@blockera/validator';
 
-export const bootstrapCanvasEditor = () => {
+export const bootstrapBreakpoints = () => {
+	const { saveEntityRecord } = dispatch(coreStore);
+
 	if ('false' === process.env.CI_ENV) {
 		const resetBreakpoints = () => {
 			addFilter(
 				'blockera.breakpoints.defaultRepeaterItemValue',
-				'blockeraPro.canvasEditor',
+				'blockeraPro.settings.generalPanel.breakpoints',
 				(defaultRepeaterItemValue) => {
 					return {
 						...defaultRepeaterItemValue,
@@ -27,8 +30,8 @@ export const bootstrapCanvasEditor = () => {
 			);
 
 			addFilter(
-				'blockera.breakpoints',
-				'blockeraPro.canvasEditor',
+				'blockera.breakpoints.value',
+				'blockeraPro.settings.generalPanel.breakpoints',
 				(breakpoints) => {
 					breakpoints = Object.fromEntries(
 						Object.entries(breakpoints).map(([key, breakpoint]) => {
@@ -51,22 +54,53 @@ export const bootstrapCanvasEditor = () => {
 						})
 					);
 
-					const { getCurrentUser } = select('core');
-					const { id: userId } = getCurrentUser();
-					console.log(userId);
-
-					apiFetch({
-						path: '/blockera/v1/users',
-						method: 'POST',
-						headers: {
-							'X-Blockera-Nonce': blockeraEditorNonce,
-						},
-						data: {
-							user_id: userId,
-							settings: {
-								breakpoints,
+					const isEqualsBreakpointValues = () => {
+						const {
+							blockeraSettings: {
+								general: { breakpoints: savedBreakpoints },
 							},
-						},
+						} = window;
+
+						for (const breakpointName in breakpoints) {
+							const breakpoint = breakpoints[breakpointName];
+							for (const property in breakpoint) {
+								if (
+									!savedBreakpoints.hasOwnProperty(
+										breakpointName
+									) ||
+									!savedBreakpoints[
+										breakpointName
+									].hasOwnProperty(property)
+								) {
+									continue;
+								}
+
+								if (
+									!isEquals(
+										breakpoint[property],
+										savedBreakpoints[breakpointName][
+											property
+										]
+									)
+								) {
+									return false;
+								}
+							}
+						}
+
+						return true;
+					};
+
+					if (isEqualsBreakpointValues()) {
+						return breakpoints;
+					}
+
+					saveEntityRecord('blockera/v1', 'settings', {
+						...window.blockeraSettings,
+						general: mergeObject(
+							window.blockeraSettings.general.breakpoints || {},
+							breakpoints
+						),
 					});
 
 					return breakpoints;
@@ -174,7 +208,7 @@ export const bootstrapCanvasEditor = () => {
 
 	addFilter(
 		`blockera.controls.breakpoints.props`,
-		'blockera.pro.controls.breakpoints.props',
+		'blockera.pro.settings.generalPanel.breakpoints.props',
 		(props: Object) => {
 			return {
 				...props,
@@ -185,7 +219,7 @@ export const bootstrapCanvasEditor = () => {
 
 	addFilter(
 		'blockera.breakpoints.defaultRepeaterItemValue',
-		'blockeraPro.canvasEditor',
+		'blockeraPro.settings.generalPanel.breakpoints',
 		(defaultRepeaterItemValue) => {
 			return {
 				...defaultRepeaterItemValue,
@@ -195,8 +229,8 @@ export const bootstrapCanvasEditor = () => {
 	);
 
 	addFilter(
-		'blockera.breakpoints',
-		'blockeraPro.canvasEditor',
+		'blockera.breakpoints.value',
+		'blockeraPro.settings.generalPanel.breakpoints',
 		(breakpoints) => {
 			return Object.fromEntries(
 				Object.entries(breakpoints).map(([key, breakpoint]) => {
