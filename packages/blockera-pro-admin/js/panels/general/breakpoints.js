@@ -25,6 +25,7 @@ export const bootstrapBreakpoints = () => {
 					return {
 						...defaultRepeaterItemValue,
 						native: true,
+						deletable: false,
 					};
 				}
 			);
