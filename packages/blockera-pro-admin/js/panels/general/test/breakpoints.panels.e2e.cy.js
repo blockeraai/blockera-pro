@@ -53,7 +53,7 @@ describe('Breakpoints Functionalities', () => {
 		cy.getByDataTest('custom-7').should('not.exist');
 	});
 
-	it.only('should enable status of Widescreens and TVs', () => {
+	it('should enable status of Widescreens and TVs', () => {
 		cy.getByDataTest('2xl-desktop').should('be.visible');
 		cy.getByDataTest('2xl-desktop').within(() => {
 			cy.get('input').click();
