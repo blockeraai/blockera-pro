@@ -11,11 +11,13 @@ import { addFilter } from '@wordpress/hooks';
 import { applyControls } from '@blockera/controls-pro';
 import {
 	applyExtensions,
+	bootstrapCanvasEditor,
 	applyDefaultBlockStates,
 	registerEditorExtensions,
 } from '@blockera/editor-pro';
 
 const initializeBlockeraPro = () => {
+	bootstrapCanvasEditor();
 	registerEditorExtensions();
 	applyControls();
 	applyExtensions();
