@@ -1,14 +1,31 @@
 import {
+	goTo,
 	createPost,
 	appendBlocks,
 	getBlockClientId,
 	getWPDataObject,
 	setBlockState,
 	setInnerBlock,
+	savePage,
+	redirectToFrontPage,
+	setDeviceType,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Style Engine Testing ...', () => {
-	beforeEach(() => {
+	it('should generate css for Widescreens and Tvs breakpoints', () => {
+		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
+
+		cy.getByDataTest('2xl-desktop').should('be.visible');
+		cy.getByDataTest('2xl-desktop').within(() => {
+			cy.get('input').click();
+		});
+
+		cy.getByDataTest('update-settings').as('update');
+		cy.get('@update').then(() => {
+			cy.get('@update').click();
+			cy.wait(2000);
+		});
+
 		createPost();
 
 		appendBlocks(
@@ -19,11 +36,16 @@ describe('Style Engine Testing ...', () => {
 
 		// Select target block
 		cy.getBlock('core/paragraph').click();
-	});
 
-	// TODO: Fix this test.
-	it.skip('should generate css for hover pseudo-class of master block', () => {
-		setBlockState('Hover');
+		cy.getByAriaLabel('Breakpoints').eq(0).should('be.visible');
+		cy.getByAriaLabel('Breakpoints')
+			.eq(0)
+			.within(() => {
+				cy.getByAriaLabel('Widescreens and TVs').should('exist');
+			});
+
+		// Widescreens and Tvs.
+		setDeviceType('Widescreens and TVs');
 
 		// ********************* Manipulating attributes of master block in hover state ************************ //
 
@@ -49,20 +71,11 @@ describe('Style Engine Testing ...', () => {
 
 		// ********************* Switch to normal state and check css ************************ //
 
-		// 3- Set master block state to normal.
-		setBlockState('Normal');
-
-		// To No Hover
 		cy.get('h1').realClick();
 		cy.getBlock('core/paragraph').click();
 
 		// 4- Assert master block css.
-		getWPDataObject().then((data) => {
-			// Block element should have not css style when activated state is normal.
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
-				.should('not.have.css', 'width', '100px');
-		});
+		cy.getBlock('core/paragraph').should('have.css', 'width', '100px');
 
 		// ********************* Manipulating root attributes of inner block inside parent hover state ************************ //
 
@@ -114,5 +127,19 @@ describe('Style Engine Testing ...', () => {
 				.find(`#block-${getBlockClientId(data)} a`)
 				.should('have.css', 'width', '2px');
 		});
+
+		savePage();
+		redirectToFrontPage();
+
+		// Set 2xl-desktop viewport
+		cy.viewport(1920, 1080);
+
+		cy.get('.blockera-block').should('have.css', 'width', '100px');
+
+		cy.get('.blockera-block').realHover();
+		cy.get('.blockera-block a').should('have.css', 'width', '50px');
+
+		cy.get('.blockera-block a').realHover();
+		cy.get('.blockera-block a').should('have.css', 'width', '2px');
 	});
 });
