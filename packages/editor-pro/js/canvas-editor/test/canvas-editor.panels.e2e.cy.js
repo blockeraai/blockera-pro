@@ -110,6 +110,8 @@ describe('Canvas Editor', () => {
 
 		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
 
-		resetPanelSettings(false);
+		resetPanelSettings(true);
+
+		cy.reload();
 	});
 });
