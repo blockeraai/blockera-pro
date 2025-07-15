@@ -1,7 +1,11 @@
 /**
  * Blockera dependencies
  */
-import { goTo, createPost } from '@blockera/dev-cypress/js/helpers';
+import {
+	goTo,
+	createPost,
+	resetPanelSettings,
+} from '@blockera/dev-cypress/js/helpers';
 
 describe('Canvas Editor', () => {
 	it('should re-render canvas editor correctly', () => {
@@ -103,5 +107,9 @@ describe('Canvas Editor', () => {
 			'width',
 			'478px'
 		);
+
+		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
+
+		resetPanelSettings(false);
 	});
 });
