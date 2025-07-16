@@ -10,7 +10,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { validateSecretKeys } from '@blockera/validator';
 
-export const restrictBlockVisibilityOnChangeUserRole = () => {
+export const bootstrapGeneralPanel = () => {
 	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
 		const {
@@ -277,3 +277,5 @@ export const restrictBlockVisibilityOnChangeUserRole = () => {
 		}
 	);
 };
+
+export { bootstrapBreakpoints } from './breakpoints';
