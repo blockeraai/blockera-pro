@@ -46,10 +46,6 @@ export const bootstrapBreakpoints = () => {
 									...breakpoint,
 									native: true,
 									status: false,
-									settings: {
-										...breakpoint.settings,
-										picked: false,
-									},
 								},
 							];
 						})
@@ -98,10 +94,14 @@ export const bootstrapBreakpoints = () => {
 
 					saveEntityRecord('blockera/v1', 'settings', {
 						...window.blockeraSettings,
-						general: mergeObject(
-							window.blockeraSettings.general.breakpoints || {},
-							breakpoints
-						),
+						general: {
+							...window.blockeraSettings.general,
+							breakpoints: mergeObject(
+								window.blockeraSettings.general.breakpoints ||
+									{},
+								breakpoints
+							),
+						},
 					});
 
 					return breakpoints;
@@ -240,6 +240,9 @@ export const bootstrapBreakpoints = () => {
 						{
 							...breakpoint,
 							native: false,
+							...(breakpoint.settings.picked
+								? { status: true }
+								: {}),
 						},
 					];
 				})

@@ -120,6 +120,7 @@ export const bootstrapCanvasEditor = () => {
 					{
 						...breakpoint,
 						...('' === breakpoint.type ? { type: key } : {}),
+						...(breakpoint.settings.picked ? { status: true } : {}),
 					},
 				])
 			);
