@@ -1,6 +1,6 @@
 {
 	"name": "@blockera/blockera-pro-admin",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "The bootstrapper for blockera PRO Admin react application for WordPress admin panel.",
 	"author": "The Blockera Core Contributors",
 	"license": "ISC",

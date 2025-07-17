@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 1.2.0 (2025-07-17)
+
 ### New Features
 - Added support for customizing your website's design across all screen sizes (mobile, tablet, desktop, and any other custom breakpoints).
 - Enabled access to responsive design controls after activating the Pro version license.
