@@ -48,6 +48,14 @@ jobs:
                     -H "Authorization: Bearer ${GH_TOKEN}" \
                     -o blockera-pro.zip "${PLUGIN_URL}"
 
+            - name: Download assets from release
+              uses: robinraju/release-downloader@v1.10
+              with:
+                  repository: ${{ github.repository }}
+                  tag: ${{ github.event.inputs.tag }}
+                  fileName: 'blockera-pro.zip'
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Upload to Blockera AI
               run: |
                   CLEAN_VERSION=${PLUGIN_VERSION#v}
@@ -56,10 +64,10 @@ jobs:
                     -F "product_id=${BLOCKERAAI_PRODUCT_ID}" \
                     -F "product_version=${CLEAN_VERSION}" \
                     -F "metaKey=${RELEASE_META_KEY}" \
-                    -F "filename=blockera-pro.zip" \
+                    -F "filename=./my-downloads/blockera-pro.zip" \
                     -F "action=${RELEASE_ACTION}" \
                     -F "api_key=${BLOCKERABOT_API_KEY}" \
                     -F "file=@blockera-pro.zip"
 
             - name: Clean up
-              run: rm -f blockera-pro.zip
+              run: rm -f my-downloads
