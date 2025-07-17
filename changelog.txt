@@ -1,9 +1,11 @@
 == Changelog ==
 
-### Version 1.0.2 - 2025-06-28
+### Version 1.1.0 - 2025-07-17
 
-### Improvements
-- Improved the update notice by adding a clearer version number comparison and ensuring proper cleanup of old notices.
+### New Features
+- Added support for customizing your website's design across all screen sizes (mobile, tablet, desktop, and any other custom breakpoints).
+- Enabled access to responsive design controls after activating the Pro version license.
+- Improved the responsive design system to allow easier management of breakpoint settings.
 
 ### Automated Tests
 - Added end-to-end (e2e) tests for several blocks to ensure their functionality and stability. These tests cover user interactions and verify that the blocks behave as expected in different scenarios.
