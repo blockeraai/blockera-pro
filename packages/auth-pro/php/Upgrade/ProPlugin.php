@@ -56,7 +56,6 @@ class ProPlugin {
 	public function applyHooks(): void {
 		add_filter('pre_set_site_transient_update_plugins', [ $this, 'setUpdatePluginTransient' ]);
 		add_filter('plugins_api', [ $this, 'getPluginInformation' ], 10, 3);
-		add_action('upgrader_process_complete', [ $this, 'removeUpdateNotice' ], 10, 2);
 
 		$this->modifyTheUpdateUrl();
 	}
