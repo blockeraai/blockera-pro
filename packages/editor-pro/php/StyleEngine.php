@@ -249,6 +249,8 @@ final class StyleEngine {
 								];
 							}
 
+							$breakpoints = blockera_get_array_deep_merge($this->breakpoints, $stateSettings['breakpoints']);
+
 							return array_map(
                                 function ( $breakpointSettings, string $breakpoint) use ( $stateSettings): string  {
 									if (isset($stateSettings['content'])) {
@@ -257,8 +259,8 @@ final class StyleEngine {
 
                                     return $this->prepareBreakpointStyles($breakpoint, $breakpointSettings['attributes']);
                                 },
-                                $stateSettings['breakpoints'],
-                                array_keys($stateSettings['breakpoints'])
+                                $breakpoints,
+                                array_keys($breakpoints)
 							);
 						},
                         $this->pseudo_classes,
