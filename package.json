@@ -1,6 +1,6 @@
 {
 	"name": "@blockera/pro",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "The Premium Advanced Mode for Block Editor",
 	"main": "packages/blockera-pro/js/index.js",
 	"repository": {
