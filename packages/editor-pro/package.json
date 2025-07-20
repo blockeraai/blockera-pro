@@ -1,13 +1,13 @@
 {
 	"name": "@blockera/editor-pro",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Blockera PRO package to customize WordPress Gutenberg Block and Site Editors.",
 	"author": "The Blockera Core Contributors",
 	"license": "ISC",
 	"keywords": [
 		"blockera",
 		"bootstrap",
-	  	"initliazer",
+		"initliazer",
 		"editor-extensions"
 	],
 	"homepage": "https://github.com/blockeraai/blockera-pro/blob/master/packages/editor-pro/README.md",
