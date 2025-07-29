@@ -74,7 +74,11 @@
 		},
 		{
 			"type": "path",
-			"url": "packages/blocks/core"
+			"url": "packages/blocks-core"
+		},
+		{
+			"type": "path",
+			"url": "packages/blocks-library/icon"
 		},
 		{
 			"type": "path",
@@ -91,6 +95,14 @@
 		{
 			"type": "path",
 			"url": "packages/notice"
+		},
+		{
+			"type": "path",
+			"url": "packages/features-core"
+		},
+		{
+			"type": "path",
+			"url": "packages/features-library/icon"
 		}
 	],
 	"authors": [
@@ -113,10 +125,13 @@
 		"blockera/controls": "*",
 		"blockera/icons": "*",
 		"blockera/http": "*",
+		"blockera/block-icon": "*",
 		"blockera/blocks-core": "*",
 		"blockera/env": "*",
 		"blockera/data": "*",
 		"blockera/data-editor": "*",
+		"blockera/feature-icon": "*",
+		"blockera/features-core": "*",
 		"blockera/telemetry": "*",
 		"blockera/wordpress": "*",
 		"blockera/exceptions": "*",
