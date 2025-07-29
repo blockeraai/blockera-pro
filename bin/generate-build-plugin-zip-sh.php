@@ -7,40 +7,68 @@
  * @package blockera-pro-build
  */
 
-$f = fopen( dirname( __DIR__ ) . '/bin/build-plugin-zip.sh', 'r' );
+$f = fopen(dirname(__DIR__) . '/bin/build-plugin-zip.sh', 'r');
+$filtered_packages = array_filter(
+    (function() {
+        $packages_dir = dirname(__DIR__) . '/packages';
+        $all_dirs = glob($packages_dir . '/*');
+        $result = [];
+        foreach ($all_dirs as $dir) {
+            if (is_dir($dir)) {
+                if (substr($dir, -strlen('/blocks-library')) === '/blocks-library') {
+                    // Add all directories inside /blocks-library
+                    foreach (glob($dir . '/*', GLOB_ONLYDIR) as $subdir) {
+                        $result[] = $subdir;
+                    }
+                } elseif (substr($dir, -strlen('/features-library')) === '/features-library') {
+                    // Add all directories inside /features-library
+                    foreach (glob($dir . '/*', GLOB_ONLYDIR) as $subdir) {
+                        $result[] = $subdir;
+                    }
+                } else {
+                    $result[] = $dir;
+                }
+            }
+        }
+        return $result;
+    })(),
+    function (string $package_name): string {
 
+        // filter dev tools packages.
+        if (preg_match('/dev-(.*)/', $package_name)) {
+
+            return false;
+        }
+
+        // filter invalid packages.
+        if (! is_dir($package_name . '/php') &&
+         	! is_dir($package_name . '/core/php') &&
+          	!is_dir($package_name . '/src')
+		) {
+            return false;
+        }
+
+        return true;
+    }
+);
 $packages = array_map(
-	function ( string $package_name ) {
+    function (string $package_name) {
 
-		$core_suffix = '-core';
+        $package_name = str_replace(dirname(__DIR__) . '/packages/', '', $package_name);
 
-		$package_name = str_replace( dirname( __DIR__ ) . '/packages/', '', $package_name );
+        if (preg_match('/\bblocks-library\b/', $package_name) || preg_match('/\bfeatures-library\b/', $package_name)) {
+            $root_dir = dirname(__DIR__) . '/packages/';
 
-		if ( 'blocks' === $package_name ) {
-			$package_name .= '-core';
-		}
+            ob_start();
+            include $root_dir . $package_name . '/composer.json';
+            $composer_package_name = str_replace('blockera/', '', json_decode(ob_get_clean(), true)['name']);
 
-		return $package_name;
-	},
-	array_filter(
-		glob( dirname( __DIR__ ) . '/packages/*' ),
-		function ( string $package_name ): string {
+            $package_name = str_replace($root_dir, '', $composer_package_name);
+        }
 
-			// filter dev tools packages.
-			if ( preg_match( '/dev-(.*)/', $package_name ) ) {
-
-				return false;
-			}
-
-			// filter invalid packages.
-			if ( ! is_dir( $package_name . '/php' ) && ! is_dir( $package_name . '/core/php' ) ) {
-
-				return false;
-			}
-
-			return true;
-		}
-	)
+        return $package_name;
+    },
+    $filtered_packages
 );
 
 $internal_packages = array_filter(
@@ -77,7 +105,7 @@ while ( true ) {
 			echo implode( PHP_EOL, array_map( function ( string $name ): string {
 
 				return sprintf(
-					'	$(find ./vendor/blockera/%1$s/ -type f \( -name "*.php" -o -name "*.json" \)) \\',
+					'	$(find ./vendor/blockera/%1$s/ -type f \( -name "*.php" -o -name "*.json" -o -name "*.css" \)) \\',
 					$name
 				);
 			}, $internal_packages ) );
