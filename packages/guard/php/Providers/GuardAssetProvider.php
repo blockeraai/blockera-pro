@@ -91,7 +91,7 @@ class GuardAssetProvider extends \Blockera\Bootstrap\AssetsProvider {
 	 */
 	protected function getAssets(): array {
 		return [
-			'feature-manager',
+			'features-manager',
 		];
 	}
 }
