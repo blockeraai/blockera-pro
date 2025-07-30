@@ -14,6 +14,7 @@ import { applyBoxShadowControlHooks } from './box-shadow-control/apply';
 import { applyTransformControlHooks } from './transform-control/apply';
 import { applyTransitionControlHooks } from './transition-control/apply';
 import { applyFilterControlHooks } from './filter-control/apply';
+import { applyIconControlHooks } from './icon-control/apply';
 
 export const applyControls = () => {
 	if ('false' === process.env.CI_ENV) {
@@ -121,4 +122,5 @@ export const applyControls = () => {
 	applyTransformControlHooks();
 	applyTransitionControlHooks();
 	applyFilterControlHooks();
+	applyIconControlHooks();
 };
