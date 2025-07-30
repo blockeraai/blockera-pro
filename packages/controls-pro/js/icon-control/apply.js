@@ -6,6 +6,6 @@ export const applyIconControlHooks = () => {
 	addFilter(
 		'blockera.controls.iconControl.uploadSVG.onClick',
 		'blockera-pro.controls.iconControl.uploadSVG.onClick',
-		(promotionOpener, open) => open()
+		(promotionOpener, open) => open
 	);
 };
