@@ -8,4 +8,12 @@ export const applyIconControlHooks = () => {
 		'blockera-pro.controls.iconControl.uploadSVG.onClick',
 		(promotionOpener, open) => open
 	);
+
+	addFilter(
+		'blockera.controls.iconControl.utils.getLibraryIcons.type',
+		'blockera-pro.controls.iconControl.utils.getLibraryIcons.type',
+		() => {
+			return 'none';
+		}
+	);
 };
