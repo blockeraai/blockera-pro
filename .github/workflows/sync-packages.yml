@@ -38,6 +38,7 @@ jobs:
                   echo "pr=$PR" >> $GITHUB_OUTPUT
 
             - name: Sync packages with other dependent repositories
+              if: (github.event_name == 'pull_request' && steps.check-sync-file.outputs.sync-file-exists == 'true') || github.event_name == 'push'
               uses: blockeraai/blockera-folder-sync@v1.0.0
               with:
                   REPO: ${{ steps.read-sync-config.outputs.repo }}
