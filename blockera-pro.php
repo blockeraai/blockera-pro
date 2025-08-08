@@ -6,6 +6,7 @@
  * Requires at least: 6.6
  * Tested up to: 6.8
  * Requires PHP: 7.4
+ * Requires at least blockera: 1.13.0
  * Author: Blockera AI
  * Author URI: https://blockera.ai/about/
  * Version: 1.1.1
@@ -53,9 +54,58 @@ if (! function_exists('get_plugin_data')) {
 define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__, true, false)['Version']);
 ### END AUTO-GENERATED DEFINES
 
+/**
+ * Check if Blockera PRO is enabled.
+ *
+ * @return bool Whether Blockera PRO is enabled.
+ */
+function blockera_pro_is_enabled(): bool {
+
+    $forcedDisabled = (bool) get_option('blockera_pro_force_disabled', false);
+    $enabled        = ! $forcedDisabled;
+    /**
+     * Allow external control of Blockera PRO enablement.
+     *
+     * @param bool $enabled Whether PRO is enabled.
+     */
+    $enabled = (bool) apply_filters('blockera_pro/is_enabled', $enabled);
+    if (defined('BLOCKERA_PRO_DISABLED_RUNTIME') && BLOCKERA_PRO_DISABLED_RUNTIME) {
+        $enabled = false;
+    }
+    return $enabled;
+}
+
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
+/**
+ * Initialize Blockera PRO.
+ *
+ * @return void
+ */
 function blockera_pro_init(): void {
+
+	if (class_exists(\Blockera\Compatibility\CompatibilityCheck::class)) {
+
+		\Blockera\Compatibility\CompatibilityCheck::getInstance()->run(
+            [
+				'file' => __FILE__,
+				'slug' => 'blockera-pro',
+				'version' => BLOCKERA_PRO_VERSION,
+				'compatible_with_slug' => 'blockera',
+				'callback' => function () {
+					if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+						define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+					}
+				},
+			]
+        );
+	}
+	
+    // Gate: if Pro is disabled, do not bootstrap functionality.
+    if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+        return;
+    }
+
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
     /**
