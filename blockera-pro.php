@@ -26,6 +26,11 @@ if (! defined('ABSPATH')) {
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
 
+// Register into shared autoload coordinator.
+require_once __DIR__ . '/class-shared-autoload-coordinator.php';
+\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
+\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
+
 if (file_exists(__DIR__ . '/.env')) {
 	
 	// Env Loading ...
