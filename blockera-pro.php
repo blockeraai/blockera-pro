@@ -24,6 +24,7 @@ if (! defined('ABSPATH')) {
     die('Access Denied!');
 }
 
+### BEGIN AUTO-GENERATED AUTOLOADER
 // Register into shared autoload coordinator.
 require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-coordinator.php';
 \Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
@@ -31,6 +32,7 @@ require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-c
 
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
+### END AUTO-GENERATED AUTOLOADER
 
 if (file_exists(__DIR__ . '/.env')) {
 	
