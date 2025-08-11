@@ -20,6 +20,7 @@ import SearchControl from '../../../search-control';
 export default function Search({}) {
 	const [searchInput, setSearchInput] = useState('');
 	const [searchData, setSearchData] = useState([]);
+	const [searchData2, setSearchData2] = useState([]);
 
 	const { id, handleIconSelect } = useContext(IconContext);
 
@@ -43,6 +44,14 @@ export default function Search({}) {
 							limit: 49,
 						})
 					);
+					setSearchData2(
+						getLibraryIcons({
+							library: 'search-2',
+							query: value,
+							onClick: handleIconSelect,
+							limit: 49,
+						})
+					);
 				}}
 				placeholder={__('Search icons…', 'blockera')}
 			/>
@@ -59,6 +68,13 @@ export default function Search({}) {
 					<div className={controlInnerClassNames('library-header')}>
 						<Icon icon="search" iconSize="18" />{' '}
 						{__('Search Result', 'blockera')}
+						<span
+							className={controlInnerClassNames(
+								'library-header__label'
+							)}
+						>
+							{__('Free', 'blockera')}
+						</span>
 					</div>
 
 					{searchInput.length < 3 ? (
@@ -94,10 +110,50 @@ export default function Search({}) {
 							) : (
 								<div
 									className={controlInnerClassNames(
-										'library-body'
+										'library-body',
+										'no-fade'
 									)}
 								>
 									{searchData}
+								</div>
+							)}
+
+							<div
+								className={controlInnerClassNames(
+									'library-header',
+									'mt-20'
+								)}
+							>
+								<Icon icon="search" iconSize="18" />{' '}
+								{__('Search Result', 'blockera')}
+								<span
+									className={controlInnerClassNames(
+										'library-header__label'
+									)}
+								>
+									{__('Pro', 'blockera')}
+								</span>
+							</div>
+
+							{!searchData2.length ? (
+								<span
+									className={controlInnerClassNames(
+										'library-search-hint'
+									)}
+								>
+									{__(
+										'Sorry, no icons found. Please try a different keyword.',
+										'blockera'
+									)}
+								</span>
+							) : (
+								<div
+									className={controlInnerClassNames(
+										'library-body',
+										'no-fade'
+									)}
+								>
+									{searchData2}
 								</div>
 							)}
 						</>

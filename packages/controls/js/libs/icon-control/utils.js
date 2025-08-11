@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { sprintf, __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Blockera dependencies
@@ -15,6 +16,12 @@ import {
 	createStandardIconObject,
 } from '@blockera/icons';
 
+/**
+ * Internal dependencies
+ */
+import { Tooltip } from '../';
+import { FeatureWrapper } from '../feature-wrapper';
+
 export function getLibraryIcons({
 	library,
 	query,
@@ -27,7 +34,11 @@ export function getLibraryIcons({
 	let iconLibraryIcons = {};
 	const iconsStack = [];
 
-	if (library === 'suggestions' || library === 'search') {
+	if (
+		'suggestions' === library ||
+		'search' === library ||
+		'search-2' === library
+	) {
 		switch (typeof query) {
 			case 'function':
 				iconLibraryIcons = iconSearch({
@@ -42,7 +53,7 @@ export function getLibraryIcons({
 			case 'string':
 				iconLibraryIcons = iconSearch({
 					query,
-					library: 'all',
+					library: 'search-2' === library ? 'all2' : 'all',
 					limit,
 				});
 				break;
@@ -62,31 +73,61 @@ export function getLibraryIcons({
 
 		if (isValidIcon(icon, iconKey))
 			iconsStack.push(
-				<span
-					key={iconKey}
-					className={controlInnerClassNames(
-						'icon-control-icon',
-						'library-' + icon.library,
-						'icon-' + icon.iconName,
-						isCurrentIcon(icon.iconName, icon.library)
-							? 'icon-current'
-							: ''
+				<FeatureWrapper
+					className={controlInnerClassNames('icon-wrapper')}
+					type={applyFilters(
+						'blockera.controls.iconControl.utils.getLibraryIcons.type',
+						[
+							'search-2',
+							'faregular',
+							'fasolid',
+							'fabrands',
+						].includes(library)
+							? 'native'
+							: 'none',
+						library
 					)}
-					aria-label={sprintf(
-						// translators: %s is icon ID in icon libraries for example arrow-left
-						__('%s Icon', 'blockera'),
-						icon.iconName
-					)}
-					onClick={(event) =>
-						onClick(event, {
-							type: 'UPDATE_ICON',
-							icon: icon.iconName,
-							library: icon.library,
-						})
-					}
 				>
-					<Icon library={icon.library} icon={icon} />
-				</span>
+					<span
+						key={iconKey}
+						className={controlInnerClassNames(
+							'icon-control-icon',
+							'library-' + icon.library,
+							'icon-' + icon.iconName,
+							isCurrentIcon(icon.iconName, icon.library)
+								? 'icon-current'
+								: ''
+						)}
+						aria-label={sprintf(
+							// translators: %s is icon ID in icon libraries for example arrow-left
+							__('%s Icon', 'blockera'),
+							icon.iconName
+						)}
+						onClick={(event) =>
+							onClick(event, {
+								type: 'UPDATE_ICON',
+								icon: icon.iconName,
+								library: icon.library,
+							})
+						}
+					>
+						<Tooltip text={icon.iconName}>
+							<Icon
+								library={icon.library}
+								icon={icon}
+								iconSize={
+									[
+										'faregular',
+										'fasolid',
+										'fabrands',
+									].includes(icon.library)
+										? 18
+										: 24
+								}
+							/>
+						</Tooltip>
+					</span>
+				</FeatureWrapper>
 			);
 	}
 
