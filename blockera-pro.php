@@ -93,12 +93,14 @@ function blockera_pro_init(): void {
 				'file' => __FILE__,
 				'slug' => 'blockera-pro',
 				'version' => BLOCKERA_PRO_VERSION,
+				'plugin_path' => BLOCKERA_PRO_PATH,
 				'compatible_with_slug' => 'blockera',
 				'callback' => function () {
 					if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
 						define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
 					}
 				},
+				'mode' => blockera_pro_core_config('app.debug') ? 'development' : 'production',
 			]
         );
 	}
