@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4818fa6a34e5d8e26cb6a16b09e3201c",
+    "content-hash": "4d4f2e0543581882b6636f4c20c3bafb",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -477,6 +477,30 @@
             "autoload-dev": {
                 "psr-4": {
                     "Blockera\\PluginCompatibility\\": "php/tests/"
+                }
+            },
+            "description": "Handles version plugin compatibility checking between Blockera and Blockera Pro plugins to ensure proper functionality",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/plugin-compatibility-pro",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/plugin-compatibility-pro",
+                "reference": "160394846b7b991d39119e3a8b9f9ce2853e7a30"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\PluginCompatibilityPro\\": "php/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\PluginCompatibilityPro\\": "php/tests/"
                 }
             },
             "description": "Handles version plugin compatibility checking between Blockera and Blockera Pro plugins to ensure proper functionality",

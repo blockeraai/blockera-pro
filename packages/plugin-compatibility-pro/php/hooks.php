@@ -1,0 +1,32 @@
+<?php
+
+use Blockera\PluginCompatibility\CompatibilityCheck;
+
+add_action(
+    'blockera/compatibility/admin-menus',
+    function ( string $base_url, CompatibilityCheck $compatibility_check_instance) {
+	
+		if ('development' === $compatibility_check_instance->get('app_mode')) {
+			$filename = 'plugin-compatibility-pro.js';
+		} else {
+			$filename = 'plugin-compatibility-pro.min.js';
+		}
+
+		$asset = $compatibility_check_instance->get('plugin_path') . '/dist/plugin-compatibility-pro/plugin-compatibility-pro.asset.php';
+		if (file_exists($asset)) {
+			$asset = require $asset;
+		}
+
+		wp_enqueue_script(
+            'blockera-compat-pro',
+            $base_url . '/dist/plugin-compatibility-pro/' . $filename,
+            $asset['dependencies'],
+            $asset['version'],
+            [
+				'in_footer' => true,
+            ],
+		);
+	},
+    10,
+    2
+);
