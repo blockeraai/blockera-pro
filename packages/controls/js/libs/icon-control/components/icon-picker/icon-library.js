@@ -7,6 +7,7 @@ import {
 	useState,
 	useTransition,
 	useContext,
+	useEffect,
 } from '@wordpress/element';
 
 /**
@@ -29,51 +30,45 @@ const IconLibrary = ({
 	title = '',
 }) => {
 	const ref = useRef(null);
+
 	const isVisible = useIsVisible(ref);
 
-	const [iconsStack] = useState([]);
-
+	const [iconsStack, setIconsStack] = useState([]);
 	const [isPending, startTransition] = useTransition();
-
 	const [isRendered, setRendered] = useState(false);
 
 	const { handleIconSelect, isCurrentIcon } = useContext(IconContext);
 
-	if (!lazyLoad && !isRendered) {
-		fetchLibraryIcons();
-		setRendered(true);
-	}
+	// Handle non-lazy loading
+	useEffect(() => {
+		if (!lazyLoad && !isRendered) {
+			loadIcons();
+		}
+	}, [lazyLoad, isRendered]);
 
-	function fetchLibraryIcons() {
+	// Handle lazy loading when component becomes visible
+	useEffect(() => {
+		if (lazyLoad && isVisible && !isRendered) {
+			loadIcons();
+		}
+	}, [lazyLoad, isVisible, isRendered]);
+
+	function loadIcons() {
 		if (isRendered) {
-			return true;
+			return;
 		}
 
-		iconsStack.push(
-			getLibraryIcons({
+		startTransition(() => {
+			const icons = getLibraryIcons({
 				library,
 				query: searchQuery,
 				onClick: handleIconSelect,
 				isCurrentIcon,
-			})
-		);
-	}
+			});
 
-	function loadIcons() {
-		if (isRendered) {
-			return true;
-		}
-
-		startTransition(() => {
-			fetchLibraryIcons();
+			setIconsStack([icons]);
 			setRendered(true);
 		});
-	}
-
-	function getIcons() {
-		loadIcons();
-
-		return <>{iconsStack}</>;
 	}
 
 	function isEmpty() {
@@ -100,13 +95,10 @@ const IconLibrary = ({
 			)}
 
 			<div className={controlInnerClassNames('library-body')} ref={ref}>
-				{(isRendered || isVisible) && (!lazyLoad || !isPending) ? (
-					<>{getIcons()}</>
+				{isRendered && !isPending ? (
+					<>{iconsStack}</>
 				) : (
-					<>
-						<IconLibraryLoading />
-						<div ref={ref} />
-					</>
+					<IconLibraryLoading />
 				)}
 			</div>
 		</div>
