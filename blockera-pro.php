@@ -84,9 +84,9 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	if (class_exists(\Blockera\Compatibility\CompatibilityCheck::class)) {
+	if (class_exists(\Blockera\PluginCompatibility\CompatibilityCheck::class)) {
 
-		\Blockera\Compatibility\CompatibilityCheck::getInstance()->run(
+		\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()->run(
             [
 				'file' => __FILE__,
 				'slug' => 'blockera-pro',
