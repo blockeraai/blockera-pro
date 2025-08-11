@@ -13,9 +13,11 @@ add_action(
 		}
 
 		$asset = $compatibility_check_instance->get('plugin_path') . '/dist/plugin-compatibility-pro/plugin-compatibility-pro.asset.php';
-		if (file_exists($asset)) {
-			$asset = require $asset;
+		if (! file_exists($asset)) {
+			return;
 		}
+
+		$asset = require $asset;
 
 		wp_enqueue_script(
             'blockera-compat-pro',
