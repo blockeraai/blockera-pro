@@ -14,5 +14,6 @@ wordpress*
 **/test/*
 **/stories/*
 /bin/plugin/**
+/bin/*.js
 packages/console/*
 packages/dev-storybook/*
