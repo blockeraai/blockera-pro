@@ -6,7 +6,7 @@
  * Requires at least: 6.6
  * Tested up to: 6.8
  * Requires PHP: 7.4
- * Requires at least blockera: 1.13.0
+ * Requires at least blockera: 1.12.2
  * Author: Blockera AI
  * Author URI: https://blockera.ai/about/
  * Version: 1.1.1
@@ -86,10 +86,9 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	if (class_exists(\Blockera\PluginCompatibility\CompatibilityCheck::class)) {
-
-		\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()->run(
-            [
+	\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()
+		->setProps(
+			[
 				'file' => __FILE__,
 				'slug' => 'blockera-pro',
 				'version' => BLOCKERA_PRO_VERSION,
@@ -100,11 +99,12 @@ function blockera_pro_init(): void {
 						define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
 					}
 				},
+				'transient_key' => 'blockera-pro-compat-redirect',
 				'mode' => blockera_pro_core_config('app.debug') ? 'development' : 'production',
 			]
-        );
-	}
-	
+		)
+		->load();
+
     // Gate: if Pro is disabled, do not bootstrap functionality.
     if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
         return;
@@ -118,6 +118,12 @@ function blockera_pro_init(): void {
      * @return void
      */
     function blockera_pro_before_setup_free_version(): void {
+
+		$compatibility_check_instance = \Blockera\PluginCompatibility\CompatibilityCheck::getInstance();
+
+		add_action('admin_init', [ $compatibility_check_instance, 'adminInitialize' ]);
+		add_action('admin_menu', [ $compatibility_check_instance, 'adminMenus' ]);
+
         // loading bootstrapper files.
         blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
         blockera_load('vendor.blockera.blockera-pro-admin.php.hooks', __DIR__);
