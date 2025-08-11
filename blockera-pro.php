@@ -86,6 +86,9 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
+	$env_mode = 'development' === blockera_core_env( 'APP_MODE', 'production' );
+	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+
 	\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()
 		->setProps(
 			[
@@ -100,7 +103,7 @@ function blockera_pro_init(): void {
 					}
 				},
 				'transient_key' => 'blockera-pro-compat-redirect',
-				'mode' => blockera_pro_core_config('app.debug') ? 'development' : 'production',
+				'mode' => $mode ? 'development' : 'production',
 			]
 		)
 		->load();
