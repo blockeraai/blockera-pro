@@ -122,6 +122,8 @@ function blockera_pro_init(): void {
      */
     function blockera_pro_before_setup_free_version(): void {
 
+		blockera_load('vendor.blockera.plugin-compatibility-pro.php.hooks', __DIR__);
+
 		$compatibility_check_instance = \Blockera\PluginCompatibility\CompatibilityCheck::getInstance();
 
 		add_action('admin_init', [ $compatibility_check_instance, 'adminInitialize' ]);

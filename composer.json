@@ -107,6 +107,10 @@
 		{
 			"type": "path",
 			"url": "packages/plugin-compatibility"
+		},
+		{
+			"type": "path",
+			"url": "packages/plugin-compatibility-pro"
 		}
 	],
 	"authors": [
@@ -137,6 +141,7 @@
 		"blockera/feature-icon": "*",
 		"blockera/features-core": "*",
 		"blockera/plugin-compatibility": "*",
+		"blockera/plugin-compatibility-pro": "*",
 		"blockera/telemetry": "*",
 		"blockera/wordpress": "*",
 		"blockera/exceptions": "*",
