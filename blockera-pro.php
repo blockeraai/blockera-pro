@@ -89,24 +89,26 @@ function blockera_pro_init(): void {
 	$env_mode = 'development' === $_ENV['APP_MODE'] ?? 'production';
 	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
 
-	\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()
-		->setProps(
-			[
-				'file' => __FILE__,
-				'slug' => 'blockera-pro',
-				'version' => BLOCKERA_PRO_VERSION,
-				'plugin_path' => BLOCKERA_PRO_PATH,
-				'compatible_with_slug' => 'blockera',
-				'callback' => function () {
-					if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
-						define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
-					}
-				},
-				'transient_key' => 'blockera-pro-compat-redirect',
-				'mode' => $mode ? 'development' : 'production',
-			]
-		)
-		->load();
+	global $blockera_compat_pro_with_free;
+
+	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
+        [
+			'file' => __FILE__,
+			'slug' => 'blockera-pro',
+			'version' => BLOCKERA_PRO_VERSION,
+			'plugin_path' => BLOCKERA_PRO_PATH,
+			'compatible_with_slug' => 'blockera',
+			'callback' => function () {
+				if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+					define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+				}
+			},
+			'transient_key' => 'blockera-pro-compat-redirect',
+			'mode' => $mode ? 'development' : 'production',
+		]
+    );
+	
+	$blockera_compat_pro_with_free->load();
 
     // Gate: if Pro is disabled, do not bootstrap functionality.
     if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
@@ -124,10 +126,10 @@ function blockera_pro_init(): void {
 
 		blockera_load('vendor.blockera.plugin-compatibility-pro.php.hooks', __DIR__);
 
-		$compatibility_check_instance = \Blockera\PluginCompatibility\CompatibilityCheck::getInstance();
+		global $blockera_compat_pro_with_free;
 
-		add_action('admin_init', [ $compatibility_check_instance, 'adminInitialize' ]);
-		add_action('admin_menu', [ $compatibility_check_instance, 'adminMenus' ]);
+		add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
+		add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);
 
         // loading bootstrapper files.
         blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
