@@ -86,7 +86,7 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	$env_mode = 'development' === blockera_core_env( 'APP_MODE', 'production' );
+	$env_mode = 'development' === $_ENV['APP_MODE'] ?? 'production';
 	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
 
 	\Blockera\PluginCompatibility\CompatibilityCheck::getInstance()
