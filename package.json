@@ -129,7 +129,7 @@
 		"@wordpress/components": "^29.11.0",
 		"@wordpress/core-data": "^7.26.0",
 		"@wordpress/data": "^10.9.0",
-		"@wordpress/env": "^10.9.0",
+		"@wordpress/env": "^10.28.0",
 		"@wordpress/eslint-plugin": "^14.4.0",
 		"@wordpress/icons": "^10.10.0",
 		"@wordpress/scripts": "^26.3.0",
