@@ -110,11 +110,6 @@ function blockera_pro_init(): void {
 	
 	$blockera_compat_pro_with_free->load();
 
-    // Gate: if Pro is disabled, do not bootstrap functionality.
-    if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
-        return;
-    }
-
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
     /**
@@ -131,6 +126,11 @@ function blockera_pro_init(): void {
 		add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
 		add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);
 
+		// Gate: if Pro is disabled, do not bootstrap functionality.
+		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+			return;
+		}
+
         // loading bootstrapper files.
         blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
         blockera_load('vendor.blockera.blockera-pro-admin.php.hooks', __DIR__);
@@ -139,6 +139,12 @@ function blockera_pro_init(): void {
     add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
     function blockera_pro_after_setup_free_version(): void {
+		
+		// Gate: if Pro is disabled, do not bootstrap functionality.
+		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+			return;
+		}
+
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
         require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
