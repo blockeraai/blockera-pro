@@ -215,6 +215,11 @@ add_action('admin_notices', 'blockera_pro_redirect_to_activation_page', 9e2);
  * @return void
  */
 function blockera_pro_redirect_to_activation_page(): void {
+
+	// Gate: if Pro is disabled, do not bootstrap functionality.
+	if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+		return;
+	}
 	
 	$optionKey = OptionRepository::getOptionKey() . '_do_activation_redirect';
 
