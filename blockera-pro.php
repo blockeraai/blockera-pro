@@ -25,13 +25,15 @@ if (! defined('ABSPATH')) {
 }
 
 ### BEGIN AUTO-GENERATED AUTOLOADER
-// Register into shared autoload coordinator.
-require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-coordinator.php';
-\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
-\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
-
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
+
+// Register into shared autoload coordinator.
+require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-coordinator.php';
+
+// Register into shared autoload coordinator.
+\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
+\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
 ### END AUTO-GENERATED AUTOLOADER
 
 if (file_exists(__DIR__ . '/.env')) {
@@ -79,6 +81,31 @@ function blockera_pro_is_enabled(): bool {
 
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
+
+$env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
+$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+
+global $blockera_compat_pro_with_free;
+
+$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
+    [
+        'file' => __FILE__,
+        'slug' => 'blockera-pro',
+        'version' => BLOCKERA_PRO_VERSION,
+        'plugin_path' => BLOCKERA_PRO_PATH,
+        'compatible_with_slug' => 'blockera',
+        'callback' => function () {
+            if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+                define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+            }
+        },
+        'transient_key' => 'blockera-pro-compat-redirect',
+        'mode' => $mode ? 'development' : 'production',
+    ],
+    new Blockera\Utils\Utils()
+);
+
+
 /**
  * Initialize Blockera PRO.
  *
@@ -86,28 +113,8 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	$env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
-	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
-
 	global $blockera_compat_pro_with_free;
 
-	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
-        [
-			'file' => __FILE__,
-			'slug' => 'blockera-pro',
-			'version' => BLOCKERA_PRO_VERSION,
-			'plugin_path' => BLOCKERA_PRO_PATH,
-			'compatible_with_slug' => 'blockera',
-			'callback' => function () {
-				if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
-					define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
-				}
-			},
-			'transient_key' => 'blockera-pro-compat-redirect',
-			'mode' => $mode ? 'development' : 'production',
-		]
-    );
-	
 	$blockera_compat_pro_with_free->load();
 
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
