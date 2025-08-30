@@ -1,0 +1,72 @@
+name: Plugin Compatibility Test
+
+on:
+    pull_request:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        name: Run Plugin Compatibility Tests
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+
+            - name: Setup Node.js and install dependencies
+              uses: ./.github/setup-node
+
+            - name: Setup PHP Composer and install dependencies
+              uses: ./.github/setup-php
+              with:
+                  custom-cache-suffix: $(/bin/date -u --date='last Mon' "+%F")
+                  composer-options: '--no-dev -o --apcu-autoloader -a'
+
+            - name: Build Plugin
+              uses: ./.github/build-plugin-zip
+
+            - name: Create required environment files
+              run: |
+                  node .github/scripts/create-wp-env.js '${{ matrix.category }}'
+                  cat .wp-env.json
+                  touch .env
+                  echo APP_MODE=production >> .env
+                  echo DB=wp_tests >> .env
+                  echo CI_ENV=true >> .env
+                  cat .env
+
+            - name: Setup WP Environment
+              run: |
+                  npm run wp-env start
+
+            - name: Update Blockera requirement version
+              run: |
+                  # Get current version from blockera-pro.php
+                  CURRENT_VERSION=$(grep -oP "Requires at least blockera: \K[0-9]+\.[0-9]+\.[0-9]+" wp-content/plugins/blockera-pro/blockera-pro.php)
+
+                  # Increment patch version
+                  IFS='.' read -r -a version_parts <<< "$CURRENT_VERSION"
+                  NEW_VERSION="${version_parts[0]}.${version_parts[1]}.$((version_parts[2] + 1))"
+
+                  # Update the version in the file
+                  sed -i "s/Requires at least blockera: $CURRENT_VERSION/Requires at least blockera: $NEW_VERSION/" wp-content/plugins/blockera-pro/blockera-pro.php
+
+                  echo "Updated Blockera requirement from $CURRENT_VERSION to $NEW_VERSION"
+
+            - name: Run e2e tests
+              run: |
+                  # Run only plugin compatibility tests
+                  npm run test:e2e -- --spec "*plugin-compatibility.e2e.cy.js"
+
+            - name: Stop WP Environment
+              if: always()
+              run: npm run wp-env stop
