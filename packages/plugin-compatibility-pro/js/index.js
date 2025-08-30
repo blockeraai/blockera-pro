@@ -14,7 +14,7 @@ addFilter(
 	'blockera.compatibility.directUpdateRequiredPlugin',
 	'blockera.compatibilityPro.directUpdateRequiredPlugin',
 	(pluginExists, updateUrl) => {
-		if (!pluginExists) {
+		if (0 === pluginExists) {
 			return false;
 		}
 

@@ -28,6 +28,12 @@ add_action(
 				'in_footer' => true,
             ],
 		);
+		
+		wp_add_inline_script(
+			'blockera-compat-pro',
+			'var blockeraAccount = ' . wp_json_encode( blockera_pro_core_config('account') ) . ';',
+			'before'
+		);
 	},
     10,
     2
