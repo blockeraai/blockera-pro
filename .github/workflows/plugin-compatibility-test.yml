@@ -54,7 +54,7 @@ jobs:
                   npm run env:tests-cli:bash
 
                   # Find blockera-pro.php file
-                  PRO_FILE=$(find /var/www/html/wp-content/plugins -name "blockera-pro.php")
+                  PRO_FILE=$(find /var/www/html/wp-content/plugins/blockera-pro -name "blockera-pro.php")
 
                   if [ -z "$PRO_FILE" ]; then
                     echo "Error: Could not find blockera-pro.php file"
