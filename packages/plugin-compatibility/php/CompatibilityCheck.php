@@ -315,12 +315,7 @@ class CompatibilityCheck {
 			return;
 		}
 
-		$skip_request_uris = apply_filters(
-            'blockera/compatibility/skip_request_uris',
-            [
-				'/wp-admin/',
-			]
-        );
+		$skip_request_uris = apply_filters('blockera/compatibility/skip_request_uris', []);
 
 		// Skip redirect if the request is to the compatibility page or other specific pages declared with external developers.
 		if (! in_array($_SERVER['REQUEST_URI'], $skip_request_uris, true)) {
