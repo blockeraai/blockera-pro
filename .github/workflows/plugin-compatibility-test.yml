@@ -46,7 +46,7 @@ jobs:
 
             - name: Setup WP Environment
               run: |
-                  npm run wp-env start
+                  npm run env:start
 
             - name: Update Blockera requirement version
               run: |
@@ -69,4 +69,4 @@ jobs:
 
             - name: Stop WP Environment
               if: always()
-              run: npm run wp-env stop
+              run: npm run env:stop
