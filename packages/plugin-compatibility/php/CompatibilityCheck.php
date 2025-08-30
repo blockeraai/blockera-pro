@@ -113,6 +113,8 @@ class CompatibilityCheck {
 		if (! $this->isActivePlugin()) {
 			return;
 		}
+
+		$this->redirectToDashboard();
 	}
 
 	/**
@@ -308,13 +310,25 @@ class CompatibilityCheck {
 	 * @return void
 	 */
 	private function redirectToDashboard(): void {
-		
+
 		if (! $this->is_compatible) {
 			return;
 		}
 
-		if ('/wp-admin/admin.php?page=blockera-compat' !== $_SERVER['REQUEST_URI']) {
+		$skip_request_uris = apply_filters(
+            'blockera/compatibility/skip_request_uris',
+            [
+				'/wp-admin/',
+			]
+        );
+
+		// Skip redirect if the request is to the compatibility page or other specific pages declared with external developers.
+		if (! in_array($_SERVER['REQUEST_URI'], $skip_request_uris, true)) {
 			return;
+		}
+
+		if (! function_exists('wp_safe_redirect')) {
+			require_once ABSPATH . 'wp-includes/pluggable.php';
 		}
 
 		wp_safe_redirect(admin_url());
