@@ -79,8 +79,19 @@ function blockera_pro_is_enabled(): bool {
     return $enabled;
 }
 
-add_action('plugins_loaded', 'blockera_pro_init', 5);
+// Add the account page URL to the list of specific pages that should redirect to the dashboard.
+// when the Pro plugin is not compatible with the free version. The account page won't exist.
+// until compatibility is restored.
+add_filter(
+    'blockera/compatibility/specific_pages',
+    function ( array $specific_pages): array {
 
+		return array_merge(
+            $specific_pages,
+            [ '/wp-admin/admin.php?page=blockera-settings-account' ]
+		);
+	}
+);
 
 $env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
 $mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
@@ -105,6 +116,7 @@ $blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\Compatibility
     new Blockera\Utils\Utils()
 );
 
+add_action('plugins_loaded', 'blockera_pro_init', 5);
 
 /**
  * Initialize Blockera PRO.
