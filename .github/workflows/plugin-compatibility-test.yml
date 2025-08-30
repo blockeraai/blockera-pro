@@ -58,7 +58,7 @@ jobs:
             - name: Run e2e tests
               run: |
                   # Run only plugin compatibility tests
-                  npm run test:e2e -- --spec "*plugin-compatibility.e2e.cy.js"
+                  npm run test:e2e -- --spec "packages/plugin-compatibility-pro/js/tests/*plugin-compatibility*.e2e.cy.js"
 
             - name: Stop WP Environment
               if: always()
