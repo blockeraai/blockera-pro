@@ -81,19 +81,6 @@ function blockera_pro_is_enabled(): bool {
 
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
-// Filter to skip redirect uris list to compatibility page.
-add_filter(
-    'blockera/compatibility/skip_request_uris',
-    function ( array $skip_request_uris): array {
-
-		return array_merge(
-            $skip_request_uris,
-            [
-				'/wp-admin/admin.php?page=blockera-settings-account',
-            ]
-		);
-	}
-);
 
 $env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
 $mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
