@@ -53,13 +53,8 @@ jobs:
                   # Run tests CLI to find blockera-pro.php
                   npm run env:tests-cli:bash
 
-                  # Find blockera-pro.php file
-                  PRO_FILE=$(find /var/www/html/wp-content/plugins/blockera-pro -name "blockera-pro.php")
-
-                  if [ -z "$PRO_FILE" ]; then
-                    echo "Error: Could not find blockera-pro.php file"
-                    exit 1
-                  fi
+                  # blockera-pro.php file
+                  PRO_FILE="/var/www/html/wp-content/plugins/blockera-pro/blockera-pro.php"
 
                   # Get current version from found file
                   CURRENT_VERSION=$(grep -oP "Requires at least blockera: \K[0-9]+\.[0-9]+\.[0-9]+" "$PRO_FILE")
