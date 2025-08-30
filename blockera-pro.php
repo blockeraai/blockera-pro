@@ -17,6 +17,8 @@
  */
 
 use Blockera\Auth\Repositories\OptionRepository;
+use Blockera\Bootstrap\Application;
+use Blockera\SiteBuilder\StyleEngine;
 
 // security code.
 if (! defined('ABSPATH')) {
@@ -67,15 +69,18 @@ function blockera_pro_is_enabled(): bool {
 
     $forcedDisabled = (bool) get_option('blockera_pro_force_disabled', false);
     $enabled        = ! $forcedDisabled;
-    /**
+    
+	/**
      * Allow external control of Blockera PRO enablement.
      *
      * @param bool $enabled Whether PRO is enabled.
      */
     $enabled = (bool) apply_filters('blockera_pro/is_enabled', $enabled);
-    if (defined('BLOCKERA_PRO_DISABLED_RUNTIME') && BLOCKERA_PRO_DISABLED_RUNTIME) {
+    
+	if (defined('BLOCKERA_PRO_DISABLED_RUNTIME') && BLOCKERA_PRO_DISABLED_RUNTIME) {
         $enabled = false;
     }
+
     return $enabled;
 }
 
@@ -160,7 +165,24 @@ function blockera_pro_init(): void {
     function blockera_pro_after_setup_free_version(): void {
 		
 		// Gate: if Pro is disabled, do not bootstrap functionality.
+		// We should replace the free style engine with the pro style engine while pro version is disabled.
 		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+			
+			global $blockera;
+
+			$blockera->singleton(
+				StyleEngine::class,
+				function ( Application $app, array $params = []) use ( $blockera) {
+					$style_engine = new \Blockera\Editor\StyleEngine($params['block'], $params['fallbackSelector']);
+
+					$style_engine->setApp($blockera);
+					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
+					$style_engine->setBreakpoints($app->getEntity('breakpoints'));
+
+					return $style_engine;
+				}
+			);
+
 			return;
 		}
 
