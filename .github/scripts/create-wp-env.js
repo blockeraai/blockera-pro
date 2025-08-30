@@ -2,6 +2,7 @@
 const fs = require('fs');
 
 const [category] = process.argv.slice(2);
+const [blockeraDownloadUrl] = process.argv.slice(3);
 
 // Read the .pr-env.json file.
 const prEnv = JSON.parse(fs.readFileSync('.pr-env.json', 'utf-8'));
@@ -24,7 +25,9 @@ const wpEnvContent = {
 	plugins: [
 		...new Set([
 			...(wpEnvConfig?.plugins || []),
-			...(prEnv?.plugins || []),
+			...(blockeraDownloadUrl
+				? [blockeraDownloadUrl]
+				: prEnv?.plugins || []),
 		]),
 	],
 	config: {
