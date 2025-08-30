@@ -85,6 +85,7 @@ class Notice {
 				'type' => 'info',
 				'message' => '',
 				'title' => '',
+				'slug' => '',
 				'dismissible' => true,
 				'persistent' => false,
 				'notice_for' => '',
@@ -147,6 +148,18 @@ class Notice {
      * @return void
      */
     public static function render_notice( array $notice): void {
+
+		/**
+		 * Filter to ignore notices, useful for development purposes.
+		 * 
+		 * @since 1.1.2
+		 */
+		$ignored_notices = apply_filters('blockera/notice/ignored_notices', []);
+
+		if (in_array($notice['slug'], $ignored_notices, true)) {
+			return;
+		}
+
         include_once __DIR__ . '/templates/base-notice.php';
     }
 

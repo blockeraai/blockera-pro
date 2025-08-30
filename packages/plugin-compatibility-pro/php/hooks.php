@@ -32,3 +32,16 @@ add_action(
     10,
     2
 );
+
+add_filter(
+    'blockera/notice/ignored_notices',
+    function ( array $ignored_notices) {
+
+		if ('/wp-admin/admin.php?page=blockera-compat' === $_SERVER['REQUEST_URI']) {
+
+			$ignored_notices[] = 'blockera-pro-next-version-available';
+		}
+
+		return $ignored_notices;
+	}
+);
