@@ -12,21 +12,45 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    check_version:
+        name: Check Pro Version
+        runs-on: ubuntu-latest
+        outputs:
+            should_test_previous: ${{ steps.check_version.outputs.should_test_previous }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Check version
+              id: check_version
+              run: |
+                  CURRENT_VERSION=$(grep "Version:" blockera-pro.php | awk -F': ' '{print $2}')
+                  if [ "$(echo -e "1.1.1\n$CURRENT_VERSION" | sort -V | head -n1)" = "1.1.1" ]; then
+                    echo "should_test_previous=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "should_test_previous=false" >> $GITHUB_OUTPUT
+                  fi
+
     test:
         name: Run Plugin Compatibility Tests
+        needs: check_version
         runs-on: ubuntu-latest
-        if: $(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].name') !== '1.12.2'
 
         strategy:
             fail-fast: false
             matrix:
                 strategy:
-                    [
-                        blockera-free-previous,
-                        blockera-free-latest,
-                        blockera-pro-previous,
-                    ]
+                    - blockera-free-previous
+                    - blockera-free-latest
+                    - ${{ needs.check_version.outputs.should_test_previous == 'true' && 'blockera-pro-previous' || '' }}
+
         steps:
+            - name: Check Blockera Free Latest version
+              id: check-blockera-free-latest-version
+              run: |
+                  LATEST_VERSION=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].name')
+                  echo "blockera-free-latest-version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
             - name: Checkout code
               uses: actions/checkout@v4
               with:
