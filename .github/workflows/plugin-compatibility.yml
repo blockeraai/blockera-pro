@@ -133,7 +133,11 @@ jobs:
             - name: Run e2e tests
               run: |
                   # Run only plugin compatibility tests
-                  npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                  if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                  else
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                  fi
 
             - name: Stop WP Environment
               if: always()
