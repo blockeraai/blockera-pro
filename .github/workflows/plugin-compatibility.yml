@@ -1,4 +1,4 @@
-name: Plugin Compatibility Test
+name: Check Blockera (pro) Compatibility With Blockera (free)
 
 on:
     pull_request:
@@ -16,6 +16,15 @@ jobs:
         name: Run Plugin Compatibility Tests
         runs-on: ubuntu-latest
 
+        strategy:
+            fail-fast: false
+            matrix:
+                strategy:
+                    [
+                        blockera-free-previous,
+                        blockera-free-latest,
+                        blockera-pro-previous,
+                    ]
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -39,9 +48,16 @@ jobs:
 
             - name: Create required environment files
               run: |
-                  # Get one left until last release version from Blockera repo
-                  BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
-                  echo "Latest Blockera version: $BLOCKERA_DOWNLOAD_URL"
+                  # Get Blockera version based on strategy
+                  if [ "${{ matrix.strategy }}" = "blockera-free-previous" ]; then
+                    # Get previous supported version (index -1)
+                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[-1].assets[0].browser_download_url')
+                  elif [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
+                    # Get latest version (index 0) 
+                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
+                  fi
+
+                  echo "Using Blockera version: $BLOCKERA_DOWNLOAD_URL"
 
                   # Create wp-env config with version
                   node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
@@ -52,7 +68,20 @@ jobs:
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env 
                   echo CI_ENV=true >> .env
-                  cat .env
+                  cat .en
+
+                  if [ "${{ matrix.strategy }}" = "blockera-pro-previous" ]; then
+                    # Get current version from blockera-pro.php
+                    CURRENT_VERSION=$(grep "Version:" blockera-pro.php | awk '{print $2}')
+                    echo "Current version: $CURRENT_VERSION"
+                    
+                    # Decrease patch version by 1
+                    NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$NF=$NF-1;}1' OFS=.)
+                    echo "New version: $NEW_VERSION"
+                    
+                    # Update version in blockera-pro.php
+                    sed -i "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" blockera-pro.php
+                  fi
 
             - name: Setup WP Environment
               run: |
