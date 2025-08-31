@@ -32,43 +32,48 @@ describe('Blockera PRO plugin compatibility checks', () => {
 		createPost();
 
 		cy.getBlock('default').type('This is test paragraph', { delay: 0 });
+
 		cy.get('[aria-label="Settings"]').eq(1).click({ force: true });
+
 		cy.getByDataTest('style-tab').click();
 
 		// add alias to the feature container
-		cy.getParentContainer('Clipping').as('clippingContainer');
+		cy.getParentContainer('BG Color').as('bgColorContainer');
 
-		cy.get('@clippingContainer').within(() => {
-			// act: clicking on clipping button
-			cy.get('button').as('clippingBtn');
-			cy.get('@clippingBtn').click();
+		// act: clicking on color button
+		cy.get('@bgColorContainer').within(() => {
+			cy.get('button').as('colorBtn');
+			cy.get('@colorBtn').click();
+		});
 
-			// select corresponding option
-			cy.contains('div', 'Clip to Padding').click();
+		// act: entering new hexColor
+		cy.get('.components-popover').each(() => {
+			cy.get('.components-popover input').as('hexColorInput');
+			cy.get('@hexColorInput').clear();
+			cy.get('@hexColorInput').type('666');
 		});
 
 		//assert data
 		getWPDataObject().then((data) => {
 			expect(
-				getSelectedBlock(data, 'blockeraBackgroundClip')
-			).to.be.equal('padding-box');
+				getSelectedBlock(data, 'blockeraBackgroundColor')
+			).to.be.equal('#666666');
 		});
 
-		//assert block
+		// assert editor
 		cy.getBlock('core/paragraph').should(
 			'have.css',
-			'background-clip',
-			'padding-box'
+			'backgroundColor',
+			'rgb(102, 102, 102)'
 		);
 
-		//assert  frontend
+		//assert frontend
 		savePage();
 		redirectToFrontPage();
-
 		cy.get('.blockera-block').should(
 			'have.css',
-			'background-clip',
-			'padding-box'
+			'background-color',
+			'rgb(102, 102, 102)'
 		);
 	});
 });
