@@ -88,7 +88,7 @@ jobs:
 
             - name: Run Cypress E2E Tests
               run: |
-                  if [ "${{ matrix.category }}" != "general" && "${{ matrix.category }}" != "plugin-compatibility" ]; then
+                  if [ "${{ matrix.category }}" != "general" ]; then
                     spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.e2e.cy.js"
                   else
                     spec_pattern="packages/**-pro(-**|)/**/!(*.*.e2e).cy.js"
