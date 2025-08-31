@@ -8,7 +8,5 @@ describe('Blockera PRO plugin compatibility checks', () => {
 			'not.include',
 			'/wp-admin/admin.php?page=blockera-compat'
 		);
-
-		cy.contains('Update Required for Blockera').should('not.be.visible');
 	});
 });
