@@ -101,12 +101,11 @@ jobs:
                     echo "Current version: $CURRENT_VERSION"
                     
                     # Split version into parts
-                    IFS='.' read -r version_parts <<< "$CURRENT_VERSION" && major=${version_parts[0]} minor=${version_parts[2]} patch=${version_parts[3]}
+                    IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
                     
-                    # If patch is 0, decrease minor and set patch to 9
+                    # Decrease patch version
                     if [ "$patch" = "0" ]; then
                       if [ "$minor" = "0" ]; then
-                        # If minor is also 0, decrease major and set minor to 9
                         major=$((major - 1))
                         minor=9
                         patch=9
@@ -115,15 +114,14 @@ jobs:
                         patch=9
                       fi
                     else
-                      # Normal case - just decrease patch
                       patch=$((patch - 1))
                     fi
                     
                     NEW_VERSION="$major.$minor.$patch"
                     echo "New version: $NEW_VERSION"
                     
-                    # Update version in blockera-pro.php
-                    sed -i "" "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" blockera-pro.php
+                    # Update version in blockera-pro.php using compatible sed syntax
+                    sed -i.bak "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" blockera-pro.php && rm blockera-pro.php.bak
                   fi
 
             - name: Setup WP Environment
