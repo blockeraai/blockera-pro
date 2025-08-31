@@ -68,7 +68,7 @@ jobs:
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env 
                   echo CI_ENV=true >> .env
-                  cat .en
+                  cat .env
 
                   if [ "${{ matrix.strategy }}" = "blockera-pro-previous" ]; then
                     # Get current version from blockera-pro.php
