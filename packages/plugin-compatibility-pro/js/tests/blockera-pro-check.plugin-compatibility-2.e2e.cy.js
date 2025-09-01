@@ -141,9 +141,11 @@ describe('Blockera PRO plugin compatibility checks', () => {
 
 		cy.reload();
 
-		cy.get('p.blockera-block')
-			.eq(1)
-			.should('have.css', 'background-color', 'rgb(102, 102, 102)');
+		cy.get('.blockera-block').should(
+			'have.css',
+			'background-color',
+			'rgb(102, 102, 102)'
+		);
 	});
 
 	it('should be able to see plugin compatibility page while user try to navigate WordPress admin pages if not compatible with free version', () => {
