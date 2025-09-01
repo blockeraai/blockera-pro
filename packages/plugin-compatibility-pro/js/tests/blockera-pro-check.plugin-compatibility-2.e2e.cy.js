@@ -4,6 +4,7 @@ import {
 	getWPDataObject,
 	getSelectedBlock,
 	createPost,
+	redirectToFrontPage,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Blockera PRO plugin compatibility checks', () => {
@@ -48,25 +49,18 @@ describe('Blockera PRO plugin compatibility checks', () => {
 
 		//assert frontend
 		savePage();
+		redirectToFrontPage();
 
-		// Abort any pending requests before navigation
-		cy.window().then((win) => {
-			win.stop();
-		});
+		cy.get('p.blockera-block')
+			.eq(1)
+			.should('have.css', 'background-color', 'rgb(102, 102, 102)');
 
-		let postLink = '';
+		// Deactivate Blockera PRO plugin
+		goTo('/wp-admin/plugins.php');
 
-		cy.get('.blockera-control-canvas-editor-preview-link a')
-			.invoke('attr', 'href')
-			.then((href) => {
-				postLink = href;
-			});
+		cy.get('a#deactivate-blockera-site-builder-pro').click();
 
-		// ============================= Edit Blockera PRO Main File ============================ //
 		goTo('/wp-admin/plugin-editor.php');
-
-		cy.get('button').contains('I understand').should('be.visible');
-		cy.get('button').contains('I understand').click();
 
 		cy.get('select[name="plugin"]').should('be.visible');
 		cy.get('select[name="plugin"]').select('blockera-pro/blockera-pro.php');
@@ -76,7 +70,7 @@ describe('Blockera PRO plugin compatibility checks', () => {
 
 		cy.get('textarea[name="newcontent"]').should('be.visible');
 
-		// Get current version from plugin header
+		// Get current version and update it
 		cy.get('textarea[name="newcontent"]')
 			.invoke('val')
 			.then((content) => {
@@ -109,29 +103,40 @@ describe('Blockera PRO plugin compatibility checks', () => {
 				}
 
 				const newVersion = `${newMajor}.${newMinor}.${newPatch}`;
-
-				// Replace version in content
 				const newContent = content.replace(
 					`Version: ${currentVersion}`,
 					`Version: ${newVersion}`
 				);
 
-				cy.get('textarea[name="newcontent"]').clear();
-				cy.get('textarea[name="newcontent"]').type(newContent, {
-					delay: 0,
-				});
+				// Update textarea content
+				cy.get('textarea[name="newcontent"]').invoke('val', newContent);
+
+				// Trigger change event to ensure WordPress detects the modification
+				cy.get('textarea[name="newcontent"]').trigger('change');
 			});
 
 		cy.get('input[value="Update File"]').click();
-		// ============================= Edit Blockera PRO Main File ============================ //
 
-		cy.visit(postLink);
+		// Wait for update to complete before proceeding
+		cy.contains('File edited successfully.').should('be.visible');
 
-		cy.get('.blockera-block').should(
-			'have.css',
-			'background-color',
-			'rgb(102, 102, 102)'
-		);
+		goTo('/wp-admin/plugins.php');
+
+		// Activate Blockera PRO plugin if not already activated
+		cy.get('a#activate-blockera-site-builder-pro').click();
+
+		cy.go('back');
+		cy.go('back');
+		cy.go('back');
+		cy.go('back');
+		cy.go('back');
+		cy.go('back');
+
+		cy.reload();
+
+		cy.get('p.blockera-block')
+			.eq(1)
+			.should('have.css', 'background-color', 'rgb(102, 102, 102)');
 	});
 
 	it('should be able to see plugin compatibility page while user try to navigate WordPress admin pages if not compatible with free version', () => {
