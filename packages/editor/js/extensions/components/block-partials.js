@@ -3,6 +3,7 @@
  */
 import { Slot, Fill } from '@wordpress/components';
 import { useEffect, memo, useRef } from '@wordpress/element';
+import { select } from '@wordpress/data';
 
 /**
  * Blockera dependencies
@@ -50,7 +51,7 @@ export const BlockPartials = memo(({ clientId, isActive, setActive }) => {
 		return () => observer.disconnect();
 	}, []);
 
-	return prependPortal(
+	const Component = () => (
 		<>
 			<div
 				ref={sentinelRef}
@@ -80,7 +81,20 @@ export const BlockPartials = memo(({ clientId, isActive, setActive }) => {
 					/>
 				</div>
 			</Fill>
-		</>,
+		</>
+	);
+
+	const { getActiveComplementaryArea } = select('core/interface');
+
+	const activeComplementaryArea =
+		getActiveComplementaryArea('core/edit-site');
+
+	if ('edit-site/global-styles' === activeComplementaryArea) {
+		return <Component />;
+	}
+
+	return prependPortal(
+		<Component />,
 		document.querySelector('.block-editor-block-inspector'),
 		{
 			className: isActive ? 'blockera-active-block' : '',

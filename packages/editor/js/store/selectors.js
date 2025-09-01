@@ -284,3 +284,96 @@ export const getBlockAppSettings = ({
 }): Object => {
 	return blockAppSettings;
 };
+
+/**
+ * Get global styles.
+ *
+ * @param {{globalStyles: Object}} state the global styles.
+ *
+ * @return {Object} the global styles data stored in redux.
+ */
+export const getGlobalStyles = ({
+	globalStyles,
+}: {
+	globalStyles: Object,
+}): Object => {
+	return globalStyles;
+};
+
+/**
+ * Get selected block style.
+ *
+ * @param {{globalStyles: Object}} state the global styles.
+ *
+ * @return {string} the selected block style.
+ */
+export const getSelectedBlockStyle = ({
+	globalStyles,
+}: {
+	globalStyles: Object,
+}): string => {
+	return globalStyles.selectedBlockStyle;
+};
+
+/**
+ * Get block styles.
+ *
+ * @param {{globalStyles: Object}} state the global styles.
+ * @param {string} blockName the name of the block.
+ *
+ * @return {Object} the block styles data stored in redux.
+ */
+export const getBlockStyles = (
+	{
+		globalStyles,
+	}: {
+		globalStyles: Object,
+	},
+	blockName: string
+): Object => {
+	return globalStyles?.styles?.blocks?.[blockName] || {};
+};
+
+/**
+ * Get block style variations.
+ *
+ * @param {{globalStyles: Object}} state the global styles.
+ * @param {string} blockName the name of the block.
+ *
+ * @return {Object} the block style variations data stored in redux.
+ */
+export const getBlockStyleVariations = (
+	{
+		globalStyles,
+	}: {
+		globalStyles: Object,
+	},
+	blockName: string
+): Object => {
+	return globalStyles?.styles?.blocks?.[blockName]?.variations || {};
+};
+
+/**
+ * Get block style variation.
+ *
+ * @param {{globalStyles: Object}} state the global styles.
+ * @param {string} blockName the name of the block.
+ * @param {string} variationName the name of the variation.
+ *
+ * @return {null|Object} the block style variation data stored in redux.
+ */
+export const getBlockStyleVariation = (
+	{
+		globalStyles,
+	}: {
+		globalStyles: Object,
+	},
+	blockName: string,
+	variationName: string
+): Object => {
+	return (
+		globalStyles?.styles?.blocks?.[blockName]?.variations?.[
+			variationName
+		] || null
+	);
+};
