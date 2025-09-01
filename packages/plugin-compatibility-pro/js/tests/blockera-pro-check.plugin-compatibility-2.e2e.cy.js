@@ -117,7 +117,9 @@ describe('Blockera PRO plugin compatibility checks', () => {
 				cy.get('textarea[name="newcontent"]').invoke('val', newContent);
 
 				// Trigger change event to ensure WordPress detects the modification
-				cy.get('textarea[name="newcontent"]').trigger('change');
+				cy.get('textarea[name="newcontent"]').trigger('change', {
+					force: true,
+				});
 			});
 
 		cy.get('input[value="Update File"]').click();
