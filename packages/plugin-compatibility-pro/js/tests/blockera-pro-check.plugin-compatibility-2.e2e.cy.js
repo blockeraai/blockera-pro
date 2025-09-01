@@ -72,7 +72,7 @@ describe('Blockera PRO plugin compatibility checks', () => {
 		cy.get('select[name="plugin"]').select('blockera-pro/blockera-pro.php');
 
 		cy.get('input[type="submit"]').should('be.visible');
-		cy.get('input[type="submit"]').click();
+		cy.get('input[value="Select"]').click();
 
 		cy.get('textarea[name="newcontent"]').should('be.visible');
 
