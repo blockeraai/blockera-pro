@@ -51,9 +51,11 @@ describe('Blockera PRO plugin compatibility checks', () => {
 		savePage();
 		redirectToFrontPage();
 
-		cy.get('p.blockera-block')
-			.eq(1)
-			.should('have.css', 'background-color', 'rgb(102, 102, 102)');
+		cy.get('blockera-block').should(
+			'have.css',
+			'background-color',
+			'rgb(102, 102, 102)'
+		);
 
 		// Deactivate Blockera PRO plugin
 		goTo('/wp-admin/plugins.php');
