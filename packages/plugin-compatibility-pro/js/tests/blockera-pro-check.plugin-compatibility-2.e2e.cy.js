@@ -62,6 +62,9 @@ describe('Blockera PRO plugin compatibility checks', () => {
 
 		goTo('/wp-admin/plugin-editor.php');
 
+		cy.get('button').contains('I understand').should('be.visible');
+		cy.get('button').contains('I understand').click();
+
 		cy.get('select[name="plugin"]').should('be.visible');
 		cy.get('select[name="plugin"]').select('blockera-pro/blockera-pro.php');
 
