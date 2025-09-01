@@ -42,6 +42,7 @@ jobs:
                 strategy:
                     - blockera-free-previous
                     - blockera-free-latest
+                    - blockera-pro-current
                     - ${{ needs.check_version.outputs.should_test_previous == 'true' && 'blockera-pro-previous' || '' }}
 
         steps:
@@ -133,6 +134,8 @@ jobs:
                   # Run only plugin compatibility tests
                   if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
                     npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                  elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
                   else
                     npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
                   fi
