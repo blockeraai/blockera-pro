@@ -34,11 +34,7 @@ const main = () => {
 	categorizedFiles.forEach((file) => {
 		const match = file.match(/\.(.*?)\.e2e\.cy\.js/);
 		if (match && match[1]) {
-			if (
-				match[1] !== 'plugin-compatibility' &&
-				match[1] !== 'plugin-compatibility-1' &&
-				match[1] !== 'plugin-compatibility-2'
-			) {
+			if (!match[1].match(/^plugin-compatibility(-[0-9]+)?$/)) {
 				categories.add(match[1]);
 			}
 		}
