@@ -36,7 +36,8 @@ const main = () => {
 		if (match && match[1]) {
 			if (
 				match[1] !== 'plugin-compatibility' &&
-				match[1] !== 'plugin-compatibility-1'
+				match[1] !== 'plugin-compatibility-1' &&
+				match[1] !== 'plugin-compatibility-2'
 			) {
 				categories.add(match[1]);
 			}
