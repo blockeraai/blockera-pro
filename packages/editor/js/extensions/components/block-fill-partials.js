@@ -7,7 +7,7 @@ import memoize from 'fast-memoize';
 import { select } from '@wordpress/data';
 import type { ComponentType, Element } from 'react';
 import { Fill } from '@wordpress/components';
-import { useEffect, memo, useMemo } from '@wordpress/element';
+import { useEffect, memo } from '@wordpress/element';
 
 /**
  * Blockera dependencies
@@ -18,7 +18,6 @@ import { unregisterControl } from '@blockera/controls';
  * Internal dependencies
  */
 import { isInnerBlock } from './utils';
-import StateContainer from './state-container';
 import { BlockCard, InnerBlockCard } from '../libs/block-card';
 
 const excludedControls = ['canvas-editor'];
@@ -37,7 +36,6 @@ export const BlockFillPartials: ComponentType<any> = memo(
 		BlockEditComponent,
 		blockeraInnerBlocks,
 		availableInnerStates,
-		insideBlockInspector,
 		currentInnerBlockState,
 		updateBlockEditorSettings,
 	}): Element<any> => {
@@ -64,13 +62,12 @@ export const BlockFillPartials: ComponentType<any> = memo(
 			);
 		}, [isActive]);
 
-		const memoizedBlockCardComponent = useMemo(
-			() => (
-				<>
+		return (
+			<>
+				<Fill name={`blockera-block-card-content-${clientId}`}>
 					<BlockCard
 						isActive={isActive}
 						notice={notice}
-						insideBlockInspector={insideBlockInspector}
 						clientId={clientId}
 						blockName={blockProps.name}
 						innerBlocks={blockeraInnerBlocks}
@@ -92,7 +89,6 @@ export const BlockFillPartials: ComponentType<any> = memo(
 
 					{isInnerBlock(currentBlock) && (
 						<InnerBlockCard
-							insideBlockInspector={insideBlockInspector}
 							isActive={isActive}
 							clientId={clientId}
 							activeBlock={currentBlock}
@@ -116,65 +112,18 @@ export const BlockFillPartials: ComponentType<any> = memo(
 							}
 						/>
 					)}
-				</>
-			),
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[
-				isActive,
-				currentBlock,
-				currentState,
-				currentBreakpoint,
-				currentInnerBlockState,
-			]
-		);
-
-		return (
-			<>
-				{insideBlockInspector && (
-					<>
-						<Fill name={`blockera-block-card-content-${clientId}`}>
-							{memoizedBlockCardComponent}
-						</Fill>
-						{isActive && (
-							<Fill
-								name={`blockera-block-edit-content-${clientId}`}
-							>
-								<BlockEditComponent
-									{...{ ...blockProps, insideBlockInspector }}
-									availableStates={
-										isInnerBlock(currentBlock)
-											? availableInnerStates
-											: availableStates
-									}
-								/>
-							</Fill>
-						)}
-					</>
-				)}
-				{!insideBlockInspector && (
-					<>
-						<StateContainer
-							blockeraUnsavedData={
-								blockProps.attributes?.blockeraUnsavedData
-							}
-							insideBlockInspector={insideBlockInspector}
-							availableStates={
-								isInnerBlock(currentBlock)
-									? availableInnerStates
-									: availableStates
-							}
-						>
-							{memoizedBlockCardComponent}
-						</StateContainer>
+				</Fill>
+				{isActive && (
+					<Fill name={`blockera-block-edit-content-${clientId}`}>
 						<BlockEditComponent
-							{...{ ...blockProps, insideBlockInspector }}
+							{...blockProps}
 							availableStates={
 								isInnerBlock(currentBlock)
 									? availableInnerStates
 									: availableStates
 							}
 						/>
-					</>
+					</Fill>
 				)}
 			</>
 		);

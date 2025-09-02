@@ -140,60 +140,9 @@ export const blockAppSettings = (
 	return state;
 };
 
-export const globalStyles = (state: Object = {}, action: Object): Object => {
-	switch (action.type) {
-		case 'SET_SELECTED_BLOCK_STYLE':
-			state = {
-				...state,
-				selectedBlockStyle: action.selectedBlockStyle,
-			};
-			break;
-		case 'SET_GLOBAL_STYLES':
-			state = {
-				...state,
-				styles: action.styles,
-			};
-			break;
-		case 'SET_BLOCK_STYLES':
-			state = {
-				...state,
-				styles: {
-					...(state?.styles || {}),
-					blocks: {
-						...(state?.styles?.blocks || {}),
-						[action.blockName]: {
-							...(state?.styles?.blocks?.[action.blockName] ||
-								{}),
-							variations: action.styles,
-						},
-					},
-				},
-			};
-			break;
-		case 'SET_BLOCK_DEFAULT_STYLES':
-			state = {
-				...state,
-				styles: {
-					...(state?.styles || {}),
-					blocks: {
-						...(state?.styles?.blocks || {}),
-						[action.blockName]: mergeObject(
-							state?.styles?.blocks?.[action.blockName] || {},
-							action.styles
-						),
-					},
-				},
-			};
-			break;
-	}
-
-	return state;
-};
-
 export default (combineReducers({
 	breakpoints,
 	blockStates,
-	globalStyles,
 	innerBlockStates,
 	blockAppSettings,
 	canvasEditorSettings,

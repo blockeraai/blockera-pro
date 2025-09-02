@@ -12,7 +12,6 @@ import {
 import { Slot } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { getBlockType } from '@wordpress/blocks';
 
 /**
  * Blockera dependencies
@@ -30,12 +29,11 @@ import { Icon } from '@blockera/icons';
 import { Breadcrumb } from './breadcrumb';
 import { default as BlockIcon } from './block-icon';
 import { EditableBlockName } from './editable-block-name';
-import { BlockStyleVariations } from '../style-variations';
 import type { TBreakpoint, TStates } from '../block-states/types';
 import { Preview as BlockCompositePreview } from '../../block-composite';
 import type { InnerBlockType, InnerBlockModel } from '../inner-blocks/types';
+import { BlockStyleVariations } from '../style-variations';
 import { default as BlockVariationTransforms } from '../block-variation-transforms';
-import BlockPreviewPanel from '../../../../canvas-editor/components/block-global-styles-panel-screen/block-preview-panel';
 
 export function BlockCard({
 	notice,
@@ -52,7 +50,6 @@ export function BlockCard({
 	currentInnerBlock,
 	currentBreakpoint,
 	blockeraInnerBlocks,
-	insideBlockInspector,
 	currentStateAttributes,
 	currentInnerBlockState,
 	handleOnChangeAttributes,
@@ -63,7 +60,6 @@ export function BlockCard({
 	supports: Object,
 	availableStates: Object,
 	blockeraInnerBlocks: Object,
-	insideBlockInspector: boolean,
 	currentStateAttributes: Object,
 	additional: Object,
 	notice: MixedElement,
@@ -81,16 +77,9 @@ export function BlockCard({
 	setAttributes: (attributes: Object) => void,
 	innerBlocks: { [key: 'master' | InnerBlockType | string]: InnerBlockModel },
 }): MixedElement {
-	const {
-		icon: blockIcon,
-		title: blockTitle,
-		description: blockDescription,
-	} = getBlockType(blockName);
 	const blockInformation = useBlockDisplayInformation(clientId);
-	const [name, setName] = useState(
-		blockInformation?.name || blockTitle || ''
-	);
-	const [title, setTitle] = useState(blockInformation?.title || blockTitle);
+	const [name, setName] = useState(blockInformation.name || '');
+	const [title, setTitle] = useState(blockInformation.title);
 
 	useEffect(() => {
 		// Name changed from outside
@@ -98,26 +87,13 @@ export function BlockCard({
 			setName(blockInformation?.name);
 		}
 
-		if (blockTitle && blockTitle.trim() !== name) {
-			setName(blockTitle);
-		}
-
 		// title changed from outside. For example: changing block variation
 		if (blockInformation?.title !== title) {
 			setTitle(blockInformation?.title);
 		}
 
-		if (blockTitle && blockTitle.trim() !== title) {
-			setTitle(blockTitle);
-		}
-
 		// eslint-disable-next-line
-	}, [
-		blockName,
-		blockTitle,
-		blockInformation?.title,
-		blockInformation?.name,
-	]);
+	}, [blockInformation.name, blockInformation.title]);
 
 	const { parentNavBlockClientId } = useSelect((select) => {
 		const { getSelectedBlockClientId, getBlockParentsByBlockName } =
@@ -185,7 +161,7 @@ export function BlockCard({
 						/>
 					)}
 
-					<BlockIcon icon={blockInformation?.icon || blockIcon} />
+					<BlockIcon icon={blockInformation.icon} />
 
 					<div
 						className={extensionInnerClassNames(
@@ -224,15 +200,13 @@ export function BlockCard({
 							/>
 						</h2>
 
-						{(blockInformation?.description ||
-							blockDescription) && (
+						{blockInformation?.description && (
 							<span
 								className={extensionInnerClassNames(
 									'block-card__description'
 								)}
 							>
-								{blockInformation?.description ||
-									blockDescription}
+								{blockInformation.description}
 							</span>
 						)}
 					</div>
@@ -247,28 +221,13 @@ export function BlockCard({
 				>
 					<div
 						className={extensionInnerClassNames(
-							'block-card__actions',
-							{
-								'no-flex': !insideBlockInspector,
-							}
+							'block-card__actions'
 						)}
 					>
-						{!insideBlockInspector && (
-							<BlockPreviewPanel
-								name={blockName}
-								variation={''}
-							/>
-						)}
 						<BlockStyleVariations
 							clientId={clientId}
-							blockName={blockName}
 							currentBlock={currentBlock}
 							currentState={currentState}
-							context={
-								insideBlockInspector
-									? 'inspector-controls'
-									: 'global-styles-panel'
-							}
 							currentBreakpoint={currentBreakpoint}
 						/>
 

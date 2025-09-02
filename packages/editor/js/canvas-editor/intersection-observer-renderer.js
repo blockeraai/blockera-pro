@@ -8,40 +8,26 @@ import { createRoot } from '@wordpress/element';
 
 export class IntersectionObserverRenderer {
 	observer: MutationObserver;
+	root: string;
+	after: string;
 	targetSelector: string;
-	whileNotExistSelectors: string[];
 	componentSelector: string;
 	Component: ComponentType<any>;
-	targetElementIsRoot: boolean;
-	callback: Function;
-	onShouldNotRenderer: boolean;
 
 	constructor(
 		targetSelector: string,
 		Component: ComponentType<any>,
 		{
-			whileNotExistSelectors = [],
-			componentSelector = '',
-			callback = null,
-			targetElementIsRoot = false,
-			onShouldNotRenderer = false,
-		}: {
-			callback: Function,
-			root: string,
-			after: string,
-			componentSelector: string,
-			whileNotExistSelectors: string[],
-			targetElementIsRoot: boolean,
-			onShouldNotRenderer: boolean,
-		} = {}
+			root,
+			after,
+			componentSelector,
+		}: { root: string, after: string, componentSelector: string }
 	) {
-		this.whileNotExistSelectors = whileNotExistSelectors;
+		this.root = root;
+		this.after = after;
 		this.componentSelector = componentSelector;
 		this.targetSelector = targetSelector;
 		this.Component = Component;
-		this.callback = callback;
-		this.targetElementIsRoot = targetElementIsRoot;
-		this.onShouldNotRenderer = onShouldNotRenderer;
 
 		// Create mutation observer to watch DOM changes
 		this.observer = new MutationObserver((mutations) => {
@@ -83,16 +69,8 @@ export class IntersectionObserverRenderer {
 			});
 		});
 
-		if (shouldRerender && this.Component) {
+		if (shouldRerender) {
 			this.renderComponent();
-		}
-
-		if (shouldRerender && 'function' === typeof this.callback) {
-			this.callback();
-		}
-
-		if (!shouldRerender && 'function' === typeof this.onShouldNotRenderer) {
-			this.onShouldNotRenderer();
 		}
 	}
 
@@ -100,33 +78,6 @@ export class IntersectionObserverRenderer {
 		const targetElement = document.querySelector(this.targetSelector);
 
 		if (targetElement && !document.querySelector(this.componentSelector)) {
-			if (this.whileNotExistSelectors.length > 0) {
-				const shouldRender = this.whileNotExistSelectors.every(
-					(selector) => !document.querySelector(selector)
-				);
-
-				if (!shouldRender) {
-					return;
-				}
-			}
-
-			if (this.targetElementIsRoot) {
-				// Check if this.targetElement is a valid DOM element
-				if (!(targetElement instanceof Element)) {
-					return;
-				}
-
-				setTimeout(() => {
-					const containerDiv = document.createElement('div');
-					const root = createRoot(containerDiv);
-					root.render(
-						<this.Component clickedBlock={this.clickedBlock} />
-					);
-				});
-
-				return;
-			}
-
 			// Create a new div to hold our component.
 			const containerDiv = document.createElement('div');
 			// Append the new container to target instead of replacing content.
@@ -135,6 +86,33 @@ export class IntersectionObserverRenderer {
 			root.render(<this.Component />);
 			containerDiv.remove();
 		}
+
+		// TODO: This is a temporary solution to render the component in the mirror of target element while the target element is not available.
+		// const observerElementSelector = 'blockera-observer-element';
+		// else if (!targetElement) {
+		// 	// Create a new div to hold our component
+		// 	const containerDiv = document.createElement('div');
+		// 	containerDiv.classList.add(this.targetSelector.replace('.', ''));
+		// 	containerDiv.classList.add(observerElementSelector);
+
+		// 	if (this.after) {
+		// 		document.querySelector(this.after)?.after(containerDiv);
+		// 	} else {
+		// 		document.querySelector(this.root)?.appendChild(containerDiv);
+		// 	}
+		// }
+		//  else {
+		// 	document
+		// 		.querySelectorAll(this.targetSelector)
+		// 		.forEach((element) => {
+		// 			if (element.classList.contains(observerElementSelector)) {
+		// 				document
+		// 					.querySelector(this.targetSelector)
+		// 					?.appendChild(element?.children[0]);
+		// 				element.style.display = 'none';
+		// 			}
+		// 		});
+		// }
 	}
 
 	destroy() {

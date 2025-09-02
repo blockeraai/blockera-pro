@@ -24,16 +24,8 @@ export const getTargets = (version: string): GetTarget => {
 	const dotsMatches = /\./g.exec(version);
 	version = version?.replace(/\./g, '');
 
-	const globalStylesPanel = {
-		blocksButton: `button[id="\/blocks"]`,
-		screen: '.edit-site-global-styles-sidebar__navigator-screen',
-		blockScreenListItem: `button[id^="\/blocks\/core%2F"]:not([id*="\/variations\/"])`,
-		globalStylesScreen: '.edit-site-global-styles-screen',
-	};
-
 	const targets = {
 		header: '.editor-header__center',
-		globalStylesPanel,
 	};
 
 	// For WordPress version equals or bigger than 6.6.1 version.
@@ -50,6 +42,5 @@ export const getTargets = (version: string): GetTarget => {
 		header: isLoadedSiteEditor()
 			? '.edit-site-header-edit-mode__center'
 			: '.edit-post-header__center',
-		globalStylesPanel,
 	};
 };
