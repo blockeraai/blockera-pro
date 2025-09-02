@@ -93,8 +93,6 @@ type extraArguments = {
 	allowedPostTypes: Array<string>,
 };
 
-const registeredBlockTypes = new Map();
-
 /**
  * Filters registered WordPress block type settings, extending block settings with settings and block name.
  *
@@ -108,10 +106,6 @@ export default function withBlockSettings(
 	name: Object,
 	args: extraArguments
 ): Object {
-	if (registeredBlockTypes.has(name)) {
-		return registeredBlockTypes.get(name);
-	}
-
 	const { getBlockExtensionBy } = select(STORE_NAME) || {};
 	const { getExtension } = select('blockera/extensions/config');
 
@@ -130,25 +124,16 @@ export default function withBlockSettings(
 		);
 	}
 
-	let result = {};
-
 	if (blockExtension && isBlockTypeExtension(blockExtension)) {
-		result = mergeBlockSettings(settings, blockExtension, args);
-		registeredBlockTypes.set(name, result);
-
-		return result;
+		return mergeBlockSettings(settings, blockExtension, args);
 	}
 
-	result = {
+	return {
 		...settings,
 		edit: (props) => (
 			<EdiBlockWithoutExtensions {...{ ...props, settings }} />
 		),
 	};
-
-	registeredBlockTypes.set(name, result);
-
-	return result;
 }
 
 export const ErrorBoundaryFallback: ComponentType<Object> = memo(

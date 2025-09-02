@@ -49,7 +49,7 @@ export const BlockIcon = ({
 				}}
 			/>
 
-			{defaultIcon && <WPBlockIcon icon={defaultIcon} />}
+			<WPBlockIcon icon={defaultIcon} />
 		</>
 	);
 };

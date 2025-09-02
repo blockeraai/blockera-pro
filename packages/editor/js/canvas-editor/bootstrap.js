@@ -6,15 +6,14 @@
 import type { MixedElement } from 'react';
 import { applyFilters } from '@wordpress/hooks';
 import { select, dispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from '../store';
 import { getTargets } from './helpers';
-import { registration } from './global-styles';
+import { STORE_NAME } from '../store';
 import { CanvasEditorApplication } from './index';
 import { IntersectionObserverRenderer } from './intersection-observer-renderer';
 import type { BreakpointTypes } from '../extensions/libs/block-card/block-states/types';
@@ -76,7 +75,7 @@ export const bootstrapCanvasEditor = (): void | Object => {
 	const observerPlugin = 'blockera-canvas-editor-observer';
 
 	const { version } = getEntity('wp');
-	const { header, globalStylesPanel } = getTargets(version);
+	const { header } = getTargets(version);
 
 	const registry = () => {
 		registerPlugin(observerPlugin, {
@@ -99,6 +98,8 @@ export const bootstrapCanvasEditor = (): void | Object => {
 								/>
 							),
 							{
+								root: '.editor-header',
+								after: '.editor-header__toolbar',
 								componentSelector,
 							}
 						);
@@ -109,8 +110,6 @@ export const bootstrapCanvasEditor = (): void | Object => {
 				return <></>;
 			},
 		});
-
-		registration(globalStylesPanel);
 	};
 
 	if (!getPlugin(observerPlugin)) {
