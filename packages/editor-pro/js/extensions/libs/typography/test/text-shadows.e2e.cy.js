@@ -59,6 +59,7 @@ describe('Text Shadows → Functionality', () => {
 			});
 
 		//Check block
+		cy.getBlock('core/paragraph').should('be.visible');
 		cy.getBlock('core/paragraph').should(
 			'have.css',
 			'text-shadow',

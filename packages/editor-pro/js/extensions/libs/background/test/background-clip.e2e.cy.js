@@ -31,7 +31,7 @@ describe('Background Clip → Functionality', () => {
 		cy.get('.components-popover')
 			.last()
 			.within(() => {
-				cy.contains('button', /choose image/i).click();
+				cy.contains('button', /Upload Image/i).click();
 			});
 
 		cy.get('#menu-item-upload').click();
