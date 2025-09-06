@@ -12,7 +12,6 @@ class IconStyleDefinition extends BaseStyleDefinition {
         $cssProperty = $setting['type'];
 
 		$allowedCssProperties = [
-			'--blockera--icon--url',
 			'--blockera--icon--gap',
 			'--blockera--icon--size',
 			'--blockera--icon--color',
@@ -28,16 +27,6 @@ class IconStyleDefinition extends BaseStyleDefinition {
         $value = $setting[ $cssProperty ];
 
 		switch ($cssProperty) {
-			case '--blockera--icon--url':				
-				$svg = $value['renderedIcon'];
-
-				if (! empty($svg)) {
-					$decoded_svg = base64_decode($svg);
-					$encoded_svg = rawurlencode($decoded_svg);
-					$this->setDeclaration('--blockera--icon--url', 'url("data:image/svg+xml,' . $encoded_svg . '")');
-				}
-				break;
-
 			case '--blockera--icon--rotate':
 				$this->setDeclaration($cssProperty, $value . 'deg');
 				break;
