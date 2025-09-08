@@ -16,22 +16,38 @@ export const applyIconExtensionHook = () => {
 			setIconState,
 			initialIconState,
 			handleOnChangeAttributes,
+			effectiveItems,
 		}) => {
 			const { svgString, ...rest } = newValue;
 			const renderedIcon = encodeIcon(svgString);
 
 			setIconState({
 				...initialIconState,
-				renderedIcon,
+				icon: {
+					icon: '',
+					library: '',
+					uploadSVG: renderedIcon.encodedIcon,
+					renderedIcon: renderedIcon.encodedIcon,
+				},
 			});
 
 			handleOnChangeAttributes(
 				'blockeraIcon',
 				{
 					...rest,
-					renderedIcon,
+					icon: '',
+					library: '',
+					uploadSVG: renderedIcon.encodedIcon,
+					renderedIcon: renderedIcon.encodedIcon,
 				},
-				{ ref }
+				{
+					ref,
+					effectiveItems: {
+						...effectiveItems,
+						url: 'data:image/svg+xml;utf8,' + renderedIcon.icon,
+						alt: rest?.uploadSVG?.title ?? '',
+					},
+				}
 			);
 		}
 	);
