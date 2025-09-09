@@ -14,21 +14,21 @@ export const applyIconExtensionHook = () => {
 			newValue,
 			encodeIcon,
 			setIconState,
-			initialIconState,
 			handleOnChangeAttributes,
 			effectiveItems,
 		}) => {
 			const { svgString, ...rest } = newValue;
 			const renderedIcon = encodeIcon(svgString);
 
-			setIconState({
-				...initialIconState,
-				icon: {
-					icon: '',
-					library: '',
-					uploadSVG: renderedIcon.encodedIcon,
-					renderedIcon: renderedIcon.encodedIcon,
-				},
+			setIconState((prev) => {
+				return {
+					...prev,
+					icon: {
+						icon: '',
+						library: '',
+						renderedIcon: renderedIcon.encodedIcon,
+					},
+				};
 			});
 
 			handleOnChangeAttributes(
@@ -37,7 +37,6 @@ export const applyIconExtensionHook = () => {
 					...rest,
 					icon: '',
 					library: '',
-					uploadSVG: renderedIcon.encodedIcon,
 					renderedIcon: renderedIcon.encodedIcon,
 				},
 				{
