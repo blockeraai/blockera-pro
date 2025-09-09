@@ -14,11 +14,11 @@ export const applyIconExtensionHook = () => {
 			newValue,
 			encodeIcon,
 			setIconState,
-			handleOnChangeAttributes,
 			effectiveItems,
+			handleOnChangeAttributes,
 		}) => {
 			const { svgString, ...rest } = newValue;
-			const renderedIcon = encodeIcon(svgString);
+			const encodedIconObj = encodeIcon(svgString);
 
 			setIconState((prev) => {
 				return {
@@ -26,7 +26,7 @@ export const applyIconExtensionHook = () => {
 					icon: {
 						icon: '',
 						library: '',
-						renderedIcon: renderedIcon.encodedIcon,
+						renderedIcon: encodedIconObj.encodedIcon,
 					},
 				};
 			});
@@ -37,13 +37,13 @@ export const applyIconExtensionHook = () => {
 					...rest,
 					icon: '',
 					library: '',
-					renderedIcon: renderedIcon.encodedIcon,
+					renderedIcon: encodedIconObj.encodedIcon,
 				},
 				{
 					ref,
 					effectiveItems: {
 						...effectiveItems,
-						url: 'data:image/svg+xml;utf8,' + renderedIcon.icon,
+						url: 'data:image/svg+xml;utf8,' + encodedIconObj.icon,
 						alt: rest?.uploadSVG?.title ?? '',
 					},
 				}
