@@ -18,7 +18,7 @@ export const applyIconExtensionHook = () => {
 			handleOnChangeAttributes,
 		}) => {
 			const { svgString, ...rest } = newValue;
-			const encodedIconObj = encodeIcon(svgString);
+			const encodedIconObj = encodeIcon(svgString, true);
 
 			setIconState((prev) => {
 				return {
