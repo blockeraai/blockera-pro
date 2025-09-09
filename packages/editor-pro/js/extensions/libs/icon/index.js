@@ -13,23 +13,11 @@ export const applyIconExtensionHook = () => {
 			ref,
 			newValue,
 			encodeIcon,
-			setIconState,
 			effectiveItems,
 			handleOnChangeAttributes,
 		}) => {
 			const { svgString, ...rest } = newValue;
 			const encodedIconObj = encodeIcon(svgString, true);
-
-			setIconState((prev) => {
-				return {
-					...prev,
-					icon: {
-						icon: '',
-						library: '',
-						renderedIcon: encodedIconObj.encodedIcon,
-					},
-				};
-			});
 
 			handleOnChangeAttributes(
 				'blockeraIcon',
