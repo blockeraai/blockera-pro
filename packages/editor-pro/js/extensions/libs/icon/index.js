@@ -3,6 +3,11 @@
 /**
  * External dependencies
  */
+import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * External dependencies
+ */
 import { addFilter } from '@wordpress/hooks';
 
 export const applyIconExtensionHook = () => {
@@ -35,7 +40,13 @@ export const applyIconExtensionHook = () => {
 					effectiveItems: {
 						...effectiveItems,
 						url: 'data:image/svg+xml;utf8,' + encodedIconObj.icon,
-						alt: rest?.uploadSVG?.title ?? '',
+						alt: uploadSVG?.title
+							? sprintf(
+									// translators: %s is the icon name.
+									__('%s Icon', 'blockera'),
+									uploadSVG.title.replaceAll('-', ' ')
+							  )
+							: '',
 					},
 				}
 			);
