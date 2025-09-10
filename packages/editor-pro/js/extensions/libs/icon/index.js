@@ -20,6 +20,7 @@ export const applyIconExtensionHook = () => {
 			encodeIcon,
 			effectiveItems,
 			handleOnChangeAttributes,
+			blockName,
 		}) => {
 			const { svgString, uploadSVG, ...rest } = newValue;
 			const encodedIconObj = encodeIcon(svgString, {
@@ -27,29 +28,47 @@ export const applyIconExtensionHook = () => {
 				color: effectiveItems?.blockeraIconColor?.value,
 			});
 
-			handleOnChangeAttributes(
-				'blockeraIcon',
-				{
-					...rest,
-					icon: '',
-					library: '',
-					renderedIcon: encodedIconObj.encodedIcon,
-				},
-				{
-					ref,
-					effectiveItems: {
-						...effectiveItems,
-						url: 'data:image/svg+xml;utf8,' + encodedIconObj.icon,
-						alt: uploadSVG?.title
-							? sprintf(
-									// translators: %s is the icon name.
-									__('%s Icon', 'blockera'),
-									uploadSVG.title.replaceAll('-', ' ')
-							  )
-							: '',
+			if (blockName === 'blockera/icon') {
+				handleOnChangeAttributes(
+					'blockeraIcon',
+					{
+						...rest,
+						icon: '',
+						library: '',
+						renderedIcon: encodedIconObj.encodedIcon,
 					},
-				}
-			);
+					{
+						ref,
+						effectiveItems: {
+							...effectiveItems,
+							url:
+								'data:image/svg+xml;utf8,' +
+								encodedIconObj.icon,
+							alt: uploadSVG?.title
+								? sprintf(
+										// translators: %s is the icon name.
+										__('%s Icon', 'blockera'),
+										uploadSVG.title.replaceAll('-', ' ')
+								  )
+								: '',
+						},
+					}
+				);
+			} else {
+				handleOnChangeAttributes(
+					'blockeraIcon',
+					{
+						...rest,
+						icon: '',
+						library: '',
+						renderedIcon: encodedIconObj.encodedIcon,
+					},
+					{
+						ref,
+						effectiveItems,
+					}
+				);
+			}
 		}
 	);
 };
