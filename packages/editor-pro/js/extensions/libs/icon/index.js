@@ -17,7 +17,10 @@ export const applyIconExtensionHook = () => {
 			handleOnChangeAttributes,
 		}) => {
 			const { svgString, uploadSVG, ...rest } = newValue;
-			const encodedIconObj = encodeIcon(svgString, true);
+			const encodedIconObj = encodeIcon(svgString, {
+				hasInlineStyle: true,
+				color: effectiveItems?.blockeraIconColor?.value,
+			});
 
 			handleOnChangeAttributes(
 				'blockeraIcon',
