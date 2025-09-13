@@ -140,7 +140,7 @@ jobs:
                   if [ "${{ matrix.category }}" != "general" ]; then
                     spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.visual.cy.js"
                   else
-                    spec_pattern=$(find packages -type f -name "*.visual.cy.js" ! -name "*.*.visual.cy.js" | tr '\n' ',')
+                    spec_pattern=$(find packages -type d -name "*-pro*" -exec find {} -type f -name "*.visual.cy.js" \; | tr '\n' ',')
                     spec_pattern="${spec_pattern%,}" # Remove trailing comma
                   fi
 
