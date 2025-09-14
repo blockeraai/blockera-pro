@@ -85,6 +85,11 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 			}
 		);
 
+		cy.compareSnapshot({
+			name: '1-editor-test',
+			testThreshold: 0.02,
+		});
+
 		cy.get('.media-toolbar-primary > .button').click();
 
 		cy.setColorControlValue('Color', '0C3EF1');
