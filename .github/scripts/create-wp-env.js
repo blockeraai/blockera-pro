@@ -40,6 +40,8 @@ const wpEnvContent = {
 		: {}),
 };
 
+console.log('wpEnvContent', wpEnvContent);
+
 // Write to .wp-env.json
 fs.writeFileSync(
 	'.wp-env.json',
