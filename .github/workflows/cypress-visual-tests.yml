@@ -107,22 +107,18 @@ jobs:
 
             - name: Create required environment files
               run: |
-                  # Set the base configuration file
-                  WP_ENV_CONFIG=".github/wp-env-configs/general.json"
-
-                  # Check if a specific configuration exists for the category
-                  if [ -f ".github/wp-env-configs/${{ matrix.category }}.json" ]; then
-                    WP_ENV_CONFIG=".github/wp-env-configs/${{ matrix.category }}.json"
-                  fi
-
-                  # Copy the selected configuration to .wp-env.json
-                  cp "$WP_ENV_CONFIG" .wp-env.json
+                  touch cypress.env.json
+                  echo '{
+                    "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
+                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}"
+                  }' >> cypress.env.json
+                  cat cypress.env.json
+                  node .github/scripts/create-wp-env.js '${{ matrix.category }}'
                   cat .wp-env.json
-
-                  # Create .env file
                   touch .env
                   echo APP_MODE=production >> .env
                   echo DB=wp_tests >> .env
+                  echo CI_ENV=true >> .env
                   cat .env
 
             - name: Start WordPress Environment
