@@ -108,7 +108,7 @@ jobs:
             - name: Create required environment files
               run: |
                   # Set the base configuration file
-                  WP_ENV_CONFIG=".github/wp-env-configs/base.json"
+                  WP_ENV_CONFIG=".github/wp-env-configs/general.json"
 
                   # Check if a specific configuration exists for the category
                   if [ -f ".github/wp-env-configs/${{ matrix.category }}.json" ]; then
