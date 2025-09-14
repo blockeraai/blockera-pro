@@ -25,14 +25,7 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 			.find('[aria-label="Group: Gather blocks in a container."]')
 			.click();
 
-		cy.compareSnapshot({
-			name: '1-editor-test',
-			testThreshold: 0.02,
-		});
-		return;
-
 		setBoxSpacingSide('padding-top', 50);
-		return;
 		setBoxSpacingSide('padding-right', 50);
 		setBoxSpacingSide('padding-left', 50);
 		setBoxSpacingSide('padding-bottom', 100);
