@@ -130,9 +130,9 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	global $blockera_compat_pro_with_free;
+	global $blockera_compat_pro_with_free, $is_compatible_with_free;
 
-	$blockera_compat_pro_with_free->load();
+	$is_compatible_with_free = $blockera_compat_pro_with_free->load();
 
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
@@ -145,10 +145,13 @@ function blockera_pro_init(): void {
 
 		blockera_load('vendor.blockera.plugin-compatibility-pro.php.hooks', __DIR__);
 
-		global $blockera_compat_pro_with_free;
+		global $blockera_compat_pro_with_free, $is_compatible_with_free;
 
-		add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
-		add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);
+		if (! $is_compatible_with_free) {
+			// Add compatibility check hooks.
+			add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
+			add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);	
+		}
 
 		// Gate: if Pro is disabled, do not bootstrap functionality.
 		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {

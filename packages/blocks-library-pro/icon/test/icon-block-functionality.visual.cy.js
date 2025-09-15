@@ -78,12 +78,9 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 
 		cy.getByDataCy('upload-svg-btn').click({ force: true });
 
-		cy.get('input[type="file"]').selectFile(
-			'packages/dev-cypress/js/fixtures/icon-blockera.svg',
-			{
-				force: true,
-			}
-		);
+		cy.get('#menu-item-browse').click({ force: true });
+
+		cy.getByAriaLabel('icon-blockera').first().click({ force: true });
 
 		cy.get('.media-toolbar-primary > .button').click();
 
@@ -108,12 +105,9 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 
 		cy.getByDataCy('upload-svg-btn').click({ force: true });
 
-		cy.get('input[type="file"]').selectFile(
-			'packages/dev-cypress/js/fixtures/icon-blockera.svg',
-			{
-				force: true,
-			}
-		);
+		cy.get('#menu-item-browse').click({ force: true });
+
+		cy.getByAriaLabel('icon-blockera').first().click({ force: true });
 
 		cy.get('.media-toolbar-primary > .button').click();
 
