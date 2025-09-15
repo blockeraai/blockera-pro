@@ -12,7 +12,7 @@ add_action(
 			$filename = 'plugin-compatibility-pro.min.js';
 		}
 
-		$asset = $compatibility_check_instance->get('plugin_path') . '/dist/plugin-compatibility-pro/plugin-compatibility-pro.asset.php';
+		$asset = WP_PLUGIN_DIR . '/blockera-pro/dist/plugin-compatibility-pro/plugin-compatibility-pro.asset.php';
 		if (! file_exists($asset)) {
 			return;
 		}
@@ -21,7 +21,7 @@ add_action(
 
 		wp_enqueue_script(
             'blockera-compat-pro',
-            $base_url . '/dist/plugin-compatibility-pro/' . $filename,
+            home_url('/wp-content/plugins/blockera-pro') . '/dist/plugin-compatibility-pro/' . $filename,
             $asset['dependencies'],
             $asset['version'],
             [
