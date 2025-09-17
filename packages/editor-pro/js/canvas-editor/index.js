@@ -10,6 +10,11 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { validateSecretKeys } from '@blockera/validator';
 
+/**
+ * Internal dependencies
+ */
+import { unlockGlobalStyles } from './global-styles';
+
 export const bootstrapCanvasEditor = () => {
 	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
@@ -126,4 +131,6 @@ export const bootstrapCanvasEditor = () => {
 			);
 		}
 	);
+
+	unlockGlobalStyles();
 };
