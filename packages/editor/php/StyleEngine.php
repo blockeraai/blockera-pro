@@ -25,6 +25,13 @@ final class StyleEngine {
 	];
 
 	/**
+	 * Store the flag to determine if the style is a global style.
+	 *
+	 * @var bool $is_global_style
+	 */
+	protected bool $is_global_style = false;
+
+	/**
 	 * Store block array.
 	 *
 	 * @var array
@@ -44,6 +51,13 @@ final class StyleEngine {
 	 * @var string $selector The css selector for target element.
 	 */
 	protected string $selector = '';
+
+	/**
+	 * Store the flag to determine if the style is a style variation.
+	 *
+	 * @var boolean $is_style_variation the flag to indicate current style is variation style or not!
+	 */
+	protected bool $is_style_variation = false;
 
 	/**
 	 * Store instance of current style definition class.
@@ -99,16 +113,18 @@ final class StyleEngine {
 	 *
 	 * @param array  $block            The current block.
 	 * @param string $fallbackSelector The css selector for target element.
+	 * @param bool   $isGlobalStyle    The flag to determine if the style is a global style. Default is `false`.
 	 */
-	public function __construct( array $block, string $fallbackSelector ) {
+	public function __construct( array $block, string $fallbackSelector, bool $isGlobalStyle = false ) {
 
 		[
 			'attrs' => $settings,
 		] = $block;
 
-		$this->block    = $block;
-		$this->settings = $settings;
-		$this->selector = $fallbackSelector;
+		$this->block           = $block;
+		$this->settings        = $settings;
+		$this->selector        = $fallbackSelector;
+		$this->is_global_style = $isGlobalStyle;
 	}
 
 	/**
@@ -133,6 +149,18 @@ final class StyleEngine {
 	public function setSupports( array $supports): void {
 
 		$this->supports = blockera_array_flat(array_column($supports, 'supports'));
+	}
+
+	/**
+	 * Set the flag to determine if the style is a style variation.
+	 *
+	 * @param boolean $is_style_variation the flag to indicate current style is variation style or not.
+	 *
+	 * @return void
+	 */
+	public function setIsStyleVariation( bool $is_style_variation): void {
+
+		$this->is_style_variation = $is_style_variation;
 	}
 
 	/**
@@ -529,6 +557,8 @@ final class StyleEngine {
 		$this->definition->setBreakpoint( $this->breakpoint );
 		$this->definition->setBlockType( 'master' );
 		$this->definition->setPseudoState( $this->pseudo_state );
+		$this->definition->setIsGlobalStyle( $this->is_global_style );
+		$this->definition->setIsStyleVariation( $this->is_style_variation );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
 		$css_rules = $this->definition->getCssRules();
@@ -668,9 +698,11 @@ final class StyleEngine {
 		$this->definition->setStyleId($args['id']);
 		$this->definition->setBlockType( $blockType );
 		$this->definition->setBreakpoint( $this->breakpoint );
+		$this->definition->setIsGlobalStyle( $this->is_global_style );
 		$this->definition->setInnerPseudoState( $args['state'] ?? '' );
 		$this->definition->setPseudoState( $this->pseudo_state );
 		$this->definition->setSettings( $settings );
+		$this->definition->setIsStyleVariation( $this->is_style_variation );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
 		return $this->definition->getCssRules();

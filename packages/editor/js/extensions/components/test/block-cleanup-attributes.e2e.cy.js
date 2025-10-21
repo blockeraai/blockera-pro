@@ -36,6 +36,8 @@ describe('BlockBase testing ...', () => {
 		// Set value.
 		cy.setColorControlValue('Text Color', 'aaa');
 
+		cy.waitForAssertValue();
+
 		getWPDataObject().then((data) => {
 			const blockAttributes = getSelectedBlock(data)?.attributes;
 
