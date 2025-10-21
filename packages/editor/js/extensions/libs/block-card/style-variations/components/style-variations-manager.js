@@ -54,7 +54,28 @@ export const StyleVariationsManager = ({
 }): MixedElement => {
 	return (
 		<PanelBodyControl
-			title={__('Style Variations', 'blockera')}
+			title={
+				<>
+					{__('Style Variations', 'blockera')}
+
+					<AddNewStyleButton
+						counter={counter}
+						setCounter={setCounter}
+						design="no-label"
+						// label={__('Add New Style Variation', 'blockera')}
+						styles={editorStyles}
+						setStyles={setStyles}
+						blockName={blockName}
+						blockStyles={blockStyles}
+						setCurrentBlockStyleVariation={
+							setCurrentBlockStyleVariation
+						}
+						setCurrentActiveStyle={setCurrentActiveStyle}
+						setBlockStyles={setBlockStyles}
+						style={{ marginLeft: 'auto' }}
+					/>
+				</>
+			}
 			initialOpen={true}
 			icon={<Icon icon="extension-style-variations" size={20} />}
 			className={extensionClassNames('style-variations')}
@@ -99,7 +120,7 @@ export const StyleVariationsManager = ({
 					counter={counter}
 					setCounter={setCounter}
 					design="with-label"
-					label={__('Add New Style Variation', 'blockera')}
+					label={__('Add New', 'blockera')}
 					styles={editorStyles}
 					setStyles={setStyles}
 					blockName={blockName}
