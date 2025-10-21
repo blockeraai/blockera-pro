@@ -23,6 +23,13 @@ final class StyleEngine {
 	protected array $pseudo_classes = [];
 
 	/**
+	 * Store the flag to determine if the style is a global style.
+	 *
+	 * @var bool $is_global_style
+	 */
+	protected bool $is_global_style = false;
+
+	/**
 	 * Store block array.
 	 *
 	 * @var array
@@ -111,16 +118,18 @@ final class StyleEngine {
 	 *
 	 * @param array  $block            The current block.
 	 * @param string $fallbackSelector The css selector for target element.
+	 * @param bool   $isGlobalStyle    The flag to determine if the style is a global style. Default is `false`.
 	 */
-	public function __construct( array $block, string $fallbackSelector ) {
+	public function __construct( array $block, string $fallbackSelector, bool $isGlobalStyle = false ) {
 
 		[
 			'attrs' => $settings,
 		] = $block;
 
-		$this->block    = $block;
-		$this->settings = $settings;
-		$this->selector = $fallbackSelector;
+		$this->block           = $block;
+		$this->settings        = $settings;
+		$this->selector        = $fallbackSelector;
+		$this->is_global_style = $isGlobalStyle;
 	}
 
 	/**
@@ -205,9 +214,8 @@ final class StyleEngine {
 		if (! empty($this->settings['blockeraBlockStates']['value'])) {
 			$states = $this->settings['blockeraBlockStates']['value'];
 
-			// prepare all block states and breakpoints.
-			$this->pseudo_classes = $states;
-			$breakpoints          = array_keys(blockera_array_flat(array_column($states, 'breakpoints')));
+			// prepare all breakpoints.
+			$breakpoints = array_keys(blockera_array_flat(array_column($states, 'breakpoints')));
 
 			// Add force base breakpoint if not exists.
 			if (! in_array($this->breakpoint, $breakpoints, true)) {
@@ -225,7 +233,7 @@ final class StyleEngine {
             );
 
 			// Add normal pseudo class if not exists.
-			if (! array_key_exists('normal', $this->pseudo_classes)) {
+			if (! array_key_exists('normal', $states)) {
 
 				$this->pseudo_classes['normal'] = [
 					'breakpoints' => [
@@ -250,6 +258,9 @@ final class StyleEngine {
 					'isVisible' => true,
 				];
 			}
+
+			// prepare all block states.
+			$this->pseudo_classes = array_merge($this->pseudo_classes, $states);
 
 			$breakpointsCssRules = blockera_array_flat(
 				array_filter(
@@ -562,6 +573,7 @@ final class StyleEngine {
 		$this->definition->setBreakpoint( $this->breakpoint );
 		$this->definition->setBlockType( 'master' );
 		$this->definition->setPseudoState( $this->pseudo_state );
+		$this->definition->setIsGlobalStyle( $this->is_global_style );
 		$this->definition->setIsStyleVariation( $this->is_style_variation );
 		$this->definition->setBlockeraUniqueSelector( $this->selector );
 
@@ -702,6 +714,7 @@ final class StyleEngine {
 		$this->definition->setStyleId($args['id']);
 		$this->definition->setBlockType( $blockType );
 		$this->definition->setBreakpoint( $this->breakpoint );
+		$this->definition->setIsGlobalStyle( $this->is_global_style );
 		$this->definition->setInnerPseudoState( $args['state'] ?? '' );
 		$this->definition->setPseudoState( $this->pseudo_state );
 		$this->definition->setSettings( $settings );

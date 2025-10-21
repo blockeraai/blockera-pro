@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider {
 			$blockera->singleton(
 				SiteBuilderStyleEngine::class,
 				function ( Application $app, array $params = []) use ( $blockera) {
-					$style_engine = new SiteBuilderStyleEngine($params['block'], $params['fallbackSelector']);
+					$style_engine = new SiteBuilderStyleEngine($params['block'], $params['fallbackSelector'], $params['isGlobalStyle'] ?? false);
 
 					$style_engine->setApp($blockera);
 					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
