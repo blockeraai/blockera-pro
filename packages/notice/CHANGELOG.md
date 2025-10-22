@@ -1,5 +1,11 @@
 ## Unreleased
 
+### New Features
+- Added ability to hide specific notifications, allowing developers to customize which messages appear on their sites.
+
+### Improvements
+- Enhanced notification storage system to make messages easier to track and manage over time
+
 ## 1.1.1 (2025-06-16)
 
 ### Improvements

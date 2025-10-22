@@ -1,0 +1,15 @@
+{
+	"name": "blockera/plugin-compatibility-pro",
+	"version": "1.0.0",
+	"description": "Handles version plugin compatibility checking between Blockera and Blockera Pro plugins to ensure proper functionality",
+	"autoload": {
+		"psr-4": {
+			"Blockera\\PluginCompatibilityPro\\": "php/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\PluginCompatibilityPro\\": "php/tests/"
+		}
+	}
+}

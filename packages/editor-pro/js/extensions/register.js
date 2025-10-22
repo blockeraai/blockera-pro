@@ -15,6 +15,7 @@ import { validateSecretKeys } from '@blockera/validator';
  * Internal dependencies
  */
 import * as config from './config';
+import { applyIconExtensionHook } from './libs/icon';
 import { applyBlockStates, clearCache } from './libs';
 
 export const registerEditorExtensions = () => {
@@ -130,11 +131,11 @@ export const registerEditorExtensions = () => {
 		'blocks.registerBlockType',
 		'blockeraPro-editorExtensions',
 		(settings: Object, name: Object): Object => {
-			const blockName = name.replace(/\//g, '-');
+			const blockName = name.replace(/\//g, '.');
 
 			Object.entries(config).forEach(([supportId, next]) =>
 				addFilter(
-					`blockera-${blockName}-extension-${supportId}`,
+					`blockera.block.${blockName}.extension.${supportId}`,
 					'blockeraPro-editorBlockCustomizeExtension',
 					(previous: Object) => {
 						const merged = mergeObject(previous, next);
@@ -168,6 +169,8 @@ export const registerEditorExtensions = () => {
 		},
 		10
 	);
+
+	applyIconExtensionHook();
 };
 
 export const applyExtensions = (): void => {

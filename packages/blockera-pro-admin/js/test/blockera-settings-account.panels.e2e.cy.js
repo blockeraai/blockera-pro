@@ -75,14 +75,11 @@ describe('Activate License', () => {
 			{
 				email: 'blockeraai+githubbot@gmail.com',
 			}
-		)
-			.its('status')
-			.should('eq', 200);
-
-		cy.reload();
-
-		cy.getByDataTest('activate-license-button').click();
-
-		tryToActivatingLicense();
+		).then((response) => {
+			expect(response.status).to.eq(200);
+			cy.reload();
+			cy.getByDataTest('activate-license-button').click();
+			tryToActivatingLicense();
+		});
 	});
 });

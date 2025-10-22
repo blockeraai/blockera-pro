@@ -23,6 +23,6 @@ if ( ! function_exists('blockera_auth_pro_cleanup_auth_data')) {
             $deleted_option_keys = true;
         }
 
-        return $deleted_option_keys && is_int($deleted_option_keys);
+        return $deleted_option_keys;
 	}
 }

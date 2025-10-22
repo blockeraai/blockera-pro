@@ -54,11 +54,12 @@ describe('Text Shadows → Functionality', () => {
 			.within(() => {
 				cy.get('input[maxlength="9"]').clear({ force: true });
 				cy.get('input[maxlength="9"]').type('70ca9e', {
-					force: true,
+					delay: 0,
 				});
 			});
 
 		//Check block
+		cy.getBlock('core/paragraph').should('be.visible');
 		cy.getBlock('core/paragraph').should(
 			'have.css',
 			'text-shadow',
@@ -116,7 +117,7 @@ describe('Text Shadows → Functionality', () => {
 			.within(() => {
 				cy.get('input[maxlength="9"]').clear({ force: true });
 				cy.get('input[maxlength="9"]').type('70ca9e', {
-					force: true,
+					delay: 0,
 				});
 			});
 

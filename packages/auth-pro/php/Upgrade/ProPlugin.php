@@ -113,6 +113,7 @@ class ProPlugin {
 				'💡 Blockera Pro Update Available',
 				[
 					'persistent' => true,
+					'slug' => 'blockera-pro-next-version-available',
 					'notice_for' => $result->new_version,
 					'actions' => [
 						[
