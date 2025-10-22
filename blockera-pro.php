@@ -6,6 +6,7 @@
  * Requires at least: 6.6
  * Tested up to: 6.8
  * Requires PHP: 7.4
+ * Requires at least blockera: 1.12.2
  * Author: Blockera AI
  * Author URI: https://blockera.ai/about/
  * Version: 1.1.1
@@ -16,6 +17,8 @@
  */
 
 use Blockera\Auth\Repositories\OptionRepository;
+use Blockera\Bootstrap\Application;
+use Blockera\SiteBuilder\StyleEngine;
 
 // security code.
 if (! defined('ABSPATH')) {
@@ -23,8 +26,17 @@ if (! defined('ABSPATH')) {
     die('Access Denied!');
 }
 
+### BEGIN AUTO-GENERATED AUTOLOADER
 // loading autoloader.
 require __DIR__ . '/vendor/autoload.php';
+
+// Register into shared autoload coordinator.
+require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-coordinator.php';
+
+// Register into shared autoload coordinator.
+\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
+\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
+### END AUTO-GENERATED AUTOLOADER
 
 if (file_exists(__DIR__ . '/.env')) {
 	
@@ -48,9 +60,80 @@ if (! function_exists('get_plugin_data')) {
 define('BLOCKERA_PRO_VERSION', get_plugin_data(__FILE__, true, false)['Version']);
 ### END AUTO-GENERATED DEFINES
 
+/**
+ * Check if Blockera PRO is enabled.
+ *
+ * @return bool Whether Blockera PRO is enabled.
+ */
+function blockera_pro_is_enabled(): bool {
+
+    $forcedDisabled = (bool) get_option('blockera_pro_force_disabled', false);
+    $enabled        = ! $forcedDisabled;
+    
+	/**
+     * Allow external control of Blockera PRO enablement.
+     *
+     * @param bool $enabled Whether PRO is enabled.
+     */
+    $enabled = (bool) apply_filters('blockera_pro/is_enabled', $enabled);
+    
+	if (defined('BLOCKERA_PRO_DISABLED_RUNTIME') && BLOCKERA_PRO_DISABLED_RUNTIME) {
+        $enabled = false;
+    }
+
+    return $enabled;
+}
+
+// Add the account page URL to the list of specific pages that should redirect to the dashboard.
+// when the Pro plugin is not compatible with the free version. The account page won't exist.
+// until compatibility is restored.
+add_filter(
+    'blockera/compatibility/specific_pages',
+    function ( array $specific_pages): array {
+
+		return array_merge(
+            $specific_pages,
+            [ '/wp-admin/admin.php?page=blockera-settings-account' ]
+		);
+	}
+);
+
+$env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
+$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+
+global $blockera_compat_pro_with_free;
+
+$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
+    [
+        'file' => __FILE__,
+        'slug' => 'blockera-pro',
+        'version' => BLOCKERA_PRO_VERSION,
+        'plugin_path' => BLOCKERA_PRO_PATH,
+        'compatible_with_slug' => 'blockera',
+        'callback' => function () {
+            if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+                define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+            }
+        },
+        'transient_key' => 'blockera-pro-compat-redirect',
+        'mode' => $mode ? 'development' : 'production',
+    ],
+    new Blockera\Utils\Utils()
+);
+
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
+/**
+ * Initialize Blockera PRO.
+ *
+ * @return void
+ */
 function blockera_pro_init(): void {
+
+	global $blockera_compat_pro_with_free, $is_compatible_with_free;
+
+	$is_compatible_with_free = $blockera_compat_pro_with_free->load();
+
     add_action('blockera/before/setup', 'blockera_pro_before_setup_free_version');
 
     /**
@@ -59,6 +142,22 @@ function blockera_pro_init(): void {
      * @return void
      */
     function blockera_pro_before_setup_free_version(): void {
+
+		blockera_load('vendor.blockera.plugin-compatibility-pro.php.hooks', __DIR__);
+
+		global $blockera_compat_pro_with_free, $is_compatible_with_free;
+
+		if (! $is_compatible_with_free) {
+			// Add compatibility check hooks.
+			add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
+			add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);	
+		}
+
+		// Gate: if Pro is disabled, do not bootstrap functionality.
+		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+			return;
+		}
+
         // loading bootstrapper files.
         blockera_load('vendor.blockera.blockera-pro.php.hooks', __DIR__);
         blockera_load('vendor.blockera.blockera-pro-admin.php.hooks', __DIR__);
@@ -67,6 +166,29 @@ function blockera_pro_init(): void {
     add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
     function blockera_pro_after_setup_free_version(): void {
+		
+		// Gate: if Pro is disabled, do not bootstrap functionality.
+		// We should replace the free style engine with the pro style engine while pro version is disabled.
+		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+			
+			global $blockera;
+
+			$blockera->singleton(
+				StyleEngine::class,
+				function ( Application $app, array $params = []) use ( $blockera) {
+					$style_engine = new \Blockera\Editor\StyleEngine($params['block'], $params['fallbackSelector']);
+
+					$style_engine->setApp($blockera);
+					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
+					$style_engine->setBreakpoints($app->getEntity('breakpoints'));
+
+					return $style_engine;
+				}
+			);
+
+			return;
+		}
+
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
         require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
@@ -137,6 +259,11 @@ add_action('admin_notices', 'blockera_pro_redirect_to_activation_page', 9e2);
  * @return void
  */
 function blockera_pro_redirect_to_activation_page(): void {
+
+	// Gate: if Pro is disabled, do not bootstrap functionality.
+	if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
+		return;
+	}
 	
 	$optionKey = OptionRepository::getOptionKey() . '_do_activation_redirect';
 

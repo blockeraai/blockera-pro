@@ -29,20 +29,18 @@ const main = () => {
 
 	const categorizedFiles = getFiles(
 		'packages',
-		/\/(blockera-pro-.*|.*-pro)\/.*\.(.*?)\.e2e\.cy\.js/
+		/\/(blockera-pro-.*|.*-pro)\/.*\.(.*?)\.visual\.cy\.js/
 	);
 	categorizedFiles.forEach((file) => {
-		const match = file.match(/\.(.*?)\.e2e\.cy\.js/);
+		const match = file.match(/\.(.*?)\.visual\.cy\.js/);
 		if (match && match[1]) {
-			if (!match[1].match(/^plugin-compatibility(-[0-9]+)?$/)) {
-				categories.add(match[1]);
-			}
+			categories.add(match[1]);
 		}
 	});
 
 	const generalFiles = getFiles(
 		'packages',
-		/\/(.*-pro*|validator|guard|console)\/.*\/[\w-]+\.e2e\.cy\.js/
+		/\/(.*-pro*|validator|guard|console)\/.*\/[\w-]+\.visual\.cy\.js/
 	);
 	if (generalFiles.length) {
 		categories.add('general');

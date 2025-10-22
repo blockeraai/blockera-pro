@@ -24,7 +24,7 @@ module.exports = (env, argv) => {
 
 	const BLOCKERA_NAMESPACE = '@blockera/';
 	const BLOCKERA_GUARD_MAIN_NAME = 'guard';
-	const BLOCKERA_GUARD_NICKNAME = 'feature-manager';
+	const BLOCKERA_GUARD_NICKNAME = 'features-manager';
 	const blockeraPackages = Object.keys(dependencies)
 		.filter((packageName) => packageName.startsWith(BLOCKERA_NAMESPACE))
 		.map((packageName) => packageName.replace(BLOCKERA_NAMESPACE, ''))
@@ -41,9 +41,12 @@ module.exports = (env, argv) => {
 			let parentDirectory = '';
 			let name = packageName;
 
-			if (-1 !== packageName.indexOf('blocks-')) {
-				parentDirectory = 'blocks/';
-				name = name.split('blocks-')[1];
+			if (-1 !== packageName.indexOf('block-')) {
+				name = name.split('block-')[1];
+				parentDirectory = 'blocks-library/';
+			} else if (-1 !== packageName.indexOf('feature-')) {
+				name = name.split('feature-')[1];
+				parentDirectory = 'features-library/';
 			}
 
 			if (BLOCKERA_GUARD_NICKNAME === name) {
@@ -76,9 +79,12 @@ module.exports = (env, argv) => {
 			packageName === BLOCKERA_GUARD_NICKNAME
 				? BLOCKERA_GUARD_MAIN_NAME
 				: packageName;
-		if (-1 !== packageName.indexOf('blocks-')) {
-			parentDirectory = 'blocks/';
-			_packageName = _packageName.split('blocks-')[1];
+		if (-1 !== packageName.indexOf('block-')) {
+			_packageName = _packageName.split('block-')[1];
+			parentDirectory = 'blocks-library/';
+		} else if (-1 !== packageName.indexOf('feature-')) {
+			_packageName = _packageName.split('feature-')[1];
+			parentDirectory = 'features-library/';
 		}
 		const version =
 			packageName === BLOCKERA_GUARD_NICKNAME
@@ -135,8 +141,16 @@ module.exports = (env, argv) => {
 			'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
 			'@blockera/editor':
 				'blockeraEditor_' + blockeraPackagesVersion.editor,
-			'@blockera/core-blocks':
+			'@blockera/block-icon':
+				'blockeraBlockIcon_' + blockeraPackagesVersion['block-icon'],
+			'@blockera/blocks-core':
 				'blockeraBlocksCore_' + blockeraPackagesVersion['blocks-core'],
+			'@blockera/feature-icon':
+				'blockeraFeatureIcon_' +
+				blockeraPackagesVersion['feature-icon'],
+			'@blockera/features-core':
+				'blockeraFeaturesCore_' +
+				blockeraPackagesVersion['features-core'],
 			'@blockera/controls':
 				'blockeraControls_' + blockeraPackagesVersion.controls,
 			'@blockera/bootstrap':

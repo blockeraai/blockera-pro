@@ -1,0 +1,145 @@
+name: Check Blockera (pro) Compatibility With Blockera (free)
+
+on:
+    pull_request:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+    cancel-in-progress: true
+
+jobs:
+    check_version:
+        name: Check Pro Version
+        runs-on: ubuntu-latest
+        outputs:
+            should_test_previous: ${{ steps.check_version.outputs.should_test_previous }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Check version
+              id: check_version
+              run: |
+                  CURRENT_VERSION=$(grep "Version:" blockera-pro.php | awk -F': ' '{print $2}')
+                  if [ "$(echo -e "1.1.1\n$CURRENT_VERSION" | sort -V | head -n1)" = "1.1.1" ]; then
+                    echo "should_test_previous=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "should_test_previous=false" >> $GITHUB_OUTPUT
+                  fi
+
+    test:
+        name: Run Plugin Compatibility Tests
+        needs: check_version
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                strategy:
+                    - blockera-free-previous
+                    - blockera-free-latest
+                    - blockera-pro-current
+                    - ${{ needs.check_version.outputs.should_test_previous == 'true' && 'blockera-pro-previous' || '' }}
+
+        steps:
+            - name: Check Blockera Free Latest version
+              id: check-blockera-free-latest-version
+              run: |
+                  LATEST_VERSION=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].name')
+                  echo "blockera-free-latest-version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+
+            - name: Setup Node.js and install dependencies
+              uses: ./.github/setup-node
+
+            - name: Install Cypress
+              run: npx cypress install
+
+            - name: Setup PHP Composer and install dependencies
+              uses: ./.github/setup-php
+              with:
+                  custom-cache-suffix: $(/bin/date -u --date='last Mon' "+%F")
+                  composer-options: '--no-dev -o --apcu-autoloader -a'
+
+            - name: Build Plugin
+              uses: ./.github/build-plugin-zip
+
+            - name: Create required environment files
+              run: |
+                  # Get Blockera version based on strategy
+                  if [ "${{ matrix.strategy }}" = "blockera-free-previous" ]; then
+                    # Get previous supported version (index -1)
+                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
+                  elif [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
+                    # Get latest version (index 0) 
+                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
+                  fi
+
+                  echo "Using Blockera version: $BLOCKERA_DOWNLOAD_URL"
+
+                  # Create wp-env config with version
+                  node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
+                  cat .wp-env.json
+
+                  # Create env file
+                  touch .env
+                  echo APP_MODE=production >> .env
+                  echo DB=wp_tests >> .env 
+                  echo CI_ENV=true >> .env
+                  cat .env
+
+                  if [ "${{ matrix.strategy }}" = "blockera-pro-previous" ]; then
+                    # Get current version from blockera-pro.php
+                    CURRENT_VERSION=$(grep "Version:" blockera-pro.php | awk -F': ' '{print $2}')
+                    echo "Current version: $CURRENT_VERSION"
+                    
+                    # Split version into parts
+                    IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+                    
+                    # Decrease patch version
+                    if [ "$patch" = "0" ]; then
+                      if [ "$minor" = "0" ]; then
+                        major=$((major - 1))
+                        minor=9
+                        patch=9
+                      else
+                        minor=$((minor - 1))
+                        patch=9
+                      fi
+                    else
+                      patch=$((patch - 1))
+                    fi
+                    
+                    NEW_VERSION="$major.$minor.$patch"
+                    echo "New version: $NEW_VERSION"
+                    
+                    # Update version in blockera-pro.php using compatible sed syntax
+                    sed -i.bak "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" blockera-pro.php && rm blockera-pro.php.bak
+                  fi
+
+            - name: Setup WP Environment
+              run: |
+                  npm run env:start
+
+            - name: Run e2e tests
+              run: |
+                  # Run only plugin compatibility tests
+                  if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                  elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
+                  else
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                  fi
+
+            - name: Stop WP Environment
+              if: always()
+              run: npm run env:stop
