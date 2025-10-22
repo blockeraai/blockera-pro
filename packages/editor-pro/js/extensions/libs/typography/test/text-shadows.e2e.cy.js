@@ -54,7 +54,7 @@ describe('Text Shadows → Functionality', () => {
 			.within(() => {
 				cy.get('input[maxlength="9"]').clear({ force: true });
 				cy.get('input[maxlength="9"]').type('70ca9e', {
-					force: true,
+					delay: 0,
 				});
 			});
 
@@ -117,7 +117,7 @@ describe('Text Shadows → Functionality', () => {
 			.within(() => {
 				cy.get('input[maxlength="9"]').clear({ force: true });
 				cy.get('input[maxlength="9"]').type('70ca9e', {
-					force: true,
+					delay: 0,
 				});
 			});
 
