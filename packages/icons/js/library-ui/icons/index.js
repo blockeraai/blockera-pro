@@ -15,6 +15,10 @@ export { default as BackgroundRadialGradient } from './background-radial-gradien
 export { default as BackgroundSlideshow } from './background-slideshow.svg';
 export { default as BackgroundVideo } from './background-video.svg';
 export { default as Blending } from './blending.svg';
+export { default as BlockAccordionItems } from './block-accordion-items.svg';
+export { default as BlockAccordionIcon } from './block-accordion-icon.svg';
+export { default as BlockAccordionHeading } from './block-accordion-heading.svg';
+export { default as BlockAccordionPanel } from './block-accordion-panel.svg';
 export { default as BlockBlocksyAboutTexts } from './block-blocksy-about-texts.svg';
 export { default as BlockBlocksyAboutIcons } from './block-blocksy-about-icons.svg';
 export { default as BlockBlocksyAboutAvatar } from './block-blocksy-about-avatar.svg';
@@ -44,6 +48,7 @@ export { default as BlockDetailsParagraph } from './block-details-paragraph.svg'
 export { default as BlockFootnoteReturn } from './block-footnote-return.svg';
 export { default as BlockGalleryCaption } from './block-gallery-caption.svg';
 export { default as BlockImageCaption } from './block-image-caption.svg';
+export { default as BlockImageTag } from './block-image-tag.svg';
 export { default as BlockInput } from './block-input.svg';
 export { default as BlockLink, default as Link } from './block-link.svg'; // link is alias for block-link
 export { default as BlockListItemContainer } from './block-list-item-container.svg';
@@ -54,6 +59,12 @@ export { default as BlockLoginFormContainer } from './block-login-form-container
 export { default as BlockLoginFormInputs } from './block-login-form-inputs.svg';
 export { default as BlockLoginFormLabels } from './block-login-form-labels.svg';
 export { default as BlockLoginFormRemember } from './block-login-form-remember.svg';
+export { default as BlockMathMi } from './block-math-mi.svg';
+export { default as BlockMathMn } from './block-math-mn.svg';
+export { default as BlockMathMo } from './block-math-mo.svg';
+export { default as BlockMathMfrac } from './block-math-mfrac.svg';
+export { default as BlockMathMsup } from './block-math-msup.svg';
+export { default as BlockMathMsub } from './block-math-msub.svg';
 export { default as BlockNavigationSubmenuContainer } from './block-navigation-submenu-container.svg';
 export { default as BlockNavigationSubmenuItems } from './block-navigation-submenu-items.svg';
 export { default as BlockOrderConfirmationSummaryItemContainer } from './block-order-confirmation-summary-item-container.svg';
@@ -82,6 +93,7 @@ export { default as BlockSocialLinkContainer } from './block-social-link-contain
 export { default as BlockSocialLinkIcon } from './block-social-link-icon.svg';
 export { default as BlockSocialLinkName } from './block-social-link-name.svg';
 export { default as Bolb } from './bolb.svg';
+export { default as BlockTypes } from './block-types.svg';
 export { default as BorderRadius } from './border-radius.svg';
 export { default as BreadcrumbSeparator } from './breadcrumb-separator.svg';
 export { default as BreadcrumbText } from './breadcrumb-text.svg';

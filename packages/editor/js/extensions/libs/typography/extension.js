@@ -233,8 +233,13 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 				}}
 			/>
 
-			<BaseControl columns="1fr 2.65fr" label={__('Font', 'blockera')}>
-				<Grid alignItems="center" gridTemplateColumns="1fr 1fr">
+			<BaseControl columns="1fr 160px" label={__('Font', 'blockera')}>
+				<Grid
+					alignItems="center"
+					gridTemplateColumns="1fr 1fr"
+					rowGap="10px"
+					columnGap="8px"
+				>
 					<EditorFeatureWrapper
 						isActive={isShowFontFamily}
 						config={extensionConfig.blockeraFontFamily}
@@ -330,7 +335,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 									</p>
 								</>
 							}
-							columns="1fr 2.65fr"
+							columns="1fr 160px"
 							defaultValue={attributes.blockeraFontColor.default}
 							onChange={(newValue, ref) =>
 								handleOnChangeAttributes(
@@ -395,6 +400,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 					ariaLabel={__('More typography settings', 'blockera')}
 					isOpen={false}
 					isChanged={isAdvancedEdited}
+					isAnimated={true}
 				>
 					{(isShowTextAlign ||
 						isShowTextDecoration ||
@@ -809,7 +815,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 										</Grid>
 									</>
 								}
-								columns="columns-2"
+								columns="1fr 150px"
 								options={[
 									{
 										label: __(
@@ -900,7 +906,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 						<BaseControl
 							controlName="spacing"
 							label={__('Spacing', 'blockera')}
-							columns="columns-2"
+							columns="1fr 150px"
 						>
 							<EditorFeatureWrapper
 								isActive={isShowLetterSpacing}
@@ -933,7 +939,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 									}}
 								>
 									<InputControl
-										columns="2fr 2.6fr"
+										columns="2fr 2fr"
 										label={__('Words', 'blockera')}
 										labelPopoverTitle={__(
 											'Words Spacing',
@@ -983,7 +989,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 									}}
 								>
 									<InputControl
-										columns="2fr 2.6fr"
+										columns="2fr 2fr"
 										label={__('Text Indent', 'blockera')}
 										labelDescription={
 											<>
@@ -1126,7 +1132,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 										</p>
 									</>
 								}
-								columns="columns-2"
+								columns="1fr 150px"
 								options={[
 									{
 										label: __('Default', 'blockera'),
@@ -1266,7 +1272,7 @@ export const TypographyExtension: ComponentType<TTypographyProps> = ({
 										</p>
 									</>
 								}
-								columns="columns-2"
+								columns="1fr 150px"
 								options={[
 									{
 										label: __('Normal', 'blockera'),

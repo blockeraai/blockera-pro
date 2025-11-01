@@ -4,8 +4,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { __experimentalDivider as Divider } from '@wordpress/components';
 import type { MixedElement } from 'react';
+import { __experimentalDivider as Divider } from '@wordpress/components';
 
 /**
  * Blockera dependencies
@@ -25,12 +25,18 @@ import { controlInnerClassNames } from '@blockera/classnames';
  * Internal dependencies
  */
 import { RenameModal } from './rename-modal';
+import { DeleteModal } from './delete-modal';
+import { UsageForMultipleBlocksModal } from './usage-for-multiple-blocks';
 
 export const StyleItemMenu = ({
+	blockName,
+	blockTitle,
 	counter,
 	setCounter,
 	cachedStyle,
 	isOpenRenameModal,
+	isOpenDeleteModal,
+	setIsOpenDeleteModal,
 	setIsOpenRenameModal,
 	isOpenContextMenu,
 	setIsOpenContextMenu,
@@ -39,12 +45,17 @@ export const StyleItemMenu = ({
 	handleOnRename,
 	handleOnDuplicate,
 	handleOnClearAllCustomizations,
+	handleOnUsageForMultipleBlocks,
 	setCurrentBlockStyleVariation,
+	setIsOpenUsageForMultipleBlocks,
+	isOpenUsageForMultipleBlocks,
 	handleOnEnable,
 	handleOnDelete,
 	isConfirmedChangeID,
 	setIsConfirmedChangeID,
 }: {
+	blockName: string,
+	blockTitle: string,
 	counter: number,
 	setCounter: (counter: number) => void,
 	cachedStyle: Object,
@@ -53,10 +64,18 @@ export const StyleItemMenu = ({
 	handleOnClearAllCustomizations: (style: Object) => void,
 	handleOnEnable: (value: boolean, style: Object) => void,
 	handleOnDelete: (style: Object) => void,
+	handleOnUsageForMultipleBlocks: (
+		style: Object,
+		action: 'add' | 'delete'
+	) => void,
 	isOpenRenameModal: boolean,
+	isOpenDeleteModal: boolean,
+	setIsOpenDeleteModal: (isOpen: boolean) => void,
 	setIsOpenRenameModal: (isOpen: boolean) => void,
 	isOpenContextMenu: boolean,
 	setIsOpenContextMenu: (isOpen: boolean) => void,
+	setIsOpenUsageForMultipleBlocks: (isOpen: boolean) => void,
+	isOpenUsageForMultipleBlocks: boolean,
 	style: Object,
 	buttonText: string,
 	handleOnRename: (style: Object) => void,
@@ -73,6 +92,29 @@ export const StyleItemMenu = ({
 					isConfirmedChangeID={isConfirmedChangeID}
 					setIsOpenRenameModal={setIsOpenRenameModal}
 					setIsConfirmedChangeID={setIsConfirmedChangeID}
+				/>
+			)}
+			{isOpenDeleteModal && (
+				<DeleteModal
+					style={style}
+					buttonText={buttonText}
+					handleOnDelete={handleOnDelete}
+					setCounter={setCounter}
+					counter={counter}
+					setIsOpenDeleteModal={setIsOpenDeleteModal}
+				/>
+			)}
+			{isOpenUsageForMultipleBlocks && (
+				<UsageForMultipleBlocksModal
+					style={style}
+					blockName={blockName}
+					blockTitle={blockTitle}
+					handleOnUsageForMultipleBlocks={
+						handleOnUsageForMultipleBlocks
+					}
+					setIsOpenUsageForMultipleBlocks={
+						setIsOpenUsageForMultipleBlocks
+					}
 				/>
 			)}
 
@@ -126,6 +168,24 @@ export const StyleItemMenu = ({
 						>
 							<Icon icon="pen" iconSize="24" />
 							{__('Rename', 'blockera')}
+						</Button>
+
+						<Button
+							variant="link"
+							contentAlign="left"
+							className={controlInnerClassNames('menu-item')}
+							onClick={() => {
+								if (isOpenRenameModal) {
+									return setIsOpenUsageForMultipleBlocks(
+										false
+									);
+								}
+
+								setIsOpenUsageForMultipleBlocks(true);
+							}}
+						>
+							<Icon icon="block-types" iconSize="24" />
+							{__('Use for multiple blocks', 'blockera')}
 						</Button>
 
 						<Grid
@@ -206,12 +266,11 @@ export const StyleItemMenu = ({
 								contentAlign="left"
 								className={controlInnerClassNames('menu-item')}
 								onClick={() => {
-									handleOnDelete(style.name);
-									setCounter(counter - 1);
+									setIsOpenDeleteModal(true);
 								}}
 								style={{
 									'--blockera-controls-primary-color':
-										'#E20000',
+										'#e20b0b',
 								}}
 							>
 								<Icon icon="trash" iconSize="24" />

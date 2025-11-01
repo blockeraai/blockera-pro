@@ -86,7 +86,7 @@ export default function ({
 				</>
 			}
 			id={'gap'}
-			columns="80px 160px"
+			columns="1fr 160px"
 			{...labelProps}
 		>
 			<Grid gap="10px" gridTemplateColumns="120px 30px">
@@ -115,7 +115,7 @@ export default function ({
 						/>
 					)
 				) : (
-					<Grid gridTemplateColumns="55px 55px" gap="10px">
+					<Grid gridTemplateColumns="1fr 1fr" gap="8px">
 						<InputControl
 							columns="columns-1"
 							className="control-first label-center small-gap"

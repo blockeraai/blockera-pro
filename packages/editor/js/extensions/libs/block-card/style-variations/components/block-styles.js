@@ -2,8 +2,8 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { useState, useRef, useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { useState, useRef, useEffect, useCallback } from '@wordpress/element';
 import { useViewportMatch } from '@wordpress/compose';
 import {
 	Slot,
@@ -20,6 +20,8 @@ import {
 	Popover,
 	SearchControl,
 	ControlContextProvider,
+	NoticeControl,
+	DynamicHtmlFormatter,
 } from '@blockera/controls';
 import {
 	classNames,
@@ -27,6 +29,7 @@ import {
 	componentInnerClassNames,
 } from '@blockera/classnames';
 import { Icon } from '@blockera/icons';
+import { isString } from '@blockera/utils';
 
 /**
  * Internal dependencies
@@ -60,6 +63,7 @@ function BlockStyles({
 		previewClassName: string,
 		popoverAnchor: Object,
 		setIsOpen: (isOpen: boolean) => void,
+		isDeletedStyle: string | false,
 	},
 }): MixedElement | null {
 	const { isNormalState } = useBlockContext();
@@ -75,10 +79,7 @@ function BlockStyles({
 		style: editorStyles,
 		setStyle: setStyles,
 		setCurrentBlockStyleVariation,
-	} = useGlobalStylesPanelContext() || {
-		currentBlockStyleVariation: undefined,
-		setCurrentBlockStyleVariation: () => {},
-	};
+	} = useGlobalStylesPanelContext();
 
 	const {
 		onSelect,
@@ -90,6 +91,7 @@ function BlockStyles({
 		previewClassName,
 		popoverAnchor,
 		setIsOpen,
+		isDeletedStyle,
 	} = styles;
 
 	// Update ref whenever hoveredStyle changes
@@ -104,52 +106,73 @@ function BlockStyles({
 		}
 	}, [showPreview]);
 
+	const onSelectStylePreview = useCallback(
+		(style: string) => {
+			// It should not work for other states
+			if (!isNormalState()) {
+				return;
+			}
+
+			setCurrentActiveStyle(style);
+			onSelect(style);
+			setIsOpen(false);
+			setHoveredStyle(null);
+		},
+		[
+			isNormalState,
+			setCurrentActiveStyle,
+			onSelect,
+			setIsOpen,
+			setHoveredStyle,
+		]
+	);
+
+	const styleItemHandler = useCallback(
+		(item: Object) => {
+			// It should not work for other states
+			if (!isNormalState()) {
+				return;
+			}
+
+			if (hoveredStyle === item || activeStyle?.name === item?.name) {
+				setHoveredStyle(null);
+				setCurrentPreviewStyle(item);
+				return;
+			}
+
+			// Set preview style when hovering/focusing
+			if (item) {
+				setHoveredStyle(item);
+				setCurrentPreviewStyle(item);
+				onSelect(item);
+				// Add timeout to show preview with dynamic delay
+				setTimeout(() => {
+					if (hoveredStyleRef.current?.name === item?.name) {
+						setShowPreview(true);
+					}
+				}, 1200);
+			} else {
+				// Clear preview style when mouse leaves or blur
+				setCurrentPreviewStyle(null);
+				setShowPreview(false);
+				setHoveredStyle(null);
+			}
+		},
+		[
+			onSelect,
+			hoveredStyle,
+			isNormalState,
+			setShowPreview,
+			setHoveredStyle,
+			hoveredStyleRef,
+			activeStyle?.name,
+			setCurrentPreviewStyle,
+		]
+	);
+
 	if (!stylesToRender || stylesToRender.length === 0) {
 		return null;
 	}
-
-	const onSelectStylePreview = (style: string) => {
-		// It should not work for other states
-		if (!isNormalState()) {
-			return;
-		}
-
-		setCurrentActiveStyle(style);
-		onSelect(style);
-		setIsOpen(false);
-		setHoveredStyle(null);
-	};
-
-	const styleItemHandler = (item: Object) => {
-		// It should not work for other states
-		if (!isNormalState()) {
-			return;
-		}
-
-		if (hoveredStyle === item || activeStyle?.name === item?.name) {
-			setHoveredStyle(null);
-			setCurrentPreviewStyle(item);
-			return;
-		}
-
-		// Set preview style when hovering/focusing
-		if (item) {
-			setHoveredStyle(item);
-			setCurrentPreviewStyle(item);
-			onSelect(item);
-			// Add timeout to show preview with dynamic delay
-			setTimeout(() => {
-				if (hoveredStyleRef.current?.name === item?.name) {
-					setShowPreview(true);
-				}
-			}, 1200);
-		} else {
-			// Clear preview style when mouse leaves or blur
-			setCurrentPreviewStyle(null);
-			setShowPreview(false);
-			setHoveredStyle(null);
-		}
-	};
 
 	// Handle search
 	const handleSearch = (newValue: string) => {
@@ -328,6 +351,49 @@ function BlockStyles({
 								<Slot name="block-inspector-style-actions" />
 							</Flex>
 						</>
+					)}
+
+					{isString(isDeletedStyle) && (
+						<NoticeControl type="error">
+							<p>
+								<DynamicHtmlFormatter
+									text={sprintf(
+										/* translators: $1%s is a CSS selector, $2%s is ID. */
+										__(
+											'The “%s” style variation is missing. It might have been deleted or belong to a theme or plugin that’s currently inactive.',
+											'blockera'
+										),
+										'{style}'
+									)}
+									replacements={{
+										style: (
+											<strong>{isDeletedStyle}</strong>
+										),
+									}}
+								/>
+							</p>
+
+							<p>
+								<DynamicHtmlFormatter
+									text={sprintf(
+										/* translators: $1%s is a CSS selector, $2%s is ID. */
+										__(
+											'This block is currently using the “%s” style instead.',
+											'blockera'
+										),
+										'{style}'
+									)}
+									replacements={{
+										style: (
+											<strong>
+												{activeStyle?.name ||
+													__('Default', 'blockera')}
+											</strong>
+										),
+									}}
+								/>
+							</p>
+						</NoticeControl>
 					)}
 				</Flex>
 			</Popover>

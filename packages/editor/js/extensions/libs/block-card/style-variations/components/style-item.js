@@ -3,14 +3,15 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import type { MixedElement } from 'react';
 import { dispatch } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState, useMemo, useEffect } from '@wordpress/element';
 import {
 	Fill,
 	__experimentalTruncate as Truncate,
 } from '@wordpress/components';
+import { getBlockType } from '@wordpress/blocks';
 
 /**
  * Blockera dependencies
@@ -24,10 +25,10 @@ import { classNames } from '@blockera/classnames';
  * Internal dependencies
  */
 import { getDefaultStyle } from '../utils';
+import { StyleItemMenu } from './style-item-menu';
 import { useBlockStyleItem } from './use-block-style-item';
 import { useUserCan } from '../../../../../hooks/use-user-can';
 import { useGlobalStylesPanelContext } from '../../../../../canvas-editor/components/block-global-styles-panel-screen/context';
-import { StyleItemMenu } from './style-item-menu';
 
 export const StyleItem = ({
 	style,
@@ -60,13 +61,12 @@ export const StyleItem = ({
 }): MixedElement => {
 	const {
 		getStyle = () => ({}),
+		getStyleVariationBlocks,
+		deleteStyleVariationBlocks,
 		currentBlockStyleVariation,
 		setCurrentBlockStyleVariation,
 		setStyle: setStyleData = () => {},
-	} = useGlobalStylesPanelContext() || {
-		currentBlockStyleVariation: undefined,
-		setCurrentBlockStyleVariation: () => {},
-	};
+	} = useGlobalStylesPanelContext();
 	const { blockeraGlobalStylesMetaData } = window;
 	const initializedCachedStyle = useMemo(() => {
 		const variations =
@@ -106,10 +106,19 @@ export const StyleItem = ({
 
 	const [isOpenContextMenu, setIsOpenContextMenu] = useState(false);
 	const [isOpenRenameModal, setIsOpenRenameModal] = useState(false);
+	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
+	const [isOpenUsageForMultipleBlocks, setIsOpenUsageForMultipleBlocks] =
+		useState(false);
 	const [isOpenBlockCardContextMenu, setIsOpenBlockCardContextMenu] =
 		useState(false);
 	const [isOpenBlockCardRenameModal, setIsOpenBlockCardRenameModal] =
 		useState(false);
+	const [isOpenBlockCardDeleteModal, setIsOpenBlockCardDeleteModal] =
+		useState(false);
+	const [
+		isOpenBlockCardUsageForMultipleBlocks,
+		setIsOpenBlockCardUsageForMultipleBlocks,
+	] = useState(false);
 
 	const {
 		handleOnEnable,
@@ -120,6 +129,7 @@ export const StyleItem = ({
 		isConfirmedChangeID,
 		setIsConfirmedChangeID,
 		handleOnSaveCustomizations,
+		handleOnUsageForMultipleBlocks,
 		handleOnClearAllCustomizations,
 	} = useBlockStyleItem({
 		blockName,
@@ -131,6 +141,7 @@ export const StyleItem = ({
 		setIsOpenContextMenu,
 		setCurrentActiveStyle,
 		setStyles: setStyleData,
+		deleteStyleVariationBlocks,
 		currentBlockStyleVariation,
 		setCurrentBlockStyleVariation,
 	});
@@ -139,12 +150,9 @@ export const StyleItem = ({
 
 	const isActive: boolean = activeStyle.name === style.name;
 
-	// disabled items should not be visible in the block editor
-	if (!inGlobalStylesPanel && false === cachedStyle?.status) {
-		return <></>;
-	}
-
 	const defaultStyle = getDefaultStyle(blockStyles);
+
+	const activeInBlocks = getStyleVariationBlocks(style.name);
 
 	return (
 		<>
@@ -154,8 +162,14 @@ export const StyleItem = ({
 				className={classNames(
 					'block-editor-block-styles__item__button',
 					{
-						'is-active': isActive,
+						'is-active':
+							inGlobalStylesPanel && !currentBlockStyleVariation
+								? false
+								: isActive,
 						'is-focus': isOpenBlockCardContextMenu,
+						'is-enabled':
+							!cachedStyle?.hasOwnProperty('status') ||
+							true === cachedStyle?.status,
 					}
 				)}
 				key={style.name}
@@ -218,6 +232,11 @@ export const StyleItem = ({
 					styleItemHandler(null);
 				}}
 				onClick={(event) => {
+					// Skip blur if style is disabled.
+					if (false === cachedStyle?.status) {
+						return;
+					}
+
 					// Skip click on actions opener element.
 					if (
 						!event.target.innerText ||
@@ -273,6 +292,10 @@ export const StyleItem = ({
 						<Icon icon="check" library="wp" iconSize="20" />
 					)}
 
+					{inGlobalStylesPanel &&
+						currentBlockStyleVariation &&
+						isActive && <Icon icon="pen" iconSize="18" />}
+
 					<Flex
 						gap={4}
 						alignItems={'center'}
@@ -303,7 +326,7 @@ export const StyleItem = ({
 								)}
 								style={{
 									'--tooltip-bg': !isActive
-										? '#E20000'
+										? '#e20b0b'
 										: '#000000',
 								}}
 							>
@@ -312,11 +335,57 @@ export const StyleItem = ({
 									iconSize="20"
 									style={{
 										color: !isActive
-											? '#E20000'
+											? '#e20b0b'
 											: 'currentColor',
 									}}
 								/>
 							</Tooltip>
+						)}
+
+						{!style?.isDefault && activeInBlocks.length > 1 && (
+							<Flex
+								gap={0}
+								direction="row"
+								style={{ position: 'relative' }}
+							>
+								{activeInBlocks
+									.slice(0, 3)
+									.map((block, index) => {
+										const { icon, title } =
+											getBlockType(block);
+
+										return (
+											<Tooltip
+												key={`${block}-${index}`}
+												text={sprintf(
+													/* translators: $1%s is a block title. */
+													__(
+														'This style variation is used in the “%1$s” block',
+														'blockera'
+													),
+													title
+												)}
+												style={{
+													'--tooltip-bg': !isActive
+														? '#e20b0b'
+														: '#000000',
+												}}
+											>
+												<div
+													className="circle-multiple-blocks"
+													style={{
+														marginRight: '4px',
+													}}
+												>
+													{icon.src}
+												</div>
+											</Tooltip>
+										);
+									})}
+								<div className="circle-multiple-blocks">
+									{activeInBlocks.length}
+								</div>
+							</Flex>
 						)}
 
 						{style.icon && (
@@ -347,20 +416,29 @@ export const StyleItem = ({
 							</Tooltip>
 						)}
 
-						<Icon
-							icon="more-vertical"
-							iconSize="20"
-							onClick={() => setIsOpenContextMenu(true)}
-							style={{
-								opacity: '0.4',
-							}}
-						/>
+						<span
+							className="context-menu-trigger"
+							data-test={`open-${style.name}-contextmenu`}
+						>
+							<Icon
+								icon="more-vertical"
+								iconSize="20"
+								onClick={() => setIsOpenContextMenu(true)}
+								style={{
+									opacity: '0.4',
+								}}
+							/>
+						</span>
 					</Flex>
 				</Flex>
 
 				<StyleItemMenu
+					blockTitle={getBlockType(blockName).title}
 					style={style}
 					counter={counter}
+					isOpenDeleteModal={isOpenDeleteModal}
+					setIsOpenDeleteModal={setIsOpenDeleteModal}
+					blockName={blockName}
 					setCounter={setCounter}
 					buttonText={buttonText}
 					handleOnRename={handleOnRename}
@@ -370,7 +448,14 @@ export const StyleItem = ({
 					}
 					handleOnEnable={handleOnEnable}
 					handleOnDelete={handleOnDelete}
+					handleOnUsageForMultipleBlocks={
+						handleOnUsageForMultipleBlocks
+					}
 					isConfirmedChangeID={isConfirmedChangeID}
+					setIsOpenUsageForMultipleBlocks={
+						setIsOpenUsageForMultipleBlocks
+					}
+					isOpenUsageForMultipleBlocks={isOpenUsageForMultipleBlocks}
 					setIsConfirmedChangeID={setIsConfirmedChangeID}
 					cachedStyle={cachedStyle}
 					isOpenRenameModal={isOpenRenameModal}
@@ -411,7 +496,7 @@ export const StyleItem = ({
 						{hasChangesets && (
 							<ChangeIndicator
 								isChanged={hasChangesets}
-								animated={true}
+								isAnimated={true}
 								primaryColor={'#1ca120'}
 								size={'5'}
 							/>
@@ -480,21 +565,30 @@ export const StyleItem = ({
 								icon="eye-hide"
 								iconSize="20"
 								style={{
-									color: '#E20000',
+									color: '#e20b0b',
 									cursor: 'initial',
 								}}
 							/>
 						)}
 
-						<Icon
-							icon="more-vertical"
-							iconSize="20"
-							onClick={() => setIsOpenContextMenu(true)}
-						/>
+						<span
+							className="context-menu-trigger"
+							data-test={`open-${style.name}-contextmenu`}
+						>
+							<Icon
+								iconSize="20"
+								icon="more-vertical"
+								onClick={() => setIsOpenContextMenu(true)}
+							/>
+						</span>
 
 						<StyleItemMenu
 							style={style}
 							counter={counter}
+							blockTitle={getBlockType(blockName).title}
+							isOpenDeleteModal={isOpenBlockCardDeleteModal}
+							setIsOpenDeleteModal={setIsOpenBlockCardDeleteModal}
+							blockName={blockName}
 							setCounter={setCounter}
 							buttonText={buttonText}
 							handleOnRename={handleOnRename}
@@ -504,7 +598,16 @@ export const StyleItem = ({
 							}
 							handleOnEnable={handleOnEnable}
 							handleOnDelete={handleOnDelete}
+							handleOnUsageForMultipleBlocks={
+								handleOnUsageForMultipleBlocks
+							}
 							isConfirmedChangeID={isConfirmedChangeID}
+							setIsOpenUsageForMultipleBlocks={
+								setIsOpenBlockCardUsageForMultipleBlocks
+							}
+							isOpenUsageForMultipleBlocks={
+								isOpenBlockCardUsageForMultipleBlocks
+							}
 							setIsConfirmedChangeID={setIsConfirmedChangeID}
 							cachedStyle={cachedStyle}
 							isOpenRenameModal={isOpenBlockCardRenameModal}
