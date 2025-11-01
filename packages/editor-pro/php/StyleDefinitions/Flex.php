@@ -15,7 +15,7 @@ class Flex extends BaseProStyleDefinition implements CustomStyle {
 
             return $declaration;
 		}
-				
+
 		$flexType = $setting[ $cssProperty ];
 
 		switch ($flexType) {
@@ -32,15 +32,20 @@ class Flex extends BaseProStyleDefinition implements CustomStyle {
 				break;
 
 			case 'custom':
-				$this->setDeclaration(
-                    'flex',
-                    sprintf(
-                        '%s %s %s',
-                        $setting['custom']['blockeraFlexChildGrow'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildGrow']) : 0,
-                        $setting['custom']['blockeraFlexChildShrink'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildShrink']) : 0,
-                        $setting['custom']['blockeraFlexChildBasis'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildBasis']) : 'auto'
-                    )
-                );
+				$grow = $setting['custom']['blockeraFlexChildGrow'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildGrow']) : '';
+				if( $grow ) {
+					$this->setDeclaration('flex-grow', $grow);
+				}
+
+				$shrink = $setting['custom']['blockeraFlexChildShrink'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildShrink']) : '';
+				if( $shrink ) {
+					$this->setDeclaration('flex-shrink', $shrink);
+				}
+
+				$basis = $setting['custom']['blockeraFlexChildBasis'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildBasis']) : '';
+				if( $basis ) {
+					$this->setDeclaration('flex-basis', $basis);
+				}
 				break;
 		}
 
@@ -71,9 +76,9 @@ class Flex extends BaseProStyleDefinition implements CustomStyle {
                     'type'       => $cssProperty,
                     $cssProperty => $settings['value'] ?? 'custom',
                     'custom'     => [
-                        'blockeraFlexChildGrow'   => $currentBreakpointSettings['blockeraFlexChildGrow']['value'] ?? $currentBreakpointSettings['blockeraFlexChildGrow'] ?? 0,
-                        'blockeraFlexChildShrink' => $currentBreakpointSettings['blockeraFlexChildShrink']['value'] ?? $currentBreakpointSettings['blockeraFlexChildShrink'] ?? 0,
-                        'blockeraFlexChildBasis'  => $currentBreakpointSettings['blockeraFlexChildBasis']['value'] ?? $currentBreakpointSettings['blockeraFlexChildBasis'] ?? 'auto',
+                        'blockeraFlexChildGrow'   => $currentBreakpointSettings['blockeraFlexChildGrow']['value'] ?? $currentBreakpointSettings['blockeraFlexChildGrow'] ?? '',
+                        'blockeraFlexChildShrink' => $currentBreakpointSettings['blockeraFlexChildShrink']['value'] ?? $currentBreakpointSettings['blockeraFlexChildShrink'] ?? '',
+                        'blockeraFlexChildBasis'  => $currentBreakpointSettings['blockeraFlexChildBasis']['value'] ?? $currentBreakpointSettings['blockeraFlexChildBasis'] ?? '',
                     ],
                 ],
             ];
