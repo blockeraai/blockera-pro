@@ -32,18 +32,20 @@ class Flex extends BaseProStyleDefinition implements CustomStyle {
 				break;
 
 			case 'custom':
-				$grow = $setting['custom']['blockeraFlexChildGrow'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildGrow']) : '';
-				if( $grow ) {
+				$grow_input = $setting['custom']['blockeraFlexChildGrow'];
+				$grow       = ( is_string($grow_input) && strlen($grow_input) > 0 ) || $grow_input ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildGrow']) : '';
+				if ( ( is_string($grow) && strlen($grow) > 0 ) || $grow ) {
 					$this->setDeclaration('flex-grow', $grow);
 				}
 
-				$shrink = $setting['custom']['blockeraFlexChildShrink'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildShrink']) : '';
-				if( $shrink ) {
+				$shrink_input = $setting['custom']['blockeraFlexChildShrink'];
+				$shrink       = ( is_string($shrink_input) && strlen($shrink_input) > 0 ) || $shrink_input ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildShrink']) : '';
+				if ( ( is_string($shrink) && strlen($shrink) > 0 ) || $shrink ) {
 					$this->setDeclaration('flex-shrink', $shrink);
 				}
 
 				$basis = $setting['custom']['blockeraFlexChildBasis'] ? blockera_get_value_addon_real_value($setting['custom']['blockeraFlexChildBasis']) : '';
-				if( $basis ) {
+				if ( $basis ) {
 					$this->setDeclaration('flex-basis', $basis);
 				}
 				break;
