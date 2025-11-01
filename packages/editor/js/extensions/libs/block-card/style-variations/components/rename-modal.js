@@ -46,7 +46,7 @@ export const RenameModal = ({
 
 	return (
 		<Modal
-			className={componentInnerClassNames('rename-modal')}
+			className={componentInnerClassNames('style-variation-modal')}
 			headerIcon={<Icon icon="pen" iconSize="34" />}
 			headerTitle={__('Rename style variation', 'blockera')}
 			isDismissible={true}
@@ -170,6 +170,7 @@ export const RenameModal = ({
 
 				<Flex justifyContent="space-between">
 					<Button
+						data-test="save-rename-button"
 						disabled={
 							styleID === style.name
 								? styleName === buttonText
@@ -189,6 +190,7 @@ export const RenameModal = ({
 					</Button>
 
 					<Button
+						data-test="cancel-rename-button"
 						variant="tertiary"
 						onClick={() => {
 							setIsOpenRenameModal(false);

@@ -403,7 +403,9 @@ export const registerCommands = () => {
 				cy.get('[data-wp-component="Popover"]')
 					.last()
 					.within(() => {
-						cy.get('[data-cy="label-control"]').first().click();
+						cy.get('[data-cy="label-control"]')
+							.first()
+							.click({ force: true });
 					});
 			}
 
@@ -582,7 +584,7 @@ export const registerCommands = () => {
 					.parent()
 					.parent()
 					.within(() => {
-						cy.getByAriaLabel(label).click({ force: true });
+						cy.getByAriaLabel(label).first().click({ force: true });
 					});
 
 			cy.getByDataTest('popover-body')
@@ -822,5 +824,19 @@ export const registerCommands = () => {
 		return cy
 			.get('button[aria-controls="edit-site:global-styles"]')
 			.click({ force: true });
+	});
+
+	Cypress.Commands.add('openSettingsPanel', () => {
+		return cy
+			.get('button[aria-controls="edit-post:document"]')
+			.click({ force: true });
+	});
+
+	Cypress.Commands.add('addNewTransition', () => {
+		cy.getParentContainer('Transitions').as('transition');
+
+		cy.get('@transition').within(() => {
+			cy.getByAriaLabel('Add New Transition').click();
+		});
 	});
 };

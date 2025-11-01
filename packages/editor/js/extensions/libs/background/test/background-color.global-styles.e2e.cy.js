@@ -36,14 +36,11 @@ describe('Background Color Inside Style Variations → Functionality', () => {
 		cy.get('.components-popover').each(() => {
 			cy.get('.components-popover input').as('hexColorInput');
 			cy.get('@hexColorInput').clear();
-			cy.get('@hexColorInput').type('666');
+			cy.get('@hexColorInput').type('666666');
 		});
 
 		//assert data
 		getWPDataObject().then((data) => {
-			console.log(
-				getSelectedBlockStyle(data, 'core/paragraph', 'default')
-			);
 			expect(
 				getSelectedBlockStyle(data, 'core/paragraph', 'default')
 					?.blockeraBackgroundColor?.value

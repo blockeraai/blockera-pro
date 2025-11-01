@@ -90,6 +90,8 @@ export const GlobalStylesPanelContext: Object = createContext({
 		label: '',
 	},
 	setCurrentBlockStyleVariation: () => {},
+	getStyleVariationBlocks: () => [],
+	setStyleVariationBlocks: () => {},
 	setStyles: () => {},
 	styles: {},
 });
@@ -110,7 +112,7 @@ export const GlobalStylesPanelContextProvider = ({
 }: Object): MixedElement => {
 	const {
 		blockType: { name, attributes },
-		clientId,
+		selectedBlockClientId: clientId,
 		className,
 	} = value;
 
@@ -130,7 +132,12 @@ export const GlobalStylesPanelContextProvider = ({
 	}, [originDefaultAttributes]);
 
 	const { getSelectedBlockStyleVariation } = select(EDITOR_STORE_NAME);
-	const { setBlockStyles } = dispatch(EDITOR_STORE_NAME);
+	const { getStyleVariationBlocks } = select(EDITOR_STORE_NAME);
+	const {
+		setBlockStyles,
+		setStyleVariationBlocks,
+		deleteStyleVariationBlocks,
+	} = dispatch(EDITOR_STORE_NAME);
 
 	const [currentBlockStyleVariation, setCurrentBlockStyleVariation] =
 		useState(getSelectedBlockStyleVariation());
@@ -178,6 +185,7 @@ export const GlobalStylesPanelContextProvider = ({
 				AdvancedLabelControl: (props: Object) => (
 					<EditorAdvancedLabelControl
 						getAttributesRef={getStyle}
+						clientId={name.replace('/', '-')}
 						{...props}
 					/>
 				),
@@ -284,6 +292,9 @@ export const GlobalStylesPanelContextProvider = ({
 				baseContextValue,
 				childrenComponent,
 				memoizedBlockBaseProps,
+				getStyleVariationBlocks,
+				setStyleVariationBlocks,
+				deleteStyleVariationBlocks,
 				currentBlockStyleVariation,
 				setCurrentBlockStyleVariation,
 				handleOnChangeStyleInLocalState,
@@ -308,6 +319,13 @@ type UseGlobalStylesPanelContextReturnType = {
 		label: string,
 		isDefault?: boolean,
 	},
+	getStyleVariationBlocks: (style: string) => Object,
+	setStyleVariationBlocks: (style: string, blocks: Array<string>) => void,
+	deleteStyleVariationBlocks: (
+		style: string,
+		single: boolean,
+		blockName?: string
+	) => void,
 	setCurrentBlockStyleVariation: (Object) => void,
 	setStyle: (Object) => void,
 	style: Object,

@@ -34,6 +34,7 @@ export const useBlockStyleItem = ({
 	setCachedStyle,
 	setIsOpenContextMenu,
 	setCurrentActiveStyle,
+	deleteStyleVariationBlocks,
 	currentBlockStyleVariation,
 	setCurrentBlockStyleVariation,
 }: {
@@ -42,12 +43,17 @@ export const useBlockStyleItem = ({
 	cachedStyle: Object,
 	blockStyles: Array<Object>,
 	currentBlockStyleVariation: Object,
+	setStyles: (styles: Object) => void,
 	setCachedStyle: (style: Object) => void,
 	setCurrentActiveStyle: (style: Object) => void,
 	setIsOpenContextMenu: (isOpen: boolean) => void,
 	setBlockStyles: (styles: Array<Object>) => void,
-	setStyles: (styles: Object, options?: Object) => void,
 	setCurrentBlockStyleVariation: (style: Object) => void,
+	deleteStyleVariationBlocks: (
+		style: string,
+		single: boolean,
+		blockName?: string
+	) => void,
 }): ({
 	isConfirmedChangeID: boolean,
 	setIsConfirmedChangeID: (isConfirmed: boolean) => void,
@@ -58,10 +64,13 @@ export const useBlockStyleItem = ({
 	handleOnDelete: (currentStyleName: string) => void,
 	handleOnDuplicate: (currentStyle: Object) => void,
 	handleOnDetachStyle: (currentStyle: Object) => void,
+	handleOnUsageForMultipleBlocks: (currentStyle: Object) => void,
 	handleOnSaveCustomizations: (currentStyle: Object) => void,
 	handleOnEnable: (status: boolean, currentStyle: Object) => void,
 	handleOnClearAllCustomizations: (currentStyle: Object) => void,
 }) => {
+	const { setBlockStyles: setGlobalBlockStyles } =
+		dispatch('blockera/editor');
 	const base = select('core').__experimentalGetCurrentThemeBaseGlobalStyles();
 	const postId = select('core').__experimentalGetCurrentGlobalStylesId();
 	const [globalStyles, setGlobalStyles] = useEntityProp(
@@ -96,7 +105,7 @@ export const useBlockStyleItem = ({
 								[currentStyle.name]: {
 									...newStyle,
 									refId: newStyle.name,
-									isDeleted:
+									hasNewID:
 										currentBlockStyleVariation?.name !==
 										newStyle?.name,
 								},
@@ -114,8 +123,6 @@ export const useBlockStyleItem = ({
 			if (isConfirmedChangeID) {
 				editedStyle.name = kebabCase(newValue.name);
 
-				updatedMetaData = getUpdatedMetaData(editedStyle);
-
 				const editedGlobalStyles = mergeObject(globalStyles, {
 					blocks: {
 						[blockName]: {
@@ -130,6 +137,24 @@ export const useBlockStyleItem = ({
 					},
 				});
 
+				const foundedStyle = blockStyles.find(
+					(style) => style.name === currentBlockStyleVariation?.name
+				);
+				const index = blockStyles.indexOf(foundedStyle);
+
+				setBlockStyles([
+					...blockStyles.filter(
+						(style) =>
+							style.name !== currentBlockStyleVariation?.name
+					),
+					editedStyle,
+				]);
+
+				updatedMetaData = getUpdatedMetaData({
+					...editedStyle,
+					index,
+				});
+
 				setGlobalStyles({
 					...editedGlobalStyles,
 					blockeraMetaData: updatedMetaData,
@@ -141,16 +166,7 @@ export const useBlockStyleItem = ({
 				);
 				registerBlockStyle(blockName, editedStyle);
 
-				const foundedStyle = blockStyles.find(
-					(style) => style.name === currentBlockStyleVariation?.name
-				);
-				const index = blockStyles.indexOf(foundedStyle);
-
-				setBlockStyles([
-					...blockStyles.slice(0, index),
-					currentBlockStyleVariation,
-					...blockStyles.slice(index + 1),
-				]);
+				deleteStyleVariationBlocks(currentStyle.name, true, blockName);
 			} else {
 				updatedMetaData = getUpdatedMetaData(editedStyle);
 
@@ -172,9 +188,28 @@ export const useBlockStyleItem = ({
 			setGlobalStyles,
 			isConfirmedChangeID,
 			currentBlockStyleVariation,
+			deleteStyleVariationBlocks,
 			blockeraGlobalStylesMetaData,
 			setCurrentBlockStyleVariation,
 		]
+	);
+
+	const handleOnUsageForMultipleBlocks = useCallback(
+		(currentStyle: Object, action: 'add' | 'delete') => {
+			if ('add' === action && !blockStyles.includes(currentStyle)) {
+				setBlockStyles([...blockStyles, currentStyle]);
+			} else if (
+				'delete' === action &&
+				blockStyles.includes(currentStyle)
+			) {
+				setBlockStyles(
+					blockStyles.filter(
+						(style) => style.name !== currentStyle.name
+					)
+				);
+			}
+		},
+		[blockStyles, setBlockStyles]
 	);
 
 	const handleOnDuplicate = useCallback(
@@ -198,9 +233,9 @@ export const useBlockStyleItem = ({
 				},
 			});
 
-			setCurrentBlockStyleVariation(duplicateStyle);
-
-			setCurrentActiveStyle(duplicateStyle);
+			// TODO: Uncomment this when we will have a way to set the current block style variation while duplicating.
+			// setCurrentBlockStyleVariation(duplicateStyle);
+			// setCurrentActiveStyle(duplicateStyle);
 
 			setBlockStyles([...blockStyles, duplicateStyle]);
 		},
@@ -209,16 +244,13 @@ export const useBlockStyleItem = ({
 	);
 
 	const handleOnClearAllCustomizations = (currentStyle: Object) => {
-		setStyles(
-			{
-				variations: {
-					[currentStyle.name]: {},
-				},
+		setStyles({
+			variations: {
+				[currentStyle.name]: {},
 			},
-			{
-				action: 'clear-all-customizations',
-			}
-		);
+		});
+
+		setGlobalBlockStyles(blockName, currentBlockStyleVariation.name, {});
 
 		setIsOpenContextMenu(false);
 	};
@@ -346,6 +378,7 @@ export const useBlockStyleItem = ({
 		isConfirmedChangeID,
 		setIsConfirmedChangeID,
 		handleOnSaveCustomizations,
+		handleOnUsageForMultipleBlocks,
 		handleOnClearAllCustomizations,
 	};
 };

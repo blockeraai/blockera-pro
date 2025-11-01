@@ -45,7 +45,7 @@ describe('Box Shadow → Functionality', () => {
 			.last()
 			.within(() => {
 				cy.get('input[maxlength="9"]').clear({ force: true });
-				cy.get('input[maxlength="9"]').type('c5eef0ab ');
+				cy.get('input[maxlength="9"]').type('c5eef0ab', { delay: 0 });
 			});
 
 		//Check block
@@ -54,8 +54,6 @@ describe('Box Shadow → Functionality', () => {
 			'box-shadow',
 			'rgba(197, 238, 240, 0.67) 10px 50px 30px 40px'
 		);
-
-		cy.waitForAssertValue();
 
 		//Check store
 		getWPDataObject().then((data) => {

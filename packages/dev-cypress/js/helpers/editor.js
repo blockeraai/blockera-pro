@@ -34,6 +34,8 @@ export function getWindowProperty(path) {
  * when the window object is not available.
  */
 export function getWPDataObject() {
+	cy.waitForAssertValue();
+
 	return cy
 		.window()
 		.its('wp.data')
@@ -87,6 +89,36 @@ export function getSelectedBlockStyle(data, name, variation = 'default') {
 	const { getBlockStyles } = data.select('blockera/editor');
 
 	return getBlockStyles(name, variation);
+}
+
+/**
+ * Get the WordPress globalStyles entity record.
+ *
+ * @param {*} data the @wordpress/data package object.
+ * @param {*} prop the property of record. like style, settings, etc.
+ * @param {*} innerField the inner property name in record[prop] object.
+ *
+ * @returns anythings.
+ */
+export function getEditedGlobalStylesRecord(data, prop, innerField) {
+	const { __experimentalGetCurrentGlobalStylesId } = data.select('core');
+	const { getEditedEntityRecord } = data.select('core');
+
+	const record = getEditedEntityRecord(
+		'root',
+		'globalStyles',
+		__experimentalGetCurrentGlobalStylesId()
+	);
+
+	if (prop) {
+		if (innerField) {
+			return record?.[prop]?.[innerField];
+		}
+
+		return record?.[prop];
+	}
+
+	return record;
 }
 
 /**

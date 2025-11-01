@@ -33,30 +33,6 @@ export const FlexChildStyles = ({
 	attributes: currentBlockAttributes,
 	...props
 }: StylesProps): Array<CssRule> => {
-	// Create cache key from inputs that affect output
-	const cacheKey = JSON.stringify({
-		blockeraFlexChildSizing: currentBlockAttributes.blockeraFlexChildSizing,
-		blockeraFlexChildGrow: currentBlockAttributes.blockeraFlexChildGrow,
-		blockeraFlexChildShrink: currentBlockAttributes.blockeraFlexChildShrink,
-		blockeraFlexChildBasis: currentBlockAttributes.blockeraFlexChildBasis,
-		blockeraFlexChildAlign: currentBlockAttributes.blockeraFlexChildAlign,
-		blockeraFlexChildOrder: currentBlockAttributes.blockeraFlexChildOrder,
-		blockeraFlexChildOrderCustom:
-			currentBlockAttributes.blockeraFlexChildOrderCustom,
-		state,
-		clientId,
-		blockName,
-		masterState,
-		activeDeviceType,
-		blockSelectors,
-		className: currentBlockAttributes?.className,
-	});
-
-	// Check if we have cached result
-	if ((FlexChildStyles: any).cache?.[cacheKey]) {
-		return (FlexChildStyles: any).cache[cacheKey];
-	}
-
 	const {
 		blockeraFlexChildSizing,
 		blockeraFlexChildAlign,
@@ -123,9 +99,17 @@ export const FlexChildStyles = ({
 					_attributes.blockeraFlexChildBasis
 				);
 
-				properties.flex = `${grow ? grow : 0} ${shrink ? shrink : 0} ${
-					basis ? basis : 'auto'
-				}`;
+				if (grow) {
+					properties['flex-grow'] = grow;
+				}
+
+				if (shrink) {
+					properties['flex-shrink'] = shrink;
+				}
+
+				if (basis) {
+					properties['flex-basis'] = basis;
+				}
 				break;
 		}
 
@@ -243,12 +227,6 @@ export const FlexChildStyles = ({
 			),
 		});
 	}
-
-	// Cache the result
-	if (!(FlexChildStyles: any).cache) {
-		(FlexChildStyles: any).cache = {};
-	}
-	(FlexChildStyles: any).cache[cacheKey] = styleGroup;
 
 	return styleGroup;
 };

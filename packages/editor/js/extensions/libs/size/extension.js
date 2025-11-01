@@ -158,7 +158,7 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 									</>
 								}
 								aria-label={__('Input Width', 'blockera')}
-								columns="columns-2"
+								columns="1fr 160px"
 								placeholder="Auto"
 								unitType="width"
 								min={0}
@@ -378,7 +378,7 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 										</p>
 									</>
 								}
-								columns="columns-2"
+								columns="1fr 160px"
 								placeholder="Auto"
 								unitType="height"
 								min={0}
@@ -635,7 +635,7 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 								</p>
 							</>
 						}
-						columns="columns-2"
+						columns="1fr 160px"
 						isDeselectable={true}
 						options={[
 							{
@@ -753,7 +753,7 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 								)}
 							</p>
 						}
-						columns="columns-2"
+						columns="1fr 160px"
 						options={[
 							{
 								label: __('Default', 'blockera'),
