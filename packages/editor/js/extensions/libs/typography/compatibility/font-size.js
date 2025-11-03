@@ -4,7 +4,7 @@
  * Blockera dependencies
  */
 import { isValid } from '@blockera/controls';
-import { getFontSizeVAFromVarString } from '@blockera/data';
+import { getFontSizeBy, generateVariableString } from '@blockera/data';
 
 export function fontSizeFromWPCompatibility({
 	attributes,
@@ -16,15 +16,27 @@ export function fontSizeFromWPCompatibility({
 		// medium → var(--wp--preset--font-size--medium)
 		// it should be changed to a Value Addon (variable)
 		if (attributes?.fontSize !== undefined) {
-			const fontSizeVar = getFontSizeVAFromVarString(
-				`var:preset|font-size|${attributes?.fontSize}`
-			);
+			const fontSizeVar = getFontSizeBy('id', attributes?.fontSize);
 
 			if (fontSizeVar) {
 				attributes.blockeraFontSize = {
-					value: fontSizeVar,
+					value: {
+						settings: {
+							...fontSizeVar,
+							type: 'font-size',
+							var: generateVariableString({
+								reference: fontSizeVar?.reference || {
+									type: '',
+								},
+								type: 'font-size',
+								id: fontSizeVar?.id || '',
+							}),
+						},
+						name: fontSizeVar?.name,
+						isValueAddon: true,
+						valueType: 'variable',
+					},
 				};
-
 				return attributes;
 			}
 		}
