@@ -27,13 +27,7 @@ export {
 	getGradientVAFromIdString,
 	getGradientType,
 } from './gradient';
-export {
-	getFontSizes,
-	getFontSizeBy,
-	getFontSize,
-	getFontSizeVAFromIdString,
-	getFontSizeVAFromVarString,
-} from './font-size';
+export { getFontSizes, getFontSizeBy, getFontSize } from './font-size';
 export {
 	getSpacings,
 	getSpacingBy,
@@ -53,7 +47,6 @@ export { getVariable } from './get-variable';
 export {
 	generateVariableString,
 	generateAttributeVarStringFromVA,
-	generateVariableStringFromAttributeVarString,
 } from './utils';
 
 export * from './types';
