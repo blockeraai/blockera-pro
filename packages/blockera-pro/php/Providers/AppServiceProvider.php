@@ -174,11 +174,8 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'BackfaceVisibility' => \Blockera\SiteBuilder\StyleDefinitions\BackfaceVisibility::class,
             'Background' => \Blockera\SiteBuilder\StyleDefinitions\Background::class,
             'BoxShadow' => \Blockera\SiteBuilder\StyleDefinitions\BoxShadow::class,
-            'ChildOrigin' => \Blockera\SiteBuilder\StyleDefinitions\ChildOrigin::class,
-            'ChildPerspective' => \Blockera\SiteBuilder\StyleDefinitions\ChildPerspective::class,
             'ColumnCount' => \Blockera\SiteBuilder\StyleDefinitions\ColumnCount::class,
             'Content' => \Blockera\SiteBuilder\StyleDefinitions\Content::class,
             'Filter' => \Blockera\SiteBuilder\StyleDefinitions\Filter::class,
@@ -186,7 +183,6 @@ class AppServiceProvider extends ServiceProvider {
             'Mouse' => \Blockera\SiteBuilder\StyleDefinitions\Mouse::class,
             'Order' => \Blockera\SiteBuilder\StyleDefinitions\Order::class,
             'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
-            'SelfOrigin' => \Blockera\SiteBuilder\StyleDefinitions\SelfOrigin::class,
             'TextIndent' => \Blockera\SiteBuilder\StyleDefinitions\TextIndent::class,
             'TextShadow' => \Blockera\SiteBuilder\StyleDefinitions\TextShadow::class,
             'TextWrap' => \Blockera\SiteBuilder\StyleDefinitions\TextWrap::class,
