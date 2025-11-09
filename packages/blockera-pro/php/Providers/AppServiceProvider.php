@@ -174,8 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'WebkitTextStrokeColor' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeColor::class,
-            'WebkitTextStrokeWidth' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeWidth::class,
             'WordBreak' => \Blockera\SiteBuilder\StyleDefinitions\WordBreak::class,
             'WordSpacing' => \Blockera\SiteBuilder\StyleDefinitions\WordSpacing::class,
         ];
