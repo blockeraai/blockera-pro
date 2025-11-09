@@ -51,8 +51,6 @@ class AppServiceProvider extends ServiceProvider {
 					return $style_engine;
 				}
 			);
-
-			$this->registerSiteBuilderStyleEngine($blockera);
 		}
 
         $this->app->singleton(
@@ -165,30 +163,5 @@ class AppServiceProvider extends ServiceProvider {
 		wp_set_script_translations('@blockera/blockera-pro', 'blockera-pro');
 
         load_plugin_textdomain('blockera-pro', false, dirname(plugin_basename(BLOCKERA_PRO_FILE)) . '/languages');
-    }
-
-	/**
-     * Registration Styles with Definitions.
-     *
-     * @return void
-     */
-    public function registerSiteBuilderStyleEngine( Application $app): void {
-        $styleDefinitions = [
-            'WordSpacing' => \Blockera\SiteBuilder\StyleDefinitions\WordSpacing::class,
-        ];
-
-        foreach ($styleDefinitions as $key => $definition) {
-			// Remove existing binding if it exists.
-            if ($app->bound($key)) {
-                $app->forgetInstance($key);
-            }
-
-            $app->singleton(
-                $key,
-                function ( Application $app, array $args) use ( $definition) {
-                    return new $definition($args['supports']);
-                }
-            );
-        }
     }
 }
