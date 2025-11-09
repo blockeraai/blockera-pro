@@ -174,7 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'BackdropFilter' => \Blockera\SiteBuilder\StyleDefinitions\BackdropFilter::class,
             'BackfaceVisibility' => \Blockera\SiteBuilder\StyleDefinitions\BackfaceVisibility::class,
             'Background' => \Blockera\SiteBuilder\StyleDefinitions\Background::class,
             'BoxShadow' => \Blockera\SiteBuilder\StyleDefinitions\BoxShadow::class,
