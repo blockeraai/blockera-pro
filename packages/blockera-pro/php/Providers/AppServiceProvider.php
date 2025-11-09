@@ -174,7 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
             'TextIndent' => \Blockera\SiteBuilder\StyleDefinitions\TextIndent::class,
             'TextShadow' => \Blockera\SiteBuilder\StyleDefinitions\TextShadow::class,
             'TextWrap' => \Blockera\SiteBuilder\StyleDefinitions\TextWrap::class,
