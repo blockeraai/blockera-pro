@@ -174,7 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'Transform' => \Blockera\SiteBuilder\StyleDefinitions\Transform::class,
             'Transition' => \Blockera\SiteBuilder\StyleDefinitions\Transition::class,
             'WebkitTextStrokeColor' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeColor::class,
             'WebkitTextStrokeWidth' => \Blockera\SiteBuilder\StyleDefinitions\WebkitTextStrokeWidth::class,
