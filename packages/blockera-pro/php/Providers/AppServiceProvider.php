@@ -174,7 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'WordBreak' => \Blockera\SiteBuilder\StyleDefinitions\WordBreak::class,
             'WordSpacing' => \Blockera\SiteBuilder\StyleDefinitions\WordSpacing::class,
         ];
 
