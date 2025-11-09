@@ -174,8 +174,7 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'Filter' => \Blockera\SiteBuilder\StyleDefinitions\Filter::class,
-			'Flex' => \Blockera\SiteBuilder\StyleDefinitions\Flex::class,
+          	'Flex' => \Blockera\SiteBuilder\StyleDefinitions\Flex::class,
             'Mouse' => \Blockera\SiteBuilder\StyleDefinitions\Mouse::class,
             'Order' => \Blockera\SiteBuilder\StyleDefinitions\Order::class,
             'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
