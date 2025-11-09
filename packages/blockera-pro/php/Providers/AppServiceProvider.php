@@ -174,7 +174,6 @@ class AppServiceProvider extends ServiceProvider {
      */
     public function registerSiteBuilderStyleEngine( Application $app): void {
         $styleDefinitions = [
-            'Mouse' => \Blockera\SiteBuilder\StyleDefinitions\Mouse::class,
             'Order' => \Blockera\SiteBuilder\StyleDefinitions\Order::class,
             'Outline' => \Blockera\SiteBuilder\StyleDefinitions\Outline::class,
             'TextIndent' => \Blockera\SiteBuilder\StyleDefinitions\TextIndent::class,
