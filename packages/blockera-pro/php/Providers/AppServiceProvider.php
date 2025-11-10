@@ -12,7 +12,6 @@ use Blockera\Auth\Config as AuthConfig;
 use Blockera\Bootstrap\ServiceProvider;
 use Blockera\Auth\Repositories\OptionRepository;
 use League\OAuth2\Client\Provider\GenericProvider;
-use Blockera\SiteBuilder\StyleEngine as SiteBuilderStyleEngine;
 
 /**
  * Class AppServiceProvider for providing all application services.
@@ -36,19 +35,6 @@ class AppServiceProvider extends ServiceProvider {
 				function ( Application $app, array $params = []) use ( $blockera) {
 
 					return $blockera->make(Cache::class, $params);
-				}
-			);
-
-			$blockera->singleton(
-				SiteBuilderStyleEngine::class,
-				function ( Application $app, array $params = []) use ( $blockera) {
-					$style_engine = new SiteBuilderStyleEngine($params['block'], $params['fallbackSelector'], $params['isGlobalStyle'] ?? false);
-
-					$style_engine->setApp($blockera);
-					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
-					$style_engine->setBreakpoints($app->getEntity('breakpoints'));
-
-					return $style_engine;
 				}
 			);
 		}
