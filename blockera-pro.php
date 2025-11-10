@@ -166,28 +166,6 @@ function blockera_pro_init(): void {
     add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
     function blockera_pro_after_setup_free_version(): void {
-		
-		// Gate: if Pro is disabled, do not bootstrap functionality.
-		// We should replace the free style engine with the pro style engine while pro version is disabled.
-		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
-			
-			global $blockera;
-
-			$blockera->singleton(
-				StyleEngine::class,
-				function ( Application $app, array $params = []) use ( $blockera) {
-					$style_engine = new \Blockera\Editor\StyleEngine($params['block'], $params['fallbackSelector']);
-
-					$style_engine->setApp($blockera);
-					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
-					$style_engine->setBreakpoints($app->getEntity('breakpoints'));
-
-					return $style_engine;
-				}
-			);
-
-			return;
-		}
 
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
