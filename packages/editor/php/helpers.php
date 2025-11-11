@@ -130,8 +130,14 @@ if ( ! function_exists( 'blockera_get_inner_block_state_selector' ) ) {
 		// Overriding selectors based on supported pseudo-class in css. Supported pseudo-classes with css: hover, active, visited, before, after.
 		if ( $pseudo_class && 'normal' !== $pseudo_class ) {
 
-			// Handle multiple selector where separated with comma.
-			$parsedValue = explode( ',', trim( $selector ) );
+			$parsedValue = [ $selector ];
+
+			// Check if selector contains pseudo-class functions like :is(), :where(), :not(), etc.
+			// These functions can contain multiple selectors separated by commas, which should not be split.
+			if (! preg_match( blockera_regex_pseudo_class_functions_pattern(), $selector, $matches ) ) {
+				
+				$parsedValue = explode( ',', trim( $selector ) );
+			}
 
 			// Assume current selector is multiple.
 			if ( count( $parsedValue ) > 1 ) {
@@ -315,7 +321,17 @@ if ( ! function_exists( 'blockera_get_css_selector_format' ) ) {
 		}
 		
 		$formatted_selectors = [];
-		foreach (explode( ', ', $picked_selector ) as $selector) {
+		$selectors           = [ $picked_selector ];
+
+		// Check if selector contains pseudo-class functions like :is(), :where(), :not(), etc.
+		// These functions can contain multiple selectors separated by commas, which should not be split.
+		if ( ! preg_match( blockera_regex_pseudo_class_functions_pattern(), $picked_selector, $matches ) ) {
+		
+			// Split the selector by commas.
+			$selectors = explode( ', ', $picked_selector );
+		}
+
+		foreach ($selectors as $selector) {
 			$selector    = trim($selector);
 			$needs_space = ! str_starts_with($selector, '&') && ! empty($root);
 			
@@ -426,6 +442,44 @@ if ( ! function_exists( 'blockera_get_compatible_block_css_selector' ) ) {
 		}
 
 		$current_state_has_selectors = false;
+
+		$additional_selectors = [];
+
+		if (blockera_is_inner_block($args['block-type']) && $args['block-type'] !== $args['block-name'] && blockera_is_valid_block_type($args['block-type'])) {
+
+			$additional_selectors     = blockera_get_block_type($args['block-type'])->selectors;
+			$additional_root_selector = $additional_selectors['root'] ?? '';
+
+			if (empty($additional_root_selector)) {
+
+				$additional_root_selector = blockera_generate_block_root_selector($args['block-type']);
+			}
+
+			if (! empty($additional_selectors)) {
+
+				$additional_selectors['root'] = $additional_root_selector;
+
+				$selectors = array_merge(
+                    $selectors,
+                    [
+						$args['block-type'] => $additional_selectors,
+					]
+                );
+			} else {
+				$selectors[ $args['block-type'] ] = [
+					'root' => $additional_root_selector,
+				];
+			}
+
+			if (isset($additional_selectors[ $feature_id ])) {
+				$feature_id = [
+					$args['block-type'],
+					$feature_id,
+				];
+			} else {
+				$feature_id = $args['block-type'];
+			}
+		}
 
 		if ( ! empty( $args['block-type'] ) && isset($cloned_block_type) ) {
 
@@ -1072,5 +1126,37 @@ if (! function_exists('blockera_sort_breakpoints')) {
         );
 
 		return $breakpointsArray;
+	}
+}
+
+if (! function_exists('blockera_is_valid_block_type')) {
+
+	/**
+	 * Check if the block type is registered.
+	 *
+	 * @param string $block_type the block type.
+	 *
+	 * @return bool true if the block type is valid, false otherwise.
+	 */
+	function blockera_is_valid_block_type( string $block_type ): bool {
+
+		return (bool) blockera_get_block_type($block_type);
+	}
+}
+
+if (! function_exists('blockera_generate_block_root_selector')) {
+
+	/**
+	 * Generate block root selector.
+	 *
+	 * @param string $block_type the block type.
+	 *
+	 * @return string the block root selector.
+	 */
+	function blockera_generate_block_root_selector( string $block_type ): string {
+
+		$prefix = '.wp-block-';
+
+		return $prefix . str_replace('/', '-', str_replace('core/', '', $block_type));
 	}
 }

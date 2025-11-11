@@ -75,9 +75,39 @@ describe(
 				'exist'
 			);
 
+			cy.checkBlockCardItems([
+				'normal',
+				'hover',
+				'current-menu-item',
+				'elements/link',
+				'elements/submenu-icon',
+				'elements/submenu-container',
+				'elements/submenu-items',
+			]);
+
+			cy.checkBlockStatesPickerItems([
+				'states/current-menu-item',
+				'states/current-menu-parent',
+				'states/current-menu-ancestor',
+				'elements/link',
+				'elements/submenu-icon',
+				'states/focus',
+				'states/active',
+				'states/visited',
+				'elements/bold',
+				'elements/italic',
+				'elements/kbd',
+				'elements/code',
+				'elements/span',
+				'elements/mark',
+			]);
+
+			// Close inserter
+			cy.getByDataTest('add-new-block-state').click();
+
 			// Icon extension is active
-			cy.getByDataTest('settings-tab').click();
-			cy.getByAriaLabel('Choose Icon…').should('be.visible');
+			cy.getByDataTest('settings-tab').click({ force: true });
+			cy.getByAriaLabel('Choose Icon…').should('exist');
 
 			// switch back to style tab
 			cy.getByDataTest('style-tab').click();
@@ -101,11 +131,13 @@ describe(
 				'not.exist'
 			);
 			cy.get('.block-editor-block-card').should('exist');
-			cy.get('.block-editor-block-card').within(() => {
-				cy.get('.block-editor-block-card__title').contains(
-					'Navigation'
-				);
-			});
+			cy.get('.block-editor-block-card')
+				.first()
+				.within(() => {
+					cy.get('.block-editor-block-card__title').contains(
+						'Navigation'
+					);
+				});
 		});
 
 		it('Functionality + Inner blocks', () => {
