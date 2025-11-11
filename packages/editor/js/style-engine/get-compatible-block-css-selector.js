@@ -147,7 +147,14 @@ export const getNormalizedSelector = (
 		customizedPseudoClasses,
 		currentStateHasSelectors,
 	} = options;
-	const parsedSelectors = selector.split(',');
+	let parsedSelectors = selector.split(',');
+	// Check if selector starts with a pseudo-class (e.g., :hover, :focus, ::before)
+	const startsWithPseudoClass = /^::?[a-z-]+/.test(selector.trim());
+
+	if (startsWithPseudoClass) {
+		parsedSelectors = [selector];
+	}
+
 	const { getState, getInnerState: _getInnerState } =
 		select('blockera/editor') || {};
 	const {
@@ -631,7 +638,7 @@ export const getCompatibleBlockCssSelector = ({
  * @return {string} the css selector for support.
  */
 export function prepareBlockCssSelector(params: {
-	query?: string,
+	query?: Array<string> | string,
 	support?: string,
 	supports: Object,
 	blockName: string,
