@@ -4,7 +4,7 @@
  *
  * @var array $args the block arguments!
  *
- * @package blockera/packages/blocks/js/wordpress/post-excerpt
+ * @package blockera/packages/blocks/js/wordpress/read-more
  */
 
 return array_merge(
@@ -13,12 +13,6 @@ return array_merge(
 		'selectors' => array_merge(
 			$args['selectors'] ?? [],
 			[
-				'blockera/elements/link' => [
-					'root' => 'a:not(.wp-element-button,.wp-block-post-excerpt__more-link)',
-				],
-				'blockera/elements/read-more-link' => [
-					'root' => 'a.wp-block-post-excerpt__more-link',
-				],
 				'blockera/elements/bold' => [
 					'root' => ':is(strong,b)',
 				],
