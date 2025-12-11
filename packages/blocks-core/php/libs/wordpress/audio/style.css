@@ -12,3 +12,9 @@
 .blockera-block.wp-block-audio audio::-webkit-media-controls-enclosure {
 	max-height: inherit !important;
 }
+
+.blockera-block.wp-block-audio audio::-webkit-media-controls-enclosure,
+.blockera-block.wp-block-audio audio::-webkit-media-controls,
+.blockera-block.wp-block-audio :is(audio, .wp-element-caption) {
+	transition: inherit;
+}
