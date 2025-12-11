@@ -367,7 +367,7 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 
 	public function testConvertInlineStylesWithGlobalCssPropsClasses() {
 
-		$html = '<div style="color: red; display: flex;">Content</div>';
+		$html = '<div class="blockera-block-1" style="color: red; display: flex;">Content</div>';
 
 		$global_css_props = [
 			'color'   => 'has-color',
@@ -377,12 +377,12 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 		$result = $this->processor->cleanupHTML( $html, '',$global_css_props );
 
 		$this->assertStringNotContainsString( 'style=', $result['html'] );
-		$this->assertStringContainsString( 'class="has-color has-display"', $result['html'] );
+		$this->assertStringContainsString( 'class="blockera-block-1 has-color has-display"', $result['html'] );
 	}
 
 	public function testConvertInlineStylesWithGlobalCssPropsClassesPartialMatch() {
 
-		$html = '<div style="color: red; margin: 10px;">Content</div>';
+		$html = '<div class="blockera-block-1" style="color: red; margin: 10px;">Content</div>';
 
 		$global_css_props = [
 			'color' => 'has-color',
@@ -392,13 +392,13 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 		$result = $this->processor->cleanupHTML( $html, '', $global_css_props );
 
 		$this->assertStringNotContainsString( 'style=', $result['html'] );
-		$this->assertStringContainsString( 'class="has-color"', $result['html'] );
+		$this->assertStringContainsString( 'class="blockera-block-1 has-color"', $result['html'] );
 		$this->assertStringNotContainsString( 'has-width', $result['html'] );
 	}
 
 	public function testConvertInlineStylesWithGlobalCssPropsClassesAndExistingClass() {
 
-		$html = '<div class="existing-class" style="color: red;">Content</div>';
+		$html = '<div class="blockera-block-1 existing-class" style="color: red;">Content</div>';
 
 		$global_css_props = [
 			'color' => 'has-color',
@@ -407,22 +407,22 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 		$result = $this->processor->cleanupHTML( $html, '', $global_css_props );
 
 		$this->assertStringNotContainsString( 'style=', $result['html'] );
-		$this->assertStringContainsString( 'class="existing-class has-color"', $result['html'] );
+		$this->assertStringContainsString( 'class="blockera-block-1 existing-class has-color"', $result['html'] );
 	}
 
 	public function testConvertInlineStylesWithEmptyGlobalCssPropsClasses() {
 
-		$html = '<div style="color: red;">Content</div>';
+		$html = '<div class="blockera-block-1" style="color: red;">Content</div>';
 
 		$result = $this->processor->cleanupHTML( $html, '', [] );
 
 		$this->assertStringNotContainsString( 'style=', $result['html'] );
-		$this->assertStringNotContainsString( 'class=', $result['html'] );
+		$this->assertStringContainsString( 'class="blockera-block-1"', $result['html'] );
 	}
 
 	public function testConvertInlineStylesWithGlobalCssPropsClassesMultipleElements() {
 
-		$html = '<div style="color: red;"><p style="display: block;">Text</p></div>';
+		$html = '<div class="blockera-block-1" style="color: red;"><p style="display: block;">Text</p></div>';
 
 		$global_css_props = [
 			'color'   => 'has-color',
@@ -431,13 +431,13 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 
 		$result = $this->processor->cleanupHTML( $html, '', $global_css_props );
 
-		$this->assertStringContainsString( '<div class="has-color" >', $result['html'] );
-		$this->assertStringContainsString( '<p class="has-display" >', $result['html'] );
+		$this->assertStringContainsString( '<div class="blockera-block-1 has-color">', $result['html'] );
+		$this->assertStringContainsString( '<p>', $result['html'] );
 	}
 
 	public function testConvertInlineStylesWithGlobalCssPropsClassesNoDuplicates() {
 
-		$html = '<div class="has-color" style="color: red;">Content</div>';
+		$html = '<div class="blockera-block-1 has-color" style="color: red;">Content</div>';
 
 		$global_css_props = [
 			'color' => 'has-color',
@@ -447,6 +447,20 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 
 		$count = substr_count( $result['html'], 'has-color' );
 		$this->assertEquals( 1, $count );
+	}
+
+	public function testConvertInlineStylesWithGlobalCssPropsClassesNoDuplicatesAndNoBlockeraClass() {
+
+		$html = '<div class="has-color" style="color: red; display: block;">Content</div>';
+
+		$global_css_props = [
+			'color' => 'has-color',
+		];
+
+		$result = $this->processor->cleanupHTML( $html, '', $global_css_props );
+
+		$this->assertStringNotContainsString( 'style=', $result['html'] );
+		$this->assertStringContainsString( 'class="has-color"', $result['html'] );
 	}
 
 	public function testAddClassnameToWrapper() {
@@ -566,5 +580,141 @@ class HTMLProcessorTest extends \WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'class="first second third"', $result );
 	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksRemovesFontFamily() {
+
+		$html = '<div class="blockera-block-123 has-arial-font-family other-class">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-123', $result );
+		$this->assertStringContainsString( 'other-class', $result );
+		$this->assertStringNotContainsString( 'has-arial-font-family', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksRemovesFontSize() {
+
+		$html = '<div class="blockera-block-456 has-large-font-size test-class">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-456', $result );
+		$this->assertStringContainsString( 'test-class', $result );
+		$this->assertStringNotContainsString( 'has-large-font-size', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksRemovesColorButPreservesTextAndLinkColor() {
+
+		$html = '<div class="blockera-block-789 has-background-color has-text-color has-link-color has-primary-color">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-789', $result );
+		$this->assertStringContainsString( 'has-text-color', $result );
+		$this->assertStringContainsString( 'has-link-color', $result );
+		$this->assertStringNotContainsString( 'has-background-color', $result );
+		$this->assertStringNotContainsString( 'has-primary-color', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksPreservesBorderColor() {
+
+		$html = '<div class="blockera-block-abc has-border-color has-border-top-color">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-abc', $result );
+		$this->assertStringContainsString( 'has-border-color', $result );
+		$this->assertStringContainsString( 'has-border-top-color', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksRemovesMultipleClasses() {
+
+		$html = '<div class="blockera-block-xyz has-arial-font-family has-medium-font-size has-accent-color other-class">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-xyz', $result );
+		$this->assertStringContainsString( 'other-class', $result );
+		$this->assertStringNotContainsString( 'has-arial-font-family', $result );
+		$this->assertStringNotContainsString( 'has-medium-font-size', $result );
+		$this->assertStringNotContainsString( 'has-accent-color', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksDoesNotAffectElementsWithoutBlockeraBlock() {
+
+		$html = '<div class="has-arial-font-family has-large-font-size has-primary-color">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		// Should remain unchanged since element doesn't have blockera-block-* class
+		$this->assertEquals( $html, $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksHandlesEmptyHtml() {
+
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, '' );
+		
+		$this->assertEquals( '', $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksHandlesBlockeraBlockWithoutHasClasses() {
+
+		$html = '<div class="blockera-block-123 other-class">Content</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		// Should remain unchanged since element has no removable has-* classes
+		$this->assertEquals( $html, $result );
+	}
+
+	public function testRemoveHasClassesFromBlockeraBlocksHandlesMultipleElements() {
+
+		$html = '<div class="blockera-block-1 has-arial-font-family">First</div><div class="blockera-block-2 has-large-font-size">Second</div>';
+		
+		$reflection = new \ReflectionClass( $this->processor );
+		$method = $reflection->getMethod( 'removeHasClassesFromBlockeraBlocks' );
+		$method->setAccessible( true );
+		
+		$result = $method->invoke( $this->processor, $html );
+		
+		$this->assertStringContainsString( 'blockera-block-1', $result );
+		$this->assertStringContainsString( 'blockera-block-2', $result );
+		$this->assertStringNotContainsString( 'has-arial-font-family', $result );
+		$this->assertStringNotContainsString( 'has-large-font-size', $result );
+	}
+
+
 }
 
