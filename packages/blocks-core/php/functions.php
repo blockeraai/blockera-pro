@@ -24,16 +24,10 @@ if ( ! function_exists( 'blockera_get_available_blocks' ) ) {
 				continue;
 			}
 
-			$available_blocks = array_merge(
-				$available_blocks,
-				array_map(
-					function ( array $support ): string {
-
-						return $support['name'];
-					},
-					$config['supported']
-				)
-			);
+			// Build associative array with block names as keys for O(1) lookup performance.
+			foreach ( $config['supported'] as $support ) {
+				$available_blocks[ $support['name'] ] = true;
+			}
 		}
 
 		return $available_blocks;
@@ -108,19 +102,20 @@ if (! function_exists('blockera_get_supports')) {
 	 * @return array the supports.
 	 */
 	function blockera_get_supports(): array {
-
 		$attributes = include __DIR__ . '/shared/attributes.php';
-		$supports   = array_keys($attributes);
+		$excluded   = [
+			'blockeraPropsId' => true,
+			'blockeraCompatId' => true,
+		];
+		$supports   = [];
 		
-		return array_filter(
-            $supports,
-            function ( string $support): bool {
-
-				$specific_supports = [ 'blockeraPropsId', 'blockeraCompatId' ];
-
-				return ! in_array($support, $specific_supports, true);
+		foreach ( array_keys($attributes) as $key ) {
+			if ( ! isset($excluded[ $key ]) ) {
+				$supports[] = $key;
 			}
-        );
+		}
+		
+		return $supports;
 	}
 }
 
