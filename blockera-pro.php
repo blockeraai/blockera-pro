@@ -219,6 +219,8 @@ register_activation_hook(__FILE__, 'blockera_pro_activation');
  * @return void
  */
 function blockera_pro_activation(): void {
+	// the fallback way to load the composer default autoloader on just plugin activation.
+	require_once __DIR__ . '/vendor/autoload.php';
 	
 	if (! wp_next_scheduled('blockera_pro_each_per_day')) {
 
