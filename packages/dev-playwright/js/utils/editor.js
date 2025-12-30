@@ -211,10 +211,12 @@ async function getBlockClientId(page) {
  * @return {Promise<void>}
  */
 async function disableGutenbergFeatures(page) {
-	const data = await getWPDataObject(page);
-	await page.evaluate((dataObj) => {
-		dataObj.dispatch('core/editor').disablePublishSidebar();
-	}, data);
+	// Access wp.data directly inside evaluate to avoid serialization issues
+	await page.evaluate(() => {
+		if (window.wp && window.wp.data) {
+			window.wp.data.dispatch('core/editor').disablePublishSidebar();
+		}
+	});
 }
 
 /**
@@ -412,7 +414,16 @@ async function addNewGroupToPost(page) {
  * @return {Promise<void>}
  */
 async function savePage(page) {
-	await page.locator('.editor-post-publish-button').click();
+	const publishButton = page.locator(
+		'.editor-header__settings .editor-post-publish-button'
+	);
+	const isDisabled = await publishButton.isDisabled();
+	if (isDisabled) {
+		// Post is already saved, no need to do anything
+		return;
+	}
+
+	await publishButton.click();
 
 	const snackbarSaveButton = page.locator(
 		'.entities-saved-states__panel .editor-entities-saved-states__save-button'
@@ -454,9 +465,7 @@ async function appendBlocks(page, blocksCode) {
  * @return {Promise<void>}
  */
 async function redirectToFrontPage(page) {
-	const previewLink = page.locator(
-		'.blockera-control-canvas-editor-preview-link a, a.components-button.components-snackbar__action.is-link'
-	);
+	const previewLink = page.locator('.blockera-preview-button-wrapper a');
 	const href = await previewLink.getAttribute('href');
 	if (href) {
 		await page.goto(href);
@@ -519,12 +528,15 @@ async function editPage(page) {
  * @return {Promise<void>}
  */
 async function clearBlocks(page) {
-	const data = await getWPDataObject(page);
-	await page.evaluate((dataObj) => {
-		const blocks = dataObj.select('core/block-editor').getBlocks();
-		const clientIds = blocks.map((block) => block.clientId);
-		dataObj.dispatch('core/block-editor').removeBlocks(clientIds);
-	}, data);
+	// Access wp.data directly inside evaluate to avoid serialization issues
+	await page.evaluate(() => {
+		if (window.wp && window.wp.data) {
+			const dataObj = window.wp.data;
+			const blocks = dataObj.select('core/block-editor').getBlocks();
+			const clientIds = blocks.map((block) => block.clientId);
+			dataObj.dispatch('core/block-editor').removeBlocks(clientIds);
+		}
+	});
 }
 
 /**
@@ -743,22 +755,35 @@ async function closeWelcomeGuide(page) {
  * @return {Promise<void>}
  */
 async function openDocumentSettingsSidebar(page, tab = 'Block') {
-	const settingsButton = page.locator('button[aria-label="Settings"]');
+	const settingsButton = page.locator(
+		'.editor-header__settings button[aria-label="Settings"]'
+	);
+
+	// Use getByRole for more specific tab selection
+	const tabButton = page.getByRole('tab', { name: tab, exact: true });
 
 	const isPressed = await settingsButton.getAttribute('aria-pressed');
 	if (isPressed === 'true') {
+		// Check if the current tab element exists before trying to read it
 		const currentTab = page.locator(
-			`.edit-post-sidebar__panel-tab[aria-selected="true"]`
+			`.editor-header__settings [role="tab"][aria-selected="true"]`
 		);
-		const currentTabText = await currentTab.textContent();
-		if (currentTabText?.trim() !== tab) {
-			await page.locator(`button:has-text("${tab}")`).click();
+		const tabCount = await currentTab.count();
+
+		if (tabCount > 0) {
+			const currentTabText = await currentTab.textContent();
+			if (currentTabText?.trim() !== tab) {
+				await tabButton.click();
+			}
+			// If no tab is selected, just click the desired tab
+			await tabButton.click();
+			return;
 		}
 		return;
 	}
 
 	await settingsButton.click();
-	await page.locator(`button:has-text("${tab}")`).click();
+	await tabButton.click();
 }
 
 /**
@@ -787,6 +812,92 @@ async function getBlockeraStylesWrapper(page) {
  */
 async function waitForAssertValue(time = 300) {
 	return new Promise((resolve) => setTimeout(resolve, time));
+}
+/**
+ * Activate mu-plugin by copying it to wp-content/mu-plugins/ directory.
+ * This function accepts a full path to the mu-plugin.php file and copies it to the mu-plugins directory.
+ *
+ * @param {import('@playwright/test').Page} page - Playwright page object.
+ * @param {string} muPluginPath - Full path to the mu-plugin.php file (relative to plugin root).
+ * @param {string} [targetName] - Optional target filename. If not provided, generates from path.
+ * @param {string} [pluginName='blockera'] - Plugin name to use in paths. Defaults to 'blockera'.
+ * @return {Promise<void>}
+ */
+async function activateMuPlugin(
+	page,
+	muPluginPath,
+	targetName = null,
+	pluginName = 'blockera'
+) {
+	// Import wpCli here to avoid circular dependency with commands.js
+	const { wpCli } = require('../support/commands');
+
+	// Generate target filename if not provided
+	// Extract a unique name from the path (e.g., "block-query-title" from "tests/fixtures/block-query-title/mu-plugin.php")
+	const pathParts = muPluginPath.split('/');
+	if (!targetName) {
+		const folderName = pathParts[pathParts.length - 2] || 'mu-plugin';
+		targetName = `${pluginName}-test-${folderName}.php`;
+	}
+
+	// Build PHP code to copy mu-plugin to mu-plugins directory
+	// Use wp eval to execute PHP code directly without creating temp files
+	const phpCode = `if (!file_exists(WPMU_PLUGIN_DIR)) { wp_mkdir_p(WPMU_PLUGIN_DIR); } $sourceFile = ABSPATH . 'wp-content/plugins/${pluginName}/${muPluginPath}'; $targetFile = WPMU_PLUGIN_DIR . '/${targetName}'; if (file_exists($sourceFile)) { $content = file_get_contents($sourceFile); file_put_contents($targetFile, $content); }`;
+
+	// Escape single quotes for shell: ' becomes '\''
+	// Use single quotes in shell command to preserve $ signs in PHP
+	const escapedPhpCode = phpCode.replace(/'/g, "'\\''");
+
+	// Execute PHP code directly using wp eval
+	// Use ignoreFailures=true to prevent test failure if file doesn't exist
+	await wpCli(
+		page,
+		`wp eval '${escapedPhpCode}'`,
+		true, // ignoreFailures = true - don't fail if file doesn't exist
+		true // skipEscaping = true - we've already escaped
+	);
+}
+
+/**
+ * Deactivate mu-plugin by removing it from wp-content/mu-plugins/ directory.
+ * This function removes the mu-plugin file that was previously activated.
+ *
+ * @param {import('@playwright/test').Page} page - Playwright page object.
+ * @param {string} muPluginPath - Full path to the mu-plugin.php file (relative to plugin root).
+ * @param {string} [targetName] - Optional target filename. If not provided, generates from path (must match activateMuPlugin).
+ * @param {string} [pluginName='blockera'] - Plugin name to use in paths. Defaults to 'blockera'. Must match the value used in activateMuPlugin.
+ * @return {Promise<void>}
+ */
+async function deactivateMuPlugin(
+	page,
+	muPluginPath,
+	targetName = null,
+	pluginName = 'blockera'
+) {
+	// Import wpCli here to avoid circular dependency with commands.js
+	const { wpCli } = require('../support/commands');
+
+	// Generate target filename if not provided (must match activateMuPlugin logic)
+	const pathParts = muPluginPath.split('/');
+	if (!targetName) {
+		const folderName = pathParts[pathParts.length - 2] || 'mu-plugin';
+		targetName = `${pluginName}-test-${folderName}.php`;
+	}
+
+	// Build PHP code to remove mu-plugin from mu-plugins directory
+	const phpCode = `$targetFile = WPMU_PLUGIN_DIR . '/${targetName}'; if (file_exists($targetFile)) { unlink($targetFile); }`;
+
+	// Escape single quotes for shell: ' becomes '\''
+	const escapedPhpCode = phpCode.replace(/'/g, "'\\''");
+
+	// Execute PHP code directly using wp eval
+	// Use ignoreFailures=true to prevent test failure if file doesn't exist
+	await wpCli(
+		page,
+		`wp eval '${escapedPhpCode}'`,
+		true, // ignoreFailures = true - don't fail if file doesn't exist
+		true // skipEscaping = true - we've already escaped
+	);
 }
 
 module.exports = {
@@ -824,5 +935,7 @@ module.exports = {
 	closeWelcomeGuide,
 	openDocumentSettingsSidebar,
 	getBlockeraStylesWrapper,
+	activateMuPlugin,
+	deactivateMuPlugin,
 	waitForAssertValue,
 };
