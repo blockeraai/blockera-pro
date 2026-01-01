@@ -183,7 +183,7 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'style=', $result['content'] );
 		// Should use parent selector + child selector with counter-based naming.
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
 		// Child should get class based on parent class + counter.
 		$this->assertStringContainsString( 'class="blockera-block-parent-child-1"', $result['content'] );
 	}
@@ -207,7 +207,7 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'style=', $result['content'] );
 		// Should use blockera-block-* class from parent with counter-based child class.
-		$this->assertStringContainsString( ':where(.blockera-block-xyz .blockera-block-xyz-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-xyz :where(.blockera-block-xyz-child-1)', $result['style'] );
 		$this->assertStringContainsString( 'class="blockera-block-xyz-child-1"', $result['content'] );
 	}
 
@@ -219,10 +219,17 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'style=', $result['content'] );
 		// Since child doesn't have blockera-block-* or wp-block-*, Priority 3 applies.
-		// Should use parent + child classes (prioritizing classes with numbers: button-123).
-		$this->assertStringContainsString( ':where(.blockera-block-parent', $result['style'] );
-		$this->assertStringContainsString( '.button-123', $result['style'] );
+		// Should generate unique class instead of using existing classes.
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
 		$this->assertStringContainsString( 'color: purple', $result['style'] );
+		// Element should get unique class added (appended to existing classes).
+		// Verify all original classes are preserved.
+		$this->assertStringContainsString( 'custom-class', $result['content'] );
+		$this->assertStringContainsString( 'button-123', $result['content'] );
+		$this->assertStringContainsString( 'other-class', $result['content'] );
+		$this->assertStringContainsString( 'blockera-block-parent-child-1', $result['content'] );
+		// Verify all classes are in the same class attribute.
+		$this->assertMatchesRegularExpression( '/class="[^"]*custom-class[^"]*button-123[^"]*other-class[^"]*blockera-block-parent-child-1[^"]*"/', $result['content'] );
 	}
 
 	public function testProcessChildWithNoClassesGeneratesUniqueClass(): void {
@@ -234,7 +241,7 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'style=', $result['content'] );
 		// Should generate class using parent class + counter format.
 		$this->assertStringContainsString( 'class="blockera-block-parent-child-1"', $result['content'] );
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
 	}
 
 	public function testProcessMultipleElements(): void {
@@ -325,9 +332,9 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'class="blockera-block-parent-child-3"', $result['content'] );
 
 		// All styles should be extracted.
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-2)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-3)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-2)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-3)', $result['style'] );
 		$this->assertStringContainsString( 'color: red', $result['style'] );
 		$this->assertStringContainsString( 'color: green', $result['style'] );
 		$this->assertStringContainsString( 'color: blue', $result['style'] );
@@ -357,10 +364,10 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'class="blockera-block-second-child-2"', $result['content'] );
 
 		// Verify styles use correct selectors.
-		$this->assertStringContainsString( ':where(.blockera-block-first .blockera-block-first-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-first .blockera-block-first-child-2)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-second .blockera-block-second-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-second .blockera-block-second-child-2)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-first :where(.blockera-block-first-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-first :where(.blockera-block-first-child-2)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-second :where(.blockera-block-second-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-second :where(.blockera-block-second-child-2)', $result['style'] );
 	}
 
 	/**
@@ -390,17 +397,17 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'class="blockera-block-inner-child-2"', $result['content'] );
 
 		// Verify styles use correct selectors.
-		$this->assertStringContainsString( ':where(.blockera-block-outer .blockera-block-outer-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-outer .blockera-block-outer-child-2)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-inner .blockera-block-inner-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-inner .blockera-block-inner-child-2)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-outer :where(.blockera-block-outer-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-outer :where(.blockera-block-outer-child-2)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-inner :where(.blockera-block-inner-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-inner :where(.blockera-block-inner-child-2)', $result['style'] );
 	}
 
 	/**
-	 * Test that children with existing classes don't get counter-based classes.
+	 * Test that children with existing classes (that aren't blockera-block-* or wp-block-*) get counter-based classes.
 	 * Note: elements are processed in reverse order.
 	 */
-	public function testProcessChildWithExistingClassesDontGetCounterClass(): void {
+	public function testProcessChildWithExistingClassesGetsCounterClass(): void {
 
 		$html = '<div class="blockera-block-parent">
 			<span style="color: red;">No class child</span>
@@ -412,19 +419,20 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 
 		// First and third children (no classes) should get counter-based classes.
 		// Due to reverse processing: "Another no class child" gets child-1, "No class child" gets child-2.
-		$this->assertStringContainsString( 'class="blockera-block-parent-child-1"', $result['content'] );
-		$this->assertStringContainsString( 'class="blockera-block-parent-child-2"', $result['content'] );
+		$this->assertMatchesRegularExpression( '/class="[^"]*blockera-block-parent-child-1[^"]*"/', $result['content'] );
+		$this->assertMatchesRegularExpression( '/class="[^"]*blockera-block-parent-child-2[^"]*"/', $result['content'] );
 
-		// Second child (has class) should keep its existing class.
-		$this->assertStringContainsString( 'class="existing-class-123"', $result['content'] );
-		// Second child should NOT get a counter-based class.
-		$this->assertStringNotContainsString( 'class="existing-class-123 blockera-block-parent-child', $result['content'] );
+		// Second child (has class but not blockera-block-* or wp-block-*) should keep its existing class and get counter-based class appended.
+		$this->assertStringContainsString( 'existing-class-123', $result['content'] );
+		// Second child should get a counter-based class appended to existing class.
+		$this->assertMatchesRegularExpression( '/class="[^"]*existing-class-123[^"]*blockera-block-parent-child-[0-9]+[^"]*"/', $result['content'] );
 
 		// Verify styles for counter-based classes.
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
-		$this->assertStringContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-2)', $result['style'] );
-		// Verify style for existing class uses the existing class.
-		$this->assertStringContainsString( '.existing-class-123', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-2)', $result['style'] );
+		// Verify style for second child uses the counter-based class, not the existing class.
+		$this->assertMatchesRegularExpression( '/\.blockera-block-parent :where\(\.blockera-block-parent-child-[0-9]+\)/', $result['style'] );
+		$this->assertStringNotContainsString( '.existing-class-123', $result['style'] );
 	}
 
 	/**
@@ -762,6 +770,595 @@ class ContentCleanupTest extends \WP_UnitTestCase {
 		$result = $this->cleanup->process( $html );
 
 		$this->assertEquals( '', $result['content'] );
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none alone is preserved in tag and not extracted to CSS.
+	 * Special case: When only preserved properties exist, tag should remain unchanged
+	 * (no class added, inline style remains).
+	 */
+	public function testPreserveDisplayNoneAlone(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Verify tag was not modified - should match input exactly when only preserved properties exist.
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		
+		// Additional verifications:
+		// display: none should remain in tag.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display: none', $result['content'] );
+		// Tag should remain exactly as input (no additional classes added).
+		$this->assertStringContainsString( 'class="blockera-block-abc123"', $result['content'] );
+		// Should not be in CSS output.
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+		// CSS should be empty since only display: none was present.
+		$this->assertEquals( '', $result['style'] );
+		// Verify no CSS rule was created for this element.
+		$this->assertStringNotContainsString( ':where(.blockera-block-abc123)', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none with other properties preserves display: none and extracts others to CSS.
+	 */
+	public function testPreserveDisplayNoneWithOtherProperties(): void {
+
+		$html = '<div class="blockera-block-abc123" style="color: red; display: none; margin: 10px;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// display: none should remain in tag.
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		// Other properties should be in CSS.
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringContainsString( 'margin: 10px', $result['style'] );
+		// display: none should NOT be in CSS.
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none at beginning of style string is preserved.
+	 */
+	public function testPreserveDisplayNoneAtBeginning(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none; color: red;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none at end of style string is preserved.
+	 */
+	public function testPreserveDisplayNoneAtEnd(): void {
+
+		$html = '<div class="blockera-block-abc123" style="color: red; display: none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none in middle of style string is preserved.
+	 */
+	public function testPreserveDisplayNoneInMiddle(): void {
+
+		$html = '<div class="blockera-block-abc123" style="color: red; display: none; margin: 10px;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringContainsString( 'margin: 10px', $result['style'] );
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test case-insensitive matching: Display: None.
+	 * When only preserved properties exist, tag remains unchanged (original case preserved).
+	 */
+	public function testPreserveDisplayNoneCaseInsensitive(): void {
+
+		$html = '<div class="blockera-block-abc123" style="Display: None;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist (original case preserved).
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists (case-insensitive matching works, but output preserves original case).
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'Display: None', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test case-insensitive matching: DISPLAY: NONE.
+	 * When only preserved properties exist, tag remains unchanged (original case preserved).
+	 */
+	public function testPreserveDisplayNoneUppercase(): void {
+
+		$html = '<div class="blockera-block-abc123" style="DISPLAY: NONE;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist (original case preserved).
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists (case-insensitive matching works, but output preserves original case).
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'DISPLAY: NONE', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test spacing variation: display:none (no spaces).
+	 * When only preserved properties exist, tag remains unchanged (original spacing preserved).
+	 */
+	public function testPreserveDisplayNoneNoSpaces(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display:none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist (original spacing preserved).
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display:none', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test spacing variation: display:  none (extra spaces).
+	 * When only preserved properties exist, tag remains unchanged (original spacing preserved).
+	 */
+	public function testPreserveDisplayNoneExtraSpaces(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display:  none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist (original spacing preserved).
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display:  none', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test with semicolon: display: none;.
+	 * When only preserved properties exist, tag remains unchanged.
+	 */
+	public function testPreserveDisplayNoneWithSemicolon(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist.
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display: none', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test with !important: display: none !important.
+	 * When only preserved properties exist, tag remains unchanged.
+	 */
+	public function testPreserveDisplayNoneWithImportant(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none !important;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist.
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display: none !important', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test display: none !important with other properties.
+	 */
+	public function testPreserveDisplayNoneImportantWithOtherProperties(): void {
+
+		$html = '<div class="blockera-block-abc123" style="color: red; display: none !important; margin: 10px;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		$this->assertStringContainsString( 'style="display: none !important"', $result['content'] );
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringContainsString( 'margin: 10px', $result['style'] );
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test Priority 1 (blockera-block-*): display: none preservation.
+	 */
+	public function testPreserveDisplayNonePriority1BlockeraBlock(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none; color: red;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		$this->assertStringContainsString( ':where(.blockera-block-abc123)', $result['style'] );
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test Priority 3 (parent blockera-block): display: none preservation for children.
+	 */
+	public function testPreserveDisplayNonePriority3ParentBlockeraBlock(): void {
+
+		$html = '<div class="blockera-block-parent"><span style="display: none; color: green;">Child</span></div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Child should have display: none preserved.
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		// Child should get counter-based class (because there are other properties).
+		$this->assertStringContainsString( 'class="blockera-block-parent-child-1"', $result['content'] );
+		// Other properties should be in CSS.
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( 'color: green', $result['style'] );
+		// display: none should NOT be in CSS.
+		$this->assertStringNotContainsString( 'display: none', $result['style'] );
+	}
+
+	/**
+	 * Test Priority 3 (parent blockera-block): display: none alone for children.
+	 * Special case: When only preserved properties exist, child should not get class.
+	 */
+	public function testPreserveDisplayNonePriority3ChildOnlyPreserved(): void {
+
+		$html = '<div class="blockera-block-parent"><span style="display: none;">Child</span></div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist.
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Child should have display: none preserved (tag not modified).
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display: none', $result['content'] );
+		// Child should NOT get counter-based class (no processing occurred).
+		$this->assertStringNotContainsString( 'class="blockera-block-parent-child-1"', $result['content'] );
+		// No CSS should be generated.
+		$this->assertEquals( '', $result['style'] );
+		// Verify no CSS rule was created.
+		$this->assertStringNotContainsString( '.blockera-block-parent :where(', $result['style'] );
+	}
+
+	/**
+	 * Test edge case: display: none with only whitespace in style attribute.
+	 * When only preserved properties exist, tag remains unchanged (whitespace preserved).
+	 */
+	public function testPreserveDisplayNoneWithWhitespaceOnly(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none;   ">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Tag should remain unchanged when only preserved properties exist (whitespace preserved).
+		$this->assertEquals( $html, $result['content'], 'Tag should remain unchanged when only preserved properties exist' );
+		// Verify style attribute exists with original formatting.
+		$this->assertStringContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( 'display: none', $result['content'] );
+		// CSS should be empty.
+		$this->assertEquals( '', $result['style'] );
+		// Verify no CSS rule was created.
+		$this->assertStringNotContainsString( ':where(.blockera-block-abc123)', $result['style'] );
+	}
+
+	/**
+	 * Test that display: none is preserved even when wp-block-* should skip (Priority 2).
+	 * Note: wp-block-* without blockera-block-* skips processing, so display: none should remain.
+	 */
+	public function testPreserveDisplayNoneWithWpBlockSkip(): void {
+
+		$html = '<div class="wp-block-button" style="display: none; color: blue;">Button</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Should skip processing - inline style should remain (including display: none).
+		$this->assertStringContainsString( 'style="display: none; color: blue;"', $result['content'] );
+		// Should not generate any CSS.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test multiple display: none occurrences (should be deduplicated).
+	 */
+	public function testPreserveDisplayNoneMultipleOccurrences(): void {
+
+		$html = '<div class="blockera-block-abc123" style="display: none; color: red; display: none;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Should have only one display: none in preserved style.
+		$this->assertStringContainsString( 'style="display: none"', $result['content'] );
+		// Should not have duplicate display: none.
+		$style_count = substr_count( $result['content'], 'display: none' );
+		$this->assertEquals( 1, $style_count, 'display: none should appear only once' );
+		// Other properties should be in CSS.
+		$this->assertStringContainsString( 'color: red', $result['style'] );
+	}
+
+	/**
+	 * Test that single selector (no whitespace) wraps entire selector in :where().
+	 */
+	public function testBuildStyleContentWrapsSingleSelector(): void {
+
+		$html = '<div class="blockera-block-parent" style="color: red;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Single selector should wrap entire selector.
+		$this->assertStringContainsString( ':where(.blockera-block-parent)', $result['style'] );
+		$this->assertStringNotContainsString( '.blockera-block-parent :where(', $result['style'] );
+	}
+
+	/**
+	 * Test that child selector (with whitespace) wraps only child part in :where().
+	 */
+	public function testBuildStyleContentWrapsChildSelectorOnly(): void {
+
+		$html = '<div class="blockera-block-parent"><span style="color: green;">Child</span></div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Child selector should wrap only child part, not parent.
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringNotContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
+	}
+
+	/**
+	 * Test that selector with multiple spaces wraps only part after first space.
+	 */
+	public function testBuildStyleContentHandlesMultipleSpaces(): void {
+
+		$html = '<div class="blockera-block-parent"><div class="blockera-block-middle"><span style="color: blue;">Deep</span></div></div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Should wrap only the part after first space (child selector).
+		// The selector will be something like ".blockera-block-middle .blockera-block-middle-child-1"
+		// So it should become ".blockera-block-middle :where(.blockera-block-middle-child-1)"
+		$this->assertStringContainsString( '.blockera-block-middle :where(', $result['style'] );
+		$this->assertStringNotContainsString( ':where(.blockera-block-middle ', $result['style'] );
+	}
+
+	/**
+	 * Test that complex nested structure wraps correctly.
+	 */
+	public function testBuildStyleContentHandlesComplexNestedStructure(): void {
+
+		$html = '<div class="blockera-block-outer" style="padding: 10px;">
+			<div class="blockera-block-inner" style="margin: 5px;">
+				<span style="color: blue;">Deep nested</span>
+			</div>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Outer element (single selector) should wrap entire selector.
+		$this->assertStringContainsString( ':where(.blockera-block-outer)', $result['style'] );
+		// Inner element (single selector) should wrap entire selector.
+		$this->assertStringContainsString( ':where(.blockera-block-inner)', $result['style'] );
+		// Child span (child selector) should wrap only child part.
+		$this->assertStringContainsString( '.blockera-block-inner :where(.blockera-block-inner-child-1)', $result['style'] );
+	}
+
+	/**
+	 * Test that multiple single selectors are wrapped correctly.
+	 */
+	public function testBuildStyleContentWrapsMultipleSingleSelectors(): void {
+
+		$html = '<div class="blockera-block-first" style="color: red;">First</div>
+			<div class="blockera-block-second" style="color: blue;">Second</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Both single selectors should wrap entire selector.
+		$this->assertStringContainsString( ':where(.blockera-block-first)', $result['style'] );
+		$this->assertStringContainsString( ':where(.blockera-block-second)', $result['style'] );
+		// Should not have child selector wrapping.
+		$this->assertStringNotContainsString( '.blockera-block-first :where(', $result['style'] );
+		$this->assertStringNotContainsString( '.blockera-block-second :where(', $result['style'] );
+	}
+
+	/**
+	 * Test that multiple child selectors are wrapped correctly.
+	 */
+	public function testBuildStyleContentWrapsMultipleChildSelectors(): void {
+
+		$html = '<div class="blockera-block-parent">
+			<span style="color: red;">Child 1</span>
+			<span style="color: green;">Child 2</span>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Both child selectors should wrap only child part.
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringContainsString( '.blockera-block-parent :where(.blockera-block-parent-child-2)', $result['style'] );
+		// Should not wrap entire selector.
+		$this->assertStringNotContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-1)', $result['style'] );
+		$this->assertStringNotContainsString( ':where(.blockera-block-parent .blockera-block-parent-child-2)', $result['style'] );
+	}
+
+	/**
+	 * Test that child element with wp-block-cover__background class is skipped.
+	 */
+	public function testSkipChildElementWithWpBlockCoverBackground(): void {
+
+		$html = '<div class="blockera-block-parent">
+			<div class="wp-block-cover__background" style="color: red; margin: 10px;">Background</div>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Child element with excluded class should be skipped - inline style should remain.
+		$this->assertStringContainsString( 'style="color: red; margin: 10px;"', $result['content'] );
+		// Should not generate any CSS for the skipped element.
+		$this->assertStringNotContainsString( 'color: red', $result['style'] );
+		$this->assertStringNotContainsString( 'margin: 10px', $result['style'] );
+		// Should not add any class to the skipped element.
+		$this->assertStringNotContainsString( 'blockera-block-parent-child-', $result['content'] );
+	}
+
+	/**
+	 * Test that root block with wp-block-cover__background class is still processed.
+	 */
+	public function testProcessRootBlockWithWpBlockCoverBackground(): void {
+
+		$html = '<div class="blockera-block-abc123 wp-block-cover__background" style="color: blue; padding: 20px;">Content</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Root block with excluded class should still be processed (has blockera-block-*).
+		$this->assertStringNotContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( ':where(.blockera-block-abc123)', $result['style'] );
+		$this->assertStringContainsString( 'color: blue', $result['style'] );
+		$this->assertStringContainsString( 'padding: 20px', $result['style'] );
+	}
+
+	/**
+	 * Test that child element with wp-block-cover__background and other classes is skipped.
+	 */
+	public function testSkipChildElementWithWpBlockCoverBackgroundAndOtherClasses(): void {
+
+		$html = '<div class="blockera-block-parent">
+			<div class="wp-block-cover__background custom-class other-class" style="color: green; font-size: 16px;">Background</div>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Child element with excluded class should be skipped - inline style should remain.
+		$this->assertStringContainsString( 'style="color: green; font-size: 16px;"', $result['content'] );
+		// Should not generate any CSS for the skipped element.
+		$this->assertStringNotContainsString( 'color: green', $result['style'] );
+		$this->assertStringNotContainsString( 'font-size: 16px', $result['style'] );
+		// Should not add any class to the skipped element.
+		$this->assertStringNotContainsString( 'blockera-block-parent-child-', $result['content'] );
+		// Original classes should remain.
+		$this->assertStringContainsString( 'wp-block-cover__background', $result['content'] );
+		$this->assertStringContainsString( 'custom-class', $result['content'] );
+		$this->assertStringContainsString( 'other-class', $result['content'] );
+	}
+
+	/**
+	 * Test that child element with wp-block-cover__background but no parent is skipped.
+	 */
+	public function testSkipChildElementWithWpBlockCoverBackgroundNoParent(): void {
+
+		$html = '<div class="wp-block-cover__background" style="color: orange;">No parent</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Element with excluded class but no parent should be skipped - inline style should remain.
+		$this->assertStringContainsString( 'style="color: orange;"', $result['content'] );
+		// Should not generate any CSS.
+		$this->assertEquals( '', $result['style'] );
+	}
+
+	/**
+	 * Test that multiple child elements with excluded class are all skipped.
+	 */
+	public function testSkipMultipleChildElementsWithExcludedClass(): void {
+
+		$html = '<div class="blockera-block-parent">
+			<div class="wp-block-cover__background" style="color: red;">Background 1</div>
+			<span style="color: blue;">Normal child</span>
+			<div class="wp-block-cover__background" style="color: green;">Background 2</div>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Both excluded elements should be skipped - inline styles should remain.
+		$this->assertStringContainsString( 'style="color: red;"', $result['content'] );
+		$this->assertStringContainsString( 'style="color: green;"', $result['content'] );
+		// Normal child should be processed.
+		$this->assertStringNotContainsString( 'style="color: blue;"', $result['content'] );
+		// CSS should only contain styles for the normal child.
+		$this->assertStringContainsString( 'color: blue', $result['style'] );
+		$this->assertStringNotContainsString( 'color: red', $result['style'] );
+		$this->assertStringNotContainsString( 'color: green', $result['style'] );
+		// Normal child should get a counter-based class.
+		$this->assertStringContainsString( 'blockera-block-parent-child-1', $result['content'] );
+		// Excluded elements should not get counter-based classes.
+		$this->assertStringNotContainsString( 'blockera-block-parent-child-2', $result['content'] );
+		$this->assertStringNotContainsString( 'blockera-block-parent-child-3', $result['content'] );
+	}
+
+	/**
+	 * Test that element with excluded class but also blockera-block-* is NOT skipped (root block).
+	 */
+	public function testSkipChildElementWithExcludedClassButHasBlockeraBlock(): void {
+
+		$html = '<div class="blockera-block-xyz wp-block-cover__background" style="color: purple; margin: 15px;">Root block</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Root block with excluded class should still be processed (has blockera-block-*).
+		$this->assertStringNotContainsString( 'style=', $result['content'] );
+		$this->assertStringContainsString( ':where(.blockera-block-xyz)', $result['style'] );
+		$this->assertStringContainsString( 'color: purple', $result['style'] );
+		$this->assertStringContainsString( 'margin: 15px', $result['style'] );
+	}
+
+	/**
+	 * Test that child element with wp-block-* class with underscore and excluded class is skipped.
+	 */
+	public function testSkipChildElementWithWpBlockUnderscoreAndExcludedClass(): void {
+
+		$html = '<div class="blockera-block-parent">
+			<div class="wp-block-cover__background wp-block-cover__some-other" style="color: yellow;">Child</div>
+		</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Child element with wp-block-* with underscore and excluded class should be skipped.
+		$this->assertStringContainsString( 'style="color: yellow;"', $result['content'] );
+		// Should not generate any CSS.
+		$this->assertStringNotContainsString( 'color: yellow', $result['style'] );
+		// Should not add any class to the skipped element.
+		$this->assertStringNotContainsString( 'blockera-block-parent-child-', $result['content'] );
+	}
+
+	/**
+	 * Test that root block with wp-block-* without underscore and excluded class is still processed.
+	 */
+	public function testProcessRootBlockWithWpBlockNoUnderscoreAndExcludedClass(): void {
+
+		$html = '<div class="wp-block-button wp-block-cover__background" style="color: cyan;">Button</div>';
+
+		$result = $this->cleanup->process( $html );
+
+		// Root block (wp-block-* without underscore) with excluded class should be skipped
+		// because wp-block-* without underscore and without blockera-block-* is skipped anyway.
+		$this->assertStringContainsString( 'style="color: cyan;"', $result['content'] );
+		// Should not generate any CSS (because wp-block-* without blockera-block-* is skipped).
 		$this->assertEquals( '', $result['style'] );
 	}
 }
