@@ -43,6 +43,18 @@ class ContentCleanup {
 	protected array $parent_child_counters = [];
 
 	/**
+	 * List of CSS classes that should be excluded from processing when found on child elements.
+	 * 
+	 * Child elements (Priority 3) with these classes will be skipped during style extraction.
+	 * Root blocks (Priority 1/2) with these classes will still be processed.
+	 *
+	 * @var array<string>
+	 */
+	protected static array $excluded_child_classes = [
+		'wp-block-cover__background',
+	];
+
+	/**
 	 * List of CSS properties to remove from block wrapper inline styles.
 	 * 
 	 * This list should be generated dynamically by using following script in Blockera main repository:
@@ -113,6 +125,30 @@ class ContentCleanup {
 	];
 
 	/**
+	 * List of CSS properties and values to preserve in inline styles.
+	 * 
+	 * Properties listed here will remain in the style attribute instead of being
+	 * extracted to external CSS. This is useful for properties that need to remain
+	 * inline for functionality (e.g., display: none for hidden elements).
+	 * 
+	 * Format: ['property-name' => 'value']
+	 * 
+	 * @var array<string, string>
+	 */
+	protected static array $preserved_inline_properties = [
+		'display' => 'none',
+	];
+
+	/**
+	 * Cached regex pattern for extracting preserved properties from style values.
+	 * 
+	 * Built once from $preserved_inline_properties array and cached for performance.
+	 * 
+	 * @var string|null
+	 */
+	protected static ?string $preserved_properties_pattern = null;
+
+	/**
 	 * Cached property pattern for style cleanup.
 	 *
 	 * @var string|null
@@ -175,19 +211,67 @@ class ContentCleanup {
 			// Determine selector based on priority logic.
 			$all_attrs_combined = $before_attrs . ' ' . $after_attrs;
 			$child_class_value  = $this->extractClassAttribute( $all_attrs_combined );
-			$selector_data      = $this->determineSelector( $processed_content, $position, $before_attrs, $after_attrs, $child_class_value );
+			
+			// Skip child elements with excluded classes (e.g., wp-block-cover__background).
+			if ( $this->shouldSkipChildElement( $child_class_value ) ) {
+				continue;
+			}
+			
+			$selector_data = $this->determineSelector( $processed_content, $position, $before_attrs, $after_attrs, $child_class_value );
 
 			// Skip processing if selector is empty (e.g., parent is wp-block-* without blockera-block-*).
 			if ( empty( $selector_data['selector'] ) ) {
 				continue;
 			}
 
-			// Extract and remove inline style from element.
-			$updated_tag = $this->extractAndRemoveStyle( $tag_name, $before_attrs, $after_attrs, $full_tag );
+			// Extract preserved properties (e.g., display: none) from style value.
+			$extracted            = $this->extractPreservedProperties( $style_value );
+			$preserved_properties = $extracted['preserved'];
+			$remaining_style      = $extracted['remaining'];
+
+			// Normalize remaining style to check if it's empty.
+			$normalized_remaining = $this->normalizeStyleValue( $remaining_style );
+			$trimmed_style_value  = trim( $style_value );
+			$original_was_empty   = empty( $trimmed_style_value );
+
+			// Special case: If only preserved properties exist (no remaining styles),
+			// skip processing entirely - keep inline style as-is, don't add class, don't create CSS rule.
+			if ( ! empty( $preserved_properties ) && empty( $normalized_remaining ) && ! $original_was_empty ) {
+				// Skip processing - leave the tag unchanged (inline style remains, no class added).
+				continue;
+			}
+
+			// Extract original class value before processing (to ensure we preserve it).
+			// Priority: child_class_value (already extracted) > full_tag.
+			$original_class_value = $child_class_value;
+			if ( empty( $original_class_value ) ) {
+				$original_class_value = $this->extractClassAttribute( $full_tag );
+			}
+
+			// Extract and remove inline style from element, preserving specified properties.
+			$updated_tag = $this->extractAndRemoveStyle( $tag_name, $before_attrs, $after_attrs, $full_tag, $preserved_properties );
+
+			// If original_class_value is still empty, check if extractAndRemoveStyle preserved a class.
+			if ( empty( $original_class_value ) ) {
+				$preserved_class = $this->extractClassAttribute( $updated_tag );
+				if ( ! empty( $preserved_class ) ) {
+					$original_class_value = $preserved_class;
+				}
+			}
 
 			// If a new class needs to be added, add it to the tag.
 			if ( ! empty( $selector_data['new_class'] ) ) {
-				$updated_tag = $this->addClassToTag( $updated_tag, $selector_data['new_class'] );
+				if ( ! empty( $original_class_value ) ) {
+					// Combine original and new classes.
+					$all_classes = trim( $original_class_value . ' ' . $selector_data['new_class'] );
+					// Remove existing class attribute, normalize whitespace, and add new class in optimized sequence.
+					$updated_tag = preg_replace( '/\s*\bclass\s*=\s*["\'][^"\']*["\']/', '', $updated_tag );
+					$updated_tag = trim( preg_replace( '/\s+/', ' ', $updated_tag ) );
+					$updated_tag = preg_replace( '/\s*>/', ' class="' . esc_attr( $all_classes ) . '">', $updated_tag, 1 );
+				} else {
+					// No original class - just add new class.
+					$updated_tag = $this->addClassToTag( $updated_tag, $selector_data['new_class'] );
+				}
 			}
 
 			// Replace the tag in content.
@@ -202,13 +286,28 @@ class ContentCleanup {
 
 			$processed_content = substr_replace( $processed_content, $updated_tag, $position, $replace_length );
 
-			// Store CSS rule (even for empty style values).
-			// Normalize style value: remove extra spaces around colons and semicolons.
-			$normalized_style  = $this->normalizeStyleValue( $style_value );
-			$this->css_rules[] = [
-				'selector' => $selector_data['selector'],
-				'styles'   => $normalized_style,
-			];
+			// Store CSS rule.
+			// Use remaining styles (preserved properties excluded) for CSS output.
+			// Determine if we should add CSS rule:
+			// - If original style was empty (style=""), create empty CSS rule (;).
+			// - If remaining styles are empty after extracting preserved properties, skip CSS rule.
+			// - Otherwise, add CSS rule with normalized styles.
+			$remaining_is_empty = empty( $normalized_remaining );
+			
+			if ( $original_was_empty ) {
+				// Original style was empty - create empty CSS rule to match old behavior.
+				$this->css_rules[] = [
+					'selector' => $selector_data['selector'],
+					'styles'   => ';',
+				];
+			} elseif ( ! $remaining_is_empty ) {
+				// Remaining styles exist after extracting preserved properties - add CSS rule.
+				$this->css_rules[] = [
+					'selector' => $selector_data['selector'],
+					'styles'   => $normalized_remaining,
+				];
+			}
+			// If original had styles but remaining is empty (all were preserved), skip CSS rule.
 		}
 
 		// Build CSS content without <style> tags.
@@ -346,19 +445,38 @@ class ContentCleanup {
 			// Build child selector from first 2 classes (prioritizing wp-* or classes with numbers).
 			// If child has wp-block-* with underscore, use that class in the selector.
 			$child_selector = '';
+			$unique_class   = null;
 			if ( ! empty( $child_class_value ) ) {
 				$wp_block_class_with_underscore = $this->findWpBlockClass( $child_class_value );
 				if ( ! empty( $wp_block_class_with_underscore ) && strpos( $wp_block_class_with_underscore, '_' ) !== false ) {
 					// Use the wp-block-* class with underscore as the child selector.
 					$child_selector = '.' . $wp_block_class_with_underscore;
 				} else {
-					// Build child selector from first 2 classes (prioritizing wp-* or classes with numbers).
-					$child_selector = $this->buildChildSelector( $child_class_value );
+					// Check if child has neither blockera-block-* nor wp-block-* classes.
+					$blockera_class = $this->findBlockeraBlockClass( $child_class_value );
+					$wp_block_class = $this->findWpBlockClass( $child_class_value );
+					
+					// If element has neither blockera-block-* nor wp-block-* classes, always generate unique class.
+					if ( empty( $blockera_class ) && empty( $wp_block_class ) ) {
+						$parent_class = $parent_data['class'];
+
+						// Initialize counter for this parent if not exists.
+						if ( ! isset( $this->parent_child_counters[ $parent_class ] ) ) {
+							$this->parent_child_counters[ $parent_class ] = 0;
+						}
+						// Increment counter and generate unique class.
+						$this->parent_child_counters[ $parent_class ]++;
+						$counter        = $this->parent_child_counters[ $parent_class ];
+						$unique_class   = $parent_class . '-child-' . $counter;
+						$child_selector = '.' . $unique_class;
+					} else {
+						// Build child selector from first 2 classes (prioritizing wp-* or classes with numbers).
+						$child_selector = $this->buildChildSelector( $child_class_value );
+					}
 				}
 			}
 
 			// If child has no classes, generate a unique class using parent class + counter.
-			$unique_class = null;
 			if ( empty( $child_selector ) ) {
 				$parent_class = $parent_data['class'];
 
@@ -366,7 +484,6 @@ class ContentCleanup {
 				if ( ! isset( $this->parent_child_counters[ $parent_class ] ) ) {
 					$this->parent_child_counters[ $parent_class ] = 0;
 				}
-
 				// Increment counter and generate unique class.
 				$this->parent_child_counters[ $parent_class ]++;
 				$counter        = $this->parent_child_counters[ $parent_class ];
@@ -380,7 +497,7 @@ class ContentCleanup {
 				'selector' => $combined_selector,
 			];
 
-			// If we generated a unique class for the child (only when it had no classes), add it to the result.
+			// If we generated a unique class for the child, add it to the result.
 			if ( null !== $unique_class ) {
 				$result['new_class'] = $unique_class;
 			}
@@ -407,7 +524,56 @@ class ContentCleanup {
 			return '';
 		}
 
-		return trim( $matches[1] );
+		$result = trim( $matches[1] );
+		return $result;
+	}
+
+	/**
+	 * Check if a child element should be skipped based on excluded classes.
+	 * 
+	 * Child elements (Priority 3) with excluded classes are skipped.
+	 * Root blocks (Priority 1/2) with excluded classes are still processed.
+	 *
+	 * @param string $class_value The class attribute value.
+	 *
+	 * @return bool True if element should be skipped, false otherwise.
+	 */
+	protected function shouldSkipChildElement( string $class_value ): bool {
+
+		if ( empty( $class_value ) ) {
+			return false;
+		}
+
+		// Check if any excluded class is present (fast string check).
+		$has_excluded_class = false;
+		foreach ( self::$excluded_child_classes as $excluded_class ) {
+			if ( strpos( $class_value, $excluded_class ) !== false ) {
+				$has_excluded_class = true;
+				break;
+			}
+		}
+
+		if ( ! $has_excluded_class ) {
+			return false;
+		}
+
+		// Verify element is NOT a root block.
+		// Priority 1: Check for blockera-block-* class (root block).
+		$blockera_class = $this->findBlockeraBlockClass( $class_value );
+		if ( ! empty( $blockera_class ) ) {
+			// Root block - do not skip.
+			return false;
+		}
+
+		// Priority 2: Check for wp-block-* class without underscore (root block).
+		$wp_block_class = $this->findWpBlockClass( $class_value );
+		if ( ! empty( $wp_block_class ) && strpos( $wp_block_class, '_' ) === false ) {
+			// Root block - do not skip.
+			return false;
+		}
+
+		// Element has excluded class and is a child element (Priority 3) - skip it.
+		return true;
 	}
 
 	/**
@@ -674,10 +840,11 @@ class ContentCleanup {
 	 * @param string $before_attrs Attributes before style attribute.
 	 * @param string $after_attrs Attributes after style attribute.
 	 * @param string $original_tag The original full tag.
+	 * @param string $preserved_properties Optional. Preserved properties to keep in style attribute (e.g., "display: none").
 	 *
-	 * @return string The updated tag without style attribute.
+	 * @return string The updated tag without style attribute (or with preserved properties if provided).
 	 */
-	protected function extractAndRemoveStyle( string $tag_name, string $before_attrs, string $after_attrs, string $original_tag ): string {
+	protected function extractAndRemoveStyle( string $tag_name, string $before_attrs, string $after_attrs, string $original_tag, string $preserved_properties = '' ): string {
 
 		// Remove any '>' characters that might have been incorrectly captured in attributes.
 		// The '>' should only appear as the tag closer, not in attributes.
@@ -701,6 +868,12 @@ class ContentCleanup {
 		if ( ! empty( $all_attrs ) ) {
 			$new_tag .= ' ' . $all_attrs;
 		}
+
+		// If preserved properties exist, add them back as style attribute.
+		if ( ! empty( $preserved_properties ) ) {
+			$new_tag .= ' style="' . esc_attr( $preserved_properties ) . '"';
+		}
+
 		$new_tag .= '>';
 
 		return $new_tag;
@@ -718,13 +891,13 @@ class ContentCleanup {
 
 		// Check if tag already has class attribute.
 		if ( preg_match( '/\bclass\s*=\s*["\']([^"\']+)["\']/', $tag, $matches ) ) {
-			// Add new class to existing classes.
+			// Append new class to existing classes.
 			$existing_classes = $matches[1];
-			$new_classes      = $existing_classes . ' ' . $new_class;
+			$new_classes      = trim( $existing_classes . ' ' . $new_class );
 			$tag              = preg_replace( '/(\bclass\s*=\s*["\'])([^"\']+)(["\'])/', '$1' . $new_classes . '$3', $tag, 1 );
 		} else {
-			// Add new class attribute before closing >.
-			$tag = preg_replace( '/>/', ' class="' . $new_class . '">', $tag, 1 );
+			// Add new class attribute before closing >, consuming any leading whitespace.
+			$tag = preg_replace( '/\s*>/', ' class="' . esc_attr( $new_class ) . '">', $tag, 1 );
 		}
 
 		return $tag;
@@ -766,6 +939,89 @@ class ContentCleanup {
 	}
 
 	/**
+	 * Extract preserved properties from style value and return remaining styles.
+	 * 
+	 * Preserved properties (e.g., display: none) are kept in inline styles,
+	 * while other properties are extracted to external CSS.
+	 * 
+	 * Uses cached regex pattern for performance. Pattern is built once from
+	 * $preserved_inline_properties array and reused.
+	 * 
+	 * @param string $style_value The style value to process.
+	 * 
+	 * @return array Array with 'preserved' (string) and 'remaining' (string) keys.
+	 */
+	protected function extractPreservedProperties( string $style_value ): array {
+
+		// Early return if empty.
+		if ( empty( trim( $style_value ) ) ) {
+			return [
+				'preserved' => '',
+				'remaining' => '',
+			];
+		}
+
+		// Build and cache regex pattern once (lazy initialization).
+		if ( null === self::$preserved_properties_pattern ) {
+			$properties = [];
+			$values     = [];
+
+			foreach ( self::$preserved_inline_properties as $prop => $val ) {
+				// Escape special regex characters in property and value names.
+				$properties[] = preg_quote( $prop, '/' );
+				$values[]     = preg_quote( $val, '/' );
+			}
+
+			// Build alternation patterns: (prop1|prop2|...) and (val1|val2|...).
+			$prop_pattern = implode( '|', $properties );
+			$val_pattern  = implode( '|', $values );
+
+			// Pattern matches: property:value with optional !important and semicolon.
+			// Case-insensitive, handles spacing variations.
+			self::$preserved_properties_pattern = '/\b(' . $prop_pattern . ')\s*:\s*(' . $val_pattern . ')(\s*!important)?\s*;?/i';
+		}
+
+		// Extract all preserved properties in one pass.
+		$preserved_parts = [];
+		$remaining       = $style_value;
+
+		// Find all matches and collect preserved properties.
+		if ( preg_match_all( self::$preserved_properties_pattern, $style_value, $matches, PREG_SET_ORDER ) ) {
+			foreach ( $matches as $match ) {
+				$prop_name  = $match[1];
+				$prop_value = $match[2];
+				$important  = isset( $match[3] ) && ! empty( trim( $match[3] ) ) ? ' !important' : '';
+
+				// Normalize: single space, proper format.
+				$normalized = strtolower( $prop_name ) . ': ' . strtolower( $prop_value ) . $important;
+
+				// Store preserved property (avoid duplicates).
+				$preserved_key = $normalized;
+				if ( ! isset( $preserved_parts[ $preserved_key ] ) ) {
+					$preserved_parts[ $preserved_key ] = $normalized;
+				}
+			}
+
+			// Remove all preserved properties from remaining string in one pass.
+			$remaining = preg_replace( self::$preserved_properties_pattern, '', $style_value );
+		}
+
+		// Normalize remaining styles: clean up extra semicolons and whitespace.
+		$remaining = trim( $remaining );
+		$remaining = preg_replace( '/\s*;\s*/', '; ', $remaining );
+		$remaining = preg_replace( '/\s+/', ' ', $remaining );
+		$remaining = trim( $remaining, '; ' );
+
+		// Combine preserved properties into single string.
+		$preserved = ! empty( $preserved_parts ) ? implode( '; ', $preserved_parts ) : '';
+
+		return [
+			'preserved' => $preserved,
+			'remaining' => $remaining,
+		];
+	}
+
+	/**
 	 * Build CSS content from all collected CSS rules (without <style> tags).
 	 *
 	 * @return string The CSS content, or empty string if no rules.
@@ -792,7 +1048,18 @@ class ContentCleanup {
 			}
 
 			// Wrap selector in :where() for zero specificity.
-			$wrapped_selector = ':where(' . $selector . ')';
+			// If selector has whitespace (child selector), wrap only the part after first space.
+			// Otherwise, wrap the entire selector.
+			$space_pos = strpos( $selector, ' ' );
+			if ( false !== $space_pos ) {
+				// Child selector: wrap only the part after first space.
+				$parent_part      = substr( $selector, 0, $space_pos );
+				$child_part       = substr( $selector, $space_pos + 1 );
+				$wrapped_selector = $parent_part . ' :where(' . $child_part . ')';
+			} else {
+				// Single selector: wrap entire selector.
+				$wrapped_selector = ':where(' . $selector . ')';
+			}
 
 			$css_content .= $wrapped_selector . ' { ' . $styles . ' }' . PHP_EOL;
 		}
@@ -1086,7 +1353,8 @@ class ContentCleanup {
 			$match_pattern = '/(<[^>]*?\bclass\s*=\s*["\'])(?=[^"\']*blockera-block-[^"\']*)(?=[^"\']*(?:has-[^"\']*-font-family|has-[^"\']*-font-size|has-[^"\']*-color))([^"\']*)(["\'])/i';
 
 			// Single regex pattern to remove all matching classes: matches class with word boundaries and optional whitespace.
-			$remove_pattern = '/\s*\b(?:has-[a-zA-Z0-9-]+-font-family|has-[a-zA-Z0-9-]+-font-size|has-(?!text-|link-|border-)[a-zA-Z0-9-]+-color)\b\s*/';
+			// Exclude has-inline-color, has-text-color, has-link-color, and has-border-color from removal (these are user-defined classes).
+			$remove_pattern = '/\s*\b(?:has-[a-zA-Z0-9-]+-font-family|has-[a-zA-Z0-9-]+-font-size|has-(?!inline-|text-|link-|border-)[a-zA-Z0-9-]+-color)\b\s*/';
 
 			self::$pattern_cache[ $cache_key ] = [
 				'match'  => $match_pattern,
@@ -1105,10 +1373,10 @@ class ContentCleanup {
 				$quote_end   = $matches[3];
 
 				// Single regex replace: remove all matching classes and clean up multiple spaces in one pass.
-				// Replace with single space, then normalize whitespace.
+				// Replace matching classes with single space, then normalize whitespace.
 				$new_class_value = preg_replace( $patterns['remove'], ' ', $class_value );
-				// Normalize whitespace: collapse multiple spaces and trim.
-				$new_class_value = preg_replace( '/\s+/', ' ', trim( $new_class_value ) );
+				// Normalize whitespace: collapse multiple spaces and trim in one pass.
+				$new_class_value = trim( preg_replace( '/\s+/', ' ', $new_class_value ) );
 
 				return $quote_start . $new_class_value . $quote_end;
 			},
