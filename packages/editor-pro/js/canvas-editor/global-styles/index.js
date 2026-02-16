@@ -13,4 +13,12 @@ export const unlockGlobalStyles = () => {
 			return -1;
 		}
 	);
+
+	addFilter(
+		'blockera.globalStyles.usageForMultipleBlocks.maxBlocks',
+		'blockera-pro',
+		() => {
+			return -1;
+		}
+	);
 };
