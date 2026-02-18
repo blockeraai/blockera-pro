@@ -248,32 +248,158 @@ function getParentContainer(page, ariaLabel, parentsDataCy = 'base-control') {
 /**
  * Get block by name.
  *
+ * In the WordPress block editor (Gutenberg), block elements use [data-type] in the site editor/canvas (iframe).
+ * This function reliably selects a block by its name, supporting both post editor and site/canvas (iframe),
+ * and returns a Locator for the nth matching block (by index).
+ *
  * @param {import('@playwright/test').Page} page - Playwright page object.
- * @param {string} blockName - Block name (e.g., 'core/paragraph').
- * @param {string} blockTag - Optional block tag.
- * @return {Promise<import('@playwright/test').Locator>} Block locator.
+ * @param {string} blockName - Block name (e.g., 'core/paragraph', 'core/group').
+ * @param {string} blockTag - Optional block tag (e.g., 'div', '[role="presentation"]'), default is ''.
+ * @param {number} index - Zero-based index of the block when multiple blocks of same type exist (default: 0).
+ * @return {Promise<import('@playwright/test').Locator>} Block locator for the nth matching block.
  */
-async function getBlock(page, blockName, blockTag = '') {
-	const hasIframe =
-		(await page.locator('iframe[name="editor-canvas"]').count()) > 0;
+async function getBlock(page, blockName, blockTag = '', index = 0) {
+	const iframeSelector = 'iframe[name="editor-canvas"]';
+	const hasIframe = (await page.locator(iframeSelector).count()) > 0;
 
-	if (blockName === 'default') {
-		if (hasIframe) {
-			const iframe = page.frameLocator('iframe[name="editor-canvas"]');
-			await iframe.locator('[aria-label="Add default block"]').click();
-			blockName = 'core/paragraph';
-			return iframe.locator(`[data-type="${blockName}"]`).first();
-		}
-		await page.locator('[aria-label="Add default block"]').click();
-		blockName = 'core/paragraph';
-		return page.locator(`[data-type="${blockName}"]`).first();
+	const isDefault = blockName === 'default';
+
+	// Utility to wait for and click 'add default block', as before.
+	async function addDefaultBlock(ctx) {
+		const addDefaultSelector = '[aria-label="Add default block"]';
+		await ctx
+			.locator(addDefaultSelector)
+			.first()
+			.waitFor({ state: 'visible', timeout: 2500 });
+		await ctx.locator(addDefaultSelector).first().click();
 	}
 
+	// Site/Template editor: canvas iframe (block editor uses [data-type] on block wrapper elements)
 	if (hasIframe) {
-		const iframe = page.frameLocator('iframe[name="editor-canvas"]');
-		return iframe.locator(`${blockTag}[data-type="${blockName}"]`);
+		const frameLoc = page.frameLocator(iframeSelector);
+		if (isDefault) {
+			await addDefaultBlock(frameLoc);
+			blockName = 'core/paragraph';
+		}
+		// Exclude blocks inside template parts (Header, Footer) - they intercept clicks and are not the main content
+		const frame = page.frame({ name: 'editor-canvas' });
+		if (frame) {
+			const blockHandle = await frame.evaluateHandle(
+				({ name, idx }) => {
+					const all = document.querySelectorAll(
+						`[data-type="${name}"]`
+					);
+					const filtered = Array.from(all).filter((el) => {
+						let parent = el.parentElement;
+						while (parent && parent !== document.body) {
+							if (parent.dataset?.type === 'core/template-part') {
+								return false;
+							}
+							parent = parent.parentElement;
+						}
+						return true;
+					});
+					return filtered[idx] || null;
+				},
+				{ name: blockName, idx: index }
+			);
+			if (blockHandle.asElement()) {
+				const element = blockHandle.asElement();
+				const selector = await element.evaluate((el) => {
+					if (el.id) {
+						return `#${el.id}`;
+					}
+					if (el.dataset.block) {
+						return `[data-block="${el.dataset.block}"]`;
+					}
+					return null;
+				});
+				blockHandle.dispose();
+				if (selector) {
+					const locator = frameLoc.locator(selector);
+					await locator.waitFor({ state: 'visible', timeout: 5000 });
+					return locator;
+				}
+			} else {
+				blockHandle.dispose();
+			}
+		}
+		// Fallback: use selector without template-part exclusion
+		const selectorFallback = blockTag
+			? `${blockTag}[data-type="${blockName}"]`
+			: `[data-type="${blockName}"]`;
+		const blocksLocator = frameLoc.locator(selectorFallback);
+		const blockLocator = blocksLocator.nth(index);
+		await blockLocator.waitFor({ state: 'visible', timeout: 5000 });
+		return blockLocator;
 	}
-	return page.locator(`${blockTag}[data-type="${blockName}"]`);
+
+	// Block/Post editor (no iframe): try [data-type] in main document, then fallbacks
+	if (isDefault) {
+		await addDefaultBlock(page);
+		blockName = 'core/paragraph';
+	}
+
+	// 1. Try [data-type] in main document (some post editor setups use it)
+	const dataTypeLocators = page.locator(`[data-type="${blockName}"]`);
+	if ((await dataTypeLocators.count()) > 0) {
+		const block = dataTypeLocators.nth(index);
+		await block.waitFor({ state: 'visible', timeout: 5000 });
+		return block;
+	}
+
+	// 2. Try locate block by aria-label (common in block editors for recognizable blocks)
+	const ariaSelector = `[aria-label*="${blockName.replace(/^core\//, '').replace(/-/g, ' ')}"]`;
+	const ariaLocators = page.locator(ariaSelector);
+	if ((await ariaLocators.count()) > 0) {
+		const block = ariaLocators.nth(index);
+		await block.waitFor({ state: 'visible', timeout: 5000 });
+		return block;
+	}
+
+	// 3. Try Gutenberg-specific: data-block and data-type via evaluate (post editor without iframe)
+	const blockIndex = index;
+	const maybeBlock = await page.evaluateHandle(
+		({ blockName: name, blockIndex: idx }) => {
+			const blockEls = Array.from(
+				document.querySelectorAll('[data-block],[data-type]')
+			).filter((el) => el.dataset.type === name);
+			return blockEls.length > idx ? blockEls[idx] : null;
+		},
+		{ blockName, blockIndex }
+	);
+
+	if (maybeBlock && maybeBlock.asElement()) {
+		const blockHandle = maybeBlock.asElement();
+		const selector = await blockHandle.evaluate((el) => {
+			if (el.id) {
+				return `#${el.id}`;
+			}
+			if (el.dataset.block) {
+				return `[data-block="${el.dataset.block}"]`;
+			}
+			return null;
+		});
+		if (selector) {
+			const block = page.locator(selector);
+			await block.waitFor({ state: 'visible', timeout: 5000 });
+			return block;
+		}
+		return page.locator('body').filter({ has: maybeBlock });
+	}
+
+	// 4. Fallback: try finding block by text content (label matching)
+	const blockLabel = blockName.replace(/^core\//, '').replace(/-/g, ' ');
+	const guessLocators = page.locator(`text=/^${blockLabel}$/i`);
+	if ((await guessLocators.count()) > 0) {
+		const block = guessLocators.nth(index);
+		await block.waitFor({ state: 'visible', timeout: 5000 });
+		return block;
+	}
+
+	throw new Error(
+		`Block "${blockName}" (index ${index}) could not be located in this editor context.`
+	);
 }
 
 /**
@@ -808,18 +934,26 @@ async function prepareEditorForScreenshot(page, reset = false) {
 			const skeleton = document.querySelector(
 				'body.is-fullscreen-mode .interface-interface-skeleton'
 			);
-			if (skeleton) skeleton.style.top = '0';
+			if (skeleton) {
+				skeleton.style.top = '0';
+			}
 
 			const wpbody = document.querySelector('#wpbody');
-			if (wpbody) wpbody.style.paddingTop = '0';
+			if (wpbody) {
+				wpbody.style.paddingTop = '0';
+			}
 
 			const adminbar = document.querySelector('#wpadminbar');
-			if (adminbar) adminbar.style.display = 'none';
+			if (adminbar) {
+				adminbar.style.display = 'none';
+			}
 
 			const footer = document.querySelector(
 				'.admin-ui-navigable-region.interface-interface-skeleton__footer'
 			);
-			if (footer) footer.style.display = 'none';
+			if (footer) {
+				footer.style.display = 'none';
+			}
 
 			const iframe = document.querySelector(
 				'iframe[name="editor-canvas"]'
@@ -828,13 +962,17 @@ async function prepareEditorForScreenshot(page, reset = false) {
 				const titleWrapper = iframe.contentDocument.querySelector(
 					'.edit-post-visual-editor__post-title-wrapper'
 				);
-				if (titleWrapper) titleWrapper.style.display = 'none';
+				if (titleWrapper) {
+					titleWrapper.style.display = 'none';
+				}
 			}
 
 			const header = document.querySelector(
 				'.admin-ui-navigable-region.interface-interface-skeleton__header'
 			);
-			if (header) header.style.display = 'none';
+			if (header) {
+				header.style.display = 'none';
+			}
 		});
 	} else {
 		await setScreenshotViewport(page, 'desktop');
@@ -843,15 +981,21 @@ async function prepareEditorForScreenshot(page, reset = false) {
 			const skeleton = document.querySelector(
 				'body.is-fullscreen-mode .interface-interface-skeleton'
 			);
-			if (skeleton) skeleton.style.top = '32px';
+			if (skeleton) {
+				skeleton.style.top = '32px';
+			}
 
 			const adminbar = document.querySelector('#wpadminbar');
-			if (adminbar) adminbar.style.display = 'flex';
+			if (adminbar) {
+				adminbar.style.display = 'flex';
+			}
 
 			const footer = document.querySelector(
 				'.admin-ui-navigable-region.interface-interface-skeleton__footer'
 			);
-			if (footer) footer.style.display = 'flex';
+			if (footer) {
+				footer.style.display = 'flex';
+			}
 
 			const iframe = document.querySelector(
 				'iframe[name="editor-canvas"]'
@@ -860,13 +1004,17 @@ async function prepareEditorForScreenshot(page, reset = false) {
 				const titleWrapper = iframe.contentDocument.querySelector(
 					'.edit-post-visual-editor__post-title-wrapper'
 				);
-				if (titleWrapper) titleWrapper.style.display = 'block';
+				if (titleWrapper) {
+					titleWrapper.style.display = 'block';
+				}
 			}
 
 			const header = document.querySelector(
 				'.admin-ui-navigable-region.interface-interface-skeleton__header'
 			);
-			if (header) header.style.display = 'block';
+			if (header) {
+				header.style.display = 'block';
+			}
 		});
 	}
 }
@@ -880,7 +1028,9 @@ async function prepareEditorForScreenshot(page, reset = false) {
 async function prepareFrontendForScreenshot(page) {
 	await page.evaluate(() => {
 		const adminbar = document.querySelector('#wpadminbar');
-		if (adminbar) adminbar.style.display = 'none';
+		if (adminbar) {
+			adminbar.style.display = 'none';
+		}
 	});
 }
 
