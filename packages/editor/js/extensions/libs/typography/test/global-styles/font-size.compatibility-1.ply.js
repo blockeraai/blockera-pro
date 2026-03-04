@@ -130,7 +130,7 @@ test.describe('Font Size → WP Compatibility (Global Styles)', () => {
 				//
 
 				// clear font size
-				await fontSizeContainer.locator('input').clear();
+				await fontSizeContainer.locator('input').first().clear();
 
 				// WP data should be removed too
 				const globalStylesRecord3 = await getEditedGlobalStylesRecord(
@@ -220,9 +220,7 @@ test.describe('Font Size → WP Compatibility (Global Styles)', () => {
 				const root2 = globalStylesRecord2?.['core/paragraph'];
 				const fontSize2 = root2?.typography?.fontSize;
 
-				expect('var(--wp--preset--font-size--medium)').toEqual(
-					fontSize2
-				);
+				expect('var:preset|font-size|medium').toEqual(fontSize2);
 
 				//
 				// Test 3: Clear Blockera value and check WP data
