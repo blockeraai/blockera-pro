@@ -83,21 +83,13 @@ button[id^="/blocks/"] {
 		}
 	}
 
-	&.is-open-blockera-navigation-override {
+	&.is-open-blockera-navigation {
 		.edit-site-global-styles-screen-root__active-style-tile {
 			display: none;
 		}
 
 		.blockera-extension-navigation-category-description,
 		.components-spacer {
-			display: none;
-		}
-	}
-
-	&.is-open-blockera-navigation-panel {
-		.edit-site-global-styles-screen-root__active-style-tile,
-		 .blockera-extension-navigation-category-description,
-			.components-spacer {
 			display: none;
 		}
 	}
