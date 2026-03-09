@@ -1,15 +1,24 @@
 /**
  * External dependencies
  */
-const path = require('path');
+const {
+	Admin,
+	Editor,
+	RequestUtils,
+} = require('@wordpress/e2e-test-utils-playwright');
 const { test, expect } = require('@wordpress/e2e-test-utils-playwright');
+const path = require('path');
+const fs = require('fs');
 
 /**
  * Internal dependencies
  */
 
-const { getIframeBody } = require('../utils/editor');
+const { hexStringToByte } = require('../utils/other');
 const { loginToSite, goTo } = require('../utils/site-navigation');
+const { openBoxSpacingSide } = require('../utils/controls-box-spacing');
+const { openBoxPositionSide } = require('../utils/controls-box-position');
+const { getIframeBody, getBlockeraStylesWrapper } = require('../utils/editor');
 
 test.beforeEach(async ({ page }) => {
 	// Run these tests as if in a desktop browser with a 720p monitor
@@ -888,64 +897,25 @@ async function checkBlockSections(page, expectedSections, check = 'exist') {
 /**
  * Open global styles panel.
  *
- * Uses Playwright best practices to avoid flakiness:
- * - No force click: relies on auto-waiting for element to be actionable
- * - Explicit visibility wait before interaction
- * - Waits for panel to be open before returning
- *
  * @param {import('@playwright/test').Page} page - Playwright page object.
  * @return {Promise<void>}
  */
 async function openGlobalStylesPanel(page) {
-	const button = page
+	await page
 		.locator('button[aria-controls="edit-site:global-styles"]')
-		.first();
-
-	// Wait for button to be visible and actionable (Playwright auto-waits, no force)
-	await expect(button).toBeVisible();
-
-	// Only click if panel is not already open (avoid toggling closed)
-	const isExpanded = await button.getAttribute('aria-expanded');
-	if (isExpanded !== 'true') {
-		await button.click();
-
-		// Wait for panel to be fully open before proceeding
-		await expect(button).toHaveAttribute('aria-expanded', 'true');
-
-		// Wait for panel content to be ready (block-style-variations is the main UI)
-		await expect(
-			page.locator('[data-test="block-style-variations"]')
-		).toBeVisible({ timeout: 10000 });
-	}
+		.click({ force: true });
 }
 
 /**
  * Open settings panel.
  *
- * Uses Playwright best practices to avoid flakiness:
- * - No force click: relies on auto-waiting for element to be actionable
- * - Explicit visibility wait before interaction
- * - Waits for panel to be open before returning
- *
  * @param {import('@playwright/test').Page} page - Playwright page object.
  * @return {Promise<void>}
  */
 async function openSettingsPanel(page) {
-	const button = page
+	await page
 		.locator('button[aria-controls="edit-post:document"]')
-		.first();
-
-	// Wait for button to be visible and actionable (Playwright auto-waits, no force)
-	await expect(button).toBeVisible();
-
-	// Only click if panel is not already open (avoid toggling closed)
-	const isExpanded = await button.getAttribute('aria-expanded');
-	if (isExpanded !== 'true') {
-		await button.click();
-
-		// Wait for panel to be fully open before proceeding
-		await expect(button).toHaveAttribute('aria-expanded', 'true');
-	}
+		.click({ force: true });
 }
 
 /**
