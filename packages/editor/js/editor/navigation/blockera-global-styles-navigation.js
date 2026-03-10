@@ -25,10 +25,6 @@ import { GeneralNavigation } from './general-navigation';
 import { GlobalStylesNavigation } from './global-styles-navigation';
 import { DesignSystemNavigation } from './design-system-navigation';
 
-const wpRootClassname = '.edit-site-global-styles-screen-root';
-const overrideClassname = 'is-open-blockera-navigation-override';
-const blockeraNavPanelClassname = 'is-open-blockera-navigation-panel';
-
 export const BlockeraGlobalStylesNavigation = ({
 	className,
 }: {
@@ -36,36 +32,28 @@ export const BlockeraGlobalStylesNavigation = ({
 }): MixedElement => {
 	const [backButton, setBackButton] = useState(null);
 	const [isOpenCustomCss, setIsOpenCustomCss] = useState(false);
-	const openCallback = (
-		action: 'open-custom-css-panel' | 'default' = 'default'
-	) => {
+	const openCallback = (action: 'open-custom-css-panel') => {
 		setTimeout(() => {
 			setBackButton(
 				document.querySelector('.blockera-extension-back-navigation')
 			);
 		}, 100);
+		document
+			.querySelector('.edit-site-global-styles-screen-root')
+			?.classList?.add('is-open-blockera-navigation');
 
 		switch (action) {
 			case 'open-custom-css-panel':
-				document
-					.querySelector(wpRootClassname)
-					?.classList?.add(overrideClassname);
 				setIsOpenCustomCss(true);
 				break;
 			default:
-				document
-					.querySelector(wpRootClassname)
-					?.classList.add(blockeraNavPanelClassname);
 				break;
 		}
 	};
 	const closeCallback = useCallback(() => {
 		document
-			.querySelector(wpRootClassname)
-			?.classList?.remove(overrideClassname);
-		document
-			.querySelector(wpRootClassname)
-			?.classList?.remove(blockeraNavPanelClassname);
+			.querySelector('.edit-site-global-styles-screen-root')
+			?.classList?.remove('is-open-blockera-navigation');
 
 		if (isOpenCustomCss) {
 			setIsOpenCustomCss(false);
@@ -97,7 +85,7 @@ export const BlockeraGlobalStylesNavigation = ({
 					/>
 				</NavigationMenu>
 
-				<DesignSystemNavigation openCallback={openCallback} />
+				<DesignSystemNavigation />
 
 				<GeneralNavigation />
 
