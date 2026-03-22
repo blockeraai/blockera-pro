@@ -2,7 +2,12 @@
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, subscribe } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import {
+	useShortcut,
+	store as keyboardShortcutsStore,
+} from '@wordpress/keyboard-shortcuts';
 import { store as interfaceStore } from '@wordpress/interface';
 
 /**
@@ -10,12 +15,60 @@ import { store as interfaceStore } from '@wordpress/interface';
  */
 import { store as blockeraEditorStore } from '../store-persistence';
 import { ResizeHandle } from '../shared/ResizeHandle';
+import {
+	applyBlockeraPrimarySidebarShortcutSwap,
+	isCoreToggleSidebarDefaultCombo,
+} from './sidebar-shortcut-swap';
+import { toggleBothSidebars } from './toggle-both-sidebars';
 
 /**
  * Component that watches the primary sidebar (right panel) state and sets CSS variable
  * to hide it when opened. Handles both edit-post (document sidebar) and edit-site (global-styles sidebar).
+ * Also owns the main (WordPress) sidebar keyboard shortcut: unregisters core's Cmd+Shift+, and
+ * re-registers it as Cmd+Shift+. so the secondary sidebar can use Cmd+Shift+,.
  */
 export default function PrimarySidebarController() {
+	// Unregister core's main sidebar shortcut (Cmd+Shift+,) and re-register as Cmd+Shift+.
+	// so Blockera can use Cmd+Shift+, for the secondary sidebar. Core's useShortcut
+	// for 'core/editor/toggle-sidebar' will then respond to Cmd+Shift+. instead.
+	// Site Editor re-registers core's shortcut after this runs; subscribe below and
+	// re-apply when the store shows the default comma binding again.
+	useEffect(() => {
+		applyBlockeraPrimarySidebarShortcutSwap();
+
+		const unsubscribe = subscribe(() => {
+			if (!isCoreToggleSidebarDefaultCombo()) {
+				return;
+			}
+			applyBlockeraPrimarySidebarShortcutSwap();
+		}, keyboardShortcutsStore);
+
+		return unsubscribe;
+	}, []);
+
+	const { registerShortcut } = useDispatch(keyboardShortcutsStore);
+
+	// Cmd+Shift+/ — toggle both sidebars (registry + useShortcut; no raw window listeners).
+	useEffect(() => {
+		registerShortcut({
+			name: 'blockera/sidebars/toggle-both',
+			category: 'blockera',
+			description: __(
+				'Show or hide both sidebars (left and right).',
+				'blockera'
+			),
+			keyCombination: {
+				modifier: 'primaryShift',
+				character: '/',
+			},
+		});
+	}, [registerShortcut]);
+
+	useShortcut('blockera/sidebars/toggle-both', (event) => {
+		event.preventDefault();
+		toggleBothSidebars();
+	});
+
 	// Cache DOM element reference to avoid repeated queries
 	const sidebarContainerRef = useRef<HTMLElement | null>(null);
 	// Track if this is the initial mount
@@ -24,8 +77,11 @@ export default function PrimarySidebarController() {
 	const previousSidebarRef = useRef<string | null | undefined>(undefined);
 
 	// Get dispatch function for updating sidebar width
-	const { setPrimarySidebarWidth } = useDispatch(blockeraEditorStore) as {
+	const { setPrimarySidebarWidth, setPrimarySidebarOpen } = useDispatch(
+		blockeraEditorStore
+	) as unknown as {
 		setPrimarySidebarWidth: (width: string) => void;
+		setPrimarySidebarOpen: (open: boolean) => void;
 	};
 
 	// Watch the active complementary area from the interface store
@@ -44,6 +100,10 @@ export default function PrimarySidebarController() {
 	const primarySidebarWidth = useSelect((select) => {
 		const storeSelect = select(blockeraEditorStore) as any;
 		return storeSelect.getPrimarySidebarWidth();
+	}, []);
+
+	const blockeraPrimarySidebarOpen = useSelect((select) => {
+		return (select(blockeraEditorStore) as any).isPrimarySidebarOpen();
 	}, []);
 
 	// Update CSS variables on body whenever width changes
@@ -68,6 +128,18 @@ export default function PrimarySidebarController() {
 		activeComplementaryArea === 'edit-site/global-styles' ||
 		activeComplementaryArea ===
 			'cbt-plugin-sidebar/create-block-theme-sidebar';
+
+	// Keep Blockera session flag in sync with the real complementary area (for areBothSidebarsClosed / toggle-both).
+	useEffect(() => {
+		if (blockeraPrimarySidebarOpen === isPrimarySidebarOpen) {
+			return;
+		}
+		setPrimarySidebarOpen(isPrimarySidebarOpen);
+	}, [
+		blockeraPrimarySidebarOpen,
+		isPrimarySidebarOpen,
+		setPrimarySidebarOpen,
+	]);
 
 	// Initialize sidebar container reference (runs once, retries if not found)
 	useEffect(() => {
