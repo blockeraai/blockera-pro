@@ -6,19 +6,23 @@
 import { __ } from '@wordpress/i18n';
 import { type MixedElement } from 'react';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
-import {
-	__experimentalNavigationMenu as NavigationMenu,
-	__experimentalNavigationItem as NavigationItem,
-} from '@wordpress/components';
 
 /**
  * Blockera dependencies
  */
 import { Icon } from '@blockera/icons';
 import {
+	classNames,
 	extensionClassNames,
 	extensionInnerClassNames,
 } from '@blockera/classnames';
+import { Flex } from '@blockera/controls';
+
+/**
+ * Internal dependencies
+ */
+import { NavItemButton } from './nav-item-button';
+import { navItemClassName } from './nav-item-classname';
 
 const BACK_BUTTON_SELECTOR = '.components-heading';
 const BLOCKS_BUTTON_SELECTOR = 'button[id="/blocks"]';
@@ -92,15 +96,18 @@ export const GlobalStylesNavigation = ({
 	}, []);
 
 	return (
-		<NavigationMenu
-			title={
-				<>
+		<div
+			className={classNames(
+				extensionClassNames('navigation-category'),
+				extensionClassNames('global-styles-navigation')
+			)}
+		>
+			<h2>
+				<Flex alignItems="center" justifyContent="flex-start">
 					<Icon icon="extension-style-variations" iconSize={20} />
 					{__('Global Styles', 'blockera')}
-				</>
-			}
-			className={extensionClassNames('navigation-category')}
-		>
+				</Flex>
+			</h2>
 			<p
 				className={extensionInnerClassNames(
 					'navigation-category-description'
@@ -112,15 +119,24 @@ export const GlobalStylesNavigation = ({
 				)}
 			</p>
 
-			<NavigationItem
-				item="blocks"
+			<NavItemButton
+				className={navItemClassName({ 'navigation-item': true })}
+				id="block-style-variations"
+				path={'block-style-variations'}
 				data-test="block-style-variations"
 				onClick={handleBlocksClick}
-				className={extensionClassNames('navigation-item')}
-				navigateToMenu="blocks"
-				title={__('Block Style Variations', 'blockera')}
 				icon={<Icon icon="style-variations" iconSize={20} />}
+				label={
+					<Flex
+						alignItems="center"
+						justifyContent="space-between"
+						className={extensionClassNames('navigation-item')}
+					>
+						{__('Block Style Variations', 'blockera')}
+						<Icon icon="chevron-right" library="wp" />
+					</Flex>
+				}
 			/>
-		</NavigationMenu>
+		</div>
 	);
 };
