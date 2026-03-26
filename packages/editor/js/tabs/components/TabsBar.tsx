@@ -158,6 +158,7 @@ const TabsBar = memo(function TabsBar({
 	onReorderTabs,
 }: TabsBarProps): React.ReactElement {
 	const tabsContainerRef = useRef<HTMLDivElement>(null);
+	const tabsBarRef = useRef<HTMLDivElement>(null);
 
 	/**
 	 * Indicator position tracking refs:
@@ -185,12 +186,6 @@ const TabsBar = memo(function TabsBar({
 		return [...pinnedTabs, ...unpinnedTabs];
 	}, [pinnedTabs, unpinnedTabs]);
 
-	/** When keys/order change, OverlayScrollbars must remeasure (see useScrollbar deps). */
-	const tabsScrollbarDeps = useMemo(
-		() => sortedTabs.map((t) => t.key).join('\0'),
-		[sortedTabs]
-	);
-
 	// Memoize scrollbar options to prevent recreation on every render
 	const scrollbarOptions = useMemo(
 		() => ({
@@ -207,8 +202,14 @@ const TabsBar = memo(function TabsBar({
 		[]
 	);
 
-	// Apply OverlayScrollbars to the same node that scrolls (scrollLeft / indicator math use this ref).
-	useScrollbar(tabsContainerRef, scrollbarOptions, [tabsScrollbarDeps]);
+	// Apply OverlayScrollbars to tabs container and force recalculation
+	// on tab structure/selection changes for immediate visual sync.
+	useScrollbar(tabsBarRef, scrollbarOptions, [
+		sortedTabs.length,
+		pinnedCount,
+		unpinnedCount,
+		activeTabKey,
+	]);
 
 	// Check if a tab can be dragged (needs 2+ tabs in its group)
 	const canDragTab = useCallback(
@@ -256,6 +257,49 @@ const TabsBar = memo(function TabsBar({
 		},
 		[]
 	);
+
+	/**
+	 * Ensure active tab stays visible inside horizontal viewport.
+	 * Works with both native overflow and OverlayScrollbars viewport.
+	 */
+	const ensureActiveTabVisible = useCallback(() => {
+		if (!activeTabKey) {
+			return;
+		}
+
+		const container = tabsContainerRef.current;
+		if (!container) {
+			return;
+		}
+
+		const activeTabElement = container.querySelector(
+			`.blockera-tabs-tab.is-active[data-tab-key="${activeTabKey}"]`
+		) as HTMLElement | null;
+
+		if (!activeTabElement) {
+			return;
+		}
+
+		const tabsBarElement = tabsBarRef.current;
+		const scrollContainer = tabsBarElement || container;
+
+		const viewportRect = scrollContainer.getBoundingClientRect();
+		const activeTabRect = activeTabElement.getBoundingClientRect();
+		const isLeftOverflow = activeTabRect.left < viewportRect.left;
+		const isRightOverflow = activeTabRect.right > viewportRect.right;
+
+		// Scroll only when active tab is outside visible horizontal bounds.
+		if (isLeftOverflow) {
+			scrollContainer.scrollLeft -=
+				viewportRect.left - activeTabRect.left;
+			return;
+		}
+
+		if (isRightOverflow) {
+			scrollContainer.scrollLeft +=
+				activeTabRect.right - viewportRect.right;
+		}
+	}, [activeTabKey]);
 
 	/**
 	 * Animates the indicator from old tab position to new tab position
@@ -699,6 +743,22 @@ const TabsBar = memo(function TabsBar({
 		};
 	}, [activeTabKey, calculateTabPosition]);
 
+	/**
+	 * Keep active tab in view after initial render and active tab/order changes.
+	 * Double RAF allows DOM and custom scrollbar viewport to settle first.
+	 */
+	useEffect(() => {
+		if (!activeTabKey) {
+			return;
+		}
+
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				ensureActiveTabVisible();
+			});
+		});
+	}, [activeTabKey, sortedTabs, ensureActiveTabVisible]);
+
 	// Memoize tab IDs for sortable contexts to prevent unnecessary re-renders
 	// Only recreate when tab keys or order actually changes
 	const pinnedTabIds = useMemo(
@@ -712,7 +772,7 @@ const TabsBar = memo(function TabsBar({
 
 	return (
 		<>
-			<div className="blockera-tabs-bar">
+			<div className="blockera-tabs-bar" ref={tabsBarRef}>
 				<DndContext
 					sensors={sensors}
 					collisionDetection={closestCenter}
