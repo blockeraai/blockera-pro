@@ -115,6 +115,29 @@ export const bootstrapCanvasEditor = () => {
 		}
 	}
 
+	// Pro removes workspace tab limits whenever the Pro editor bootstrap runs. This must run
+	// before the CI_ENV license gate: that gate can return early in dev/local setups without
+	// full account fields, which previously skipped all addFilter calls below.
+	addFilter(
+		'blockera.editor.tabs',
+		'blockeraPro.editorPro.tabs.bootstrap',
+		(tabsConfig) => {
+			const nextConfig: { [string]: any } = {};
+
+			if (tabsConfig && 'object' === typeof tabsConfig) {
+				Object.assign(nextConfig, tabsConfig);
+			}
+
+			nextConfig.limits = {
+				regular: Infinity,
+				recentlyClosed: 30,
+				pinned: Infinity,
+			};
+
+			return nextConfig;
+		}
+	);
+
 	addFilter(
 		'blockera.editor.canvasEditor.bootstrap.breakpoints',
 		'blockeraPro.editorPro.canvasEditor.bootstrap',
