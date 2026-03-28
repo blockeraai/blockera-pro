@@ -22,7 +22,7 @@ import { isString, isEmpty, isUndefined, useLateEffect } from '@blockera/utils';
 /**
  * Internal dependencies
  */
-import { UpgradePrompt } from '../';
+import { PromotionPopover } from '../';
 import { iconReducer } from './store/reducer';
 import { IconContextProvider } from './context';
 import type { IconControlProps } from './types';
@@ -251,7 +251,7 @@ function IconControl({
 					onClick={openModal}
 				>
 					{isOpenPromotion && (
-						<UpgradePrompt
+						<PromotionPopover
 							heading={__('Custom SVG Icons', 'blockera')}
 							featuresList={[
 								__('Upload custom SVG icons', 'blockera'),

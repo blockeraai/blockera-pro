@@ -16,7 +16,7 @@ import {
 /**
  * Internal dependencies
  */
-import { UpgradePrompt } from '../';
+import { PromotionPopover } from '../';
 import Fields from './components/fields';
 import RepeaterControl from '../repeater-control';
 import RepeaterItemHeader from './components/header';
@@ -65,7 +65,7 @@ export default function TransitionControl({
 				}
 
 				return (
-					<UpgradePrompt
+					<PromotionPopover
 						heading={__('Multiple Transitions', 'blockera')}
 						featuresList={[
 							__('Multiple transitions', 'blockera'),

@@ -31,7 +31,7 @@ export interface CommandBarIntegrationProps {
 		title?: string | null,
 		slug?: string | null,
 		status?: string | null
-	) => Promise<boolean>;
+	) => Promise<void>;
 	/** Function to switch documents. */
 	switchDocument: (postType: string, postId: string | number) => void;
 	/** Function to prefetch entity data. */
@@ -75,7 +75,7 @@ export default function CommandBarIntegration({
 			postType: string,
 			postId: number,
 			title?: string | null
-		) => Promise<boolean>,
+		) => Promise<void>,
 		switchDocument: switchDocument as (
 			postType: string,
 			postId: number

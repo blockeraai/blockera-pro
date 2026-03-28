@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Blockera dependencies
  */
-import { UpgradePrompt } from '@blockera/controls';
+import { PromotionPopover } from '@blockera/controls';
 
 export const PromoteGlobalStylesPremiumFeature = ({
 	items,
@@ -25,8 +25,7 @@ export const PromoteGlobalStylesPremiumFeature = ({
 	}
 
 	return (
-		<UpgradePrompt
-			type="modal"
+		<PromotionPopover
 			heading={__('Advanced Global Styles', 'blockera')}
 			data-test={'promote-global-styles-premium-feature'}
 			featuresList={[
