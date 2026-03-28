@@ -17,7 +17,7 @@ import {
 /**
  * Internal dependencies
  */
-import { UpgradePrompt } from '../';
+import { PromotionPopover } from '../';
 import Fields from './components/fields';
 import RepeaterControl from '../repeater-control';
 import type { FilterControlProps } from './types';
@@ -60,7 +60,7 @@ export default function FilterControl({
 		}
 
 		return (
-			<UpgradePrompt
+			<PromotionPopover
 				heading={__('Multiple Filters', 'blockera')}
 				featuresList={[
 					__('Multiple filters', 'blockera'),

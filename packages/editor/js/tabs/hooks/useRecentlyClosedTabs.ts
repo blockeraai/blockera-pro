@@ -1,19 +1,12 @@
 /**
  * WordPress dependencies
  */
-import {
-	useState,
-	useCallback,
-	useEffect,
-	useRef,
-	useMemo,
-} from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { RECENTLY_CLOSED_STORAGE_KEY } from '../utils/storageKeys';
-import { resolveTabsConfig } from '../utils';
 import { MAIN_WORKSPACE_ID } from './useTabs';
 import type {
 	Tab,
@@ -22,11 +15,16 @@ import type {
 } from '../types';
 
 /**
+ * Maximum number of recently closed tabs to store
+ */
+const MAX_RECENTLY_CLOSED_TABS = 20;
+
+/**
  * Load recently closed tabs from localStorage
  *
  * @return Array of recently closed tabs for the main workspace or empty array
  */
-function loadFromStorage(maxRecentlyClosedTabs: number): RecentlyClosedTab[] {
+function loadFromStorage(): RecentlyClosedTab[] {
 	try {
 		const stored = localStorage.getItem(RECENTLY_CLOSED_STORAGE_KEY);
 		if (stored) {
@@ -44,7 +42,7 @@ function loadFromStorage(maxRecentlyClosedTabs: number): RecentlyClosedTab[] {
 					] as RecentlyClosedTab[];
 					// Ensure it's an array and limit to max tabs
 					return Array.isArray(workspaceTabs)
-						? workspaceTabs.slice(0, maxRecentlyClosedTabs)
+						? workspaceTabs.slice(0, MAX_RECENTLY_CLOSED_TABS)
 						: [];
 				}
 			}
@@ -60,22 +58,15 @@ function loadFromStorage(maxRecentlyClosedTabs: number): RecentlyClosedTab[] {
  *
  * @param tabs - Array of tabs to save for the main workspace
  */
-function saveToStorage(
-	tabs: RecentlyClosedTab[],
-	maxRecentlyClosedTabs: number
-): void;
+function saveToStorage(tabs: RecentlyClosedTab[]): void;
 /**
  * Save recently closed tabs to localStorage in workspace structure
  *
  * @param storage - Storage object with workspace structure
  */
+function saveToStorage(storage: RecentlyClosedTabsStorage): void;
 function saveToStorage(
-	storage: RecentlyClosedTabsStorage,
-	maxRecentlyClosedTabs: number
-): void;
-function saveToStorage(
-	tabsOrStorage: RecentlyClosedTab[] | RecentlyClosedTabsStorage,
-	maxRecentlyClosedTabs: number
+	tabsOrStorage: RecentlyClosedTab[] | RecentlyClosedTabsStorage
 ): void {
 	try {
 		let storage: RecentlyClosedTabsStorage;
@@ -83,7 +74,10 @@ function saveToStorage(
 		// Handle both function overloads
 		if (Array.isArray(tabsOrStorage)) {
 			// Array of tabs: create workspace structure
-			const limitedTabs = tabsOrStorage.slice(0, maxRecentlyClosedTabs);
+			const limitedTabs = tabsOrStorage.slice(
+				0,
+				MAX_RECENTLY_CLOSED_TABS
+			);
 			storage = {
 				[MAIN_WORKSPACE_ID]: limitedTabs,
 			};
@@ -93,7 +87,7 @@ function saveToStorage(
 				...tabsOrStorage,
 				[MAIN_WORKSPACE_ID]: (
 					tabsOrStorage[MAIN_WORKSPACE_ID] || []
-				).slice(0, maxRecentlyClosedTabs),
+				).slice(0, MAX_RECENTLY_CLOSED_TABS),
 			};
 		}
 
@@ -151,7 +145,7 @@ export interface UseRecentlyClosedTabsReturn {
  *
  * Stores closed tabs in memory, and optionally persists to localStorage.
  * Tabs are stored in most-recently-closed order (newest first).
- * Limited using tabs config limits.
+ * Limited to 20 tabs maximum.
  *
  * @param options - Options object
  * @return Recently closed tabs state and management functions
@@ -159,17 +153,12 @@ export interface UseRecentlyClosedTabsReturn {
 export function useRecentlyClosedTabs({
 	persistenceEnabled = true,
 }: UseRecentlyClosedTabsOptions = {}): UseRecentlyClosedTabsReturn {
-	const recentlyClosedLimit = useMemo(
-		() => resolveTabsConfig().limits.recentlyClosed,
-		[]
-	);
-
 	// Initialize from localStorage if persistence is enabled
 	const [recentlyClosedTabs, setRecentlyClosedTabs] = useState<
 		RecentlyClosedTab[]
 	>(() => {
 		if (persistenceEnabled) {
-			return loadFromStorage(recentlyClosedLimit);
+			return loadFromStorage();
 		}
 		return [];
 	});
@@ -185,53 +174,50 @@ export function useRecentlyClosedTabs({
 	// Save to localStorage whenever tabs change (only if persistence is enabled)
 	useEffect(() => {
 		if (persistenceEnabled) {
-			saveToStorage(recentlyClosedTabs, recentlyClosedLimit);
+			saveToStorage(recentlyClosedTabs);
 		}
-	}, [recentlyClosedTabs, persistenceEnabled, recentlyClosedLimit]);
+	}, [recentlyClosedTabs, persistenceEnabled]);
 
 	/**
 	 * Add a closed tab to the list
 	 * Prepends to the beginning (most recent first)
 	 * Adds a closedAt timestamp for displaying "time ago"
-	 * Limits to the configured recently closed tabs cap.
+	 * Limits to MAX_RECENTLY_CLOSED_TABS
 	 *
 	 * The tab.title property already contains the correct cached title.
 	 *
 	 * @param tab - Tab object to add
 	 */
-	const addClosedTab = useCallback(
-		(tab: Tab): void => {
-			if (!tab?.key) {
-				return;
+	const addClosedTab = useCallback((tab: Tab): void => {
+		if (!tab?.key) {
+			return;
+		}
+
+		// Add timestamp when the tab was closed
+		// tab.title already has the correct cached title from the Tab object
+		const tabWithTimestamp: RecentlyClosedTab = {
+			...tab,
+			closedAt: Date.now(),
+		};
+
+		setRecentlyClosedTabs((prev) => {
+			// Remove if already exists (prevent duplicates)
+			const filtered = prev.filter((t) => t.key !== tab.key);
+			// Add to beginning (most recent first) and limit to max
+			const updated = [tabWithTimestamp, ...filtered].slice(
+				0,
+				MAX_RECENTLY_CLOSED_TABS
+			);
+
+			// Save to localStorage immediately if persistence is enabled
+			// saveToStorage accepts array and converts to workspace structure
+			if (persistenceEnabledRef.current) {
+				saveToStorage(updated);
 			}
 
-			// Add timestamp when the tab was closed
-			// tab.title already has the correct cached title from the Tab object
-			const tabWithTimestamp: RecentlyClosedTab = {
-				...tab,
-				closedAt: Date.now(),
-			};
-
-			setRecentlyClosedTabs((prev) => {
-				// Remove if already exists (prevent duplicates)
-				const filtered = prev.filter((t) => t.key !== tab.key);
-				// Add to beginning (most recent first) and limit to max
-				const updated = [tabWithTimestamp, ...filtered].slice(
-					0,
-					recentlyClosedLimit
-				);
-
-				// Save to localStorage immediately if persistence is enabled
-				// saveToStorage accepts array and converts to workspace structure
-				if (persistenceEnabledRef.current) {
-					saveToStorage(updated, recentlyClosedLimit);
-				}
-
-				return updated;
-			});
-		},
-		[recentlyClosedLimit]
-	);
+			return updated;
+		});
+	}, []);
 
 	/**
 	 * Reopen a tab from the recently closed list
@@ -325,13 +311,13 @@ export function useRecentlyClosedTabs({
 				// Save to localStorage if persistence is enabled
 				// saveToStorage accepts array and converts to workspace structure
 				if (persistenceEnabledRef.current) {
-					saveToStorage(updatedTabs, recentlyClosedLimit);
+					saveToStorage(updatedTabs);
 				}
 
 				return updatedTabs;
 			});
 		},
-		[recentlyClosedLimit]
+		[]
 	);
 
 	return {

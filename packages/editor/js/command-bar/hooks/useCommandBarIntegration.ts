@@ -51,7 +51,7 @@ export interface UseCommandBarIntegrationParams {
 		title?: string | null,
 		slug?: string | null,
 		status?: string | null
-	) => Promise<boolean>;
+	) => Promise<void>;
 	/** Function to switch documents. */
 	switchDocument: (postType: string, postId: string | number) => void;
 	/** Function to prefetch entity before switching. */

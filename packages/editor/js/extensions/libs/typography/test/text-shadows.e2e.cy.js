@@ -85,7 +85,7 @@ describe('Text Shadows → Functionality', () => {
 		});
 
 		// promotion popover should appear
-		cy.get('.blockera-component-upgrade-prompt').should('exist');
+		cy.get('.blockera-component-promotion-popover').should('exist');
 
 		//Check frontend
 		savePage();

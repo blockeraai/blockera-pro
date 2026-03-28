@@ -16,12 +16,11 @@ import { Icon } from '@blockera/icons';
 /**
  * Internal dependencies
  */
-import Modal from '../../modal';
 import Popover from '../../popover';
 import type { PopoverPlacement } from '../../popover/types/index';
 import { Promoter } from './promoter';
 
-export const UpgradePrompt = ({
+export const PromotionPopover = ({
 	title = __('Premium Feature', 'blockera'),
 	design,
 	icon,
@@ -36,9 +35,6 @@ export const UpgradePrompt = ({
 	isOpen: _isOpen,
 	offset = 35,
 	placement = 'left-start',
-	type = 'popover',
-	anchor,
-	'data-test': dataTest,
 	...props
 }: {
 	design?: 'light' | 'dark',
@@ -56,8 +52,6 @@ export const UpgradePrompt = ({
 	offset?: number,
 	'data-test'?: string,
 	placement?: PopoverPlacement,
-	type?: 'popover' | 'modal',
-	anchor?: HTMLElement,
 }): MixedElement => {
 	const [isOpen, setOpen] = useState(_isOpen);
 
@@ -67,57 +61,34 @@ export const UpgradePrompt = ({
 		return <></>;
 	}
 
-	const handleClose = () => {
-		onClose();
-		setOpen(false);
-	};
-
-	const promoter = (
-		<Promoter
-			design={design}
-			icon={icon}
-			heading={heading}
-			description={description}
-			featuresList={featuresList}
-			disableHintsText={disableHintsText}
-			buttonURL={buttonURL}
-			buttonText={buttonText}
-			buttonTarget={buttonTarget}
-		/>
-	);
-
-	if (type === 'modal') {
-		return (
-			<Modal
-				headerIcon={<Icon icon="lock" iconSize="24" />}
-				headerTitle={title}
-				onRequestClose={handleClose}
-				className={componentClassNames('upgrade-prompt')}
-				data-test={dataTest}
-				{...props}
-			>
-				{promoter}
-			</Modal>
-		);
-	}
-
 	return (
 		<Popover
 			placement={placement}
 			offset={offset}
-			anchor={anchor}
 			title={
 				<>
 					<Icon icon="lock" iconSize="24" />
 					{title}
 				</>
 			}
-			onClose={handleClose}
-			className={componentClassNames('upgrade-prompt')}
-			data-test={dataTest}
+			onClose={() => {
+				onClose();
+				setOpen(false);
+			}}
+			className={componentClassNames('promotion-popover')}
 			{...props}
 		>
-			{promoter}
+			<Promoter
+				design={design}
+				icon={icon}
+				heading={heading}
+				description={description}
+				featuresList={featuresList}
+				disableHintsText={disableHintsText}
+				buttonURL={buttonURL}
+				buttonText={buttonText}
+				buttonTarget={buttonTarget}
+			/>
 		</Popover>
 	);
 };

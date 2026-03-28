@@ -18,7 +18,7 @@ export interface OpenOrFocusTabParams {
 		title?: string | null,
 		slug?: string | null,
 		status?: string | null
-	) => Promise<boolean>;
+	) => Promise<void>;
 	/** Function to switch documents. */
 	switchDocument: (postType: string, postId: string | number) => void;
 	/** Function to prefetch entity before switching. */
@@ -59,11 +59,8 @@ export async function openOrFocusTab({
 	// Prefetch entity data before switching for instant tab switch
 	await prefetchEntity(postType, postId);
 
-	// Add tab (handles duplicate check internally). Do not navigate if limit blocks add.
-	const added = await addTab(postType, postId);
-	if (!added) {
-		return;
-	}
+	// Add tab (handles duplicate check internally)
+	await addTab(postType, postId);
 
 	// Switch to the new tab
 	switchDocument(postType, postId);

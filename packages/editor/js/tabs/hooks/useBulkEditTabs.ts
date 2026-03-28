@@ -17,7 +17,7 @@ export function useBulkEditTabs(
 		title?: string | null,
 		slug?: string | null,
 		status?: string | null
-	) => Promise<boolean>,
+	) => Promise<void>,
 	prefetchEntity: (
 		postType: string | null | undefined,
 		postId: string | number | null | undefined
@@ -109,11 +109,8 @@ export function useBulkEditTabs(
 					try {
 						// Prefetch entity data before adding tab
 						await prefetchEntity(targetPostType, postId);
-						// Add tab (addTab handles duplicate checking and free limits)
-						const added = await addTab(targetPostType, postId);
-						if (!added) {
-							break;
-						}
+						// Add tab (addTab handles duplicate checking)
+						await addTab(targetPostType, postId);
 					} catch (error) {
 						// Silently skip posts that can't be loaded
 						// (e.g., deleted, permission denied, etc.)
