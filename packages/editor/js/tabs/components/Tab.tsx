@@ -25,6 +25,7 @@ import {
  * Internal dependencies
  */
 import { useEntity } from '../../hooks';
+import { WORKSPACE_TABS_TEST_ID } from '../constants/testIds';
 import { getTabIcon } from '../utils/getTabIcon';
 import TabContextMenu from './TabContextMenu';
 import type { Tab as TabType, LockUser } from '../types';
@@ -181,20 +182,16 @@ const Tab = memo(
 		// Use forwarded ref if provided, otherwise use internal ref
 		const elementRef = ref || tabRef;
 
-		// Subscribe to entity stores only when context menu is open.
-		// During regular tab rendering we rely on cached tab values to avoid
-		// high-frequency editor store subscriptions that can stall tab switching.
-		const shouldSubscribeToEntity = contextMenuOpen;
-		const entity = useEntity(
-			shouldSubscribeToEntity ? tab.type : null,
-			shouldSubscribeToEntity ? tab.id : null
-		);
+		// Always subscribe to core-data/editor state for this tab's entity so the label
+		// matches saved + unsaved titles (getEditedEntityRecord) even when the tab is
+		// inactive. Skipping subscription left inactive tabs stuck on stale tab.title.
+		const entity = useEntity(tab.type, tab.id);
 
 		// Display priority: customTitle -> entity.title -> tab.title
 		const displayTitle = tab.customTitle || entity.title || tab.title;
 		const status = entity.status || tab.status;
-		const editorUrl = shouldSubscribeToEntity ? entity.editorUrl : null;
-		const viewUrl = shouldSubscribeToEntity ? entity.viewUrl : null;
+		const editorUrl = entity.editorUrl;
+		const viewUrl = entity.viewUrl;
 		// Check if tab has a custom title (is renamed)
 		const isRenamed = Boolean(
 			tab.customTitle && tab.customTitle.trim() !== ''
@@ -319,6 +316,9 @@ const Tab = memo(
 				<div
 					ref={elementRef as React.RefObject<HTMLDivElement>}
 					data-tab-key={tab.key}
+					{...({
+						'test-id': WORKSPACE_TABS_TEST_ID.tabRoot(tab.key),
+					} as Record<string, string>)}
 					className={`blockera-tabs-tab ${
 						isActive ? 'is-active' : ''
 					} ${isPinned ? 'is-pinned' : ''} ${
@@ -400,13 +400,24 @@ const Tab = memo(
 
 						{/* Hide title when icon-only mode is enabled for pinned tabs */}
 						{!isIconOnly && (
-							<span className="blockera-tabs-tab-title">
+							<span
+								className="blockera-tabs-tab-title"
+								{...({
+									'test-id': WORKSPACE_TABS_TEST_ID.tabTitle,
+								} as Record<string, string>)}
+							>
 								{displayTitle}
 							</span>
 						)}
 
 						{hasUnsavedChanges && (
-							<span className="blockera-tabs-unsaved-indicator" />
+							<span
+								className="blockera-tabs-unsaved-indicator"
+								{...({
+									'test-id':
+										WORKSPACE_TABS_TEST_ID.tabUnsavedIndicator,
+								} as Record<string, string>)}
+							/>
 						)}
 					</Button>
 
@@ -429,6 +440,11 @@ const Tab = memo(
 							size="small"
 							variant="tertiary"
 							tabIndex={0}
+							{...({
+								'test-id': WORKSPACE_TABS_TEST_ID.close(
+									tab.key
+								),
+							} as Record<string, string>)}
 						/>
 					)}
 				</div>
