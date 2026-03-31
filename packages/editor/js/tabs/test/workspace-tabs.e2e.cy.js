@@ -94,6 +94,17 @@ describe('Blockera workspace tabs', () => {
 			cy.tabsExpectUnpinnedCount(1);
 		});
 
+		it('should disable the close control when there is only one tab', () => {
+			createPost({ postType: 'post' });
+			cy.tabsExpectUnpinnedCount(1);
+
+			// The single unpinned tab should not be closable.
+			cy.get(unpinnedTabRoots)
+				.eq(0)
+				.find(`[test-id^="blockera-workspace-tabs-close--"]`)
+				.should('be.disabled');
+		});
+
 		/**
 		 * Context menu: Close, Close to the right, Close others.
 		 * Default unpinned tab limit is 3 (`resolveTabsConfig`), so each action is
@@ -223,6 +234,83 @@ describe('Blockera workspace tabs', () => {
 
 			savePage();
 			cy.tabsExpectUnpinnedUnsavedIndicator(0, false);
+		});
+
+		it('should open the close confirmation modal when closing a single tab with unsaved changes (and cancel keeps the tab)', () => {
+			const titleA = `DirtyA-${Date.now()}`;
+			const titleB = `DirtyB-${Date.now()}`;
+
+			createPost({ postType: 'post' });
+			cy.tabsExpectUnpinnedCount(1);
+
+			cy.tabsAddNewPost();
+			cy.tabsExpectUnpinnedCount(2, { timeout: 60000 });
+			setPostTitleInCanvas(titleB);
+			savePage();
+
+			// Make the second tab (active) dirty, then close it -> should prompt.
+			setPostTitleInCanvas(titleA);
+			cy.tabsExpectUnpinnedUnsavedIndicator(1, true);
+			cy.tabsCloseUnpinnedByIndex(1);
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmModalRoot).should(
+				'be.visible'
+			);
+
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmCancel).click();
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmModalRoot).should(
+				'not.exist'
+			);
+			cy.tabsExpectUnpinnedCount(2);
+			cy.tabsExpectUnpinnedUnsavedIndicator(1, true);
+		});
+
+		it('should open the close confirmation modal when closing multiple tabs with unsaved changes (close all without saving)', () => {
+			const title0 = `Multi0-${Date.now()}`;
+			const title1 = `Multi1-${Date.now()}`;
+			const title2 = `Multi2-${Date.now()}`;
+
+			cy.tabsResetWorkspaceStorage();
+			createPost({ postType: 'post' });
+			cy.tabsExpectUnpinnedCount(1);
+
+			setPostTitleInCanvas(title0);
+			savePage();
+			cy.tabsExpectUnpinnedUnsavedIndicator(0, false);
+
+			cy.tabsAddNewPost();
+			cy.tabsExpectUnpinnedCount(2, { timeout: 60000 });
+			setPostTitleInCanvas(title1);
+			cy.tabsExpectUnpinnedUnsavedIndicator(1, true);
+
+			cy.tabsAddNewPost();
+			cy.tabsExpectUnpinnedCount(3, { timeout: 60000 });
+			setPostTitleInCanvas(title2);
+			cy.tabsExpectUnpinnedUnsavedIndicator(2, true);
+
+			// From first tab: close to the right -> targets 2 dirty tabs.
+			cy.tabsClickUnpinnedByIndex(0);
+			cy.get(unpinnedTabRoots).eq(0).rightclick();
+			cy.getByTestId(
+				WORKSPACE_TABS_TEST_ID.contextMenuCloseToRight
+			).click();
+
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmModalRoot).should(
+				'be.visible'
+			);
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmTabsList)
+				.should('be.visible')
+				.find('.blockera-tabs-close-confirm-tab-item')
+				.should('have.length', 2);
+
+			cy.getByTestId(
+				WORKSPACE_TABS_TEST_ID.closeConfirmCloseWithoutSaving
+			).click();
+
+			cy.getByTestId(WORKSPACE_TABS_TEST_ID.closeConfirmModalRoot).should(
+				'not.exist'
+			);
+			cy.tabsExpectUnpinnedCount(1);
+			cy.tabsGetActiveTitle().should('contain.text', title0);
 		});
 	});
 
@@ -669,6 +757,83 @@ describe('Blockera workspace tabs', () => {
 					'blockera-tabs-recently-closed-persistence'
 				);
 			});
+		});
+	});
+
+	describe('Bulk edit (open multiple docs in tabs)', () => {
+		const unpinnedTabRoots = `.blockera-tabs-bar-tabs__normal-tabs [test-id^="${WORKSPACE_TABS_TEST_ID.tabRootPrefix}"]`;
+
+		/**
+		 * `BulkActions` registers the posts list bulk action “Edit All in Editor”
+		 * (`blockera_edit_all`), which redirects to the editor with `bulk_edit_ids`.
+		 * `capture_bulk_edit_ids` seeds sessionStorage before the editor boots;
+		 * `useBulkEditTabs` opens each ID as a tab.
+		 *
+		 * @see packages/editor/php/BulkActions.php
+		 * @see packages/editor/js/tabs/hooks/useBulkEditTabs.ts
+		 * @see packages/dev-cypress/js/support/commands.js — tabsBulkEditAllInEditorFromPostsList
+		 */
+		it('should open two tabs when using posts list bulk action Edit All in Editor', () => {
+			const titleA = `BulkA-${Date.now()}`;
+			const titleB = `BulkB-${Date.now()}`;
+
+			cy.tabsResetWorkspaceStorage();
+			createPost({ postType: 'post' });
+			cy.get('.blockera-tabs-bar', { timeout: 60000 }).should(
+				'be.visible'
+			);
+			cy.tabsExpectUnpinnedCount(1);
+
+			setPostTitleInCanvas(titleA);
+			savePage();
+
+			cy.url().should('include', 'post=');
+			cy.url().then((href) => {
+				const m = href.match(/post=(\d+)/);
+				expect(m, 'editor URL should include post id').to.be.ok;
+				const id1 = parseInt(m[1], 10);
+
+				cy.tabsCreateDraftPostsViaRest(1).then((ids) => {
+					expect(ids.length).to.equal(1);
+					const id2 = ids[0];
+
+					cy.window().then((win) => {
+						return win.wp.apiFetch({
+							path: `/wp/v2/posts/${id2}`,
+							method: 'POST',
+							data: { title: titleB },
+						});
+					});
+
+					cy.tabsBulkEditAllInEditorFromPostsList([id1, id2]);
+				});
+			});
+
+			cy.wait(2000);
+			closeWelcomeGuide();
+			cy.get('.blockera-tabs-bar', { timeout: 60000 }).should(
+				'be.visible'
+			);
+
+			cy.tabsExpectUnpinnedCount(2, { timeout: 60000 });
+
+			// Order of IDs in the admin list + `bulk_edit_ids` is WP-dependent; assert both docs opened.
+			cy.get(unpinnedTabRoots)
+				.contains(titleA, { matchCase: false })
+				.should('be.visible');
+			cy.get(unpinnedTabRoots)
+				.contains(titleB, { matchCase: false })
+				.should('be.visible');
+
+			cy.get(unpinnedTabRoots)
+				.contains(titleA, { matchCase: false })
+				.click();
+			cy.tabsGetActiveTitle().should('contain.text', titleA);
+
+			cy.get(unpinnedTabRoots)
+				.contains(titleB, { matchCase: false })
+				.click();
+			cy.tabsGetActiveTitle().should('contain.text', titleB);
 		});
 	});
 

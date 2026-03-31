@@ -15,6 +15,7 @@ import {
 	openBoxPositionSide,
 } from '../helpers';
 import { WORKSPACE_TABS_TEST_ID } from 'blockera-editor-tabs-test-ids';
+import { PREVIEW_MODE_TEST_ID } from 'blockera-editor-preview-test-ids';
 
 export const registerCommands = () => {
 	//This registers the cy.compareSnapshot() custom command provided by the plugin
@@ -99,6 +100,30 @@ export const registerCommands = () => {
 		}
 
 		return cy.get(`[aria-label="${selector}"]`, ...args);
+	});
+
+	/**
+	 * Dispatch `primaryShift` + physical key (matches @wordpress/keycodes `isKeyboardEvent`).
+	 * WordPress listens on `document` for `keydown` (see @wordpress/keyboard-shortcuts context).
+	 *
+	 * @param {string} key KeyboardEvent.key
+	 * @param {string} code KeyboardEvent.code
+	 */
+	Cypress.Commands.add('pressPrimaryShiftKey', (key, code) => {
+		const isMac = Cypress.platform === 'darwin';
+		cy.window().then((win) => {
+			win.document.dispatchEvent(
+				new win.KeyboardEvent('keydown', {
+					key,
+					code,
+					bubbles: true,
+					cancelable: true,
+					shiftKey: true,
+					metaKey: isMac,
+					ctrlKey: !isMac,
+				})
+			);
+		});
 	});
 
 	Cypress.Commands.add('cssVar', (cssVarName, selector) => {
@@ -1170,6 +1195,29 @@ export const registerCommands = () => {
 		}
 	);
 
+	/**
+	 * Posts list (`edit.php`): check rows by post ID, run Blockera bulk action
+	 * “Edit All in Editor”, Apply. Redirects to `post.php` with `bulk_edit_ids`
+	 * (same as `BulkActions::build_editor_url()`).
+	 *
+	 * @param {(number|string)[]} postIds Post IDs to select (same post type; Posts screen).
+	 * @see packages/editor/php/BulkActions.php — ACTION_SLUG, handle_bulk_action
+	 */
+	Cypress.Commands.add('tabsBulkEditAllInEditorFromPostsList', (postIds) => {
+		cy.visit(joinTestUrl('/wp-admin/edit.php'));
+		cy.get('#posts-filter .wp-list-table, .wp-list-table', {
+			timeout: 60000,
+		}).should('exist');
+		cy.wrap(postIds).each((id) => {
+			cy.get(`input[name="post[]"][value="${id}"]`, { timeout: 20000 })
+				.scrollIntoView()
+				.check({ force: true });
+		});
+		// Value must match `BulkActions::ACTION_SLUG` (`blockera_edit_all`).
+		cy.get('#bulk-action-selector-top').select('blockera_edit_all');
+		cy.get('#doaction').click();
+	});
+
 	const unpinnedTabRoots = `.blockera-tabs-bar-tabs__normal-tabs [test-id^="${WORKSPACE_TABS_TEST_ID.tabRootPrefix}"]`;
 
 	const pinnedTabRoots = `.blockera-tabs-bar-tabs__pinned-tabs [test-id^="${WORKSPACE_TABS_TEST_ID.tabRootPrefix}"]`;
@@ -1285,5 +1333,51 @@ export const registerCommands = () => {
 			WORKSPACE_TABS_TEST_ID.tabsLimitUpgradePrompt,
 			options
 		).should('be.visible');
+	});
+
+	/**
+	 * Opens the Blockera header zoom dropdown (Post/Site editor).
+	 */
+	Cypress.Commands.add('zoomOpenDropdown', () => {
+		cy.getByDataTest('blockera-zoom-control', { timeout: 30000 })
+			.should('be.visible')
+			.find('button[aria-haspopup="true"]')
+			.first()
+			.click({ force: true });
+	});
+
+	/**
+	 * Stub `window.open` for Blockera preview mode (modifier+click, header “open in new tab”, shortcuts).
+	 * Assert with `@previewWindowOpen`.
+	 */
+	Cypress.Commands.add('previewStubWindowOpen', () => {
+		cy.window().then((win) => {
+			cy.stub(win, 'open').as('previewWindowOpen');
+		});
+	});
+
+	/** Clicks the header “Live frontend preview” control (`PREVIEW_MODE_TEST_ID.toggleButton`). */
+	Cypress.Commands.add('previewClickToggle', () => {
+		cy.getByTestId(PREVIEW_MODE_TEST_ID.toggleButton, {
+			timeout: 30000,
+		})
+			.should('be.visible')
+			.click();
+	});
+
+	/** Waits for the preview overlay dialog (iframe preview). */
+	Cypress.Commands.add('previewExpectOverlayOpen', () => {
+		cy.getByTestId(PREVIEW_MODE_TEST_ID.overlay, { timeout: 30000 }).should(
+			'be.visible'
+		);
+		cy.get('body').should('have.class', 'blockera-preview-mode-open');
+		// Iframe can be clipped by fixed/overflow ancestors; `exist` matches user-visible preview.
+		cy.getByTestId(PREVIEW_MODE_TEST_ID.iframe).should('exist');
+	});
+
+	/** Asserts preview overlay is closed and body class removed. */
+	Cypress.Commands.add('previewExpectOverlayClosed', () => {
+		cy.getByTestId(PREVIEW_MODE_TEST_ID.overlay).should('not.exist');
+		cy.get('body').should('not.have.class', 'blockera-preview-mode-open');
 	});
 };
