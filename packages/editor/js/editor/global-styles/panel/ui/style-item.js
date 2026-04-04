@@ -419,6 +419,17 @@ export const StyleItem = ({
 						return;
 					}
 
+					// Modals/menus render via portals: the DOM target is outside this row, but
+					// React still bubbles the click here. Do not treat those as row clicks (the
+					// innerText check below is not enough because modal titles include style.label).
+					if (
+						event.currentTarget &&
+						event.target instanceof Node &&
+						!event.currentTarget.contains(event.target)
+					) {
+						return;
+					}
+
 					// Skip click on actions opener element.
 					if (
 						!event.target.innerText ||
@@ -444,6 +455,15 @@ export const StyleItem = ({
 				onKeyDown={(event) => {
 					// Handle Enter key press
 					if (event.key !== 'Enter') {
+						return;
+					}
+
+					// Same as onClick: ignore Enter bubbling from portaled modals/menus.
+					if (
+						event.currentTarget &&
+						event.target instanceof Node &&
+						!event.currentTarget.contains(event.target)
+					) {
 						return;
 					}
 
@@ -596,7 +616,7 @@ export const StyleItem = ({
 								<Icon
 									icon={style.icon.name}
 									library={style.icon.library}
-									iconSize="16"
+									iconSize="18"
 									style={{
 										opacity: '0.4',
 										'margin-right':
