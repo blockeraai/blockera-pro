@@ -26,8 +26,6 @@ export interface PreviewHeaderProps {
 	className?: string;
 	/** When true, adds data-blockera-zoom-header for zoom mode styling (fixed position) */
 	dataBlockeraZoomHeader?: boolean;
-	/** Optional stable selector for the default close control (E2E). */
-	closeButtonTestId?: string;
 }
 
 /**
@@ -44,7 +42,6 @@ export default function PreviewHeader({
 	onClose,
 	className = '',
 	dataBlockeraZoomHeader = false,
-	closeButtonTestId,
 }: PreviewHeaderProps): ReactNode {
 	const endContent =
 		end !== undefined ? (
@@ -57,11 +54,6 @@ export default function PreviewHeader({
 				aria-label={__('Close', 'blockera')}
 				showTooltip={true}
 				noBorder={true}
-				{...(closeButtonTestId
-					? ({
-							'test-id': closeButtonTestId,
-						} as Record<string, string>)
-					: {})}
 			/>
 		);
 

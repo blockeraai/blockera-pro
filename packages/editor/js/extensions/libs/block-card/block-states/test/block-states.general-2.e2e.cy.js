@@ -485,13 +485,10 @@ describe('Block State E2E Test', () => {
 			cy.getByDataTest('popover-body')
 				.last()
 				.within(() => {
-					cy.get('[data-cy="color-picker-css-value"]').clear({
+					cy.get('input[maxlength="9"]').clear({
 						force: true,
 					});
-					cy.get('[data-cy="color-picker-css-value"]').type(
-						'000000',
-						{ delay: 0 }
-					);
+					cy.get('input[maxlength="9"]').type('000000', { delay: 0 });
 				});
 
 			context(
@@ -503,15 +500,12 @@ describe('Block State E2E Test', () => {
 					cy.getByDataTest('popover-body')
 						.last()
 						.within(() => {
-							cy.get('[data-cy="color-picker-css-value"]').clear({
+							cy.get('input[maxlength="9"]').clear({
 								force: true,
 							});
-							cy.get('[data-cy="color-picker-css-value"]').type(
-								'cccccc',
-								{
-									delay: 0,
-								}
-							);
+							cy.get('input[maxlength="9"]').type('cccccc', {
+								delay: 0,
+							});
 						});
 
 					// inherit of normal.

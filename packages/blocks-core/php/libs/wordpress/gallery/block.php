@@ -28,8 +28,7 @@ return array_merge(
 					'root' => '> figcaption',
 				],
 				'blockera/elements/image-caption'   => [
-					// Double ".wp-block-image" to make sure it has more specificity than the gallery caption.
-					'root' => 'figure.wp-block-image.wp-block-image figcaption.wp-element-caption',
+					'root' => 'figure.wp-block-image figcaption.wp-element-caption',
 				],
 			]
 		),

@@ -72,11 +72,6 @@ export const UpgradePrompt = ({
 		setOpen(false);
 	};
 
-	const promoterTestIdProps =
-		dataTest !== undefined && dataTest !== null && dataTest !== ''
-			? { 'test-id': dataTest }
-			: {};
-
 	const promoter = (
 		<Promoter
 			design={design}
@@ -88,7 +83,6 @@ export const UpgradePrompt = ({
 			buttonURL={buttonURL}
 			buttonText={buttonText}
 			buttonTarget={buttonTarget}
-			{...promoterTestIdProps}
 		/>
 	);
 

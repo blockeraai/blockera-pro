@@ -39,13 +39,11 @@ export function BreakpointIcon({
 	isDefault,
 	context = 'canvas',
 	tooltip = true,
-	showBaseBreakpointFlag = true,
 	...props
 }: {
 	context: 'admin' | 'canvas',
 	breakpoints?: { [key: TBreakpoint | string]: BreakpointTypes },
 	isDefault?: boolean,
-	showBaseBreakpointFlag?: boolean,
 	settings?: {
 		min: string,
 		max: string,
@@ -148,19 +146,16 @@ export function BreakpointIcon({
 							>
 								{getBreakpointLongDescription(name)}
 							</p>
-							{showBaseBreakpointFlag &&
-								isBaseBreakpoint(name) && (
-									<p
-										style={{
-											color: '#b0b0b0',
-										}}
-									>
-										{__(
-											'Start your styling here.',
-											'blockera'
-										)}
-									</p>
-								)}
+
+							{isBaseBreakpoint(name) && (
+								<p
+									style={{
+										color: '#b0b0b0',
+									}}
+								>
+									{__('Start your styling here.', 'blockera')}
+								</p>
+							)}
 						</>
 					}
 				>
@@ -178,14 +173,9 @@ export function BreakpointIcon({
 				)}
 				aria-label={_breakpoints[name].label}
 				onClick={onClick}
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
 				{...props}
 			>
-				{showBaseBreakpointFlag && isBaseBreakpoint(name) && (
+				{isBaseBreakpoint(name) && (
 					<Icon
 						icon="asterisk"
 						iconSize="14"

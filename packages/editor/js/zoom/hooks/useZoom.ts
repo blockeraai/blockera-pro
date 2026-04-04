@@ -6,7 +6,6 @@
  * WordPress dependencies
  */
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
-import { subscribe, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -29,7 +28,8 @@ import {
 	getVisualEditorContainer,
 	calculateContentHeight,
 	injectEditorStylesWrapperOverride,
-	syncCanvasHeader,
+	injectZoomHeader,
+	removeZoomHeader,
 } from '../utils/iframeUtils';
 import type { UseZoomReturn, ZoomPercent } from '../types';
 
@@ -109,8 +109,12 @@ export function useZoom(): UseZoomReturn {
 		if (iframeDoc) {
 			injectEditorStylesWrapperOverride(iframeDoc);
 
-			// Ensure the in-iframe header is synced (breakpoints + zoom combined)
-			syncCanvasHeader(zoom);
+			// Inject or remove zoom header based on zoom state
+			if (isZoomed) {
+				injectZoomHeader(iframeDoc, zoom);
+			} else {
+				removeZoomHeader(iframeDoc);
+			}
 		}
 
 		// Calculate and set initial height BEFORE every zoom change (in/out)
@@ -285,9 +289,6 @@ export function useZoom(): UseZoomReturn {
 	const setZoomPercent = useCallback(
 		(zoom: ZoomPercent) => {
 			const clampedZoom = clampZoom(zoom);
-			// Keep ref in sync immediately — effects run after paint; breakpoint
-			// subscription may call syncCanvasHeader before the ref effect runs.
-			zoomPercentRef.current = clampedZoom;
 			setZoomPercentState(clampedZoom);
 			saveZoomToStorage(clampedZoom);
 			applyZoom(clampedZoom);
@@ -482,9 +483,6 @@ export function useZoom(): UseZoomReturn {
 			const data = event.data;
 			if (data && data.type === 'BLOCKERA_ZOOM_RESET') {
 				setZoomPercent(DEFAULT_ZOOM);
-				// Belt-and-suspenders: `setZoomPercent` → `applyZoom` also calls `syncCanvasHeader`,
-				// but `applyZoom` can early-return in some paths; keep iframe header in sync with 100%.
-				syncCanvasHeader(DEFAULT_ZOOM);
 			}
 		};
 
@@ -494,35 +492,6 @@ export function useZoom(): UseZoomReturn {
 			window.removeEventListener('message', handleMessage);
 		};
 	}, [setZoomPercent]);
-
-	// Keep canvas header in sync with breakpoint changes (non-base needs header even at 100% zoom).
-	useEffect(() => {
-		let lastBreakpointId: string | null = null;
-		// `subscribe` is registry-wide (fires on any store update). We only run
-		// `syncCanvasHeader` when the current breakpoint id actually changes.
-		const unsubscribe = subscribe(() => {
-			const id =
-				(
-					select('blockera/extensions') as {
-						getExtensionCurrentBlockStateBreakpoint?: () => string;
-					}
-				)?.getExtensionCurrentBlockStateBreakpoint?.() ?? 'desktop';
-			if (id === lastBreakpointId) {
-				return;
-			}
-			lastBreakpointId = id;
-			// No arg: use loadZoomFromStorage() inside syncCanvasHeader — always
-			// matches persisted zoom (updated synchronously in setZoomPercent).
-			syncCanvasHeader();
-		});
-
-		// Initial sync.
-		syncCanvasHeader();
-
-		return () => {
-			unsubscribe();
-		};
-	}, []);
 
 	return {
 		zoomPercent,

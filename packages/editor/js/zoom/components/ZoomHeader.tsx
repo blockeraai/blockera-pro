@@ -38,7 +38,6 @@ export default function ZoomHeader({
 }: ZoomHeaderProps): JSX.Element {
 	const start = (
 		<Button
-			data-test="blockera-zoom-header-reset"
 			variant="tertiary"
 			className="blockera-canvas-header__action-btn blockera-canvas-header__action-btn--reset"
 			onClick={onReset}
@@ -52,8 +51,9 @@ export default function ZoomHeader({
 
 	const content = (
 		<div className="blockera-canvas-header__url-bar-content">
-			{__('Zoomed', 'blockera')}
-			<strong>({zoomPercent}%)</strong>
+			{__('Zoom View', 'blockera')}
+			<span>·</span>
+			<strong>{zoomPercent}%</strong>
 		</div>
 	);
 
