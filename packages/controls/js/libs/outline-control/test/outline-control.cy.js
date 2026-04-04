@@ -248,13 +248,8 @@ describe('outline control component testing', () => {
 			cy.getByDataTest('popover-body')
 				.last()
 				.within(() => {
-					cy.get('[data-cy="color-picker-css-value"]').clear({
-						force: true,
-					});
-					cy.get('[data-cy="color-picker-css-value"]').type(
-						'ad2dcc',
-						{ delay: 0 }
-					);
+					cy.get('input[maxlength="9"]').clear({ force: true });
+					cy.get('input[maxlength="9"]').type('ad2dcc', { delay: 0 });
 				});
 
 			cy.get('.blockera-control-border-color-wrapper').next().click();

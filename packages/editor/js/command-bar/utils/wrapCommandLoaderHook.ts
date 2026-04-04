@@ -17,8 +17,6 @@ export interface Command {
 	name: string;
 	label: string;
 	searchLabel?: string;
-	/** Extra strings cmdk uses when filtering (see @wordpress/commands Command.Item). */
-	keywords?: string[];
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	icon?: any;
 	callback: (context: { close?: () => void }) => void | Promise<void>;

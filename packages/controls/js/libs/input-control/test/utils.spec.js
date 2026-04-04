@@ -1350,11 +1350,6 @@ describe('Util functions', () => {
 					label: 'Special Values',
 					options: [
 						{
-							value: 'normal',
-							label: 'Normal',
-							format: 'text',
-						},
-						{
 							value: 'inherit',
 							label: 'Inherit',
 							format: 'text',

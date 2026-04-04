@@ -95,10 +95,8 @@ describe('Button Block', () => {
 		});
 
 		cy.getByDataTest('popover-body').within(() => {
-			cy.get('[data-cy="color-picker-css-value"]').clear({ force: true });
-			cy.get('[data-cy="color-picker-css-value"]').type('37e6d4', {
-				delay: 0,
-			});
+			cy.get('input[maxlength="9"]').clear({ force: true });
+			cy.get('input[maxlength="9"]').type('37e6d4', { delay: 0 });
 		});
 
 		cy.getParentContainer('Border').within(() => {

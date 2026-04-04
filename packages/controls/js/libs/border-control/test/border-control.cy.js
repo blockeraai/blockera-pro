@@ -127,12 +127,12 @@ describe('border-control component testing', () => {
 
 				cy.getByDataTest('border-control-color').click();
 				cy.contains('Color Picker')
-					.closest('.blockera-component-popover')
-					.find('[data-cy="color-picker-css-value"]')
+					.parent()
+					.get('input[maxlength="9"]')
 					.clear();
 				cy.contains('Color Picker')
-					.closest('.blockera-component-popover')
-					.find('[data-cy="color-picker-css-value"]')
+					.parent()
+					.get('input[maxlength="9"]')
 					.type('cccccc');
 
 				cy.getByDataTest('border-control-color')
