@@ -47,13 +47,10 @@ describe('Canvas editor testing', () => {
 			}).should('exist');
 		};
 
-		/**
-		 * Enters block (canvas edit) mode from Site Editor browse/preview.
-		 * Core registers `onClick` on the iframe element (`useEditorIframeProps` → BlockCanvas);
-		 * clicks inside the iframe document do not bubble to that handler, so we target the iframe in the parent document.
-		 */
+		/** Clicks the site preview / editor canvas frame to switch into block (canvas edit) mode. */
 		const enterBlockEditorFromCanvasFrame = () => {
-			cy.get('iframe[name="editor-canvas"]', { timeout: 20000 })
+			cy.getIframeBody()
+				.find('main', { timeout: 20000 })
 				.should('be.visible')
 				.click({ force: true });
 			cy.url({ timeout: 20000 }).should('include', 'canvas=edit');

@@ -257,14 +257,8 @@ describe('outline control component testing', () => {
 					);
 				});
 
-			// CustomSelectControl (Ariakit) uses listbox/option roles, not ul/li.
-			cy.getByDataTest('border-control-component')
-				.find('[aria-haspopup="listbox"]')
-				.click();
-			cy.get('[role="listbox"]:visible')
-				.find('[role="option"]')
-				.eq(2)
-				.click();
+			cy.get('.blockera-control-border-color-wrapper').next().click();
+			cy.get('ul').get('li').eq(2).click();
 
 			cy.getByDataTest('outline-offset-input').clear();
 			cy.getByDataTest('outline-offset-input').type(5);
@@ -278,11 +272,9 @@ describe('outline control component testing', () => {
 				.should('have.attr', 'style')
 				.should('include', '#ad2dcc');
 
-			cy.getByDataTest('border-control-component')
-				.find('[aria-haspopup="listbox"]')
-				.click();
-			cy.get('[role="listbox"]:visible')
-				.find('[role="option"]')
+			cy.get('.blockera-control-border-color-wrapper').next().click();
+			cy.get('ul')
+				.get('li')
 				.eq(2)
 				.should('have.attr', 'aria-selected', 'true');
 

@@ -1,7 +1,4 @@
-import { select } from '@wordpress/data';
 import LayoutMatrixControl from '..';
-import { modifyControlValue } from '../../../store/actions';
-import { controlReducer } from '../../../store/reducers/control-reducer';
 import { getControlValue } from '../../../store/selectors';
 import { nanoid } from 'nanoid';
 //dense
@@ -41,9 +38,9 @@ describe('Layout Matrix Control component testing', () => {
 				),
 			});
 
-			cy.getByAriaLabel('flex-direction: column').should(
+			cy.getByAriaLabel('Column').should(
 				'have.attr',
-				'aria-checked',
+				'aria-Checked',
 				'true'
 			);
 		});
@@ -54,9 +51,9 @@ describe('Layout Matrix Control component testing', () => {
 				value,
 			});
 
-			cy.getByAriaLabel('flex-direction: row').should(
+			cy.getByAriaLabel('Row').should(
 				'have.attr',
-				'aria-checked',
+				'aria-Checked',
 				'true'
 			);
 		});
@@ -67,7 +64,7 @@ describe('Layout Matrix Control component testing', () => {
 				value,
 			});
 
-			cy.getByAriaLabel('flex-direction: row').should('not.exist');
+			cy.getByAriaLabel('Row').should('not.exist');
 		});
 
 		it('should render correctly, when dense active', () => {
@@ -95,7 +92,7 @@ describe('Layout Matrix Control component testing', () => {
 					'exist'
 				);
 
-				cy.getByAriaLabel('flex-direction: column').click();
+				cy.getByAriaLabel('Column').click();
 
 				cy.getByDataTest('matrix-normal-center-center-row').should(
 					'not.exist'
@@ -125,7 +122,7 @@ describe('Layout Matrix Control component testing', () => {
 					'exist'
 				);
 
-				cy.getByAriaLabel('flex-direction: row').click();
+				cy.getByAriaLabel('Row').click();
 
 				cy.getByDataTest('matrix-normal-center-center-column').should(
 					'not.exist'
@@ -166,13 +163,9 @@ describe('Layout Matrix Control component testing', () => {
 				cy.get('button[aria-haspopup="listbox"]')
 					.eq(index)
 					.click({ force: true });
-				// @wordpress/components CustomSelectControl (Ariakit) uses a visible
-				// [role="listbox"] container, not legacy ul[aria-hidden="false"].
-				cy.get('[role="listbox"]:visible')
-					.last()
-					.within(() => {
-						cy.contains(option).click({ force: true });
-					});
+				cy.get('ul[aria-hidden="false"]').within(() => {
+					cy.contains(option).click({ force: true });
+				});
 			};
 
 			it('should set align items = start', () => {
@@ -393,13 +386,14 @@ describe('Layout Matrix Control component testing', () => {
 					'exist'
 				);
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'stretch',
 						justifyContent: 'space-between',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -419,13 +413,14 @@ describe('Layout Matrix Control component testing', () => {
 					'exist'
 				);
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'stretch',
 						justifyContent: 'space-around',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 		});
@@ -456,13 +451,14 @@ describe('Layout Matrix Control component testing', () => {
 				checkSelectOption(0, 'layout-matrix-align-start');
 				checkSelectOption(1, 'layout-matrix-justify-start');
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'flex-start',
 						justifyContent: 'flex-start',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -485,13 +481,14 @@ describe('Layout Matrix Control component testing', () => {
 				checkSelectOption(0, 'layout-matrix-align-start');
 				checkSelectOption(1, 'layout-matrix-justify-between');
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'flex-start',
 						justifyContent: 'space-between',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -513,13 +510,14 @@ describe('Layout Matrix Control component testing', () => {
 				checkSelectOption(0, 'layout-matrix-align-center');
 				checkSelectOption(1, 'layout-matrix-justify-around');
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'center',
 						justifyContent: 'space-around',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -541,13 +539,14 @@ describe('Layout Matrix Control component testing', () => {
 				checkSelectOption(0, 'layout-matrix-align-stretch');
 				checkSelectOption(1, 'layout-matrix-justify-center');
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'stretch',
 						justifyContent: 'center',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -569,13 +568,14 @@ describe('Layout Matrix Control component testing', () => {
 				checkSelectOption(0, 'layout-matrix-align-center');
 				checkSelectOption(1, 'layout-matrix-justify-center');
 
-				// Check data provider (dense omitted from store when isDenseActive is false)
+				// Check data provider
 				cy.get('body').then(() => {
-					expect(getControlValue(name)).to.deep.include({
-						direction: 'row',
+					expect({
 						alignItems: 'center',
 						justifyContent: 'center',
-					});
+						dense: false,
+						direction: 'row',
+					}).to.be.deep.equal(getControlValue(name));
 				});
 			});
 
@@ -600,7 +600,7 @@ describe('Layout Matrix Control component testing', () => {
 					name,
 				});
 
-				cy.getByAriaLabel('flex-direction: column').click();
+				cy.getByAriaLabel('Column').click();
 				cy.get('@onChange').should('have.been.called');
 			});
 		});

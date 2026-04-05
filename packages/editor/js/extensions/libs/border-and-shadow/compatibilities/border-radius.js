@@ -4,7 +4,7 @@
  * Blockera dependencies
  */
 import { isBorderRadiusEmpty } from '@blockera/controls';
-import { isObject, isString, normalizeCssLengthValue } from '@blockera/utils';
+import { isObject, isString } from '@blockera/utils';
 
 /**
  * Internal dependencies
@@ -30,19 +30,10 @@ export function borderRadiusFromWPCompatibility({
 
 		if (borderRadius) {
 			if (isString(borderRadius)) {
-				const trimmed = borderRadius.trim();
-				// Core may store bare `0` per token; match border.js shorthand handling (skip splitting for calc/var/etc.).
-				const all = trimmed.includes('(')
-					? trimmed
-					: trimmed
-							.split(/\s+/)
-							.filter(Boolean)
-							.map((part) => normalizeCssLengthValue(part))
-							.join(' ');
 				attributes.blockeraBorderRadius = {
 					value: {
 						type: 'all',
-						all,
+						all: borderRadius,
 					},
 				};
 			} else if (isObject(borderRadius)) {
@@ -52,18 +43,10 @@ export function borderRadiusFromWPCompatibility({
 					bottomLeft?: string,
 					bottomRight?: string,
 				} = {
-					topLeft: normalizeCssLengthValue(
-						borderRadius?.topLeft ?? ''
-					),
-					topRight: normalizeCssLengthValue(
-						borderRadius?.topRight ?? ''
-					),
-					bottomLeft: normalizeCssLengthValue(
-						borderRadius?.bottomLeft ?? ''
-					),
-					bottomRight: normalizeCssLengthValue(
-						borderRadius?.bottomRight ?? ''
-					),
+					topLeft: borderRadius?.topLeft ?? '',
+					topRight: borderRadius?.topRight ?? '',
+					bottomLeft: borderRadius?.bottomLeft ?? '',
+					bottomRight: borderRadius?.bottomRight ?? '',
 				};
 
 				const areCordersEqual = Object.values(corners).every(

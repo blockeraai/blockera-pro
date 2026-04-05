@@ -52,11 +52,7 @@ export default function ToggleSelectControl({
 	});
 
 	function valueCleanup(value: any) {
-		if (isUndefined(value)) {
-			return '';
-		}
-
-		return value;
+		return isUndefined(value) ? '' : value;
 	}
 
 	const handleKeyDown = useCallback(

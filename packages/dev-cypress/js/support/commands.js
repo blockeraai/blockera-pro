@@ -566,9 +566,11 @@ export const registerCommands = () => {
 		cy.get('[data-wp-component="Popover"]')
 			.last()
 			.within(() => {
+				cy.get('[data-cy="color-picker-css-value"]').clear({
+					force: true,
+				});
 				cy.get('[data-cy="color-picker-css-value"]')
-					.click({ force: true })
-					.type('{selectall}' + value + ' ', { delay: 0 })
+					.type(value + ' ', { delay: 0 })
 					.then(() => {
 						if (Cypress.$(`[aria-label="Close"]`).length) {
 							// close popover
