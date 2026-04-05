@@ -22,63 +22,67 @@ import {
 } from '../components';
 import { useGlobalSetting } from '../../context/hooks';
 import { type VariableType } from '../components/types';
-import { SpacingPresetOpener } from './spacing-preset-opener';
-import { SpacingSize, type SpacingDefaultPresetValue } from './spacing-size';
+import { BorderRadiusPresetOpener } from './border-radius-preset-opener';
+import {
+	BorderRadiusSize,
+	type BorderRadiusDefaultPresetValue,
+} from './border-radius-size';
 import { NavItemBackButton } from '../../../../navigation/nav-item-back-button';
 import ConfirmResetFontSizesDialog from '../font-sizes/confirm-reset-font-sizes-dialog';
 
-export type { SpacingDefaultPresetValue };
+export type { BorderRadiusDefaultPresetValue };
 
-type SpacingSizePreset = {
+type BorderRadiusSizePreset = {
 	slug: string;
 	name: string;
-	size: string;
+	size: string | number;
 };
 
-type SpacingPresetGroup = {
-	defaultPresetValue: SpacingDefaultPresetValue;
+type BorderRadiusPresetGroup = {
+	defaultPresetValue: BorderRadiusDefaultPresetValue;
 };
 
-type SpacingPresetGroupProps = PresetGroupPropsType & SpacingPresetGroup;
+type BorderRadiusPresetGroupProps = PresetGroupPropsType &
+	BorderRadiusPresetGroup;
 
-const spacingPresetFieldsPropsResolver: PresetFieldsPropsResolver = (
+const borderRadiusPresetFieldsPropsResolver: PresetFieldsPropsResolver = (
 	item,
 	itemId,
 	origin
 ) => ({
 	origin,
-	spacingSize: item,
+	borderRadiusSize: item,
 	presetId: itemId,
 });
 
-const SPACING_ADD_MODAL_CONFIG = {
-	headerTitle: __('Add Spacing Size', 'blockera'),
+const BORDER_RADIUS_ADD_MODAL_CONFIG = {
+	headerTitle: __('Add Border Radius', 'blockera'),
 	description: __(
-		'Name your new spacing size preset. The ID will be generated from the name and used in your styles.',
+		'Name your new border radius preset. The ID will be generated from the name and used in your styles.',
 		'blockera'
 	),
 	duplicateSlugMessage: __(
-		'This ID is already used by another spacing size preset.',
+		'This ID is already used by another border radius preset.',
 		'blockera'
 	),
-	controlNamePrefix: 'add-spacing-size',
+	controlNamePrefix: 'add-border-radius',
 };
 
-function SpacingSizePresetGroup(props: SpacingPresetGroupProps) {
+function BorderRadiusPresetGroupComponent(props: BorderRadiusPresetGroupProps) {
 	return <PresetGroup {...props} />;
 }
 
-function SpacingSizeGroupComponent({
+function BorderRadiusSizeGroupComponent({
 	sizes,
 	origin,
 	handleUpdateSizes,
-	handleResetSpacingSizes,
+	handleResetPresets,
 }: {
 	label: string;
 	origin: string;
-	sizes: SpacingSizePreset[];
+	sizes: BorderRadiusSizePreset[];
 	handleUpdateSizes?: (newValue: Object) => void;
-	handleResetSpacingSizes?: () => void;
+	handleResetPresets?: () => void;
 }) {
 	const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
@@ -87,11 +91,11 @@ function SpacingSizeGroupComponent({
 	const resetDialogText =
 		origin === 'custom'
 			? __(
-					'Are you sure you want to remove all custom spacing size presets?',
+					'Are you sure you want to remove all custom border radius presets?',
 					'blockera'
 				)
 			: __(
-					'Are you sure you want to reset all spacing size presets to their default values?',
+					'Are you sure you want to reset all border radius presets to their default values?',
 					'blockera'
 				);
 
@@ -100,20 +104,20 @@ function SpacingSizeGroupComponent({
 		[sizes]
 	);
 
-	const defaultPresetValue = useMemo((): SpacingDefaultPresetValue &
+	const defaultPresetValue = useMemo((): BorderRadiusDefaultPresetValue &
 		VariableType => {
 		return {
-			size: '20px',
-			slug: `spacing-${index}`,
+			size: '4px',
+			slug: `border-radius-${index}`,
 			deletable: !!('custom' === origin),
 			cloneable: !!('custom' === origin),
 			visibilitySupport: !!('custom' === origin),
-			/* translators: %d: spacing preset index */
-			name: sprintf(__('Spacing %d', 'blockera'), index) as string,
+			/* translators: %d: border radius preset index */
+			name: sprintf(__('Border radius %d', 'blockera'), index) as string,
 		};
 	}, [origin, index]);
 
-	const controlName = `spacing-size-presets-${origin}`;
+	const controlName = `border-radius-presets-${origin}`;
 
 	const handleChange = useCallback(
 		(newValue: Object) => {
@@ -127,7 +131,7 @@ function SpacingSizeGroupComponent({
 
 	return (
 		<>
-			{handleResetSpacingSizes && isResetDialogOpen && (
+			{handleResetPresets && isResetDialogOpen && (
 				<ConfirmResetFontSizesDialog
 					text={resetDialogText}
 					confirmButtonText={
@@ -137,66 +141,64 @@ function SpacingSizeGroupComponent({
 					}
 					isOpen={isResetDialogOpen}
 					toggleOpen={toggleResetDialog}
-					onConfirm={handleResetSpacingSizes}
+					onConfirm={handleResetPresets}
 				/>
 			)}
-			<SpacingSizePresetGroup
-				repeaterItemHeader={SpacingPresetOpener}
+			<BorderRadiusPresetGroupComponent
+				repeaterItemHeader={BorderRadiusPresetOpener}
 				onChange={handleChange}
 				controlName={controlName}
 				defaultPresetValue={defaultPresetValue}
 				origin={origin}
 				variables={sizes}
-				PresetFields={SpacingSize}
-				title={__('Spacing Size', 'blockera')}
+				PresetFields={BorderRadiusSize}
+				title={__('Border radius', 'blockera')}
 				label={sprintf(
 					/* translators: %s: Origin name (Theme, Default, or Custom) */
 					__('%s Variables', 'blockera'),
 					pascalCase(origin)
 				)}
-				addVariableModalConfig={SPACING_ADD_MODAL_CONFIG}
-				presetFieldsPropsResolver={spacingPresetFieldsPropsResolver}
+				addVariableModalConfig={BORDER_RADIUS_ADD_MODAL_CONFIG}
+				presetFieldsPropsResolver={
+					borderRadiusPresetFieldsPropsResolver
+				}
 			/>
 		</>
 	);
 }
 
-const SpacingSizeGroup = memo(SpacingSizeGroupComponent);
+const BorderRadiusSizeGroup = memo(BorderRadiusSizeGroupComponent);
 
-function SpacingPresetContent() {
-	const [themeSpacingSizes, setThemeSpacingSizes] = useGlobalSetting(
-		'spacing.spacingSizes.theme'
+function BordersPresetContent() {
+	const [themeRadiusSizes, setThemeRadiusSizes] = useGlobalSetting(
+		'border.radiusSizes.theme'
 	);
 
-	const [baseThemeSpacingSizes] = useGlobalSetting(
-		'spacing.spacingSizes.theme',
+	const [baseThemeRadiusSizes] = useGlobalSetting(
+		'border.radiusSizes.theme',
 		'',
 		'base'
 	);
-	const [defaultSpacingSizes, setDefaultSpacingSizes] = useGlobalSetting(
-		'spacing.spacingSizes.default'
+	const [defaultRadiusSizes, setDefaultRadiusSizes] = useGlobalSetting(
+		'border.radiusSizes.default'
 	);
 
-	const [baseDefaultSpacingSizes] = useGlobalSetting(
-		'spacing.spacingSizes.default',
+	const [baseDefaultRadiusSizes] = useGlobalSetting(
+		'border.radiusSizes.default',
 		'',
 		'base'
 	);
 
-	const [customSpacingSizes = [], setCustomSpacingSizes] = useGlobalSetting(
-		'spacing.spacingSizes.custom'
-	);
-
-	const [defaultSpacingSizesEnabled] = useGlobalSetting(
-		'spacing.defaultSpacingSizes'
+	const [customRadiusSizes = [], setCustomRadiusSizes] = useGlobalSetting(
+		'border.radiusSizes.custom'
 	);
 
 	const convertRepeaterValueToArray = useCallback(
-		(newValue: Object): SpacingSizePreset[] =>
+		(newValue: Object): BorderRadiusSizePreset[] =>
 			Object.values(
 				newValue as Record<
 					string,
-					SpacingSizePreset & Record<string, unknown>
+					BorderRadiusSizePreset & Record<string, unknown>
 				>
 			).map((value) => ({
 				slug: value.slug,
@@ -208,98 +210,98 @@ function SpacingPresetContent() {
 
 	const handleUpdateCustomSizes = useCallback(
 		(newValue: Object) => {
-			setCustomSpacingSizes(convertRepeaterValueToArray(newValue));
+			setCustomRadiusSizes(convertRepeaterValueToArray(newValue));
 		},
-		[convertRepeaterValueToArray, setCustomSpacingSizes]
+		[convertRepeaterValueToArray, setCustomRadiusSizes]
 	);
 
 	const handleUpdateThemeSizes = useCallback(
 		(newValue: Object) => {
-			setThemeSpacingSizes(convertRepeaterValueToArray(newValue));
+			setThemeRadiusSizes(convertRepeaterValueToArray(newValue));
 		},
-		[convertRepeaterValueToArray, setThemeSpacingSizes]
+		[convertRepeaterValueToArray, setThemeRadiusSizes]
 	);
 
 	const handleUpdateDefaultSizes = useCallback(
 		(newValue: Object) => {
-			setDefaultSpacingSizes(convertRepeaterValueToArray(newValue));
+			setDefaultRadiusSizes(convertRepeaterValueToArray(newValue));
 		},
-		[convertRepeaterValueToArray, setDefaultSpacingSizes]
+		[convertRepeaterValueToArray, setDefaultRadiusSizes]
 	);
 
 	const resetThemeToBase = useCallback(() => {
-		setThemeSpacingSizes(baseThemeSpacingSizes);
-	}, [setThemeSpacingSizes, baseThemeSpacingSizes]);
+		setThemeRadiusSizes(baseThemeRadiusSizes);
+	}, [setThemeRadiusSizes, baseThemeRadiusSizes]);
 
 	const resetDefaultToBase = useCallback(() => {
-		setDefaultSpacingSizes(baseDefaultSpacingSizes);
-	}, [setDefaultSpacingSizes, baseDefaultSpacingSizes]);
+		setDefaultRadiusSizes(baseDefaultRadiusSizes);
+	}, [setDefaultRadiusSizes, baseDefaultRadiusSizes]);
 
 	const clearCustomSizes = useCallback(() => {
-		setCustomSpacingSizes([]);
-	}, [setCustomSpacingSizes]);
+		setCustomRadiusSizes([]);
+	}, [setCustomRadiusSizes]);
 
 	const themeResetHandler = useMemo(() => {
-		if (!themeSpacingSizes?.length) {
+		if (!themeRadiusSizes?.length) {
 			return undefined;
 		}
-		const base = baseThemeSpacingSizes ?? [];
-		if (isEquals(themeSpacingSizes, base)) {
+		const base = baseThemeRadiusSizes ?? [];
+		if (isEquals(themeRadiusSizes, base)) {
 			return undefined;
 		}
 		return resetThemeToBase;
-	}, [themeSpacingSizes, baseThemeSpacingSizes, resetThemeToBase]);
+	}, [themeRadiusSizes, baseThemeRadiusSizes, resetThemeToBase]);
 
 	const defaultResetHandler = useMemo(() => {
-		if (!defaultSpacingSizes?.length) {
+		if (!defaultRadiusSizes?.length) {
 			return undefined;
 		}
-		const base = baseDefaultSpacingSizes ?? [];
-		if (isEquals(defaultSpacingSizes, base)) {
+		const base = baseDefaultRadiusSizes ?? [];
+		if (isEquals(defaultRadiusSizes, base)) {
 			return undefined;
 		}
 		return resetDefaultToBase;
-	}, [defaultSpacingSizes, baseDefaultSpacingSizes, resetDefaultToBase]);
+	}, [defaultRadiusSizes, baseDefaultRadiusSizes, resetDefaultToBase]);
 
 	const customResetHandler = useMemo(
-		() => (customSpacingSizes.length > 0 ? clearCustomSizes : undefined),
-		[customSpacingSizes.length, clearCustomSizes]
+		() => (customRadiusSizes.length > 0 ? clearCustomSizes : undefined),
+		[customRadiusSizes.length, clearCustomSizes]
 	);
 
 	return (
 		<Flex direction="column" gap="32px" style={{ width: '100%' }}>
-			{!!themeSpacingSizes?.length && (
-				<SpacingSizeGroup
+			{!!themeRadiusSizes?.length && (
+				<BorderRadiusSizeGroup
 					origin="theme"
 					label={__('Theme', 'blockera')}
-					sizes={themeSpacingSizes}
+					sizes={themeRadiusSizes}
 					handleUpdateSizes={handleUpdateThemeSizes}
-					handleResetSpacingSizes={themeResetHandler}
+					handleResetPresets={themeResetHandler}
 				/>
 			)}
 
-			{defaultSpacingSizesEnabled && !!defaultSpacingSizes?.length && (
-				<SpacingSizeGroup
+			{!!defaultRadiusSizes?.length && (
+				<BorderRadiusSizeGroup
 					origin="default"
 					label={__('Default', 'blockera')}
-					sizes={defaultSpacingSizes}
+					sizes={defaultRadiusSizes}
 					handleUpdateSizes={handleUpdateDefaultSizes}
-					handleResetSpacingSizes={defaultResetHandler}
+					handleResetPresets={defaultResetHandler}
 				/>
 			)}
 
-			<SpacingSizeGroup
+			<BorderRadiusSizeGroup
 				origin="custom"
 				label={__('Custom', 'blockera')}
-				sizes={customSpacingSizes}
+				sizes={customRadiusSizes}
 				handleUpdateSizes={handleUpdateCustomSizes}
-				handleResetSpacingSizes={customResetHandler}
+				handleResetPresets={customResetHandler}
 			/>
 		</Flex>
 	);
 }
 
-export function Spacing({
+export function Borders({
 	backLabel,
 	closeCallback,
 }: {
@@ -310,7 +312,7 @@ export function Spacing({
 		<div
 			className={classNames(
 				'blockera-navigation-panel',
-				'blockera-spacing-presets-navigation'
+				'blockera-borders-presets-navigation'
 			)}
 		>
 			<NavItemBackButton
@@ -320,7 +322,7 @@ export function Spacing({
 			<Flex
 				direction="column"
 				gap="8px"
-				className="blockera-spacing-presets"
+				className="blockera-borders-presets"
 				style={{ width: '100%' }}
 			>
 				<Flex
@@ -330,7 +332,7 @@ export function Spacing({
 				>
 					<p className="global-styles-ui-header__description">
 						{__(
-							'Create and edit spacing scale presets used for margin, padding, and gap (theme.json spacing.spacingSizes).',
+							'Create and edit border radius presets used in the editor (theme.json border.radiusSizes).',
 							'blockera'
 						)}
 					</p>
@@ -340,11 +342,11 @@ export function Spacing({
 					direction="column"
 					style={{ padding: '0 16px', width: '100%' }}
 				>
-					<SpacingPresetContent />
+					<BordersPresetContent />
 				</Flex>
 			</Flex>
 		</div>
 	);
 }
 
-export default Spacing;
+export default Borders;
