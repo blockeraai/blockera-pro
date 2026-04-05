@@ -3,12 +3,7 @@
 /**
  * Blockera dependencies
  */
-import {
-	isObject,
-	isEquals,
-	isEmpty,
-	normalizeCssLengthValue,
-} from '@blockera/utils';
+import { isObject, isEquals, isEmpty } from '@blockera/utils';
 import {
 	getSpacingVAFromVarString,
 	generateAttributeVarStringFromVA,
@@ -145,24 +140,6 @@ export function convertToValue(
 	return newGap;
 }
 
-/**
- * Normalize raw WP `blockGap` (string or `{ top, left }`) before VA conversion.
- */
-function normalizeWPBlockGap(blockGap: string | Object): string | Object {
-	if (!isObject(blockGap)) {
-		return normalizeCssLengthValue(blockGap);
-	}
-	const o: Object = blockGap;
-	const out: Object = { ...o };
-	if (o.hasOwnProperty('top')) {
-		out.top = normalizeCssLengthValue(o.top);
-	}
-	if (o.hasOwnProperty('left')) {
-		out.left = normalizeCssLengthValue(o.left);
-	}
-	return out;
-}
-
 export function gapFromWPCompatibility({
 	attributes,
 	editorSelectedBlockEvent,
@@ -184,7 +161,7 @@ export function gapFromWPCompatibility({
 
 	if (isEquals(attributes?.blockeraGap?.value, defaultGap) && blockGap) {
 		attributes.blockeraGap = {
-			value: convertFromValue(normalizeWPBlockGap(blockGap)),
+			value: convertFromValue(blockGap),
 		};
 	}
 

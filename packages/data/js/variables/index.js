@@ -42,13 +42,7 @@ export {
 	getSpacingVAFromIdString,
 	getSpacingVAFromVarString,
 } from './spacing';
-export {
-	getWidthSizes,
-	getWidthSizeBy,
-	getWidthSize,
-	getWidthSizeVAFromIdString,
-	getWidthSizeVAFromVarString,
-} from './width-size';
+export { getWidthSizes, getWidthSizeBy, getWidthSize } from './width-size';
 export {
 	getColors,
 	getColorBy,
@@ -61,10 +55,7 @@ export {
 	generateVariableString,
 	generateAttributeVarStringFromVA,
 	generateVariableStringFromAttributeVarString,
-	matchesVarStringMiddleType,
-	getValueAddonFromVarString,
 } from './utils';
-export type { GetValueAddonFromVarStringOptions } from './utils';
 
 export * from './types';
 export * from './store/types';
