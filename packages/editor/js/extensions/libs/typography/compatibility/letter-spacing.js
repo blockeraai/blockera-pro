@@ -4,7 +4,6 @@
  * Blockera dependencies
  */
 import { isSpecialUnit } from '@blockera/controls';
-import { normalizeCssLengthValue } from '@blockera/utils';
 
 /**
  * Internal dependencies
@@ -33,7 +32,7 @@ export function letterSpacingFromWPCompatibility({
 		letterSpacing !== undefined
 	) {
 		attributes.blockeraLetterSpacing = {
-			value: normalizeCssLengthValue(letterSpacing),
+			value: letterSpacing,
 		};
 	}
 

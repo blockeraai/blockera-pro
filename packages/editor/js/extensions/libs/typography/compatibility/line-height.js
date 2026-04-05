@@ -1,11 +1,6 @@
 // @flow
 
 /**
- * Blockera dependencies
- */
-import { normalizeCssLengthValue } from '@blockera/utils';
-
-/**
  * Internal dependencies
  */
 import { runInsideBlockInspector } from '../../utils';
@@ -32,7 +27,7 @@ export function lineHeightFromWPCompatibility({
 		lineHeight !== undefined
 	) {
 		attributes.blockeraLineHeight = {
-			value: normalizeCssLengthValue(lineHeight, ''),
+			value: lineHeight,
 		};
 	}
 
