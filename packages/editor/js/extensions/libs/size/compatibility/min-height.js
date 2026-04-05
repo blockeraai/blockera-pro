@@ -9,7 +9,6 @@ import { extractNumberAndUnit, isSpecialUnit } from '@blockera/controls';
 /**
  * Internal dependencies
  */
-import { resolveDimensionValueFromWP } from './dimension-variable-from-wp';
 import { runInsideBlockInspector } from '../../utils';
 
 export function minHeightFromWPCompatibility({
@@ -49,9 +48,7 @@ export function minHeightFromWPCompatibility({
 			attributes?.dimensions?.minHeight !== undefined
 		) {
 			attributes.blockeraMinHeight = {
-				value: resolveDimensionValueFromWP(
-					attributes.dimensions.minHeight
-				),
+				value: attributes?.dimensions?.minHeight,
 			};
 		}
 	}

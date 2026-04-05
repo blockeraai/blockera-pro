@@ -3,11 +3,6 @@
 import { isString, isUndefined } from '@blockera/utils';
 import { extractNumberAndUnit, isSpecialUnit } from '@blockera/controls';
 
-/**
- * Internal dependencies
- */
-import { resolveDimensionValueFromWP } from './dimension-variable-from-wp';
-
 export function widthFromWPCompatibility({
 	attributes,
 	blockId,
@@ -23,9 +18,7 @@ export function widthFromWPCompatibility({
 				attributes?.widthUnit !== undefined
 			) {
 				attributes.blockeraWidth = {
-					value: resolveDimensionValueFromWP(
-						attributes.width + attributes.widthUnit
-					),
+					value: attributes?.width + attributes?.widthUnit,
 				};
 			}
 
@@ -76,7 +69,7 @@ export function widthFromWPCompatibility({
 			// Block inspector: attributes.width
 			if (attributes?.width !== undefined) {
 				attributes.blockeraWidth = {
-					value: resolveDimensionValueFromWP(attributes.width),
+					value: attributes?.width,
 				};
 			}
 
@@ -87,7 +80,7 @@ export function widthFromWPCompatibility({
 		case 'core/post-featured-image':
 			if (attributes?.width !== undefined) {
 				attributes.blockeraWidth = {
-					value: resolveDimensionValueFromWP(attributes.width),
+					value: attributes?.width,
 				};
 			}
 
