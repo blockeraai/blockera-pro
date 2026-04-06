@@ -14,7 +14,6 @@ import { InputControl, ControlContextProvider } from '@blockera/controls';
  * Internal dependencies
  */
 import { EditorFeatureWrapper } from '../../../../';
-import { DIMENSION_VARIABLE_TYPES } from '../compatibility/dimension-variable-from-wp';
 import { generateExtensionId } from '../../utils';
 import type { THandleOnChangeAttributes } from '../../types';
 
@@ -104,7 +103,7 @@ export const MinHeight: ComponentType<TMinHeightProps> = ({
 						)
 					}
 					controlAddonTypes={['variable']}
-					variableTypes={DIMENSION_VARIABLE_TYPES}
+					variableTypes={['width-size', 'spacing']}
 					{...extensionProps.blockeraMinHeight}
 				/>
 			</ControlContextProvider>
