@@ -4,7 +4,7 @@
  * External dependencies
  */
 import type { MixedElement } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { select, useSelect } from '@wordpress/data';
 import { useEntityProp } from '@wordpress/core-data';
@@ -26,7 +26,7 @@ import {
 	controlInnerClassNames,
 	controlClassNames,
 } from '@blockera/classnames';
-import { Flex, Grid, Button, Tooltip, UpgradePrompt } from '@blockera/controls';
+import { Flex, Grid, Button, Tooltip } from '@blockera/controls';
 
 /**
  * Internal dependencies
@@ -65,7 +65,7 @@ export const BlockTypes = ({
 		currentBlockStyleVariation,
 	} = useGlobalStylesPanelContext();
 	const { getSelectedBlockStyle } = select('blockera/editor');
-	const [isUpgradePromptOpen, setIsUpgradePromptOpen] = useState(false);
+	const [isShowPromotion, setIsShowPromotion] = useState(false);
 	const selectedBlockStyle = getSelectedBlockStyle();
 	const itemsCount = Array.isArray(items)
 		? items.length
@@ -482,96 +482,57 @@ export const BlockTypes = ({
 		maxSelectableBlocks !== -1
 			? Math.max(0, maxSelectableBlocks - blocksState.items.length)
 			: null;
-	const isFreeBlockLimit = maxSelectableBlocks !== -1;
 
 	return (
 		<>
 			<Fill name="usage-for-multiple-blocks-save-cancel-actions">
-				<Flex
-					justifyContent="space-between"
-					alignItems="center"
-					gap="12px"
-					style={{ width: '100%' }}
-				>
-					<Flex
-						alignItems="center"
-						gap="16px"
-						style={{ flexWrap: 'wrap', minWidth: 0 }}
-					>
-						{!isSaving && (
-							<Button
-								data-test="save-usage-for-multiple-blocks-button"
-								disabled={
-									!isModified &&
-									isEquals(blocksState, initBlocksState)
-								}
-								variant="primary"
-								onClick={() => {
-									setIsSaving(true);
-									setTimeout(() => {
-										handleOnSave();
-										// Clear action state.
-										setAction(null);
-										setIsOpenUsageForMultipleBlocks(false);
-									}, 10);
-								}}
-							>
-								{__('Save', 'blockera')}
-							</Button>
-						)}
-						{isSaving && (
-							<Button variant="primary">
-								<Animate type="loading">
-									{({ className: animateClassName }) => (
-										<Flex
-											className={classNames(
-												'message',
-												animateClassName
-											)}
-											direction="row"
-											gap={5}
-											alignItems="center"
-											style={{
-												fontSize: '14px',
-												marginRight: '5px',
-											}}
-										>
-											<Icon icon={'cloud'} library="wp" />
+				<Flex justifyContent="space-between">
+					{!isSaving && (
+						<Button
+							data-test="save-usage-for-multiple-blocks-button"
+							disabled={
+								!isModified &&
+								isEquals(blocksState, initBlocksState)
+							}
+							variant="primary"
+							onClick={() => {
+								setIsSaving(true);
+								setTimeout(() => {
+									handleOnSave();
+									// Clear action state.
+									setAction(null);
+									setIsOpenUsageForMultipleBlocks(false);
+								}, 10);
+							}}
+						>
+							{__('Save', 'blockera')}
+						</Button>
+					)}
+					{isSaving && (
+						<Button variant="primary">
+							<Animate type="loading">
+								{({ className: animateClassName }) => (
+									<Flex
+										className={classNames(
+											'message',
+											animateClassName
+										)}
+										direction="row"
+										gap={5}
+										alignItems="center"
+										style={{
+											fontSize: '14px',
+											marginRight: '5px',
+										}}
+									>
+										<Icon icon={'cloud'} library="wp" />
 
-											{__('Saving…', 'blockera')}
-										</Flex>
-									)}
-								</Animate>
-							</Button>
-						)}
-						{isFreeBlockLimit && (
-							<span
-								className={classNames(
-									'blockera-usage-for-multiple-blocks-footer-meta'
+										{__('Saving…', 'blockera')}
+									</Flex>
 								)}
-								style={{
-									fontSize: '13px',
-									lineHeight: 1.4,
-									color: '#757575',
-								}}
-							>
-								{sprintf(
-									/* translators: 1: Current number of blocks using the style, 2: Free tier maximum. */
-									__(
-										'%1$d / %2$d blocks used (Free limit)',
-										'blockera'
-									),
-									blocksState.items.length,
-									maxSelectableBlocks
-								)}
-								{' — '}
-								{__(
-									'Unlimited blocks in the Pro version.',
-									'blockera'
-								)}
-							</span>
-						)}
-					</Flex>
+							</Animate>
+						</Button>
+					)}
 
 					<Button
 						data-test="cancel-usage-for-multiple-blocks-button"
@@ -609,7 +570,7 @@ export const BlockTypes = ({
 							-1 !== maxSelectableBlocks &&
 							blocksState.items.length >= maxSelectableBlocks
 						) {
-							setIsUpgradePromptOpen(true);
+							setIsShowPromotion(true);
 							return;
 						}
 						if (maxSelectableBlocks === -1) {
@@ -639,6 +600,34 @@ export const BlockTypes = ({
 				>
 					{__('Enable all', 'blockera')}
 				</Button>
+				<Flex>
+					{remainingBlocks !== null && (
+						<span>
+							{sprintf(
+								/* translators: %d: number of remaining blocks user can select */
+								_n(
+									'%d remaining block',
+									'%d remaining blocks',
+									remainingBlocks,
+									'blockera'
+								),
+								remainingBlocks
+							)}
+						</span>
+					)}
+					{isShowPromotion && (
+						<>
+							{' - '}
+							<a
+								href={UPGRADE_PRO_URL}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{__('Upgrade to PRO', 'blockera')}
+							</a>
+						</>
+					)}
+				</Flex>
 			</Fill>
 			<Flex
 				direction={'column'}
@@ -679,9 +668,7 @@ export const BlockTypes = ({
 										maxSelectableBlocks={
 											maxSelectableBlocks
 										}
-										setIsUpgradePromptOpen={
-											setIsUpgradePromptOpen
-										}
+										setIsShowPromotion={setIsShowPromotion}
 									/>
 								))}
 							</Grid>
@@ -689,28 +676,6 @@ export const BlockTypes = ({
 					)
 				)}
 			</Flex>
-			{isFreeBlockLimit && (
-				<UpgradePrompt
-					type="modal"
-					data-test="usage-for-multiple-blocks-upgrade-prompt"
-					heading={__('Use this style on more blocks', 'blockera')}
-					description={__(
-						'The free plan limits how many block types can use each global style variation. Upgrade to apply your design to every block you need.',
-						'blockera'
-					)}
-					featuresList={[
-						__('Unlimited blocks per style variation', 'blockera'),
-						__('All registered block types', 'blockera'),
-						__('Advanced global styles', 'blockera'),
-						__('Premium design tools', 'blockera'),
-					]}
-					isOpen={isUpgradePromptOpen}
-					onClose={() => setIsUpgradePromptOpen(false)}
-					buttonURL={UPGRADE_PRO_URL}
-					buttonText={__('Upgrade to PRO', 'blockera')}
-					buttonTarget="_blank"
-				/>
-			)}
 		</>
 	);
 };
@@ -722,7 +687,7 @@ const BlockType = ({
 	setGlobalData,
 	setBlocksState,
 	maxSelectableBlocks,
-	setIsUpgradePromptOpen,
+	setIsShowPromotion,
 }: Object): MixedElement => {
 	// Stable primitive for hooks; avoids recreating callbacks when parent passes a new `item` reference.
 	const typeName = item?.name ?? '';
@@ -742,11 +707,11 @@ const BlockType = ({
 					-1 !== maxSelectableBlocks &&
 					blocksState.items.length >= maxSelectableBlocks
 				) {
-					setIsUpgradePromptOpen(true);
+					setIsShowPromotion(true);
 					return;
 				}
 			} else {
-				setIsUpgradePromptOpen(false);
+				setIsShowPromotion(false);
 			}
 
 			let nextItems;
@@ -771,7 +736,7 @@ const BlockType = ({
 			blocksState.items,
 			setBlocksState,
 			setGlobalData,
-			setIsUpgradePromptOpen,
+			setIsShowPromotion,
 		]
 	);
 
