@@ -3,7 +3,6 @@ export * from './image';
 export * from './avatar';
 export * from './feature-wrapper';
 export { Switch } from './switch';
-export * from './item-group/index.tsx';
 export { default as Flex } from './flex';
 export { UpgradePrompt, Promoter } from './upgrade-prompt';
 export { default as Tabs, TabPanel } from './tabs';
@@ -56,11 +55,6 @@ export { getSortedRepeater } from './repeater-control/utils';
 export { default as BoxShadowControl } from './box-shadow-control';
 export { default as TextShadowControl } from './text-shadow-control';
 export { default as TransitionControl } from './transition-control';
-export {
-	getTransitionTypeOptions,
-	getTransitionTimingOptions,
-	getTypeLabel,
-} from './transition-control/utils';
 export { default as AttributesControl } from './attributes-control';
 export { default as FilterControl } from './filter-control';
 export { FilterLabelDescription } from './filter-control/components/filter-label-description';
