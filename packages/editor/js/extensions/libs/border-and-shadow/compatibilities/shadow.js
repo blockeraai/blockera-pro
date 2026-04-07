@@ -12,6 +12,11 @@ import { getSortedRepeater, getValueAddonRealValue } from '@blockera/controls';
 import { getColorVAFromVarString } from '@blockera/data';
 
 /**
+ * Internal dependencies
+ */
+import { runInsideBlockInspector } from '../../utils';
+
+/**
  * Resolved CSS `box-shadow` for a theme.json preset (`items` array or legacy `shadow` string).
  *
  * @param {Object} preset - Preset from __experimentalFeatures.shadow.presets
@@ -518,11 +523,6 @@ function findMatchingShadowPresetForCSSString(cssShadow: string): ?string {
  * @param {boolean} params.insideBlockInspector - Whether we're in block inspector context
  * @return {Object} Updated attributes
  */
-/**
- * Internal dependencies
- */
-import { runInsideBlockInspector } from '../../utils';
-
 export function shadowFromWPCompatibility({
 	attributes,
 	editorSelectedBlockEvent,
