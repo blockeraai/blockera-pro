@@ -53,7 +53,6 @@ export default function TextShadowControl({
 		</>
 	),
 	className,
-	withoutValueAddons = false,
 	...props
 }: TTextShadowControlProps): MixedElement {
 	return (
@@ -67,12 +66,6 @@ export default function TextShadowControl({
 			defaultRepeaterItemValue={defaultRepeaterItemValue}
 			label={label}
 			labelDescription={labelDescription}
-			{...(!withoutValueAddons
-				? {
-						controlAddonTypes: ['variable'],
-						variableTypes: ['text-shadow'],
-					}
-				: {})}
 			PromoComponent={({
 				items,
 				onClose = () => {},
