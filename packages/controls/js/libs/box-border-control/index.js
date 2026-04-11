@@ -13,7 +13,6 @@ import {
 	controlClassNames,
 	controlInnerClassNames,
 } from '@blockera/classnames';
-import type { VariableCategory } from '@blockera/data';
 import { Icon } from '@blockera/icons';
 
 /**
@@ -21,7 +20,6 @@ import { Icon } from '@blockera/icons';
  */
 import { isValid } from '../../';
 import { useControlContext } from '../../context';
-import type { AddonTypes } from '../../value-addons/types';
 import {
 	Grid,
 	Button,
@@ -74,17 +72,7 @@ export default function BoxBorderControl({
 	field = 'box-border',
 	//
 	className,
-	withoutValueAddons = false,
-	controlAddonTypes,
-	variableTypes,
 }: BoxBorderControlProps): MixedElement {
-	const resolvedControlAddonTypes: AddonTypes = withoutValueAddons
-		? ([]: AddonTypes)
-		: (controlAddonTypes ?? ['variable']);
-	const resolvedVariableTypes: Array<VariableCategory> = withoutValueAddons
-		? ([]: Array<VariableCategory>)
-		: (variableTypes ?? ['border']);
-
 	const {
 		value,
 		setValue,
@@ -103,12 +91,7 @@ export default function BoxBorderControl({
 	});
 
 	// value clean up for removing extra values to prevent saving extra data!
-	function valueCleanup(value: TValueTypes | any) {
-		// Whole-control border may be stored as a variable value addon.
-		if (isValid((value: any))) {
-			return value;
-		}
-
+	function valueCleanup(value: TValueTypes) {
 		if (value.type === 'all') {
 			delete value?.top;
 			delete value?.right;
@@ -188,8 +171,6 @@ export default function BoxBorderControl({
 										value: { ...value, all: newValue },
 									});
 								}}
-								controlAddonTypes={resolvedControlAddonTypes}
-								variableTypes={resolvedVariableTypes}
 								defaultValue={defaultValue?.all}
 							/>
 						) : (
@@ -279,8 +260,6 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.top}
 						/>
 						<BorderControl
@@ -304,8 +283,6 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.right}
 						/>
 						<BorderControl
@@ -328,8 +305,6 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.bottom}
 						/>
 						<BorderControl
@@ -353,8 +328,6 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.left}
 						/>
 						<div

@@ -23,16 +23,7 @@ class Transform extends BaseStyleDefinition implements Repeater {
 			return $declaration;
 		}
 
-		$value = $setting[ $cssProperty ];
-
-		if (! isset($value['valueType'])) {
-			$sortedTransforms = blockera_get_sorted_repeater($value);
-		} elseif ('variable' === $value['valueType'] ?? '' && isset($value['settings']['value'])) {
-			$sortedTransforms = blockera_get_sorted_repeater(json_decode($value['settings']['value'], true)['items'] ?? []);
-		} else {
-			$sortedTransforms = [];
-		}
-
+		$sortedTransforms   = blockera_get_sorted_repeater($setting[ $cssProperty ]);
 		$filteredTransforms = [];
 
 		foreach ( $sortedTransforms as $item ) {

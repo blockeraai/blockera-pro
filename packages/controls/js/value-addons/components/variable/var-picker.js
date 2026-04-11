@@ -11,7 +11,7 @@ import { select } from '@wordpress/data';
  */
 import {
 	STORE_NAME,
-	getCustomGlobalStylePresetVariables,
+	generateVariableString,
 	type DynamicVariableGroup,
 } from '@blockera/data';
 import { Icon } from '@blockera/icons';
@@ -20,13 +20,16 @@ import { controlInnerClassNames } from '@blockera/classnames';
 /**
  * Internal dependencies
  */
-import { canUnlinkVariable, getVariableCategory } from '../../helpers';
+import {
+	getVariableIcon,
+	canUnlinkVariable,
+	getVariableCategory,
+} from '../../helpers';
 import { isValid } from '../../utils';
 import type { VariableCategoryDetail } from '../../types';
-import { PickerCategory } from '../index';
+import { PickerValueItem, PickerCategory } from '../index';
 import type { ValueAddonControlProps } from '../control/types';
-import { Button, Flex, Popover } from '../../../';
-import { VariableManager } from './variable-manager';
+import { Button, Flex, Grid, Popover, ConditionalWrapper } from '../../../';
 
 export default function ({
 	controlProps,
@@ -37,87 +40,43 @@ export default function ({
 	onClose?: () => void,
 	popoverOffset?: number,
 }): Element<any> {
-	const { getVariableGroups } = select(STORE_NAME);
-
-	const variableTypes = [
-		...Object.keys(getVariableGroups()),
-		...controlProps.variableTypes,
-	];
-
-	const CustomVariables = (): ?Element<any> => {
-		const sections = controlProps.variableTypes
-			.map((type) => {
-				const cat = getVariableCategory(type);
-
-				if (cat.notFound) {
-					return null;
-				}
-
-				const mainItems = !Array.isArray(cat.items)
-					? Object.values(cat.items || {})
-					: cat.items || [];
-
-				const mainIds = new Set(
-					mainItems.map((i) => i.id).filter(Boolean)
-				);
-
-				const customItems = getCustomGlobalStylePresetVariables(
-					type
-				).filter(
-					(i) =>
-						i.id &&
-						!mainIds.has(i.id) &&
-						i.value !== undefined &&
-						i.value !== ''
-				);
-
-				if (!customItems.length) {
-					return null;
-				}
-
-				return {
-					type,
-					label: cat.label,
-					items: customItems,
-				};
-			})
-			.filter(Boolean);
-
-		if (!sections.length) {
-			return null;
-		}
-
+	const CustomVariables = (): Element<any> => {
 		return (
 			<PickerCategory
-				key="type-custom-variables"
-				title={__('Custom variables', 'blockera')}
-			>
-				<Flex direction="column" gap="20px">
-					{sections.map((section) => (
-						<Flex
-							key={`custom-section-${section.type}`}
-							direction="column"
-							gap="10px"
+				key={`type-custom-variables`}
+				title={
+					<>
+						{__('Custom Variables', 'blockera')}
+
+						<Button
+							size="extra-small"
+							className={controlInnerClassNames('btn-add')}
+							disabled={true}
+							showTooltip={true}
+							label={__(
+								'Add New Variable (Coming soon…)',
+								'blockera'
+							)}
 						>
-							<VariableManager
-								controlProps={controlProps}
-								data={{
-									label: section.label,
-									items: section.items,
-									type: section.type,
-								}}
-								typeKey={section.type}
-								keySuffix="custom-preset"
-							/>
-						</Flex>
-					))}
-				</Flex>
+							<Icon icon="plus" iconSize="20" />
+						</Button>
+					</>
+				}
+			>
+				<span style={{ opacity: '0.5', fontSize: '12px' }}>
+					{__('Coming soon…', 'blockera')}
+				</span>
 			</PickerCategory>
 		);
 	};
 
 	const Variables = (): Array<Element<any>> => {
-		return variableTypes.map((type, index) => {
+		const { getVariableGroups } = select(STORE_NAME);
+
+		return [
+			...Object.keys(getVariableGroups()),
+			...controlProps.variableTypes,
+		].map((type, index) => {
 			let data: DynamicVariableGroup | VariableCategoryDetail =
 				getVariableCategory(type);
 
@@ -147,16 +106,87 @@ export default function ({
 				);
 			}
 
+			const showTwoColumns = [
+				'color',
+				'linear-gradient',
+				'radial-gradient',
+				'spacing',
+			].includes(data.type || type);
+
 			return (
 				<PickerCategory
 					key={`type-${type}-${index}`}
 					title={data.label}
 				>
-					<VariableManager
-						controlProps={controlProps}
-						data={data}
-						typeKey={type}
-					/>
+					<ConditionalWrapper
+						condition={showTwoColumns}
+						wrapper={(children) => (
+							<Grid gridTemplateColumns="1fr 1fr" gap="10px">
+								{children}
+							</Grid>
+						)}
+						elseWrapper={(children) => (
+							<Flex gap="10px" direction="column">
+								{children}
+							</Flex>
+						)}
+					>
+						{(!Array.isArray(data.items)
+							? Object.values(data.items)
+							: data.items
+						).map((variable, _index) => {
+							const itemData = {
+								...variable,
+								type: data?.type || type,
+								var:
+									variable?.var ||
+									generateVariableString({
+										reference: variable.reference,
+										type: data?.type || type,
+										id: variable.id,
+									}),
+							};
+
+							return (
+								<PickerValueItem
+									showValue={
+										variable.name.length < 4 ||
+										!showTwoColumns
+									}
+									value={controlProps.value}
+									data={itemData}
+									onClick={controlProps.handleOnClickVar}
+									key={`${
+										data?.type || type
+									}-${_index}-value-type`}
+									name={variable.name}
+									type={data?.type || type}
+									valueType="variable"
+									isCurrent={
+										isValid(controlProps.value) &&
+										controlProps.value.settings.type ===
+											(data?.type || type) &&
+										controlProps.value.settings.id ===
+											itemData.id
+									}
+									icon={getVariableIcon({
+										type: data?.type || type,
+										value: variable.value,
+									})}
+									status="active"
+									style={{
+										...(showTwoColumns
+											? {
+													gap: '5px',
+													padding: '0px 4px 0px 6px',
+													maxWidth: '118px',
+												}
+											: {}),
+									}}
+								/>
+							);
+						})}
+					</ConditionalWrapper>
 				</PickerCategory>
 			);
 		});

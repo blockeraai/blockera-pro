@@ -18,15 +18,7 @@ class Filter extends BaseStyleDefinition implements Repeater {
             return [];
         }
 
-		$value = $setting[ $cssProperty ];
-
-		if (! isset($value['valueType'])) {
-			$sortedFilters = blockera_get_sorted_repeater($value);
-		} elseif ('variable' === $value['valueType'] ?? '' && isset($value['settings']['value'])) {
-			$sortedFilters = blockera_get_sorted_repeater(json_decode($value['settings']['value'], true)['items'] ?? []);
-		} else {
-			$sortedFilters = [];
-		}
+        $sortedFilters = blockera_get_sorted_repeater( $setting[ $cssProperty ] );
 
         if ( ! is_array( $sortedFilters ) ) {
             return [];
