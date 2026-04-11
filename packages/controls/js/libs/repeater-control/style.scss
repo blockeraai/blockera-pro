@@ -208,6 +208,13 @@
 		visibility: hidden;
 	}
 
+	.blockera-control-repeater-add-item-trigger {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		vertical-align: middle;
+	}
+
 	.blockera-control-repeater-header-action-buttons {
 		margin-left: auto;
 		display: flex;
@@ -232,6 +239,18 @@
 		&:empty {
 			display: none;
 		}
+	}
+
+	.blockera-control-repeater__no-items {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 12px 14px;
+		border-radius: var(--blockera-controls-border-radius);
+		background: #e8e8e8;
+		color: #757575;
+		font-size: 12px;
+		line-height: 1.4;
+		text-align: center;
 	}
 
 	&.design-large {

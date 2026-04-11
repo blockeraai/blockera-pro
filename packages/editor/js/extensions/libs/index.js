@@ -3,7 +3,6 @@
 export * from './utils';
 export { SpacingStyles, LayoutStyles, LayoutExtension } from './layout';
 export { FlexChildStyles, FlexChildExtension } from './flex-child';
-export { GridChildStyles, GridChildExtension } from './grid-child';
 export { SizeStyles, SizeExtension } from './size';
 export { PositionStyles, PositionExtension } from './position';
 export { BackgroundStyles, BackgroundExtension } from './background';

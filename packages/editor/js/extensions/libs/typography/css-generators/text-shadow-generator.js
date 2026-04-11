@@ -1,7 +1,11 @@
 /**
  * Blockera dependencies
  */
-import { getValueAddonRealValue, getSortedRepeater } from '@blockera/controls';
+import {
+	getSortedRepeater,
+	getValueAddonRealValue,
+	parseCssTextShadowToRepeaterValue,
+} from '@blockera/controls';
 
 /**
  * Internal dependencies
@@ -17,7 +21,36 @@ export function TextShadowGenerator(id, props, options) {
 
 	const shadows = [];
 
-	getSortedRepeater(attributes?.blockeraTextShadow)?.map(([, item]) => {
+	let textShadowValue = attributes?.blockeraTextShadow;
+
+	if ('variable' === textShadowValue?.valueType) {
+		let rawItems = null;
+		try {
+			rawItems = JSON.parse(
+				textShadowValue?.settings?.value || '{}'
+			)?.items;
+		} catch (e) {
+			rawItems = null;
+		}
+
+		if (rawItems === null || rawItems === undefined) {
+			return '';
+		}
+
+		let rows = rawItems;
+		if (!Array.isArray(rows)) {
+			rows = Object.values(parseCssTextShadowToRepeaterValue(rows));
+		}
+
+		textShadowValue = rows.map((item, i) => [
+			String(i),
+			{ ...item, order: item.order ?? i },
+		]);
+	} else {
+		textShadowValue = getSortedRepeater(attributes?.blockeraTextShadow);
+	}
+
+	textShadowValue?.map(([, item]) => {
 		if (!item.isVisible) {
 			return null;
 		}
