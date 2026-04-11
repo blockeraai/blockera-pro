@@ -50,105 +50,26 @@ class Transition extends BaseStyleDefinition implements Repeater {
 			return [];
 		}
 
-		// Reference: variable payloads may replace `settings.value` with plain CSS inside get_sorted_repeater_rows_from_value().
-		$value             = &$setting[ $cssProperty ];
-		$declaration_only  = ! empty( $setting['_blockeraDeclarationOnly'] );
-		$preset_mode       = ! empty( $setting['_blockeraGlobalPreset'] );
-		$resolved_from_var = null;
-		$self              = $this;
-		// Variable + declaration/items: one shot via value-addon; otherwise sorted repeater rows (preset vs block rules in callback / loops below).
-		$sortedTransitions = static::get_sorted_repeater_rows_from_value(
-			$value,
-			static function ( array $sorted ) use ( $preset_mode, $self ): string {
-				$parts = array();
-				foreach ( $sorted as $row ) {
-					if ( ! is_array( $row ) ) {
-						continue;
-					}
-					if ( $preset_mode ) {
-						if ( ! ( $row['isVisible'] ?? true ) ) {
-							continue;
-						}
-						$chunk = self::transition_row_to_css_value( $row, true );
-					} else {
-						if ( ! $self->isValidSetting( $row ) ) {
-							continue;
-						}
-						$chunk = self::transition_row_to_css_value( $row, false );
-					}
-					if ( '' !== $chunk ) {
-						$parts[] = $chunk;
-					}
-				}
+		$sortedTransitions   = blockera_get_sorted_repeater( $setting[ $cssProperty ] );
+		$filteredTransitions = [];
 
-				return implode( ', ', array_filter( $parts, 'strlen' ) );
-			},
-			$resolved_from_var
-		);
-
-		if ( null !== $resolved_from_var && '' !== $resolved_from_var ) {
-			$this->setDeclaration( 'transition', $resolved_from_var );
-		} elseif ( $preset_mode ) {
-			foreach ( $sortedTransitions as $transition ) {
-				if ( ! is_array( $transition ) || ! ( $transition['isVisible'] ?? true ) ) {
-					continue;
-				}
-				$chunk = self::transition_row_to_css_value( $transition, true );
-				if ( '' === $chunk ) {
-					continue;
-				}
-				if ( isset( $this->declarations['transition'] ) && '' !== $this->declarations['transition'] ) {
-					$this->setDeclaration( 'transition', $this->declarations['transition'] . ', ' . $chunk );
-				} else {
-					$this->setDeclaration( 'transition', $chunk );
-				}
-			}
-		} else {
-			foreach ( $sortedTransitions as $transition ) {
-				if ( ! is_array( $transition ) ) {
-					continue;
-				}
-				if ( $this->isValidSetting( $transition ) ) {
-					$this->setTransition( $transition );
-				}
+		foreach ( $sortedTransitions as $transition ) {
+			if ( $this->isValidSetting( $transition ) ) {
+				$filteredTransitions[] = $transition;
 			}
 		}
 
-		if ( ! isset( $this->declarations['transition'] ) || '' === $this->declarations['transition'] ) {
+		if ( [] === $filteredTransitions ) {
 			return [];
 		}
 
-		if ( $declaration_only ) {
-			return [];
+		foreach ( $filteredTransitions as $transition ) {
+			$this->setTransition( $transition );
 		}
 
 		$this->setCss( $this->declarations );
 
 		return $this->css;
-	}
-
-	/**
-	 * One repeater row → single transition list entry (e.g. `opacity 0.2s ease 0s`).
-	 *
-	 * @param array $row Repeater row.
-	 * @param bool  $default_type_all When true, missing/empty `type` becomes `all` (presets); when false, empty type yields ''.
-	 */
-	protected static function transition_row_to_css_value( array $row, bool $default_type_all = false ): string {
-		$type = $row['type'] ?? '';
-		if ( ! is_string( $type ) || '' === $type ) {
-			if ( ! $default_type_all ) {
-				return '';
-			}
-			$type = 'all';
-		}
-
-		$timing_key = isset( $row['timing'] ) && is_string( $row['timing'] ) ? $row['timing'] : 'ease';
-		$timing     = self::TIMINGS[ $timing_key ] ?? 'ease';
-
-		return $type . ' '
-			. blockera_get_value_addon_real_value( $row['duration'] ?? '' ) . ' '
-			. $timing . ' '
-			. blockera_get_value_addon_real_value( $row['delay'] ?? '' );
 	}
 
 	/**
@@ -176,10 +97,8 @@ class Transition extends BaseStyleDefinition implements Repeater {
 	 */
 	protected function setTransition( array $setting): void {
 
-		$transition = self::transition_row_to_css_value( $setting, false );
-		if ( '' === $transition ) {
-			return;
-		}
+		$timing     = self::TIMINGS[ $setting['timing'] ] ?? 'ease';
+		$transition = $setting['type'] . ' ' . blockera_get_value_addon_real_value( $setting['duration'] ) . ' ' . $timing . ' ' . blockera_get_value_addon_real_value( $setting['delay'] );
 
 		if ( isset( $this->declarations['transition'] ) && '' !== $this->declarations['transition'] ) {
 			$this->setDeclaration( 'transition', $this->declarations['transition'] . ', ' . $transition );

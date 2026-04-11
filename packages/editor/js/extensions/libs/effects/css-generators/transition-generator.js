@@ -9,18 +9,6 @@ import { getValueAddonRealValue, getSortedRepeater } from '@blockera/controls';
  */
 import { createCssDeclarations } from '../../../../style-engine';
 
-function wrapCssVarIfVariable(field, cssValue) {
-	if (
-		'variable' === field?.valueType &&
-		field?.settings?.var &&
-		cssValue !== '' &&
-		cssValue !== undefined
-	) {
-		return `var(${field.settings.var}, ${cssValue})`;
-	}
-	return cssValue;
-}
-
 export function TransitionGenerator(id, props, options) {
 	const { attributes } = props;
 
@@ -28,18 +16,7 @@ export function TransitionGenerator(id, props, options) {
 		return '';
 	}
 
-	const transitionAttr = attributes?.blockeraTransition;
-	let transitionValue = transitionAttr;
-
-	if ('variable' === transitionValue?.valueType) {
-		transitionValue =
-			JSON.parse(transitionValue?.settings?.value)?.items || [];
-		transitionValue = transitionValue.map((t, i) => [`${t.type}-${i}`, t]);
-	} else {
-		transitionValue = getSortedRepeater(transitionValue);
-	}
-
-	const value = transitionValue
+	const value = getSortedRepeater(attributes?.blockeraTransition)
 		?.map(([, item]) => {
 			if (!item.isVisible) {
 				return null;
@@ -53,15 +30,10 @@ export function TransitionGenerator(id, props, options) {
 		})
 		?.filter((item) => null !== item);
 
-	const transitionCss = wrapCssVarIfVariable(
-		transitionAttr,
-		value?.join(', ')
-	);
-
 	return createCssDeclarations({
 		options,
 		properties: {
-			transition: transitionCss,
+			transition: value?.join(', '),
 		},
 	});
 }

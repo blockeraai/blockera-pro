@@ -34,7 +34,6 @@ export default function BoxShadowControl({
 		color: '#000000ab',
 		isVisible: true,
 	},
-	withoutValueAddons = false,
 	...props
 }: BoxShadowControlProps): MixedElement {
 	return (
@@ -47,9 +46,6 @@ export default function BoxShadowControl({
 			repeaterItemChildren={Fields}
 			defaultRepeaterItemValue={defaultRepeaterItemValue}
 			defaultValue={defaultValue}
-			{...(!withoutValueAddons
-				? { controlAddonTypes: ['variable'], variableTypes: ['shadow'] }
-				: {})}
 			PromoComponent={({
 				items,
 				onClose = () => {},

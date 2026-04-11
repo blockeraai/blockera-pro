@@ -13,7 +13,6 @@ import { isBlockTheme, isUndefined } from '@blockera/utils';
 /**
  * Internal dependencies
  */
-import { getCustomGlobalStylePresetVariables } from './custom-global-style-presets';
 import { getBlockEditorSettings } from './index';
 import type { VariableItem } from './types';
 
@@ -82,15 +81,7 @@ export const getLinearGradients: () => Array<VariableItem> = memoize(
 
 export const getLinearGradient: (id: string) => ?VariableItem = memoize(
 	function (id: string): ?VariableItem {
-		let gradient = getLinearGradients().find((item) => item.id === id);
-
-		if (isUndefined(gradient?.value)) {
-			gradient = getCustomGlobalStylePresetVariables(
-				'linear-gradient'
-			).find((item) => item.id === id);
-		}
-
-		return gradient;
+		return getLinearGradients().find((item) => item.id === id);
 	}
 );
 

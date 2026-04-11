@@ -204,16 +204,11 @@ const RepeaterItem = ({
 									if (isOpenPopoverEvent(event)) {
 										setOpen(!isOpen);
 									}
-
-									const nextOpen = !isOpen;
 									changeRepeaterItem({
 										itemId,
 										value: {
 											...item,
-											isOpen: nextOpen,
-											...(item.creatingStep && !nextOpen
-												? { creatingStep: false }
-												: {}),
+											isOpen: !isOpen,
 										},
 										controlId,
 										repeaterId,
@@ -261,18 +256,6 @@ const RepeaterItem = ({
 						setOpen(false);
 
 						if (isEnabledPromote(PromoComponent, items)) {
-							changeRepeaterItem({
-								itemId,
-								value: {
-									...item,
-									isOpen: false,
-									...(item.creatingStep
-										? { creatingStep: false }
-										: {}),
-								},
-								controlId,
-								repeaterId,
-							});
 							return;
 						}
 
@@ -281,9 +264,6 @@ const RepeaterItem = ({
 							value: {
 								...item,
 								isOpen: !isOpen,
-								...(item.creatingStep
-									? { creatingStep: false }
-									: {}),
 							},
 							controlId,
 							repeaterId,

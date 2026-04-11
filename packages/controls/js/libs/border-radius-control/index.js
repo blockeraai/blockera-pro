@@ -13,15 +13,11 @@ import {
 	controlClassNames,
 	controlInnerClassNames,
 } from '@blockera/classnames';
-import type { VariableCategory } from '@blockera/data';
 import { Icon } from '@blockera/icons';
 
 /**
  * Internal dependencies
  */
-import { getValueAddonRealValue, isValid } from '../../';
-import { useControlContext } from '../../context';
-import type { AddonTypes } from '../../value-addons/types';
 import {
 	Grid,
 	Button,
@@ -29,6 +25,8 @@ import {
 	LabelControl,
 	LabelControlContainer,
 } from '../index';
+import { getValueAddonRealValue } from '../../';
+import { useControlContext } from '../../context';
 import type { BorderRadiusControlProps, BorderRadiusValue } from './types';
 
 export type * from './types';
@@ -52,19 +50,12 @@ export default function BorderRadiusControl({
 	onChange,
 	//
 	className,
-	withoutValueAddons = false,
-	controlAddonTypes,
-	variableTypes,
 }: BorderRadiusControlProps): MixedElement {
-	const resolvedControlAddonTypes: AddonTypes = withoutValueAddons
-		? ([]: AddonTypes)
-		: (controlAddonTypes ?? ['variable']);
-	const resolvedVariableTypes: Array<VariableCategory> = withoutValueAddons
-		? ([]: Array<VariableCategory>)
-		: (variableTypes ?? ['border-radius']);
 	const {
 		value,
 		setValue,
+		controlInfo: { name: controlId },
+		dispatch: { modifyControlValue },
 		attribute,
 		blockName,
 		resetToDefault,
@@ -79,10 +70,6 @@ export default function BorderRadiusControl({
 
 	// value clean up for removing extra values to prevent saving extra data!
 	function valueCleanup(value: BorderRadiusValue) {
-		if (isValid((value: any))) {
-			return value;
-		}
-
 		if (value.type === 'all') {
 			delete value?.topLeft;
 			delete value?.topRight;
@@ -142,12 +129,17 @@ export default function BorderRadiusControl({
 							id="all"
 							min={0}
 							unitType="essential"
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							onChange={(newValue) => {
 								setValue({ ...value, all: newValue });
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										all: newValue,
+									},
+								});
 							}}
-							defaultValue={defaultValue?.all ?? ''}
+							defaultValue={value.all || ''}
 							placeholder="0"
 							size="small"
 							data-test="border-radius-input-all"
@@ -182,10 +174,28 @@ export default function BorderRadiusControl({
 									bottomLeft: value.all,
 									bottomRight: value.all,
 								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										type: 'custom',
+										topLeft: value.all,
+										topRight: value.all,
+										bottomLeft: value.all,
+										bottomRight: value.all,
+									},
+								});
 							} else {
 								setValue({
 									...value,
 									type: 'all',
+								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										type: 'all',
+									},
 								});
 							}
 						}}
@@ -224,17 +234,22 @@ export default function BorderRadiusControl({
 							id="topLeft"
 							min={0}
 							unitType="essential"
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							className={controlInnerClassNames(
 								'border-corner-top-left'
 							)}
-							defaultValue={defaultValue?.topLeft ?? ''}
+							defaultValue={value.topLeft || ''}
 							placeholder="0"
 							onChange={(newValue) => {
 								setValue({
 									...value,
 									topLeft: newValue,
+								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										topLeft: newValue,
+									},
 								});
 							}}
 							size="small"
@@ -243,17 +258,22 @@ export default function BorderRadiusControl({
 							id="topRight"
 							min={0}
 							unitType="essential"
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							className={controlInnerClassNames(
 								'border-corner-top-right'
 							)}
-							defaultValue={defaultValue?.topRight ?? ''}
+							defaultValue={value.topRight || ''}
 							placeholder="0"
 							onChange={(newValue) => {
 								setValue({
 									...value,
 									topRight: newValue,
+								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										topRight: newValue,
+									},
 								});
 							}}
 							size="small"
@@ -262,17 +282,22 @@ export default function BorderRadiusControl({
 							id="bottomLeft"
 							min={0}
 							unitType="essential"
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							className={controlInnerClassNames(
 								'border-corner-bottom-left'
 							)}
-							defaultValue={defaultValue?.bottomLeft ?? ''}
+							defaultValue={value.bottomLeft || ''}
 							placeholder="0"
 							onChange={(newValue) => {
 								setValue({
 									...value,
 									bottomLeft: newValue,
+								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										bottomLeft: newValue,
+									},
 								});
 							}}
 							size="small"
@@ -281,17 +306,22 @@ export default function BorderRadiusControl({
 							id="bottomRight"
 							min={0}
 							unitType="essential"
-							controlAddonTypes={resolvedControlAddonTypes}
-							variableTypes={resolvedVariableTypes}
 							className={controlInnerClassNames(
 								'border-corner-bottom-right'
 							)}
-							defaultValue={defaultValue?.bottomRight ?? ''}
+							defaultValue={value.bottomRight || ''}
 							placeholder="0"
 							onChange={(newValue) => {
 								setValue({
 									...value,
 									bottomRight: newValue,
+								});
+								modifyControlValue({
+									controlId,
+									value: {
+										...value,
+										bottomRight: newValue,
+									},
 								});
 							}}
 							size="small"

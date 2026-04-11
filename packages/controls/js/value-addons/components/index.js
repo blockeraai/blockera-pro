@@ -5,10 +5,6 @@ export {
 	DVSettingsAdvanced,
 	DVDeleted,
 } from './dynamic-value';
-export {
-	VarPicker,
-	VarDeleted,
-	VAR_PICKER_PRESET_PANEL_FILTER,
-} from './variable';
+export { VarPicker, VarDeleted } from './variable';
 export { ValueAddonControl, ValueAddonPointer } from './control';
 export { PickerCategory, PickerValueItem } from './picker';

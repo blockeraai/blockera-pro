@@ -44,7 +44,6 @@ export default function TransformControl({
 	label,
 	labelDescription,
 	className,
-	withoutValueAddons = false,
 	...props
 }: TransformControlProps): MixedElement {
 	function valueCleanup(value: any | Object): any | Object {
@@ -99,12 +98,6 @@ export default function TransformControl({
 			defaultRepeaterItemValue={defaultRepeaterItemValue}
 			valueCleanup={valueCleanup}
 			id={'transform'}
-			{...(!withoutValueAddons
-				? {
-						controlAddonTypes: ['variable'],
-						variableTypes: ['transform'],
-					}
-				: {})}
 			PromoComponent={({
 				items,
 				onClose = () => {},
