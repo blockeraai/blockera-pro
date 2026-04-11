@@ -76,23 +76,14 @@ export function displayToWPCompatibility({
 	ref,
 	blockId,
 	activeVariation,
-	getAttributes,
 }: {
 	newValue: Object,
 	ref?: Object,
 	blockId: string,
 	activeVariation?: string,
-	getAttributes?: () => Object,
 }): Object {
 	switch (blockId) {
-		case 'core/group': {
-			const existingLayout =
-				typeof getAttributes === 'function' &&
-				getAttributes()?.layout &&
-				typeof getAttributes().layout === 'object'
-					? { ...getAttributes().layout }
-					: {};
-
+		case 'core/group':
 			//
 			// Reset to default based on active variation
 			//
@@ -127,7 +118,6 @@ export function displayToWPCompatibility({
 			if (!['flex', 'grid'].includes(newValue)) {
 				return {
 					layout: {
-						...existingLayout,
 						type: 'constrained',
 					},
 				};
@@ -135,11 +125,9 @@ export function displayToWPCompatibility({
 
 			return {
 				layout: {
-					...existingLayout,
 					type: newValue,
 				},
 			};
-		}
 
 		case 'core/buttons':
 			if ('reset' === ref?.current?.action || newValue === '') {
