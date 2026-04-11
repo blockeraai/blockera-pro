@@ -22,16 +22,7 @@ export function FilterGenerator(id, props, options) {
 		return '';
 	}
 
-	let filterValue = attributes?.[_id];
-
-	if ('variable' === filterValue?.valueType) {
-		filterValue = JSON.parse(filterValue?.settings?.value)?.items || [];
-		filterValue = filterValue.map((f, i) => [`${f.type}-${i}`, f]);
-	} else {
-		filterValue = getSortedRepeater(filterValue);
-	}
-
-	const value = filterValue
+	const value = getSortedRepeater(attributes[_id])
 		?.map(([, item]) => {
 			if (!item.isVisible) {
 				return null;

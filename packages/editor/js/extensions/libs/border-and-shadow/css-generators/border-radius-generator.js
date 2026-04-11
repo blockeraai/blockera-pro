@@ -9,38 +9,6 @@ import { getValueAddonRealValue } from '@blockera/controls';
  */
 import { createCssDeclarations } from '../../../../style-engine';
 import { getBlockSupportStyleEngineConfig } from '../../../utils';
-
-/**
- * When a radius field is a variable whose serialized settings mirror box-border
- * (JSON with an `all` length), use that inner string for CSS output.
- *
- * @param {*} field Border radius field (string, value-addon object, etc.).
- * @return {*} Field suitable for `getValueAddonRealValue` (string or unchanged object).
- */
-function unwrapRadiusVariableField(field) {
-	if (!field || typeof field !== 'object' || field.valueType !== 'variable') {
-		return field;
-	}
-	const raw = field.settings?.value;
-	if (typeof raw !== 'string' || !raw.trim().startsWith('{')) {
-		return field;
-	}
-	try {
-		const parsed = JSON.parse(raw);
-		if (
-			parsed &&
-			typeof parsed === 'object' &&
-			typeof parsed.all === 'string' &&
-			(!parsed.type || parsed.type === 'all')
-		) {
-			return parsed.all;
-		}
-	} catch (e) {
-		// Plain preset sizes are non-JSON strings; keep the variable field as-is.
-	}
-	return field;
-}
-
 export function BorderRadiusGenerator(id, props, options) {
 	const { attributes, supports, blockeraStyleEngineConfig } = props;
 
@@ -56,26 +24,9 @@ export function BorderRadiusGenerator(id, props, options) {
 			blockeraStyleEngineConfig.blockeraBorderRadius;
 	}
 
-	const radius = attributes.blockeraBorderRadius;
-
-	if (radius?.isValueAddon) {
-		return createCssDeclarations({
-			options,
-			properties: {
-				[getBlockSupportStyleEngineConfig(
-					clonedSupports,
-					'blockeraBorderRadius',
-					'all',
-					props.currentBlock,
-					'border-radius'
-				)]: getValueAddonRealValue(radius),
-			},
-		});
-	}
-
 	const properties = {};
 
-	if (radius?.type === 'all') {
+	if (attributes?.blockeraBorderRadius?.type === 'all') {
 		properties[
 			getBlockSupportStyleEngineConfig(
 				clonedSupports,
@@ -84,7 +35,7 @@ export function BorderRadiusGenerator(id, props, options) {
 				props.currentBlock,
 				'border-radius'
 			)
-		] = getValueAddonRealValue(unwrapRadiusVariableField(radius.all));
+		] = getValueAddonRealValue(attributes.blockeraBorderRadius.all);
 	} else {
 		properties[
 			getBlockSupportStyleEngineConfig(
@@ -94,7 +45,7 @@ export function BorderRadiusGenerator(id, props, options) {
 				props.currentBlock,
 				'border-top-left-radius'
 			)
-		] = getValueAddonRealValue(unwrapRadiusVariableField(radius.topLeft));
+		] = getValueAddonRealValue(attributes.blockeraBorderRadius.topLeft);
 
 		properties[
 			getBlockSupportStyleEngineConfig(
@@ -104,7 +55,7 @@ export function BorderRadiusGenerator(id, props, options) {
 				props.currentBlock,
 				'border-top-right-radius'
 			)
-		] = getValueAddonRealValue(unwrapRadiusVariableField(radius.topRight));
+		] = getValueAddonRealValue(attributes.blockeraBorderRadius.topRight);
 
 		properties[
 			getBlockSupportStyleEngineConfig(
@@ -114,9 +65,7 @@ export function BorderRadiusGenerator(id, props, options) {
 				props.currentBlock,
 				'border-bottom-left-radius'
 			)
-		] = getValueAddonRealValue(
-			unwrapRadiusVariableField(radius.bottomLeft)
-		);
+		] = getValueAddonRealValue(attributes.blockeraBorderRadius.bottomLeft);
 
 		properties[
 			getBlockSupportStyleEngineConfig(
@@ -126,16 +75,7 @@ export function BorderRadiusGenerator(id, props, options) {
 				props.currentBlock,
 				'border-bottom-right-radius'
 			)
-		] = getValueAddonRealValue(
-			unwrapRadiusVariableField(radius.bottomRight)
-		);
-	}
-
-	for (const key of Object.keys(properties)) {
-		const v = properties[key];
-		if (v === '' || v === undefined || v === null) {
-			delete properties[key];
-		}
+		] = getValueAddonRealValue(attributes.blockeraBorderRadius.bottomRight);
 	}
 
 	if (!Object.keys(properties).length) {

@@ -235,6 +235,19 @@ return [
 			'value' => '',
 		],
 	],
+	// Grid Child.
+	'blockeraGridChildColumnSpan'       => [
+		'type'    => 'object',
+		'default' => [
+			'value' => '',
+		],
+	],
+	'blockeraGridChildRowSpan'          => [
+		'type'    => 'object',
+		'default' => [
+			'value' => '',
+		],
+	],
 	// Icon.
 	'blockeraIcon'                      => [
 		'type'    => 'object',
@@ -340,6 +353,18 @@ return [
 		],
 	],
 	'blockeraAlignContent'              => [
+		'type'    => 'object',
+		'default' => [
+			'value' => '',
+		],
+	],
+	'blockeraGridMinimumColumnWidth'    => [
+		'type'    => 'object',
+		'default' => [
+			'value' => '',
+		],
+	],
+	'blockeraGridColumnCount'           => [
 		'type'    => 'object',
 		'default' => [
 			'value' => '',

@@ -177,6 +177,7 @@ export { default as ExtensionCustomStyle } from './extension-custom-style.svg';
 export { default as ExtensionEffects } from './extension-effects.svg';
 export { default as ExtensionEntranceAnimation } from './extension-entrance-animation.svg';
 export { default as ExtensionFlexChild } from './extension-flex-child.svg';
+export { default as ExtensionGridChild } from './extension-grid-child.svg';
 export { default as ExtensionGeneral } from './extension-general.svg';
 export { default as ExtensionIcon } from './extension-icon.svg';
 export { default as ExtensionLayout } from './extension-layout.svg';
@@ -347,7 +348,6 @@ export { default as TextOrientationStyle1 } from './text-orientation-style-1.svg
 export { default as TextOrientationStyle2 } from './text-orientation-style-2.svg';
 export { default as TextOrientationStyle3 } from './text-orientation-style-3.svg';
 export { default as TextOrientationStyle4 } from './text-orientation-style-4.svg';
-export { default as TextShadow } from './text-shadow.svg';
 export { default as TextTransformCapitalize } from './text-transform-capitalize.svg';
 export { default as TextTransformLowercase } from './text-transform-lowercase.svg';
 export { default as TextTransformUppercase } from './text-transform-uppercase.svg';

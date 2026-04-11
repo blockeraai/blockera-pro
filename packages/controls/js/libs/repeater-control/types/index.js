@@ -7,10 +7,7 @@ import type { MixedElement } from 'react';
 /**
  * Internal dependencies
  */
-import type {
-	ControlGeneralTypes,
-	ControlValueAddonTypes,
-} from '../../../types';
+import type { ControlGeneralTypes } from '../../../types';
 import type { GroupControlMode } from '../../group-control/types';
 import type { TPopoverProps } from '../../popover/types';
 
@@ -26,17 +23,10 @@ type ID = string | number;
 export type RepeaterControlProps = {
 	...Object,
 	...ControlGeneralTypes,
-	...ControlValueAddonTypes,
 	/**
 	 * Repeater identifier.
 	 */
 	id: string,
-	/**
-	 * Can repeater add new item?
-	 *
-	 * @default true
-	 */
-	canAddNewItem?: boolean,
 	/**
 	 * Repeater children.
 	 */
@@ -90,7 +80,7 @@ export type RepeaterControlProps = {
 	/**
 	 * Specifies the popover title if `mode` was `popover`. by default the repeater label will be shown as popover title.
 	 */
-	popoverTitle?: string,
+	popoverTitle?: string | MixedElement,
 	/**
 	 * Specifies the popover title right buttons if `mode` was `popover`.
 	 */
@@ -128,16 +118,6 @@ export type RepeaterControlProps = {
 	 */
 	minItems?: number,
 	/**
-	 * When true and the repeater has no items, shows a muted empty-state message.
-	 *
-	 * @default false
-	 */
-	showNoItemsMessage?: boolean,
-	/**
-	 * Custom content for the empty state. Ignored when `showNoItemsMessage` is false.
-	 */
-	noItemsMessage?: string | MixedElement,
-	/**
 	 * Specifies the add button should be shown for repeater items.
 	 *
 	 * @default true
@@ -168,17 +148,6 @@ export type RepeaterControlProps = {
 	 */
 	actionButtonReset?: boolean,
 	/**
-	 * When true, removing a repeater item opens ConfirmDeleteModal before deletion runs.
-	 *
-	 * @default false
-	 */
-	shouldConfirmDeleteModal?: boolean,
-	/**
-	 * When `shouldConfirmDeleteModal` is true, extra warning copy shown above the confirmation checkbox.
-	 * If omitted, the modal uses a generic fallback string.
-	 */
-	deleteConfirmWarningText?: string,
-	/**
 	 * A placeholder that you can use inject items at the beginning of header buttons.
 	 */
 	injectHeaderButtonsStart?: MixedElement | null | string,
@@ -202,12 +171,6 @@ export type RepeaterControlProps = {
 	 * It sets the default value of repeater. Please note for defining the value of repeater items you have to use `defaultRepeaterItemValue`
 	 */
 	defaultValue?: Array<Object> | [],
-	/**
-	 * When true, new items from "Add new" include `creatingStep: true` until the item is closed once.
-	 *
-	 * @default false
-	 */
-	enableCreatingStep?: boolean,
 	/**
 	 * It sets the default of each repeater item.
 	 */

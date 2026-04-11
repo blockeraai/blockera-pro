@@ -3,7 +3,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import type { MixedElement } from 'react';
 import { useContext } from '@wordpress/element';
 
 /**
@@ -26,7 +25,7 @@ const Fields = ({
 }: {
 	itemId: number,
 	item: TransformControlRepeaterItemValue,
-}): MixedElement => {
+}) => {
 	const {
 		controlInfo: { name: controlId },
 		dispatch: { changeRepeaterItem },
