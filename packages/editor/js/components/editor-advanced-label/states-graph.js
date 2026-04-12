@@ -32,9 +32,6 @@ export const StatesGraph = ({
 	isRepeaterItem,
 	attributesRef,
 	inGlobalStylesPanel = false,
-	changesetGraphPreview: changesetGraphPreviewFromLabel,
-	previewObjectPickKey,
-	changesetGraphPreviewRender: changesetGraphPreviewRenderFromLabel,
 }: {
 	attributesRef?: Object,
 	controlId: string,
@@ -44,9 +41,6 @@ export const StatesGraph = ({
 	path: null | string,
 	inGlobalStylesPanel: boolean,
 	isRepeaterItem: Boolean,
-	changesetGraphPreview?: void | null | Object,
-	previewObjectPickKey?: ?string,
-	changesetGraphPreviewRender?: ?(value: mixed) => mixed,
 }): null | MixedElement => {
 	if (!controlId) {
 		return null;
@@ -69,15 +63,6 @@ export const StatesGraph = ({
 	}
 
 	const { getDeviceType } = select('blockera/editor');
-	const extensionsSelect = select('blockera/extensions');
-	// One read per graph render; shared for all rows (label override wins when present).
-	const sharedBlockAttributes =
-		extensionsSelect && extensionsSelect.getSharedBlockAttributes
-			? extensionsSelect.getSharedBlockAttributes()
-			: {};
-	const rowPreviewConfig =
-		changesetGraphPreviewFromLabel ??
-		sharedBlockAttributes[controlId]?.changesetGraphPreview;
 
 	return (
 		<div className={controlInnerClassNames('states-changes')}>
@@ -163,16 +148,6 @@ export const StatesGraph = ({
 													);
 												}}
 												current={false}
-												previewConfig={rowPreviewConfig}
-												previewValue={
-													_state.resolvedControlValue
-												}
-												previewObjectPickKey={
-													previewObjectPickKey
-												}
-												changesetGraphPreviewRender={
-													changesetGraphPreviewRenderFromLabel
-												}
 											/>
 										);
 									}

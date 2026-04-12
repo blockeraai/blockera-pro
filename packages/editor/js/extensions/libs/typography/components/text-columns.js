@@ -189,11 +189,6 @@ export const TextColumns = ({
 										</p>
 									</>
 								}
-								labelProps={{
-									changesetGraphPreview: {
-										type: 'string',
-									},
-								}}
 								columns="columns-2"
 								unitType="essential"
 								range={false}

@@ -4,7 +4,7 @@
  */
 import type { MixedElement } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { useContext } from '@wordpress/element';
+import { useState, useContext } from '@wordpress/element';
 
 /**
  * Blockera dependencies
@@ -15,11 +15,12 @@ import { Icon } from '@blockera/icons';
 /**
  * Internal dependencies
  */
-import { Button, Tooltip, Flex, MenuItem } from '../../';
 import { RepeaterContext } from '../context';
 import { useControlContext } from '../../../context';
+import { Button, Tooltip, Flex, MenuItem } from '../../';
 import type { RepeaterItemActionsProps } from '../types';
 import { repeaterOnChange } from '../store/reducers/utils';
+import ConfirmDeleteModal from './confirm-delete-modal';
 import { getArialLabelSuffix, isEnabledPromote } from '../utils';
 
 export default function RepeaterItemActions({
@@ -45,12 +46,19 @@ export default function RepeaterItemActions({
 		itemIdGenerator,
 		actionButtonClone,
 		actionButtonReset,
+		actionButtonsType,
 		actionButtonDelete,
 		disableRegenerateId,
 		setDisableAddNewItem,
 		actionButtonVisibility,
-		actionButtonsType,
+		shouldConfirmDeleteModal,
+		deleteConfirmWarningText,
 	} = useContext(RepeaterContext);
+
+	const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
+		useState(false);
+	const toggleConfirmDeleteModal = () =>
+		setIsConfirmDeleteModalOpen(!isConfirmDeleteModalOpen);
 
 	const itemsCount = Object.keys(repeaterItems).length;
 
@@ -107,7 +115,17 @@ export default function RepeaterItemActions({
 	}
 
 	function deleteFunction(event: MouseEvent) {
-		event.stopPropagation();
+		// Try to open the confirm delete modal if it is not open and shouldConfirmDeleteModal is true
+		if (!isConfirmDeleteModalOpen && shouldConfirmDeleteModal) {
+			toggleConfirmDeleteModal();
+			return;
+		} else if (isConfirmDeleteModalOpen) {
+			toggleConfirmDeleteModal();
+		}
+
+		if (event && event?.hasOwnProperty('stopPropagation')) {
+			event.stopPropagation();
+		}
 		closeMenu(event);
 
 		if (
@@ -233,6 +251,14 @@ export default function RepeaterItemActions({
 
 	return (
 		<>
+			{shouldConfirmDeleteModal && isConfirmDeleteModalOpen && (
+				<ConfirmDeleteModal
+					item={item}
+					handleRemoveItem={deleteFunction}
+					onClose={() => setIsConfirmDeleteModalOpen(false)}
+					deleteConfirmWarningText={deleteConfirmWarningText}
+				/>
+			)}
 			{showVisibility && (
 				<>
 					{actionButtonsType === 'menu' ? (
