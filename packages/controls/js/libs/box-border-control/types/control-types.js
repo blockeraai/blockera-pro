@@ -3,10 +3,19 @@
 /**
  * Internal dependencies
  */
-import type { ControlGeneralTypes } from '../../../types';
+import type {
+	ControlGeneralTypes,
+	ControlValueAddonTypes,
+} from '../../../types';
 
 export type BoxBorderControlProps = {
 	...ControlGeneralTypes,
+	...ControlValueAddonTypes,
+	/**
+	 * When true, does not pass variable / value-addon support to inner
+	 * `BorderControl` instances (`controlAddonTypes`, `variableTypes`).
+	 */
+	withoutValueAddons?: boolean,
 	/**
 	 * It sets the control default value if the value not provided. By using it the control will not fire onChange event for this default value on control first render,
 	 */

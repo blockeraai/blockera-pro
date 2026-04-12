@@ -31,6 +31,21 @@ import { getBlockSupportCategory, getBlockSupportFallback } from '../../utils';
 
 const supports = getBlockSupportCategory('effects');
 
+function wrapCompoundCssVarIfVariable(
+	field: any,
+	cssValue: string | void
+): string | void {
+	if (
+		field?.valueType === 'variable' &&
+		field?.settings?.var &&
+		cssValue !== '' &&
+		cssValue !== undefined
+	) {
+		return `var(${field.settings.var}, ${cssValue})`;
+	}
+	return cssValue;
+}
+
 export const EffectsStyles = ({
 	state,
 	config,
@@ -129,55 +144,67 @@ export const EffectsStyles = ({
 				transformSelfPerspective: '',
 			};
 
-			getSortedRepeater(blockProps.attributes.blockeraTransform)?.map(
-				([, item]) => {
-					if (!item.isVisible) {
-						return null;
-					}
+			const transformAttr = blockProps.attributes.blockeraTransform;
+			let transformValue = transformAttr;
 
-					switch (item.type) {
-						case 'move':
-							properties.transform.push(
-								`translate3d(${getValueAddonRealValue(
-									item['move-x']
-								)}, ${getValueAddonRealValue(
-									item['move-y']
-								)}, ${getValueAddonRealValue(item['move-z'])})`
-							);
-							break;
+			if ('variable' === transformValue?.valueType) {
+				transformValue =
+					JSON.parse(transformValue?.settings?.value)?.items || [];
+				transformValue = transformValue.map((t, i) => [
+					`${t.type}-${i}`,
+					t,
+				]);
+			} else {
+				transformValue = getSortedRepeater(transformValue);
+			}
 
-						case 'scale':
-							properties.transform.push(
-								`scale3d(${getValueAddonRealValue(
-									item.scale
-								)}, ${getValueAddonRealValue(item.scale)}, 50%)`
-							);
-							break;
-
-						case 'rotate':
-							properties.transform.push(
-								`rotateX(${getValueAddonRealValue(
-									item['rotate-x']
-								)}) rotateY(${getValueAddonRealValue(
-									item['rotate-y']
-								)}) rotateZ(${getValueAddonRealValue(
-									item['rotate-z']
-								)})`
-							);
-							break;
-
-						case 'skew':
-							properties.transform.push(
-								`skew(${getValueAddonRealValue(
-									item['skew-x']
-								)}, ${getValueAddonRealValue(item['skew-y'])})`
-							);
-							break;
-					}
-
+			transformValue?.map(([, item]) => {
+				if (!item.isVisible) {
 					return null;
 				}
-			);
+
+				switch (item.type) {
+					case 'move':
+						properties.transform.push(
+							`translate3d(${getValueAddonRealValue(
+								item['move-x']
+							)}, ${getValueAddonRealValue(
+								item['move-y']
+							)}, ${getValueAddonRealValue(item['move-z'])})`
+						);
+						break;
+
+					case 'scale':
+						properties.transform.push(
+							`scale3d(${getValueAddonRealValue(
+								item.scale
+							)}, ${getValueAddonRealValue(item.scale)}, 50%)`
+						);
+						break;
+
+					case 'rotate':
+						properties.transform.push(
+							`rotateX(${getValueAddonRealValue(
+								item['rotate-x']
+							)}) rotateY(${getValueAddonRealValue(
+								item['rotate-y']
+							)}) rotateZ(${getValueAddonRealValue(
+								item['rotate-z']
+							)})`
+						);
+						break;
+
+					case 'skew':
+						properties.transform.push(
+							`skew(${getValueAddonRealValue(
+								item['skew-x']
+							)}, ${getValueAddonRealValue(item['skew-y'])})`
+						);
+						break;
+				}
+
+				return null;
+			});
 
 			if (blockProps.attributes.blockeraTransformSelfPerspective) {
 				properties.transformSelfPerspective = `perspective(${getValueAddonRealValue(
@@ -186,9 +213,11 @@ export const EffectsStyles = ({
 			}
 
 			if (properties.transform.length > 0) {
-				transformProperties.transform =
+				transformProperties.transform = wrapCompoundCssVarIfVariable(
+					transformAttr,
 					properties.transformSelfPerspective +
-					properties.transform.join(' ');
+						properties.transform.join(' ')
+				);
 			}
 		}
 

@@ -39,8 +39,6 @@ export type StateGraphItem = {
 	attributes: Object,
 	label: TStatesLabel,
 	breakpoints?: BreakpointTypes,
-	/** Resolved value for the control path (state graph preview). */
-	resolvedControlValue?: mixed,
 };
 
 export type StateGraphStates = Array<StateGraphItem> | [];
