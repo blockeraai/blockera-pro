@@ -4,12 +4,16 @@
  */
 import type { Element } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Fragment, useMemo, useRef, useState } from '@wordpress/element';
-import { applyFilters } from '@wordpress/hooks';
+import { select } from '@wordpress/data';
 
 /**
  * Blockera dependencies
  */
+import {
+	STORE_NAME,
+	generateVariableString,
+	type DynamicVariableGroup,
+} from '@blockera/data';
 import { Icon } from '@blockera/icons';
 import { controlInnerClassNames } from '@blockera/classnames';
 
@@ -17,32 +21,15 @@ import { controlInnerClassNames } from '@blockera/classnames';
  * Internal dependencies
  */
 import {
+	getVariableIcon,
 	canUnlinkVariable,
 	getVariableCategory,
-	getVariableIcon,
 } from '../../helpers';
 import { isValid } from '../../utils';
-import { ControlContextProvider } from '../../../context';
-import { Button, Flex, Popover, SearchControl } from '../../../libs';
-import { PickerCategory, PickerValueItem } from '../index';
+import type { VariableCategoryDetail } from '../../types';
+import { PickerValueItem, PickerCategory } from '../index';
 import type { ValueAddonControlProps } from '../control/types';
-import { VarPickerPresetContext } from './var-picker-preset-context';
-import {
-	collectCatalogItemsForVariableType,
-	getSupplementalCustomVariableSections,
-	normalizeVariablePickerSearchQuery,
-	variablePickerItemMatchesSearch,
-} from './var-picker-helpers';
-import {
-	VAR_PICKER_FALLBACK_PRESET_PANEL_FILTER,
-	VAR_PICKER_GLOBAL_STYLES_PRESET_PANEL_FILTER,
-} from './var-picker-constants';
-
-export {
-	VAR_PICKER_FALLBACK_PRESET_PANEL_FILTER,
-	VAR_PICKER_GLOBAL_STYLES_PRESET_PANEL_FILTER,
-	VAR_PICKER_PRESET_PANEL_FILTER,
-} from './var-picker-constants';
+import { Button, Flex, Grid, Popover, ConditionalWrapper } from '../../../';
 
 export default function ({
 	controlProps,
@@ -53,150 +40,157 @@ export default function ({
 	onClose?: () => void,
 	popoverOffset?: number,
 }): Element<any> {
-	const variableTypes = controlProps.variableTypes || [];
-	const supplementalSections =
-		getSupplementalCustomVariableSections(controlProps);
-	const [searchQuery, setSearchQuery] = useState('');
-	const searchControlName = useRef(
-		`blockera-var-picker-search-${Math.random().toString(36).slice(2, 11)}`
-	).current;
-	const searchControlContextValue = useMemo(
-		() => ({
-			name: searchControlName,
-			value: searchQuery,
-		}),
-		[searchControlName, searchQuery]
-	);
-	const normalizedSearch = useMemo(
-		() => normalizeVariablePickerSearchQuery(searchQuery),
-		[searchQuery]
-	);
+	const CustomVariables = (): Element<any> => {
+		return (
+			<PickerCategory
+				key={`type-custom-variables`}
+				title={
+					<>
+						{__('Custom Variables', 'blockera')}
 
-	const variablePickerSections = variableTypes.map((type, index) => {
-		const data = getVariableCategory(type);
-
-		if (data.notFound) {
-			return <Fragment key={`type-${type}-${index}`} />;
-		}
-
-		const presetType = data.type || type;
-		const catalogItems = collectCatalogItemsForVariableType(
-			presetType,
-			data,
-			supplementalSections
-		);
-		const filteredCatalogItems = normalizedSearch
-			? catalogItems.filter((item) =>
-					variablePickerItemMatchesSearch(item, normalizedSearch)
-				)
-			: catalogItems;
-
-		const globalStylesPanel = applyFilters(
-			VAR_PICKER_GLOBAL_STYLES_PRESET_PANEL_FILTER,
-			null,
-			presetType
-		);
-		const PresetPanel =
-			globalStylesPanel ||
-			applyFilters(
-				VAR_PICKER_FALLBACK_PRESET_PANEL_FILTER,
-				null,
-				presetType
-			);
-
-		if (!PresetPanel) {
-			if (!catalogItems.length) {
-				return (
-					<PickerCategory
-						key={`type-${type}-${index}`}
-						title={data.label}
-					>
-						<span style={{ opacity: '0.5', fontSize: '12px' }}>
-							{__(
-								'This variable type is not available in this context.',
+						<Button
+							size="extra-small"
+							className={controlInnerClassNames('btn-add')}
+							disabled={true}
+							showTooltip={true}
+							label={__(
+								'Add New Variable (Coming soon…)',
 								'blockera'
 							)}
-						</span>
-					</PickerCategory>
-				);
+						>
+							<Icon icon="plus" iconSize="20" />
+						</Button>
+					</>
+				}
+			>
+				<span style={{ opacity: '0.5', fontSize: '12px' }}>
+					{__('Coming soon…', 'blockera')}
+				</span>
+			</PickerCategory>
+		);
+	};
+
+	const Variables = (): Array<Element<any>> => {
+		const { getVariableGroups } = select(STORE_NAME);
+
+		return [
+			...Object.keys(getVariableGroups()),
+			...controlProps.variableTypes,
+		].map((type, index) => {
+			let data: DynamicVariableGroup | VariableCategoryDetail =
+				getVariableCategory(type);
+
+			if (data?.label === '') {
+				const { getVariableGroup } = select(STORE_NAME);
+
+				data = getVariableGroup(type);
+
+				if (
+					!data?.type ||
+					!controlProps.variableTypes.includes(data.type)
+				) {
+					return <></>;
+				}
 			}
 
-			if (!filteredCatalogItems.length) {
+			if (data.items?.length === 0) {
 				return (
 					<PickerCategory
 						key={`type-${type}-${index}`}
 						title={data.label}
 					>
 						<span style={{ opacity: '0.5', fontSize: '12px' }}>
-							{__('No variables match your search.', 'blockera')}
+							{__('No variable!', 'blockera')}
 						</span>
 					</PickerCategory>
 				);
 			}
+
+			const showTwoColumns = [
+				'color',
+				'linear-gradient',
+				'radial-gradient',
+				'spacing',
+			].includes(data.type || type);
 
 			return (
 				<PickerCategory
 					key={`type-${type}-${index}`}
 					title={data.label}
 				>
-					{filteredCatalogItems.map((item) => (
-						<PickerValueItem
-							key={`${presetType}-${item.id}`}
-							value={controlProps.value}
-							data={item}
-							onClick={controlProps.handleOnClickVar}
-							name={item.name}
-							type={presetType}
-							valueType="variable"
-							isCurrent={
-								controlProps.value?.settings?.id === item.id
-							}
-							icon={getVariableIcon({
-								type: presetType,
-								value:
-									typeof item.value === 'string'
-										? item.value
-										: undefined,
-							})}
-							status={'active'}
-						/>
-					))}
+					<ConditionalWrapper
+						condition={showTwoColumns}
+						wrapper={(children) => (
+							<Grid gridTemplateColumns="1fr 1fr" gap="10px">
+								{children}
+							</Grid>
+						)}
+						elseWrapper={(children) => (
+							<Flex gap="10px" direction="column">
+								{children}
+							</Flex>
+						)}
+					>
+						{(!Array.isArray(data.items)
+							? Object.values(data.items)
+							: data.items
+						).map((variable, _index) => {
+							const itemData = {
+								...variable,
+								type: data?.type || type,
+								var:
+									variable?.var ||
+									generateVariableString({
+										reference: variable.reference,
+										type: data?.type || type,
+										id: variable.id,
+									}),
+							};
+
+							return (
+								<PickerValueItem
+									showValue={
+										variable.name.length < 4 ||
+										!showTwoColumns
+									}
+									value={controlProps.value}
+									data={itemData}
+									onClick={controlProps.handleOnClickVar}
+									key={`${
+										data?.type || type
+									}-${_index}-value-type`}
+									name={variable.name}
+									type={data?.type || type}
+									valueType="variable"
+									isCurrent={
+										isValid(controlProps.value) &&
+										controlProps.value.settings.type ===
+											(data?.type || type) &&
+										controlProps.value.settings.id ===
+											itemData.id
+									}
+									icon={getVariableIcon({
+										type: data?.type || type,
+										value: variable.value,
+									})}
+									status="active"
+									style={{
+										...(showTwoColumns
+											? {
+													gap: '5px',
+													padding: '0px 4px 0px 6px',
+													maxWidth: '118px',
+												}
+											: {}),
+									}}
+								/>
+							);
+						})}
+					</ConditionalWrapper>
 				</PickerCategory>
 			);
-		}
-
-		return (
-			<PickerCategory
-				key={`type-${type}-${index}`}
-				title={data.label}
-				showTitle={!globalStylesPanel}
-			>
-				<div
-					className={controlInnerClassNames(
-						'var-picker-preset-panel'
-					)}
-					style={{
-						maxHeight: 'min(70vh, 520px)',
-						overflow: 'auto',
-						width: '100%',
-					}}
-				>
-					<VarPickerPresetContext.Provider
-						value={{
-							active: true,
-							variableType: presetType,
-							controlProps,
-							catalogItems,
-							catalogLabel: data.label,
-							searchQuery,
-						}}
-					>
-						<PresetPanel />
-					</VarPickerPresetContext.Provider>
-				</div>
-			</PickerCategory>
-		);
-	});
+		});
+	};
 
 	return (
 		<Popover
@@ -238,26 +232,11 @@ export default function ({
 				</>
 			}
 		>
-			<div
-				data-cy="variable-picker-popover"
-				data-test="variable-picker-popover"
-			>
-				<div
-					className={controlInnerClassNames('var-picker-search')}
-					style={{ marginBottom: '12px' }}
-				>
-					<ControlContextProvider value={searchControlContextValue}>
-						<SearchControl
-							defaultValue=""
-							onChange={setSearchQuery}
-							placeholder={__('Search variables…', 'blockera')}
-						/>
-					</ControlContextProvider>
-				</div>
-				<Flex direction="column" gap="25px">
-					{variablePickerSections}
-				</Flex>
-			</div>
+			<Flex direction="column" gap="25px">
+				<Variables />
+
+				<CustomVariables />
+			</Flex>
 		</Popover>
 	);
 }

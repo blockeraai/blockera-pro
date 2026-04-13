@@ -80,17 +80,8 @@ export default function ({
 				break;
 
 			default:
-				if (
-					data.value !== null &&
-					data.value !== undefined &&
-					typeof data.value === 'object' &&
-					!Array.isArray(data.value)
-				) {
-					itemValue = '';
-				} else {
-					// $FlowFixMe
-					itemValue = data.value;
-				}
+				// $FlowFixMe
+				itemValue = data.value;
 				break;
 		}
 	}
@@ -126,7 +117,6 @@ export default function ({
 					}
 				}}
 				data-cy={'va-item-' + data.id}
-				data-variable-slug={String(data.id)}
 				{...props}
 			>
 				{icon && (

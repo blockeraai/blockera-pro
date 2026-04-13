@@ -23,7 +23,6 @@ import AdditionalCssContextmenuObserver from './additional-css-contextmenu-obser
 import GlobalStyles, {
 	registration as globalStylesRegistration,
 } from './global-styles';
-import './register-var-picker-global-styles-panels';
 
 export const getSetupHeaderRequirements = () => {
 	const allowedUsers = applyFilters(

@@ -56,17 +56,6 @@ export {
 	getColorVAFromIdString,
 	getColorVAFromVarString,
 } from './color';
-export {
-	getCustomGlobalStylePresetVariables,
-	getMergedGlobalStylePresetVariables,
-	getGlobalStylePresetVariableById,
-} from './custom-global-style-presets';
-export {
-	referenceFromPresetOrigin,
-	buildPresetVariablePickerPayload,
-	serializeGlobalStylePresetItemValue,
-} from './preset-variable-picker-payload';
-export { tryParseLegacyJsonObject } from './legacy-json-settings';
 export { getVariable } from './get-variable';
 export {
 	generateVariableString,

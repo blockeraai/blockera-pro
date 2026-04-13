@@ -30,7 +30,6 @@ import {
 	calculateContentHeight,
 	injectEditorStylesWrapperOverride,
 	syncCanvasHeader,
-	editorZoomCompatibility,
 } from '../utils/iframeUtils';
 import type { UseZoomReturn, ZoomPercent } from '../types';
 
@@ -77,11 +76,6 @@ export function useZoom(): UseZoomReturn {
 	 * For smooth transitions, captures and locks iframe height before applying zoom.
 	 */
 	const applyZoom = useCallback((zoom: ZoomPercent) => {
-		// Host-document core popovers (grid visualizer, grid resizer, …) must
-		// match iframe zoom; run before iframe guard so it applies even if the
-		// canvas iframe is not mounted yet.
-		editorZoomCompatibility(zoom);
-
 		const iframe = getEditorCanvasIframe();
 		if (!iframe) {
 			return;
@@ -479,13 +473,6 @@ export function useZoom(): UseZoomReturn {
 			clearTimeout(timeout);
 		};
 	}, [zoomPercent, applyZoom]);
-
-	// Clear host-document zoom compat styles if the editor unmounts mid-zoom.
-	useEffect(() => {
-		return () => {
-			editorZoomCompatibility(DEFAULT_ZOOM);
-		};
-	}, []);
 
 	// Listen for reset messages from iframe header
 	useEffect(() => {

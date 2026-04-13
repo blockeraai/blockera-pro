@@ -20,57 +20,8 @@ import { Icon } from '@blockera/icons';
 /**
  * Internal dependencies
  */
-import { renderSelectOptionChangesetPreview } from '../../../../components';
 import { generateExtensionId } from '../../utils';
 import type { TBlockProps, THandleOnChangeAttributes } from '../../types';
-
-function getObjectFitSelectOptions(iconSize: number = 18): any {
-	return [
-		{
-			label: __('Default', 'blockera'),
-			value: '',
-			icon: <Icon icon="fit-normal" iconSize={iconSize} />,
-		},
-		{
-			label: __('Fill', 'blockera'),
-			value: 'fill',
-			icon: <Icon icon="fit-fill" iconSize={iconSize} />,
-		},
-		{
-			label: __('Contain', 'blockera'),
-			value: 'contain',
-			icon: <Icon icon="fit-contain" iconSize={iconSize} />,
-		},
-		{
-			label: __('Cover', 'blockera'),
-			value: 'cover',
-			icon: <Icon icon="fit-cover" iconSize={iconSize} />,
-		},
-		{
-			label: __('None', 'blockera'),
-			value: 'none',
-			icon: <Icon icon="fit-none" iconSize={iconSize} />,
-		},
-		{
-			label: __('Scale Down', 'blockera'),
-			value: 'scale-down',
-			icon: <Icon icon="fit-scale-down" iconSize={iconSize} />,
-		},
-	];
-}
-
-function renderObjectFitChangesetPreview(resolved: mixed): MixedElement | null {
-	return renderSelectOptionChangesetPreview({
-		value: resolved,
-		getOptions: (iconSize) => getObjectFitSelectOptions(iconSize),
-		showIcon: true,
-		showLabel: true,
-		iconSize: 16,
-		gap: '4px',
-		emptyValueMeansNoPreview: false,
-		showUnmatchedValue: true,
-	});
-}
 
 export const ObjectFit: ComponentType<Object> = ({
 	block,
@@ -96,13 +47,12 @@ export const ObjectFit: ComponentType<Object> = ({
 
 	const labelProps = {
 		value,
-		attribute,
+		attribute: 'blockeraRatio',
 		blockName,
 		defaultValue,
 		resetToDefault,
 		mode: 'advanced',
 		path: attribute,
-		changesetGraphPreviewRender: renderObjectFitChangesetPreview,
 	};
 
 	return (
@@ -180,7 +130,38 @@ export const ObjectFit: ComponentType<Object> = ({
 		>
 			<SelectControl
 				columns="columns-1"
-				options={getObjectFitSelectOptions()}
+				options={[
+					{
+						label: __('Default', 'blockera'),
+						value: '',
+						icon: <Icon icon="fit-normal" iconSize="18" />,
+					},
+					{
+						label: __('Fill', 'blockera'),
+						value: 'fill',
+						icon: <Icon icon="fit-fill" iconSize="18" />,
+					},
+					{
+						label: __('Contain', 'blockera'),
+						value: 'contain',
+						icon: <Icon icon="fit-contain" iconSize="18" />,
+					},
+					{
+						label: __('Cover', 'blockera'),
+						value: 'cover',
+						icon: <Icon icon="fit-cover" iconSize="18" />,
+					},
+					{
+						label: __('None', 'blockera'),
+						value: 'none',
+						icon: <Icon icon="fit-none" iconSize="18" />,
+					},
+					{
+						label: __('Scale Down', 'blockera'),
+						value: 'scale-down',
+						icon: <Icon icon="fit-scale-down" iconSize="18" />,
+					},
+				]}
 				type="custom"
 				defaultValue={defaultValue}
 				onChange={(newValue, ref) =>

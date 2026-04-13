@@ -3,9 +3,8 @@
 /**
  * External dependencies
  */
-import type { MixedElement } from 'react';
 import { select } from '@wordpress/data';
-import { useState, useMemo, useRef } from '@wordpress/element';
+import { useState, useMemo } from '@wordpress/element';
 
 /**
  * Blockera dependencies
@@ -42,54 +41,7 @@ export const useValueAddon = ({
 	dynamicValueTypes = [],
 }: UseValueAddonProps): ValueAddonProps => {
 	const [isOpen, setOpen] = useState('');
-
-	const controlPropsRef = useRef<?ValueAddonControlProps>(null);
-	const pointerPropsRef = useRef<Object>(pointerProps);
-	const pickerPropsRef = useRef<Object>(pickerProps);
-
-	pointerPropsRef.current = pointerProps;
-	pickerPropsRef.current = pickerProps;
-
-	const StableValueAddonPointer = useMemo(() => {
-		function BoundValueAddonPointer(outerProps?: Object): MixedElement {
-			const cp = controlPropsRef.current;
-
-			if (!cp) {
-				return <></>;
-			}
-
-			return (
-				<ValueAddonPointer
-					controlProps={cp}
-					pointerProps={pointerPropsRef.current}
-					pickerProps={pickerPropsRef.current}
-					{...(outerProps || {})}
-				/>
-			);
-		}
-
-		BoundValueAddonPointer.displayName = 'useValueAddon(ValueAddonPointer)';
-
-		return BoundValueAddonPointer;
-	}, []);
-
-	const StableValueAddonControl = useMemo(() => {
-		function BoundValueAddonControl(outerProps?: Object): MixedElement {
-			const cp = controlPropsRef.current;
-
-			if (!cp) {
-				return <></>;
-			}
-
-			return (
-				<ValueAddonControl controlProps={cp} {...(outerProps || {})} />
-			);
-		}
-
-		BoundValueAddonControl.displayName = 'useValueAddon(ValueAddonControl)';
-
-		return BoundValueAddonControl;
-	}, []);
+	const { getDynamicValue, getVariableType } = select(STORE_NAME);
 
 	value = useMemo(() => {
 		return isObject(value)
@@ -109,13 +61,11 @@ export const useValueAddon = ({
 
 	// type is empty
 	if (isUndefined(types) || !types.length) {
-		controlPropsRef.current = null;
-
 		return {
 			isSetValueAddon: () => false,
 			valueAddonClassNames: '',
-			ValueAddonPointer: StableValueAddonPointer,
-			ValueAddonControl: StableValueAddonControl,
+			ValueAddonPointer: () => <></>,
+			ValueAddonControl: () => <></>,
 			valueAddonControlProps: {
 				value,
 				setValue,
@@ -146,8 +96,6 @@ export const useValueAddon = ({
 			handleOnUnlinkVar: () => {},
 		};
 	}
-
-	const { getDynamicValue } = select(STORE_NAME);
 
 	const valueAddonClassNames = types
 		.map((type) => `blockera-value-addon-support-${type}`)
@@ -192,15 +140,8 @@ export const useValueAddon = ({
 				);
 
 				if (!isUndefined(variable?.value) && variable?.value !== '') {
-					const rawVarValue = variable?.value;
-					const processedValue = extractCssVarValue(rawVarValue);
-					const next =
-						processedValue !== undefined && processedValue !== ''
-							? processedValue
-							: rawVarValue;
-					if (next !== undefined && next !== '') {
-						onChange(next);
-					}
+					const processedValue = extractCssVarValue(variable?.value);
+					onChange(processedValue || variable.value);
 				}
 			}
 
@@ -265,14 +206,19 @@ export const useValueAddon = ({
 	 */
 	if (isValid(controlProps.value)) {
 		if (controlProps.value.valueType === 'variable') {
-			const item: ?VariableItem = getVariable(
+			let item: VariableItem | null | void = getVariable(
 				controlProps.value?.settings?.type,
 				controlProps.value?.settings?.id
 			);
 
-			// Bindings are by slug (`settings.id`). Renamed display names refresh via
-			// live catalog reads; changed slugs do not fall back to `settings.name`.
-			controlProps.isDeletedVar = !item || isUndefined(item.value);
+			if (isUndefined(item?.value)) {
+				item = getVariableType(
+					controlProps.value?.settings?.type,
+					controlProps.value?.settings?.name
+				);
+
+				controlProps.isDeletedVar = isUndefined(item?.value);
+			}
 		} else if (controlProps.value.valueType === 'dynamic-value') {
 			const item = getDynamicValue(
 				controlProps.value.settings.group,
@@ -285,13 +231,19 @@ export const useValueAddon = ({
 		}
 	}
 
-	controlPropsRef.current = controlProps;
-
 	return {
 		valueAddonClassNames,
 		isSetValueAddon: () => isValid(value) || isOpen !== '',
-		ValueAddonPointer: StableValueAddonPointer,
-		ValueAddonControl: StableValueAddonControl,
+		ValueAddonPointer: () => (
+			<ValueAddonPointer
+				controlProps={controlProps}
+				pointerProps={pointerProps}
+				pickerProps={pickerProps}
+			/>
+		),
+		ValueAddonControl: ({ ...props }) => (
+			<ValueAddonControl controlProps={controlProps} {...props} />
+		),
 		valueAddonControlProps: controlProps,
 		handleOnClickVar,
 		handleOnUnlinkVar,
@@ -301,18 +253,3 @@ export const useValueAddon = ({
 
 export * from './utils';
 export * from './helpers';
-export {
-	renderChangesetPreviewPart,
-	CHANGESET_PREVIEW_VALUE_ADDON_CLASS,
-} from './render-changeset-preview-part';
-export {
-	VAR_PICKER_PRESET_PANEL_FILTER,
-	VAR_PICKER_GLOBAL_STYLES_PRESET_PANEL_FILTER,
-	VAR_PICKER_FALLBACK_PRESET_PANEL_FILTER,
-	VarPickerPresetContext,
-	useVarPickerPresetContext,
-	resolveVariablePickerPresetGroupLabel,
-	normalizeVariablePickerSearchQuery,
-	variablePickerItemMatchesSearch,
-	ValueAddonDisplay,
-} from './components';

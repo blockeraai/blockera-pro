@@ -14,6 +14,7 @@ import {
 	BaseControl,
 	InputControl,
 	useControlContext,
+	getValueAddonRealValue,
 } from '@blockera/controls';
 import { Icon } from '@blockera/icons';
 import { isObject } from '@blockera/utils';
@@ -23,7 +24,76 @@ import { isObject } from '@blockera/utils';
  */
 import { isActiveField } from '../../../api/utils';
 import type { TBlockProps, THandleOnChangeAttributes } from '../../types';
-import { renderGapUnifiedChangesetPreview } from '../changeset-preview-gap';
+
+/**
+ * Changeset graph text for blockeraGap: locked → single `gap`; unlocked (`lock === false`) → `rows / columns`.
+ * `lock` undefined is treated as locked (default layout matches single-field mode).
+ */
+function formatGapUnifiedChangesetPreview(resolved: mixed): string {
+	if (resolved === null || resolved === undefined) {
+		return '';
+	}
+
+	if (
+		typeof resolved === 'string' ||
+		typeof resolved === 'number' ||
+		typeof resolved === 'boolean'
+	) {
+		return String(resolved).trim();
+	}
+
+	if (!isObject(resolved)) {
+		const raw = getValueAddonRealValue(resolved);
+
+		if (raw === null || raw === undefined || raw === '') {
+			return '';
+		}
+
+		return String(raw).trim();
+	}
+
+	const o: Object = resolved;
+	const isGapObject =
+		'gap' in o || 'lock' in o || 'rows' in o || 'columns' in o;
+
+	if (!isGapObject) {
+		const raw = getValueAddonRealValue(resolved);
+
+		if (raw === null || raw === undefined || raw === '') {
+			return '';
+		}
+
+		return String(raw).trim();
+	}
+
+	// Only explicit `lock === false` uses row/column pair; otherwise show unified `gap`.
+	if (o.lock !== false) {
+		const raw = getValueAddonRealValue(o.gap);
+
+		if (raw === null || raw === undefined || raw === '') {
+			return '';
+		}
+
+		return String(raw).trim();
+	}
+
+	const rowStr = String(getValueAddonRealValue(o.rows) ?? '').trim();
+	const colStr = String(getValueAddonRealValue(o.columns) ?? '').trim();
+
+	if (!rowStr && !colStr) {
+		return '';
+	}
+
+	if (!rowStr) {
+		return colStr;
+	}
+
+	if (!colStr) {
+		return rowStr;
+	}
+
+	return `${rowStr} / ${colStr}`;
+}
 
 export default function ({
 	gap,
@@ -68,7 +138,7 @@ export default function ({
 		path: props.labelProps?.path ?? attribute,
 		changesetGraphPreviewRender:
 			props.labelProps?.changesetGraphPreviewRender ??
-			renderGapUnifiedChangesetPreview,
+			formatGapUnifiedChangesetPreview,
 	};
 
 	return (
