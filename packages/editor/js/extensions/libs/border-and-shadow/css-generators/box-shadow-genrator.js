@@ -7,6 +7,20 @@ import { getValueAddonRealValue, getSortedRepeater } from '@blockera/controls';
  * Internal dependencies
  */
 import { createCssDeclarations } from '../../../../style-engine';
+import { parseCssBoxShadowToRepeaterValue } from '../compatibilities/shadow';
+import { getVariableRepeaterItemsFromSettings } from '../../value-addon-variable-payload';
+
+function wrapCssVarIfVariable(field, cssValue) {
+	if (
+		'variable' === field?.valueType &&
+		field?.settings?.var &&
+		cssValue !== '' &&
+		cssValue !== undefined
+	) {
+		return `var(${field.settings.var}, ${cssValue})`;
+	}
+	return cssValue;
+}
 
 export function BoxShadowGenerator(id, props, options) {
 	const { attributes } = props;
@@ -19,8 +33,33 @@ export function BoxShadowGenerator(id, props, options) {
 		'box-shadow': [],
 	};
 
+	const boxShadowAttr = attributes?.blockeraBoxShadow;
+	let boxShadowValue = boxShadowAttr;
+
+	if ('variable' === boxShadowValue?.valueType) {
+		const rows = getVariableRepeaterItemsFromSettings(
+			boxShadowValue?.settings
+		);
+
+		if (!rows.length) {
+			boxShadowValue = attributes?.blockeraBoxShadow;
+		} else {
+			boxShadowValue = rows;
+		}
+
+		if (!Array.isArray(boxShadowValue)) {
+			boxShadowValue = Object.values(
+				parseCssBoxShadowToRepeaterValue(boxShadowValue)
+			);
+		}
+
+		boxShadowValue = boxShadowValue.map((s, i) => [`${s.type}-${i}`, s]);
+	} else {
+		boxShadowValue = getSortedRepeater(boxShadowValue);
+	}
+
 	// Collect all properties
-	getSortedRepeater(attributes?.blockeraBoxShadow)?.map(([, item]) => {
+	boxShadowValue?.map(([, item]) => {
 		if (!item.isVisible) {
 			return undefined;
 		}
@@ -38,11 +77,17 @@ export function BoxShadowGenerator(id, props, options) {
 		return undefined;
 	});
 
-	const toReturnProperties =
+	let boxShadowCss =
 		properties['box-shadow'].length > 0
+			? properties['box-shadow'].join(', ')
+			: '';
+
+	boxShadowCss = wrapCssVarIfVariable(boxShadowAttr, boxShadowCss);
+
+	const toReturnProperties =
+		boxShadowCss !== ''
 			? {
-					'box-shadow':
-						properties['box-shadow'].join(', ') + ' !important',
+					'box-shadow': boxShadowCss + ' !important',
 				}
 			: {};
 
