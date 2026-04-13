@@ -68,6 +68,8 @@ const RepeaterItem = ({
 		popoverTitleButtonsRight: PopoverTitleButtonsRight,
 		actionButtonsType,
 		actionMenuButtonLabel,
+		onSelectableItemActivate,
+		showItemEditButton,
 	} = useContext(RepeaterContext);
 
 	const repeaterItemActionsProps = {
@@ -79,6 +81,25 @@ const RepeaterItem = ({
 		setVisibility,
 		isOpenPopoverEvent,
 	};
+
+	let headerVariableSlug: string | void;
+	if (!item?.selectable) {
+		headerVariableSlug = undefined;
+	} else if (
+		item.slug !== null &&
+		item.slug !== undefined &&
+		String(item.slug) !== ''
+	) {
+		headerVariableSlug = String(item.slug);
+	} else if (
+		item.id !== null &&
+		item.id !== undefined &&
+		String(item.id) !== ''
+	) {
+		headerVariableSlug = String(item.id);
+	} else {
+		headerVariableSlug = String(itemId);
+	}
 
 	const styleRef = useRef(null);
 	const [draggingIndex, setDraggingIndex] = useState(null);
@@ -185,6 +206,7 @@ const RepeaterItem = ({
 					popoverClassName={popoverClassName}
 					actionButtonsType={actionButtonsType}
 					actionMenuButtonLabel={actionMenuButtonLabel}
+					headerVariableSlug={headerVariableSlug}
 					className={controlInnerClassNames(
 						'repeater-item-group',
 						item?.__className,
@@ -204,11 +226,16 @@ const RepeaterItem = ({
 									if (isOpenPopoverEvent(event)) {
 										setOpen(!isOpen);
 									}
+
+									const nextOpen = !isOpen;
 									changeRepeaterItem({
 										itemId,
 										value: {
 											...item,
-											isOpen: !isOpen,
+											isOpen: nextOpen,
+											...(item.creatingStep && !nextOpen
+												? { creatingStep: false }
+												: {}),
 										},
 										controlId,
 										repeaterId,
@@ -248,6 +275,8 @@ const RepeaterItem = ({
 							setVisibility={
 								repeaterItemActionsProps.setVisibility
 							}
+							onOpenItemSettings={() => setOpen(true)}
+							showItemEditButton={showItemEditButton}
 						/>
 					}
 					children={<RepeaterItemChildren {...{ item, itemId }} />}
@@ -256,6 +285,18 @@ const RepeaterItem = ({
 						setOpen(false);
 
 						if (isEnabledPromote(PromoComponent, items)) {
+							changeRepeaterItem({
+								itemId,
+								value: {
+									...item,
+									isOpen: false,
+									...(item.creatingStep
+										? { creatingStep: false }
+										: {}),
+								},
+								controlId,
+								repeaterId,
+							});
 							return;
 						}
 
@@ -264,6 +305,9 @@ const RepeaterItem = ({
 							value: {
 								...item,
 								isOpen: !isOpen,
+								...(item.creatingStep
+									? { creatingStep: false }
+									: {}),
 							},
 							controlId,
 							repeaterId,
@@ -291,11 +335,27 @@ const RepeaterItem = ({
 								}
 							);
 
-							return onChange({
+							modifyControlValue({
+								controlId,
+								value: newItems,
+							});
+
+							onChange({
 								modifyControlValue,
 								controlId,
 								value: newItems,
 							});
+
+							if (
+								'function' === typeof onSelectableItemActivate
+							) {
+								onSelectableItemActivate(
+									itemId,
+									newItems[itemId]
+								);
+							}
+
+							return;
 						}
 
 						return true;
