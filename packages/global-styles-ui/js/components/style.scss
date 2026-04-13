@@ -1,0 +1,142 @@
+@keyframes blockera-navigator-slide-in {
+	from {
+		transform: translateX(32px);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+// ID field: gray while locked (creating or click-to-edit) or disabled; normal when editing.
+.blockera-preset-id-field {
+	position: relative;
+
+	&.is-id-readonly-muted {
+		.blockera-control-input input.blockera-control-input-tag:disabled,
+		.blockera-control-input .blockera-control-input-tag:disabled,
+		.blockera-control-input input.blockera-control-input-tag:read-only,
+		.blockera-control-input .blockera-control-input-tag:read-only {
+			background-color: #f0f0f0;
+			border-color: #dcdcde;
+			color: #1e1e1e;
+			opacity: 1;
+			-webkit-text-fill-color: #1e1e1e;
+		}
+
+		// Post–creating: click / focus opens edit mode.
+		.blockera-control-input input.blockera-control-input-tag:read-only,
+		.blockera-control-input .blockera-control-input-tag:read-only {
+			cursor: pointer;
+		}
+
+		.blockera-control-input input.blockera-control-input-tag:disabled,
+		.blockera-control-input .blockera-control-input-tag:disabled {
+			cursor: not-allowed;
+		}
+	}
+}
+
+.blockera-component-popover.blockera-component-popover-variables {
+	--popover-height: auto;
+}
+
+// Variable preview
+.global-styles-variable-preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100px;
+	border-radius: 2px;
+	overflow: hidden;
+	border: 1px solid var(--blockera-controls-border-color-extra-soft);
+	background: #ffffff;
+	margin-bottom: 10px;
+	pointer-events: none;
+	user-select: none;
+}
+
+// Box-shadow draws outside the tile; base preview uses overflow:hidden which would clip it.
+.global-styles-variable-preview.global-styles-shadow-preview {
+	overflow: visible;
+}
+
+.blockera-global-styles-subtitle {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-bottom: 0;
+}
+
+// Shared trigger link for BlockeraBranding (subtitle and other screens).
+.blockera-branding__link {
+	display: flex;
+	align-items: center;
+	color: #cac9c9;
+	transition: var(--blockera-controls-transition);
+
+	&:hover {
+		color: #0051e7;
+	}
+
+	svg {
+		fill: currentColor;
+		transition: var(--blockera-controls-transition);
+	}
+}
+
+.blockera-global-styles-subtitle .blockera-branding__link {
+	margin-left: auto;
+}
+
+// Preset repeater + variable picker: selected row (`is-selected-item` on group).
+.blockera-global-styles-preset-repeater.blockera-control-repeater
+	.blockera-control-repeater-item {
+	.blockera-control-group.blockera-control-repeater-item-group.is-selected-item {
+		position: relative;
+		border-color: var(--blockera-controls-primary-color);
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: inherit;
+			background: var(--blockera-controls-primary-color);
+			opacity: 0.09;
+			pointer-events: none;
+			z-index: 0;
+		}
+
+		& > .blockera-control-group-header {
+			position: relative;
+			z-index: 1;
+		}
+
+		.blockera-control-repeater-group-header .blockera-control-header-label {
+			color: var(--blockera-controls-primary-color);
+			font-weight: 600;
+		}
+
+		&.mode-popover.is-open {
+			box-shadow:
+				inset 3px 0 0 var(--blockera-controls-primary-color),
+				0 0 0 1px var(--blockera-controls-primary-color);
+		}
+
+		.blockera-control-action-buttons {
+			background: transparent !important;
+
+			button {
+
+				&.components-button.blockera-component-button.is-tertiary.no-border:hover {
+					background: transparent !important;
+				}
+			}
+
+			&:hover {
+				background: transparent !important;
+			}
+		}
+	}
+}
