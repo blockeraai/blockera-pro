@@ -45,11 +45,14 @@ export function generateVariableString({
 	}
 
 	switch (_reference) {
+		case 'custom':
+			_reference = 'blockera';
+			break;
+
 		case 'theme':
 		case 'plugin':
 		case 'core':
 		case 'core-pro':
-		case 'custom':
 			_reference = 'preset';
 			break;
 
@@ -84,11 +87,14 @@ export function generateAttributeVarStringFromVA(
 		let _reference: string = valueAddon?.settings?.reference?.type;
 
 		switch (_reference) {
+			case 'custom':
+				_reference = 'blockera';
+				break;
+
 			case 'theme':
 			case 'plugin':
 			case 'core':
 			case 'core-pro':
-			case 'custom':
 			default:
 				_reference = 'preset';
 				break;
@@ -238,13 +244,6 @@ function inferVariableCategoryFromCssVarValue(
 		[/^var\(--wp--preset--color--/, 'color'],
 		[/^var\(--wp--preset--font-size--/, 'font-size'],
 		[/^var\(--wp--preset--gradient--/, 'gradient'],
-		[/^var\(--wp--preset--border-radius--/, 'border-radius'],
-		[/^var\(--wp--preset--text-shadow--/, 'text-shadow'],
-		[/^var\(--wp--preset--shadow--/, 'shadow'],
-		[/^var\(--wp--preset--transition--/, 'transition'],
-		[/^var\(--wp--preset--transform--/, 'transform'],
-		[/^var\(--wp--preset--filter--/, 'filter'],
-		[/^var\(--wp--preset--border--/, 'border'],
 	];
 
 	for (let i = 0; i < checks.length; i++) {

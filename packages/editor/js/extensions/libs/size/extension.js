@@ -11,7 +11,9 @@ import type { MixedElement, ComponentType } from 'react';
 import {
 	Flex,
 	BaseControl,
+	SelectControl,
 	PanelBodyControl,
+	ToggleSelectControl,
 	ControlContextProvider,
 } from '@blockera/controls';
 import { extensionClassNames } from '@blockera/classnames';
@@ -25,8 +27,6 @@ import { generateExtensionId } from '../utils';
 import { EditorFeatureWrapper } from '../../../';
 import type { TSizeProps } from './types/size-props';
 import {
-	BoxSizing,
-	Overflow,
 	ObjectFit,
 	AspectRatio,
 	Width,
@@ -324,13 +324,110 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 				isActive={isShowOverflow}
 				config={extensionConfig.blockeraOverflow}
 			>
-				<Overflow
-					block={block}
-					value={values.blockeraOverflow}
-					defaultValue={attributes.blockeraOverflow.default}
-					onChange={handleOnChangeAttributes}
-					{...extensionProps.blockeraOverflow}
-				/>
+				<ControlContextProvider
+					value={{
+						name: generateExtensionId(block, 'overflow'),
+						value: values.blockeraOverflow,
+						attribute: 'blockeraOverflow',
+						blockName: block.blockName,
+					}}
+				>
+					<ToggleSelectControl
+						label={__('Overflow', 'blockera')}
+						labelDescription={
+							<>
+								<p>
+									{__(
+										"Overflow manages how content is displayed when it exceeds its block's boundaries, offering options like scroll or hidden to maintain layout integrity.",
+										'blockera'
+									)}
+								</p>
+								<h3>
+									<Icon
+										icon="overflow-visible"
+										iconSize="18"
+									/>
+									{__('Visible', 'blockera')}
+								</h3>
+								<p>
+									{__(
+										'Visible ensures that any content exceeding the boundaries of its container is still visible, extending beyond the set dimensions.',
+										'blockera'
+									)}
+								</p>
+								<h3>
+									<Icon
+										icon="overflow-hidden"
+										iconSize="18"
+									/>
+									{__('Hidden', 'blockera')}
+								</h3>
+								<p>
+									{__(
+										'Hidden effectively clips any content that exceeds the boundaries of its container, ensuring a clean, uncluttered appearance for your layout.',
+										'blockera'
+									)}
+								</p>
+								<h3>
+									<Icon
+										icon="overflow-scroll"
+										iconSize="18"
+									/>
+									{__('Scroll', 'blockera')}
+								</h3>
+								<p>
+									{__(
+										'Scroll ensures that any excess content within the block is accessible via scrollbars, ideal for maintaining a fixed size for content areas.',
+										'blockera'
+									)}
+								</p>
+							</>
+						}
+						columns="1fr 2.5fr"
+						isDeselectable={true}
+						options={[
+							{
+								label: __('Visible Overflow', 'blockera'),
+								value: 'visible',
+								icon: (
+									<Icon
+										icon="overflow-visible"
+										iconSize="18"
+									/>
+								),
+							},
+							{
+								label: __('Hidden Overflow', 'blockera'),
+								value: 'hidden',
+								icon: (
+									<Icon
+										icon="overflow-hidden"
+										iconSize="18"
+									/>
+								),
+							},
+							{
+								label: __('Scroll Overflow', 'blockera'),
+								value: 'scroll',
+								icon: (
+									<Icon
+										icon="overflow-scroll"
+										iconSize="18"
+									/>
+								),
+							},
+						]}
+						defaultValue={attributes.blockeraOverflow.default}
+						onChange={(newValue, ref) =>
+							handleOnChangeAttributes(
+								'blockeraOverflow',
+								newValue,
+								{ ref }
+							)
+						}
+						{...extensionProps.blockeraOverflow}
+					/>
+				</ControlContextProvider>
 			</EditorFeatureWrapper>
 
 			<EditorFeatureWrapper
@@ -386,13 +483,50 @@ export const SizeExtension: ComponentType<TSizeProps> = ({
 				isActive={isShowBoxSizing}
 				config={extensionConfig.blockeraBoxSizing}
 			>
-				<BoxSizing
-					block={block}
-					value={values.blockeraBoxSizing}
-					defaultValue={attributes.blockeraBoxSizing.default}
-					onChange={handleOnChangeAttributes}
-					{...extensionProps.blockeraBoxSizing}
-				/>
+				<ControlContextProvider
+					value={{
+						name: generateExtensionId(block, 'box-sizing'),
+						value: values.blockeraBoxSizing,
+						attribute: 'blockeraBoxSizing',
+						blockName: block.blockName,
+					}}
+				>
+					<SelectControl
+						label={__('Box Sizing', 'blockera')}
+						labelDescription={
+							<p>
+								{__(
+									'The box-sizing CSS property sets how the total width and height of an element is calculated.',
+									'blockera'
+								)}
+							</p>
+						}
+						columns="1fr 2.5fr"
+						options={[
+							{
+								label: __('Default', 'blockera'),
+								value: '',
+							},
+							{
+								label: __('Border Box', 'blockera'),
+								value: 'border-box',
+							},
+							{
+								label: __('Content Box', 'blockera'),
+								value: 'content-box',
+							},
+						]}
+						defaultValue={attributes.blockeraBoxSizing.default}
+						onChange={(newValue, ref) =>
+							handleOnChangeAttributes(
+								'blockeraBoxSizing',
+								newValue,
+								{ ref }
+							)
+						}
+						{...extensionProps.blockeraBoxSizing}
+					/>
+				</ControlContextProvider>
 			</EditorFeatureWrapper>
 		</PanelBodyControl>
 	);

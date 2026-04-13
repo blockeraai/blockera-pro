@@ -38,10 +38,6 @@ export type GroupControlProps = {
 	popoverTitleButtonsRight?: string | MixedElement,
 	popoverClassName?: string,
 	/**
-	 * When set, adds `data-variable-slug` on the header for variable-picker E2E (preset repeater rows).
-	 */
-	headerVariableSlug?: string,
-	/**
 	 * Text or component to show in group header.
 	 */
 	header?: string | MixedElement,
@@ -71,12 +67,6 @@ export type GroupControlProps = {
 	 * @default 'inline'
 	 */
 	actionButtonsType?: 'inline' | 'menu',
-	/**
-	 * The label for action menu button.
-	 *
-	 * @default ''
-	 */
-	actionMenuButtonLabel?: string,
 	//
 	children?: string | MixedElement,
 	//

@@ -20,7 +20,6 @@ import {
 	getColors,
 	getFontSizes,
 	getLinearGradients,
-	getMergedGlobalStylePresetVariables,
 	getRadialGradients,
 	getSpacings,
 	getVariable,
@@ -171,7 +170,9 @@ export function setValueAddon(
 	setState(newValue);
 }
 
-export function getValueAddonRealValue(value: ValueAddon | string | void): any {
+export function getValueAddonRealValue(
+	value: ValueAddon | string | undefined
+): any {
 	if (value === undefined) {
 		return '';
 	}
@@ -191,7 +192,7 @@ export function getValueAddonRealValue(value: ValueAddon | string | void): any {
 				value?.settings?.id
 			);
 
-			let currentValue: mixed = '';
+			let currentValue = '';
 			let currentVar = '';
 
 			//
@@ -217,11 +218,6 @@ export function getValueAddonRealValue(value: ValueAddon | string | void): any {
 			}
 
 			if (currentValue && currentVar) {
-				// Structured preset payloads (objects) are not valid var() fallbacks; emit token only.
-				if (typeof currentValue === 'object' && currentValue !== null) {
-					return `var(${currentVar})`;
-				}
-
 				// If the value already starts with var({$value['settings']['var']}), return it as is
 				if (
 					typeof currentValue === 'string' &&
@@ -230,7 +226,7 @@ export function getValueAddonRealValue(value: ValueAddon | string | void): any {
 					return currentValue;
 				}
 
-				return `var(${currentVar}, ${String(currentValue)})`;
+				return `var(${currentVar}, ${currentValue})`;
 			}
 
 			if (currentValue) {
@@ -252,17 +248,13 @@ export function getValueAddonRealValue(value: ValueAddon | string | void): any {
 export function getVariableIcon({
 	type,
 	value,
-	iconSize = '20',
-	colorIndicatorSize = 16,
 }: {
 	type: string,
 	value?: string,
-	iconSize?: string,
-	colorIndicatorSize?: number,
 }): MixedElement {
 	switch (type) {
 		case 'font-size':
-			return <Icon icon="variable-font-size" iconSize={iconSize} />;
+			return <Icon icon="variable-font-size" iconSize="20" />;
 
 		case 'radial-gradient':
 		case 'linear-gradient':
@@ -270,33 +262,17 @@ export function getVariableIcon({
 				<ColorIndicator
 					type="gradient"
 					value={value !== '' ? value : ''}
-					size={colorIndicatorSize}
 				/>
 			);
 
 		case 'color':
-			return (
-				<ColorIndicator
-					type="color"
-					value={value}
-					size={colorIndicatorSize}
-				/>
-			);
+			return <ColorIndicator type="color" value={value} />;
 
 		case 'spacing':
-			return <Icon icon="variable-spacing" iconSize={iconSize} />;
+			return <Icon icon="variable-spacing" iconSize="20" />;
 
 		case 'width-size':
-			return <Icon icon="variable-width-size" iconSize={iconSize} />;
-
-		case 'shadow':
-		case 'text-shadow':
-		case 'border-radius':
-		case 'border':
-		case 'transition':
-		case 'transform':
-		case 'filter':
-			return <Icon icon="variable-spacing" iconSize={iconSize} />;
+			return <Icon icon="variable-width-size" iconSize="20" />;
 	}
 
 	return <></>;
@@ -346,55 +322,6 @@ export function getVariableCategory(
 				label: __('Color Variables', 'blockera'),
 				items: getColors(),
 				type: 'color',
-			};
-
-		case 'shadow':
-			return {
-				label: __('Shadow variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('shadow'),
-				type: 'shadow',
-			};
-
-		case 'text-shadow':
-			return {
-				label: __('Text shadow variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('text-shadow'),
-				type: 'text-shadow',
-			};
-
-		case 'border-radius':
-			return {
-				label: __('Border radius variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('border-radius'),
-				type: 'border-radius',
-			};
-
-		case 'border':
-			return {
-				label: __('Border variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('border'),
-				type: 'border',
-			};
-
-		case 'transition':
-			return {
-				label: __('Transition variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('transition'),
-				type: 'transition',
-			};
-
-		case 'transform':
-			return {
-				label: __('Transform variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('transform'),
-				type: 'transform',
-			};
-
-		case 'filter':
-			return {
-				label: __('Filter variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('filter'),
-				type: 'filter',
 			};
 	}
 
