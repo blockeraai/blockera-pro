@@ -121,7 +121,7 @@ export const DesignSystemNavigation = (): MixedElement => {
 						<Icon icon="wp-shadows" iconSize={22} />
 					</Flex>
 				}
-				label={__('Shadows', 'blockera')}
+				label={__('Box Shadows', 'blockera')}
 			/>
 			<NavItemButton
 				className={navItemClassName()}
@@ -181,7 +181,7 @@ export const DesignSystemNavigation = (): MixedElement => {
 						<Icon icon="transform-move" iconSize={18} />
 					</Flex>
 				}
-				label={__('2D & 3D Transforms', 'blockera')}
+				label={__('Transforms', 'blockera')}
 			/>
 			<NavItemButton
 				className={navItemClassName()}
@@ -196,7 +196,7 @@ export const DesignSystemNavigation = (): MixedElement => {
 						<Icon icon="transition" iconSize={18} />
 					</Flex>
 				}
-				label={__('Transitions', 'blockera')}
+				label={__('Transitions Timing', 'blockera')}
 			/>
 			<NavItemButton
 				className={navItemClassName()}
@@ -208,7 +208,7 @@ export const DesignSystemNavigation = (): MixedElement => {
 						justifyContent="center"
 						style={{ width: '22px', height: '22px' }}
 					>
-						<Icon icon="extension-effects" iconSize={20} />
+						<Icon icon="variable-filter" iconSize={20} />
 					</Flex>
 				}
 				label={__('Filters', 'blockera')}
