@@ -108,6 +108,7 @@ function ColorGroupComponent({
 
 	const defaultPresetValue = useMemo(
 		() => ({
+			isVisible: true,
 			color: '#000000',
 			slug: `custom-${index}`,
 			deletable: origin === 'custom',
@@ -286,6 +287,7 @@ function ColorPaletteScreen({ onBackHandler }: ColorPaletteScreenProps) {
 		<VStack spacing={2} className="blockera-color-palette-presets">
 			<ScreenHeader
 				onBack={onBackHandler}
+				dataTest="global-styles-color-palette-screen"
 				title={__('Color Variables', 'blockera')}
 				description={__(
 					'Create and edit color variables used for text, backgrounds, and borders.',
