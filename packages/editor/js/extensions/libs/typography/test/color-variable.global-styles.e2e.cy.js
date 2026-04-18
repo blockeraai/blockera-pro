@@ -13,14 +13,15 @@ import {
 
 describe('Global Styles color preset → value addon (paragraph Text Color)', () => {
 	const presetName = 'E2E Color';
-	const expectedSlug = 'e2e-color';
+	/** Matches `normalizeVariablePresetSlug` for the preset display name. */
+	const expectedSlug = 'e-2-e-color';
 	/** Default swatch for new custom presets in Global Styles (see color palette screen). */
 	const presetDefaultHex = '#000000';
 
 	/**
 	 * One shared custom color preset (free tier allows a single custom variable).
 	 */
-	const beforeEach = () => {
+	const seedColorPreset = () => {
 		openGlobalStylesColorPaletteScreen();
 
 		cy.addNewGlobalStylesCustomColorPreset();
@@ -45,7 +46,7 @@ describe('Global Styles color preset → value addon (paragraph Text Color)', ()
 	};
 
 	it('applies the custom preset from value addons: editor CSS, block data, and front match the default hex', () => {
-		beforeEach();
+		seedColorPreset();
 
 		const expectedColorDeclaration = `color: var(--wp--preset--color--${expectedSlug}, ${presetDefaultHex})`;
 
@@ -96,7 +97,7 @@ describe('Global Styles color preset → value addon (paragraph Text Color)', ()
 	});
 
 	it('updates generated editor and front CSS when the preset hex is edited in global styles after picking it', () => {
-		beforeEach();
+		seedColorPreset();
 
 		const editedHex = '#cc3344';
 		const editedHexInput = 'cc3344';
