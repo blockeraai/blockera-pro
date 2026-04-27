@@ -81,6 +81,7 @@
 		"@blockera/env": "file:packages/env",
 		"@blockera/features-core": "file:packages/features-core",
 		"@blockera/feature-icon": "file:packages/features-library/icon",
+		"@blockera/global-styles-ui": "file:packages/global-styles-ui",
 		"@blockera/plugin-compatibility": "file:packages/plugin-compatibility",
 		"@blockera/plugin-compatibility-pro": "file:packages/plugin-compatibility-pro",
 		"@blockera/guard": "file:packages/guard",
@@ -102,11 +103,13 @@
 		"@fortawesome/react-fontawesome": "^0.2.3",
 		"@wordpress/icons": "^10.0.0",
 		"@wordpress/plugins": "^7.25.0",
+		"react-color": "^2.19.3",
 		"fast-deep-equal": "^3.1.3",
 		"fast-memoize": "^2.5.2",
 		"fastest-json-copy": "^1.0.1",
 		"fuse.js": "^6.6.2",
 		"react-error-boundary": "^5.0.0",
+		"tinycolor2": "^1.6.0",
 		"rememo": "^4.0.2"
 	},
 	"devDependencies": {
