@@ -258,9 +258,7 @@ const wrapOneSelectorForRootBody = (
 		return `${withHTML ? 'html:root' : ':root'} body :where(${sel})`;
 	}
 	const inner = `${left}${comb === ' ' ? ' ' : ` ${comb} `}${peeled.base}`;
-	return `${withHTML ? 'html:root' : ':root'} body :where(${inner})${
-		peeled.pseudos
-	}`;
+	return `${withHTML ? 'html:root' : ':root'} body :where(${inner})${peeled.pseudos}`;
 };
 
 export const getSelectorWithRootBody = (
