@@ -8,6 +8,8 @@ export * from './preset-origin-utils';
 export * from './shared-preset-controls';
 export * from './icon-with-current-color';
 export * from './preset-variations-layout';
+export * from './preset-variable-variations-header';
+export * from './variable-variations-fields-slots';
 export * from './preset-row-preview-inject';
 export * from './preset-repeater-header-click';
 export * from './use-global-styles-preset-edit';
