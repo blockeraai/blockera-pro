@@ -17,12 +17,18 @@ import {
 	getPostDynamicValueItemsBy,
 	getSiteDynamicValueItemsBy,
 	getUserDynamicValueItemsBy,
+	getColorsTitle,
 	getColors,
 	getFontSizes,
+	getFontSizesTitle,
+	getLinearGradientsTitle,
 	getLinearGradients,
+	getRadialGradientsTitle,
 	getRadialGradients,
 	getSpacings,
+	getSpacingsTitle,
 	getVariable,
+	getWidthSizesTitle,
 	getWidthSizes,
 	type VariableCategory,
 } from '@blockera/data';
@@ -257,42 +263,42 @@ export function getVariableCategory(
 	switch (category) {
 		case 'font-size':
 			return {
-				label: __('Font Size Variables', 'blockera'),
+				label: getFontSizesTitle(),
 				items: getFontSizes(),
 				type: 'font-size',
 			};
 
 		case 'linear-gradient':
 			return {
-				label: __('Linear Gradient Variables', 'blockera'),
+				label: getLinearGradientsTitle(),
 				items: getLinearGradients(),
 				type: 'linear-gradient',
 			};
 
 		case 'radial-gradient':
 			return {
-				label: __('Radial Gradient Variables', 'blockera'),
+				label: getRadialGradientsTitle(),
 				items: getRadialGradients(),
 				type: 'radial-gradient',
 			};
 
 		case 'width-size':
 			return {
-				label: __('Width & Height Variables', 'blockera'),
+				label: getWidthSizesTitle(),
 				items: getWidthSizes(),
 				type: 'width-size',
 			};
 
 		case 'spacing':
 			return {
-				label: __('Spacing Variables', 'blockera'),
+				label: getSpacingsTitle(),
 				items: getSpacings(),
 				type: 'spacing',
 			};
 
 		case 'color':
 			return {
-				label: __('Color Variables', 'blockera'),
+				label: getColorsTitle(),
 				items: getColors(),
 				type: 'color',
 			};

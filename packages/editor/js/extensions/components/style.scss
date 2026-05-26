@@ -29,7 +29,7 @@
 			height: 24px;
 			align-items: center;
 			justify-content: center;
-			transition: 100ms ease-in-out;
+			transition: var(--blockera-controls-transition);
 			border-radius: var(--blockera-controls-border-radius);
 			opacity: 0.2;
 			--blockera-controls-primary-color: #0051e7;
@@ -106,10 +106,6 @@
 
 .block-editor-inserter__panel-content {
 
-	--blockera-block-icon-opacity: 0.2;
-	--blockera-block-icon-opacity-hover: 0.8;
-	--blockera-block-icon-opacity-strong: 0.5;
-
 	.blockera-block-icon {
 		display: block !important;
 		top: 15px;
@@ -117,16 +113,8 @@
 		margin-right: -7px;
 	}
 
-	.editor-block-list-item-image\/blockera\/icon {
-		--blockera-block-icon-opacity: var(--blockera-block-icon-opacity-strong);
-
-		.blockera-block-icon {
-			fill: var(--blockera-controls-primary-color) !important;
-		}
-	}
-
 	.blockera-block-icon.blockera-cube-icon {
-		opacity: var(--blockera-block-icon-opacity);
+		opacity: 0.2;
 	}
 
 	.blockera-block-icon.blockera-main-icon {
@@ -140,7 +128,7 @@
 		}
 
 		.blockera-block-icon.blockera-main-icon {
-			opacity: var(--blockera-block-icon-opacity-hover);
+			opacity: 0.4;
 		}
 	}
 }

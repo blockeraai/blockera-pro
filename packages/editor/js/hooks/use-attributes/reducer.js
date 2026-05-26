@@ -163,12 +163,9 @@ const reducer = (state: Object = {}, action: Object): Object => {
 					...(mergedCssClasses
 						? { className: mergedCssClasses }
 						: {}),
-					// if attributeId starts with 'blockera', set value to { value: newValue } schema
-					[attributeId]: attributeId.startsWith('blockera')
-						? {
-								value: newValue,
-						  }
-						: newValue,
+					[attributeId]: {
+						value: newValue,
+					},
 				},
 				...hookParams
 			);

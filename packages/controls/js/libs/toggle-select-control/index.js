@@ -99,7 +99,6 @@ export default function ToggleSelectControl({
 				resetToDefault,
 				mode: 'advanced',
 				path: getControlPath(attribute, id),
-				style: props?.style || {},
 			}}
 		>
 			<div

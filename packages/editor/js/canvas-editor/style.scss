@@ -1,3 +1,5 @@
+@import "./components/breakpoints/breakpoint-settings/style.scss";
+
 .blockera-editor {
 
 	.editor-header__settings > a[aria-label="View Page"], // WP < 6.6.2
@@ -52,7 +54,7 @@
 	width: 100%;
 	min-width: 200px;
 	margin: 0;
-	overflow: hidden;
+	overflow-x: scroll;
 
 	&:hover {
 		background: #e0e0e0;

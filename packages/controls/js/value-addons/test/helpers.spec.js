@@ -368,14 +368,14 @@ describe('Helper Functions', () => {
 		test('font size', () => {
 			const category = getVariableCategory('font-size');
 
-			expect(category.label).toBe(__('Font Size Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Font Sizes', 'blockera'));
 		});
 
 		test('linear gradients', () => {
 			const category = getVariableCategory('linear-gradient');
 
 			expect(category.label).toBe(
-				__('Linear Gradient Variables', 'blockera')
+				__('Editor Linear Gradients', 'blockera')
 			);
 		});
 
@@ -383,7 +383,7 @@ describe('Helper Functions', () => {
 			const category = getVariableCategory('radial-gradient');
 
 			expect(category.label).toBe(
-				__('Radial Gradient Variables', 'blockera')
+				__('Editor Radial Gradients', 'blockera')
 			);
 		});
 
@@ -391,20 +391,20 @@ describe('Helper Functions', () => {
 			const category = getVariableCategory('width-size');
 
 			expect(category.label).toBe(
-				__('Width & Height Variables', 'blockera')
+				__('Editor Width & Height Sizes', 'blockera')
 			);
 		});
 
 		test('spacing', () => {
 			const category = getVariableCategory('spacing');
 
-			expect(category.label).toBe(__('Spacing Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Spacing Sizes', 'blockera'));
 		});
 
 		test('color', () => {
 			const category = getVariableCategory('color');
 
-			expect(category.label).toBe(__('Color Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Colors', 'blockera'));
 		});
 	});
 

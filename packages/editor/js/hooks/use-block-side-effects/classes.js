@@ -51,53 +51,44 @@ export const classes = [
 			'outermost/icon-block',
 		],
 	},
-	// "core/avatar" - Hide range control for image size
+	// "core/avatar" - image size
 	{
 		parent: '.components-range-control',
 		children: [
+			// Hide range control for image size
 			'.components-panel__body .components-range-control .components-base-control__label',
 		],
 		include: ['core/avatar'],
 	},
-	// "core/image" - Hide aspect ratio select
+	// "core/image" - aspect ratio
 	{
 		parent: '.components-tools-panel-item',
 		children: [
+			// Hide aspect ratio select
 			'.components-tools-panel select.components-select-control__input option[value="auto"]',
 			'.components-tools-panel select.components-select-control__input option[value="1"]',
 			'.components-tools-panel select.components-select-control__input option[value="4/3"]',
 		],
 		include: ['core/image'],
 	},
-	// "core/image" - Hide width & height select
-	{
-		parent: '.components-tools-panel-item',
-		children: ['.components-tools-panel .components-input-control__input'],
-		childrenCheck: 'all',
-		include: ['core/image'],
-	},
-	// "core/image" - Hide scale control
+	// "core/image" - width & height
 	{
 		parent: '.components-tools-panel-item',
 		children: [
+			// Hide width & height select
+			'.components-tools-panel .components-input-control__input',
+		],
+		childrenCheck: 'all',
+		include: ['core/image'],
+	},
+	// "core/image" - scale
+	{
+		parent: '.components-tools-panel-item',
+		children: [
+			// Hide scale control
 			'.components-tools-panel button[value="cover"]',
 			'.components-tools-panel button[value="contain"]',
 		],
 		include: ['core/image'],
-	},
-	// "blockera/icon" - Hide ratio
-	{
-		parent: '.components-tools-panel-item',
-		children: ['.components-tools-panel-item select'],
-		include: ['blockera/icon'],
-	},
-	// "blockera/icon" - Hide width & height
-	{
-		parent: '.components-tools-panel-item',
-		children: [
-			'.components-tools-panel-item .components-input-control__input',
-		],
-		include: ['blockera/icon'],
-		childrenCheck: 'all',
 	},
 ];

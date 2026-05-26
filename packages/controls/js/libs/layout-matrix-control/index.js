@@ -61,7 +61,6 @@ export default function LayoutMatrixControl({
 	labelPopoverTitle,
 	labelDescription,
 	columns,
-	style,
 	defaultValue = {
 		direction: 'row',
 		alignItems: '',
@@ -162,7 +161,6 @@ export default function LayoutMatrixControl({
 			columns={columns}
 			controlName={field}
 			className={className}
-			style={style}
 			{...labelProps}
 		>
 			<Flex gap="10px" direction="column">

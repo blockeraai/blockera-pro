@@ -1,24 +1,5 @@
 import { getNormalizedSelector } from '../get-compatible-block-css-selector';
 
-// Mock getState for getNormalizedSelector's internal use
-jest.mock('@wordpress/data', () => {
-	return {
-		select: jest.fn().mockImplementation((store) => {
-			if (store === 'blockera/editor') {
-				return {
-					getState: jest.fn().mockImplementation(() => ({
-						settings: { hasContent: false },
-					})),
-					getInnerState: jest.fn().mockImplementation(() => ({
-						settings: { hasContent: false },
-					})),
-				};
-			}
-			return {};
-		}),
-	};
-});
-
 describe('getNormalizedSelector', () => {
 	const rootSelector = '.my-root';
 	const suffixClass = '--modified';
@@ -168,8 +149,8 @@ describe('getNormalizedSelector', () => {
 });
 
 describe("getNormalizedSelector - supports selectors starting with '&'", () => {
-	const mockGetInnerState = jest.fn(() => 'normal');
-	const mockGetMasterState = jest.fn(() => 'normal');
+	const mockGetInnerState = jest.fn((): TStates => 'normal');
+	const mockGetMasterState = jest.fn((): TStates => 'normal');
 
 	const defaultOptions = {
 		state: 'normal',
@@ -238,8 +219,8 @@ describe("getNormalizedSelector - supports selectors starting with '&'", () => {
 });
 
 describe("getNormalizedSelector - supports selectors starting with '&&'", () => {
-	const mockGetInnerState = jest.fn(() => 'normal');
-	const mockGetMasterState = jest.fn(() => 'normal');
+	const mockGetInnerState = jest.fn((): TStates => 'normal');
+	const mockGetMasterState = jest.fn((): TStates => 'normal');
 
 	const defaultOptions = {
 		state: 'normal',

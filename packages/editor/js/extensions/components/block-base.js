@@ -10,6 +10,7 @@ import { select, useSelect, dispatch } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	memo,
+	useRef,
 	useMemo,
 	useState,
 	useEffect,
@@ -20,15 +21,8 @@ import {
 /**
  * Blockera dependencies
  */
-import { useBlockFeatures } from '@blockera/features-core';
-import { generalBlockFeatures } from '@blockera/blocks-core/js/libs/general-block-features';
-import {
-	omit,
-	isEquals,
-	cloneObject,
-	mergeObject,
-	omitWithPattern,
-} from '@blockera/utils';
+import { omit, isEquals, omitWithPattern, cloneObject } from '@blockera/utils';
+import { experimental } from '@blockera/env';
 
 /**
  * Internal dependencies
@@ -36,7 +30,7 @@ import {
 import { BlockStyle, StylesWrapper } from '../../style-engine';
 import { BlockEditContextProvider } from '../hooks';
 import {
-	// useIconEffect,
+	useIconEffect,
 	useAttributes,
 	useInnerBlocksInfo,
 	useCalculateCurrentAttributes,
@@ -64,7 +58,6 @@ import {
 	generalBlockStates,
 	generalInnerBlockStates,
 } from '../libs/block-card/block-states/states';
-import { getBlockCSSSelector } from '../../style-engine/get-block-css-selector';
 
 export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 	const { props: _props } = useBlockAppContext();
@@ -75,11 +68,11 @@ export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 		clientId,
 		attributes: blockAttributes,
 		setAttributes: _setAttributes,
+		className,
 		defaultAttributes,
 		originDefaultAttributes,
 		...props
 	} = _props;
-	const { className } = blockAttributes;
 
 	const _attributes = useMemo(
 		() => sanitizeBlockAttributes(cloneObject(blockAttributes)),
@@ -296,6 +289,7 @@ export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 		return getBlockType(name);
 	});
 
+	const blockEditRef = useRef(null);
 	const currentAttributes = useCalculateCurrentAttributes({
 		currentInnerBlock,
 		blockeraInnerBlocks,
@@ -303,18 +297,19 @@ export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 		blockAttributes: defaultAttributes,
 	});
 
-	// Boot loading the block features.
-	const { BlockFeaturesInlineStyles, ContextualToolbarComponents } =
-		useBlockFeatures({
+	useIconEffect(
+		{
 			name,
 			clientId,
-			attributes: currentAttributes,
-			blockFeatures: mergeObject(
-				generalBlockFeatures,
-				additional?.blockFeatures
-			),
-			getBlockCSSSelector,
-		});
+			blockRefId: blockEditRef,
+			blockeraIcon: currentAttributes?.blockeraIcon,
+			blockeraIconGap: currentAttributes?.blockeraIconGap,
+			blockeraIconSize: currentAttributes?.blockeraIconSize,
+			blockeraIconColor: currentAttributes?.blockeraIconColor,
+			blockeraIconPosition: currentAttributes?.blockeraIconPosition,
+		},
+		[currentAttributes]
+	);
 
 	const inlineStyles = useCleanupStyles({ clientId }, [
 		selectedBlock,
@@ -481,6 +476,9 @@ export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 					/>
 				</SlotFillProvider>
 			</InspectorControls>
+			{experimental().get('editor.extensions.iconExtension') && (
+				<div ref={blockEditRef} />
+			)}
 
 			<ErrorBoundary
 				fallbackRender={({ error }): MixedElement => (
@@ -506,14 +504,6 @@ export const BlockBase: ComponentType<any> = memo((): Element<any> | null => {
 				</StylesWrapper>
 			</ErrorBoundary>
 			{/*</StrictMode>*/}
-
-			<ContextualToolbarComponents />
-
-			<BlockFeaturesInlineStyles
-				clientId={clientId}
-				className={className}
-				currentAttributes={currentAttributes}
-			/>
 
 			{children}
 		</BlockEditContextProvider>

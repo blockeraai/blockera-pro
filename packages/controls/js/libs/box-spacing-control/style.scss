@@ -139,7 +139,7 @@
 
 				svg {
 					fill: #ffffff;
-					outline: none;
+					outline: 2px solid #ffffff;
 				}
 
 				.blockera-control-value-addon-pointer {
@@ -154,9 +154,7 @@
 			&.active-addon-pointers {
 
 				svg {
-					outline: none;
-					width: 14px;
-					height: 14px;
+					outline: 2px solid #ffffff;
 				}
 			}
 		}
@@ -210,8 +208,8 @@
 			height: 28px;
 
 			.blockera-control-value-addon-pointers {
-				top: 0;
-				left: 25px;
+				top: -13.5px;
+				right: 15px;
 			}
 		}
 
@@ -220,18 +218,10 @@
 			right: 0;
 			bottom: 0;
 			width: 28px;
-			z-index: 9;
 
 			.blockera-control-value-addon-pointers {
-				top: 25px;
-				right: 0;
-				text-align: right;
-				left: initial;
-			}
-
-			.blockera-control-reset-icon {
-				left: -19px;
-				right: initial;
+				right: -13.5px;
+				top: 15px;
 			}
 		}
 
@@ -242,9 +232,10 @@
 			height: 28px;
 
 			.blockera-control-value-addon-pointers {
-				top: 0;
 				right: initial;
-				left: 25px;
+				top: initial;
+				bottom: -13.5px;
+				left: 15px;
 				text-align: left;
 			}
 		}
@@ -257,10 +248,10 @@
 
 			.blockera-control-value-addon-pointers {
 				text-align: left;
-				top: 25px;
-				left: 0;
-				bottom: initial;
+				top: initial;
 				right: initial;
+				bottom: 15px;
+				left: -13.5px;
 			}
 		}
 
@@ -271,8 +262,8 @@
 			height: 28px;
 
 			.blockera-control-value-addon-pointers {
-				top: 0;
-				left: 25px;
+				top: -12.5px;
+				right: 15px;
 			}
 		}
 
@@ -281,18 +272,10 @@
 			right: 35px;
 			bottom: 38px;
 			width: 28px;
-			z-index: 8;
 
 			.blockera-control-value-addon-pointers {
-				top: 7px;
-				left: initial;
-				right: -5px;
-				text-align: right;
-			}
-
-			.blockera-control-reset-icon {
-				left: -19px;
-				right: initial;
+				right: -13.5px;
+				top: 15px;
 			}
 		}
 
@@ -303,9 +286,10 @@
 			height: 28px;
 
 			.blockera-control-value-addon-pointers {
-				top: 0;
 				right: initial;
-				left: 25px;
+				top: initial;
+				bottom: -12.5px;
+				left: 15px;
 				text-align: left;
 			}
 		}
@@ -318,9 +302,10 @@
 
 			.blockera-control-value-addon-pointers {
 				text-align: left;
+				top: initial;
 				right: initial;
-				top: 7px;
-				left: -5px;
+				bottom: 15px;
+				left: -13.5px;
 			}
 		}
 	}

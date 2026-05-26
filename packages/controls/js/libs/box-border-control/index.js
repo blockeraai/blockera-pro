@@ -21,7 +21,6 @@ import { Icon } from '@blockera/icons';
 import { isValid } from '../../';
 import { useControlContext } from '../../context';
 import {
-	Grid,
 	Button,
 	BaseControl,
 	BorderControl,
@@ -153,82 +152,72 @@ export default function BoxBorderControl({
 						</LabelControlContainer>
 					)}
 
-					<Grid
-						gridTemplateColumns="122px 30px"
-						gap="8px"
-						justifyItems="end"
-						justifyContent="end"
-					>
-						{value.type === 'all' ? (
-							<BorderControl
-								id="all"
-								onChange={(newValue) => {
-									setValue({ ...value, all: newValue });
-									modifyControlValue({
-										controlId,
-										value: { ...value, all: newValue },
-									});
-								}}
-								defaultValue={defaultValue?.all}
-							/>
-						) : (
-							<span></span>
-						)}
-
-						<Button
-							showTooltip={true}
-							tooltipPosition="top"
-							label={__('Custom Box Border', 'blockera')}
-							size="extra-small"
-							style={{
-								padding: '4px',
-								width: 'var(--blockera-controls-input-height)',
-								height: 'var(--blockera-controls-input-height)',
+					{value.type === 'all' && (
+						<BorderControl
+							id="all"
+							onChange={(newValue) => {
+								setValue({ ...value, all: newValue });
+								modifyControlValue({
+									controlId,
+									value: { ...value, all: newValue },
+								});
 							}}
-							className={
+							defaultValue={defaultValue?.all}
+						/>
+					)}
+
+					<Button
+						showTooltip={true}
+						tooltipPosition="top"
+						label={__('Custom Box Border', 'blockera')}
+						size="extra-small"
+						style={{
+							color:
 								value.type === 'custom'
-									? 'is-toggle-btn is-toggled'
-									: 'is-toggle-btn'
-							}
-							onClick={() => {
-								if (value.type === 'all') {
-									setValue({
+									? 'var(--blockera-controls-primary-color)'
+									: 'var(--blockera-controls-color)',
+							padding: '5px',
+							width: 'var(--blockera-controls-input-height)',
+							height: 'var(--blockera-controls-input-height)',
+						}}
+						onClick={() => {
+							if (value.type === 'all') {
+								setValue({
+									...value,
+									type: 'custom',
+									top: value.all,
+									right: value.all,
+									bottom: value.all,
+									left: value.all,
+								});
+								modifyControlValue({
+									controlId,
+									value: {
 										...value,
 										type: 'custom',
 										top: value.all,
 										right: value.all,
 										bottom: value.all,
 										left: value.all,
-									});
-									modifyControlValue({
-										controlId,
-										value: {
-											...value,
-											type: 'custom',
-											top: value.all,
-											right: value.all,
-											bottom: value.all,
-											left: value.all,
-										},
-									});
-								} else {
-									setValue({
+									},
+								});
+							} else {
+								setValue({
+									...value,
+									type: 'all',
+								});
+								modifyControlValue({
+									controlId,
+									value: {
 										...value,
 										type: 'all',
-									});
-									modifyControlValue({
-										controlId,
-										value: {
-											...value,
-											type: 'all',
-										},
-									});
-								}
-							}}
-						>
-							<Icon icon="border" iconSize="14" />
-						</Button>
-					</Grid>
+									},
+								});
+							}
+						}}
+					>
+						<Icon icon="border" iconSize="14" />
+					</Button>
 				</div>
 
 				{value.type === 'custom' && (

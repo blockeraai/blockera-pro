@@ -8,18 +8,18 @@ import { select } from '@wordpress/data';
 /**
  * Blockera dependencies
  */
+import { isInnerBlock } from '../extensions/components/utils';
+import type { TStates } from '../extensions/libs/block-card/block-states/types';
 import { isEmpty, isUndefined, union, isObject } from '@blockera/utils';
+import type { InnerBlockType } from '../extensions/libs/block-card/inner-blocks/types';
 
 /**
- 
  * Internal dependencies
  */
 import { replaceVariablesValue } from './utils';
 import type { NormalizedSelectorProps } from './types';
+import { isNormalState } from '../extensions/components';
 import { getBlockCSSSelector } from './get-block-css-selector';
-import { isInnerBlock, isNormalState } from '../extensions/components/utils';
-import type { TStates } from '../extensions/libs/block-card/block-states/types';
-import type { InnerBlockType } from '../extensions/libs/block-card/inner-blocks/types';
 
 /**
  * Returns the appropriate state symbol for the given state.
@@ -31,47 +31,6 @@ export const getStateSymbol = (state: TStates): string => {
 	return ['marker', 'placeholder', 'before', 'after'].includes(state)
 		? '::'
 		: ':';
-};
-
-/**
- * Creates a standard selector based on the provided selector and state.
- * If selector ends with a pseudo-class (:before or :after), combine it with
- * the current state pseudo-class to create a valid CSS selector.
- * For example, an icon selector like "any:before" becomes "any:hover:before"
- *
- * @param {Object} params - The parameters to create a standard selector.
- * @param {TStates} params.state - The state to create a standard selector for.
- * @param {string} params.selector - The selector to create a standard selector for.
- * @param {string} params.mergedSelector - The merged selector to create a standard selector for.
- * @param {string} params.originSelector - The origin selector to create a standard selector for.
- *
- * @return {string} The standard selector for the provided selector and state.
- */
-export const createStandardSelector = ({
-	state,
-	selector,
-	mergedSelector,
-	originSelector,
-}: {
-	state: TStates,
-	selector: string,
-	mergedSelector: string,
-	originSelector: string,
-}) => {
-	const matches = selector.match(/:(before|after)$/);
-
-	if (matches && !isNormalState(state)) {
-		const detectedPseudoElement = matches[1];
-
-		const newSelectorSection = selector.replace(
-			`:${detectedPseudoElement}`,
-			`:${state}:${detectedPseudoElement}`
-		);
-
-		return originSelector.replace(mergedSelector, newSelectorSection);
-	}
-
-	return originSelector;
 };
 
 /**
@@ -160,7 +119,6 @@ export const getNormalizedSelector = (
 
 	// Replace '&' with the rootSelector and trim unnecessary spaces
 	const processAmpersand = (selector: string): string => {
-		// Handle selectors starting with {{BLOCK_ID}}&
 		if (/^{{BLOCK_ID}}&/.test(selector)) {
 			return selector.replace(/^{{BLOCK_ID}}&/, '{{BLOCK_ID}}');
 		}
@@ -173,7 +131,6 @@ export const getNormalizedSelector = (
 			return `${rootFirstPart}${selector.trim().substring(2)}`;
 		}
 
-		// Handle selectors starting with &
 		if (selector.trim().startsWith('&')) {
 			isProcessedSelector = true;
 
@@ -224,18 +181,11 @@ export const getNormalizedSelector = (
 							)}${state}`;
 						}
 
-						return createStandardSelector({
-							state,
-							selector,
-							mergedSelector: `${selector}${suffixClass}${getStateSymbol(
-								state
-							)}${state}`,
-							originSelector: `${rootSelector}${getStateSymbol(
-								masterState
-							)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
-								state
-							)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`,
-						});
+						return `${rootSelector}${getStateSymbol(
+							masterState
+						)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
+							state
+						)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`;
 					}
 
 					// If current state has selectors, we should return the selector as is with master state.
@@ -245,18 +195,11 @@ export const getNormalizedSelector = (
 						)}${masterState}${spacer}${selector}${suffixClass}`;
 					}
 
-					return createStandardSelector({
-						state,
-						selector,
-						mergedSelector: `${selector}${suffixClass}${getStateSymbol(
-							state
-						)}${state}`,
-						originSelector: `${rootSelector}${getStateSymbol(
-							masterState
-						)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
-							state
-						)}${state}`,
-					});
+					return `${rootSelector}${getStateSymbol(
+						masterState
+					)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}`;
 				}
 
 				return `${rootSelector}${getStateSymbol(
@@ -281,16 +224,9 @@ export const getNormalizedSelector = (
 						)}${state}`;
 					}
 
-					return createStandardSelector({
-						state,
-						selector,
-						mergedSelector: `${selector}${suffixClass}${getStateSymbol(
-							state
-						)}${state}`,
-						originSelector: `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
-							state
-						)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`,
-					});
+					return `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`;
 				}
 
 				// If current state has selectors, return selector as is.
@@ -298,16 +234,9 @@ export const getNormalizedSelector = (
 					return `${rootSelector}${spacer}${selector}${suffixClass}`;
 				}
 
-				return createStandardSelector({
-					state,
-					selector,
-					mergedSelector: `${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}`,
-					originSelector: `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}`,
-				});
+				return `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
+					state
+				)}${state}`;
 			}
 
 			return `${rootSelector}${spacer}${selector}${suffixClass}`;
@@ -328,28 +257,12 @@ export const getNormalizedSelector = (
 					)}${state}`;
 				}
 
-				return createStandardSelector({
-					state,
-					selector,
-					mergedSelector: `${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}`,
-					originSelector: `${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}, ${selector}${suffixClass}`,
-				});
+				return `${selector}${suffixClass}${getStateSymbol(
+					state
+				)}${state}, ${selector}${suffixClass}`;
 			}
 
-			const mergedSelector = `${selector}${suffixClass}${getStateSymbol(
-				state
-			)}${state}`;
-
-			return createStandardSelector({
-				state,
-				selector,
-				mergedSelector,
-				originSelector: mergedSelector,
-			});
+			return `${selector}${suffixClass}${getStateSymbol(state)}${state}`;
 		}
 
 		return `${selector}${suffixClass}`;
@@ -674,7 +587,7 @@ const appendRootBlockCssSelector = (selector: string, root: string): string => {
 		}
 
 		const subject = matches[0];
-		const regexp = new RegExp('.\\b' + subject + '\\b', 'gi');
+		const regexp = new RegExp('^.\\b' + subject + '\\b', 'gi');
 
 		return `${selector.replace(regexp, `${root}.${subject}`)}`;
 	}

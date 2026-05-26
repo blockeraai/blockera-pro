@@ -22,8 +22,10 @@ class RenderContentTest extends \Blockera\Dev\PHPUnit\AppTestCase
     {
         parent::setUp();
 
-		$this->app = Blockera::getInstance();
-		$this->app->bootstrap();
+		$this->app = new Blockera();
+		$appProvider = new AppServiceProvider($this->app);
+		$appProvider->register();
+		$appProvider->boot();
 
         $this->renderContent = $this->app->make(RenderContent::class);
 

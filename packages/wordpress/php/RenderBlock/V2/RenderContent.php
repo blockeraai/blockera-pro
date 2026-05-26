@@ -5,7 +5,6 @@ namespace Blockera\WordPress\RenderBlock\V2;
 use Blockera\Data\Cache\Cache;
 use Blockera\Bootstrap\Application;
 use Blockera\WordPress\RenderBlock\V1\Render;
-use Blockera\Bootstrap\Traits\AssetsLoaderTrait;
 
 /**
  * Class Render filtering WordPress BlockType render process.
@@ -14,28 +13,12 @@ use Blockera\Bootstrap\Traits\AssetsLoaderTrait;
  */
 class RenderContent {
 
-	use AssetsLoaderTrait;
-
-	/**
-	 * Store the id.
-	 *
-	 * @var string $id the id.
-	 */
-	protected string $id;
-
 	/**
 	 * Cache instance.
 	 *
 	 * @var Cache
 	 */
 	protected Cache $cache;
-
-	/**
-	 * Store the plugin info.
-	 *
-	 * @var array $plugin_info
-	 */
-	protected array $plugin_info;
 
     /**
      * Hold application instance.
@@ -98,7 +81,6 @@ class RenderContent {
         $this->transpiler      = $transpiler;
 		$this->cache           = $args['cache'] ?? null;
 		$this->render_instance = $args['render'] ?? null;
-		$this->plugin_info     = $args['plugin_args'] ?? [];
     }
 
 	/**
@@ -179,12 +161,7 @@ class RenderContent {
 
 		// Check block to is support by Blockera.
         if (blockera_is_supported_block($block)) {
-            $extracted_name = explode('/', $block['blockName']);
-
-			$this->id = $extracted_name[1];
-			$this->setContext('blocks-core');
-			$this->setSubContext($block_categories[ $extracted_name[0] ] ?? 'third-party');
-			$this->enqueueAssets($this->plugin_info['plugin_base_path'], $this->plugin_info['plugin_base_url'], $this->plugin_info['plugin_version']);
+            $this->printBlockGlobalStyles($block);
         }
 
 		if (isset($block['blockName']) && 'core/block' === $block['blockName']) {
@@ -304,7 +281,7 @@ class RenderContent {
 		// Get cache data.
 		$cache = $this->cache->getCache($post->ID, 'post_content');
 
-		if ('development' !== ( $_ENV['APP_MODE'] ?? 'production' ) && ! empty($cache) && ( isset($cache['hash']) && md5($post->post_content) === $cache['hash'] )) {
+		if (! empty($cache) && ( isset($cache['hash']) && md5($post->post_content) === $cache['hash'] )) {
 
 			// Prepare post content.
 			return $this->prepareCleanupContent(

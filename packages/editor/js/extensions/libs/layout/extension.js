@@ -237,9 +237,6 @@ export const LayoutExtension: ComponentType<TLayoutProps> = memo(
 								</>
 							}
 							columns="1fr 160px"
-							style={{
-								'--gap': '0',
-							}}
 							options={[
 								{
 									label: __('Flex', 'blockera'),
@@ -343,10 +340,7 @@ export const LayoutExtension: ComponentType<TLayoutProps> = memo(
 							}}
 						>
 							<LayoutMatrixControl
-								columns="1fr 160px"
-								style={{
-									'--gap': '0',
-								}}
+								columns="80px 160px"
 								label={__('Flex Layout', 'blockera')}
 								labelDescription={
 									<>
@@ -433,11 +427,8 @@ export const LayoutExtension: ComponentType<TLayoutProps> = memo(
 												? 'value'
 												: 'val'
 										}
-										columns="1fr 120px"
-										style={{
-											'--gap': '0',
-										}}
-										label={__('Flex Wrap', 'blockera')}
+										columns="80px 120px"
+										label={__('Children Wrap', 'blockera')}
 										labelDescription={
 											<>
 												<p>
@@ -564,7 +555,7 @@ export const LayoutExtension: ComponentType<TLayoutProps> = memo(
 										showTooltip={true}
 										tooltipPosition="top"
 										label={__(
-											'Reverse Flex Children Wrapping',
+											'Reverse Children Wrapping',
 											'blockera'
 										)}
 										size="small"
@@ -721,10 +712,7 @@ export const LayoutExtension: ComponentType<TLayoutProps> = memo(
 												</p>
 											</>
 										}
-										columns="1fr 150px"
-										style={{
-											'--gap': '0',
-										}}
+										columns="80px 160px"
 										options={[
 											{
 												label: __(
