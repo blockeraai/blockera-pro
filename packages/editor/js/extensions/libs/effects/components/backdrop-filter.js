@@ -9,15 +9,13 @@ import type { MixedElement } from 'react';
  * Blockera dependencies
  */
 import {
-	Flex,
+	PromotionPopover,
 	BaseControl,
 	FilterControl,
-	UpgradePrompt,
 	ControlContextProvider,
 	FilterLabelDescription,
 	getRepeaterActiveItemsCount,
 } from '@blockera/controls';
-import { Icon } from '@blockera/icons';
 
 /**
  * Internal dependencies
@@ -101,39 +99,22 @@ export const BackdropFilter = ({
 						}
 
 						return (
-							<UpgradePrompt
-								lockedFeature={{
-									icon: <Icon icon="layers" iconSize={26} />,
-									title: __(
-										'Multiple Backdrop Filters Layers',
+							<PromotionPopover
+								heading={__(
+									'Multiple Backdrop Filters',
+									'blockera'
+								)}
+								featuresList={[
+									__('Multiple backdrop filters', 'blockera'),
+									__(
+										'Advanced backdrop filter effects',
 										'blockera'
 									),
-									description: (
-										<Flex direction="column" gap="6px">
-											{__(
-												'Stack unlimited backdrop filter layers',
-												'blockera'
-											)}
-											<Flex direction="row" gap="6px">
-												<span className="blockera-free-plan-hint">
-													{__(
-														'Free: 1 layer',
-														'blockera'
-													)}
-												</span>
-												<span className="blockera-pro-plan-hint">
-													{__(
-														'Pro: Unlimited layers',
-														'blockera'
-													)}
-												</span>
-											</Flex>
-										</Flex>
-									),
-								}}
+									__('Advanced features', 'blockera'),
+									__('Premium blocks', 'blockera'),
+								]}
 								isOpen={isOpen}
 								onClose={onClose}
-								type="modal"
 							/>
 						);
 					}}

@@ -65,19 +65,6 @@ export function getSortedRepeater(items: Object): Array<Object> {
 	return dataArray;
 }
 
-/**
- * Whether `itemId` is the first repeater row in display order (`item.order`),
- * same order as {@link getSortedRepeater} and MappedItems.
- */
-export function isFirstRepeaterItem(itemId: string, items: Object): boolean {
-	if (!items || typeof items !== 'object') {
-		return false;
-	}
-	const sorted = getSortedRepeater(items);
-	const first = sorted[0];
-	return Boolean(first && first[0] === itemId);
-}
-
 export function getArialLabelSuffix(itemId: string): string | number {
 	// Replace all '-' with a single space
 	let result = itemId.replaceAll('-', ' ');
@@ -96,7 +83,6 @@ export function cleanupRepeaterItem(item: Object): Object {
 	delete item?.display;
 	delete item?.cloneable;
 	delete item?.deletable;
-	delete item?.hasVariations;
 
 	if (!item?.selectable) {
 		delete item?.isSelected;

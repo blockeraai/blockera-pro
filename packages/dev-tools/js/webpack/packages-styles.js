@@ -9,7 +9,7 @@ const editorIframeStyles = {};
 const styleFiles = glob.sync('./packages/**/*.scss');
 
 styleFiles.forEach((currentEntry) => {
-	const regex = new RegExp('packages\\/([\\w-]+)', 'g');
+	const regex = new RegExp('packages\\/(\\w+(?:-\\w+|))', 'g');
 
 	let m;
 
@@ -28,6 +28,23 @@ styleFiles.forEach((currentEntry) => {
 			// Exclude dev packages.
 			if (-1 !== match.indexOf('dev-')) {
 				return;
+			}
+
+			if (
+				'blocks' === match &&
+				'./packages/blocks/core/js/style.scss' !== currentEntry
+			) {
+				const entryName =
+					'block-' +
+					currentEntry
+						.replace(
+							/\.\/packages\/blocks\/core\/js\/wordpress\//,
+							''
+						)
+						.replace(/\/style(s|)\.(scss|css)/, '-styles');
+				Object.assign(styleEntries, {
+					[entryName]: currentEntry,
+				});
 			}
 
 			Object.assign(styleEntries, {
