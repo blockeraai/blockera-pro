@@ -6,15 +6,7 @@ import {
 	getDynamicValueCategory,
 	getDynamicValueIcon,
 } from '../helpers';
-import {
-	isValid,
-	extractCssVarValue,
-	isLikelyThemeJsonPlainPresetSlugString,
-	splitStoredCompositePlainColorValue,
-	unlinkPlainThemeJsonPresetCompositeToScalar,
-	normalizeCompositePlainPresetPaintPart,
-	compositePlainColorPaintFromStoredPlainPresetInput,
-} from '../utils';
+import { isValid, extractCssVarValue } from '../utils';
 import { generateVariableString } from '@blockera/data';
 import { __ } from '@wordpress/i18n';
 
@@ -79,7 +71,7 @@ describe('Helper Functions', () => {
 								settings: {
 									name: 'Small',
 									id: 'small',
-									value: '13px', // value is changed to "13" in new updates
+									value: '13px',
 									fluid: null,
 									reference: { type: 'preset' },
 									type: 'font-size',
@@ -89,44 +81,7 @@ describe('Helper Functions', () => {
 								isValueAddon: true,
 								valueType: 'variable',
 							})
-						).toBe('var(--wp--preset--font-size--small, 13)');
-
-						expect(
-							getValueAddonRealValue({
-								settings: {
-									name: 'not-found',
-									id: 'not-found',
-									value: '13px',
-									fluid: null,
-									reference: { type: 'preset' },
-									type: 'font-size',
-									var: '--wp--preset--font-size--not-found',
-								},
-								id: 'not-found',
-								isValueAddon: true,
-								valueType: 'variable',
-							})
-						).toBe('var(--wp--preset--font-size--not-found, 13px)');
-					});
-
-					test('structured settings.value (object) emits var token only, no invalid fallback', () => {
-						expect(
-							getValueAddonRealValue({
-								settings: {
-									name: 'Shadow preset',
-									id: 'shadow-1',
-									value: {
-										items: [{ order: 0, isVisible: true }],
-									},
-									reference: { type: 'preset' },
-									type: 'box-shadow',
-									var: '--wp--preset--shadow--natural',
-								},
-								id: 'shadow-1',
-								isValueAddon: true,
-								valueType: 'variable',
-							})
-						).toBe('var(--wp--preset--shadow--natural)');
+						).toBe('var(--wp--preset--font-size--small)');
 					});
 
 					test('font size - not valid variable - it should return value because the variable is not valid', () => {
@@ -145,7 +100,7 @@ describe('Helper Functions', () => {
 								isValueAddon: true,
 								valueType: 'variable',
 							})
-						).toBe('var(--wp--preset--font-size--small, 13px)');
+						).toBe('13px');
 					});
 
 					test('font size - not valid variable & empty value - it should return var for fallback', () => {
@@ -413,14 +368,14 @@ describe('Helper Functions', () => {
 		test('font size', () => {
 			const category = getVariableCategory('font-size');
 
-			expect(category.label).toBe(__('Font Size Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Font Sizes', 'blockera'));
 		});
 
 		test('linear gradients', () => {
 			const category = getVariableCategory('linear-gradient');
 
 			expect(category.label).toBe(
-				__('Linear Gradient Variables', 'blockera')
+				__('Editor Linear Gradients', 'blockera')
 			);
 		});
 
@@ -428,7 +383,7 @@ describe('Helper Functions', () => {
 			const category = getVariableCategory('radial-gradient');
 
 			expect(category.label).toBe(
-				__('Radial Gradient Variables', 'blockera')
+				__('Editor Radial Gradients', 'blockera')
 			);
 		});
 
@@ -436,20 +391,20 @@ describe('Helper Functions', () => {
 			const category = getVariableCategory('width-size');
 
 			expect(category.label).toBe(
-				__('Width & Height Variables', 'blockera')
+				__('Editor Width & Height Sizes', 'blockera')
 			);
 		});
 
 		test('spacing', () => {
 			const category = getVariableCategory('spacing');
 
-			expect(category.label).toBe(__('Spacing Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Spacing Sizes', 'blockera'));
 		});
 
 		test('color', () => {
 			const category = getVariableCategory('color');
 
-			expect(category.label).toBe(__('Color Variables', 'blockera'));
+			expect(category.label).toBe(__('Editor Colors', 'blockera'));
 		});
 	});
 
@@ -513,7 +468,7 @@ describe('Helper Functions', () => {
 					type: 'color',
 					id: 'base-1',
 				})
-			).toBe('--wp--preset--color--base-1');
+			).toBe('--wp--blockera--color--base-1');
 		});
 
 		test('contentSize', () => {
@@ -675,123 +630,6 @@ describe('Helper Functions', () => {
 					extractCssVarValue('var(--spacing, calc(2 * 16px))')
 				).toBe('calc(2 * 16px)');
 			});
-		});
-	});
-
-	describe('unlinkPlainThemeJsonPresetCompositeToScalar', () => {
-		test('extracts var() fallback for wp preset color slug', () => {
-			expect(
-				unlinkPlainThemeJsonPresetCompositeToScalar(
-					'#abc123',
-					'primary',
-					'color'
-				)
-			).toBe('#abc123');
-		});
-
-		test('defaults infix to color when omitted', () => {
-			expect(
-				unlinkPlainThemeJsonPresetCompositeToScalar('#fff', 'accent')
-			).toBe('#fff');
-		});
-
-		test('returns empty composite part unchanged when slug empty', () => {
-			expect(unlinkPlainThemeJsonPresetCompositeToScalar('', 'x')).toBe(
-				''
-			);
-		});
-	});
-
-	describe('isLikelyThemeJsonPlainPresetSlugString', () => {
-		test('accepts typical theme preset slugs', () => {
-			expect(isLikelyThemeJsonPlainPresetSlugString('primary')).toBe(
-				true
-			);
-			expect(isLikelyThemeJsonPlainPresetSlugString('vivid-purple')).toBe(
-				true
-			);
-			expect(isLikelyThemeJsonPlainPresetSlugString('custom_slug')).toBe(
-				true
-			);
-		});
-
-		test('rejects raw css-like strings', () => {
-			expect(isLikelyThemeJsonPlainPresetSlugString('#fff')).toBe(false);
-			expect(isLikelyThemeJsonPlainPresetSlugString('12px')).toBe(false);
-			expect(isLikelyThemeJsonPlainPresetSlugString('rgb(0,0,0)')).toBe(
-				false
-			);
-			expect(isLikelyThemeJsonPlainPresetSlugString('var(--x)')).toBe(
-				false
-			);
-		});
-
-		test('rejects empty or untrimmed input', () => {
-			expect(isLikelyThemeJsonPlainPresetSlugString('')).toBe(false);
-			expect(isLikelyThemeJsonPlainPresetSlugString(' slug')).toBe(false);
-		});
-	});
-
-	describe('normalizeCompositePlainPresetPaintPart', () => {
-		test('extracts explicit var() fallback', () => {
-			expect(
-				normalizeCompositePlainPresetPaintPart(
-					'var(--wp--preset--color--accent, #336699)'
-				)
-			).toBe('#336699');
-		});
-
-		test('returns literal paint unchanged', () => {
-			expect(normalizeCompositePlainPresetPaintPart('#abc')).toBe('#abc');
-		});
-
-		test('returns original when var() has no fallback', () => {
-			expect(
-				normalizeCompositePlainPresetPaintPart(
-					'var(--wp--preset--color--accent)'
-				)
-			).toBe('var(--wp--preset--color--accent)');
-		});
-	});
-
-	describe('compositePlainColorPaintFromStoredPlainPresetInput', () => {
-		test('composite with var realPart yields fallback literal', () => {
-			const stored =
-				'var(--wp--preset--color--brand, rgb(10, 20, 30)),brand';
-			expect(
-				compositePlainColorPaintFromStoredPlainPresetInput(stored)
-			).toBe('rgb(10, 20, 30)');
-		});
-	});
-
-	describe('splitStoredCompositePlainColorValue', () => {
-		test('resolved hex comma preset slug', () => {
-			expect(
-				splitStoredCompositePlainColorValue('#aabbcc,my-accent')
-			).toEqual({
-				realPart: '#aabbcc',
-				slugPart: 'my-accent',
-			});
-		});
-
-		test('rgb() with commas then preset slug uses last comma', () => {
-			const stored = 'rgb(255, 128, 0),accent-orange';
-			expect(splitStoredCompositePlainColorValue(stored)).toEqual({
-				realPart: 'rgb(255, 128, 0)',
-				slugPart: 'accent-orange',
-			});
-		});
-
-		test('realPart preserves full var() string before slug delimiter', () => {
-			const stored = 'var(--wp--preset--color--brand, #abc123),brand';
-			expect(splitStoredCompositePlainColorValue(stored)).toEqual({
-				realPart: 'var(--wp--preset--color--brand, #abc123)',
-				slugPart: 'brand',
-			});
-		});
-
-		test('slug-only string does not split', () => {
-			expect(splitStoredCompositePlainColorValue('primary')).toBeNull();
 		});
 	});
 });

@@ -11,39 +11,13 @@ import { useMemo } from '@wordpress/element';
 import { isInnerBlock, isNormalState } from './utils';
 import { useEditorStore, useExtensionsStore } from '../../hooks';
 
-export const Container = ({
-	activeColor,
-	children,
-}: {
-	activeColor: string,
-	children: Element<any>,
-}): Element<any> => {
-	return (
-		<div
-			className="blockera-state-colors-container"
-			style={{
-				color: 'inherit',
-				'--blockera-controls-primary-color': activeColor,
-				'--blockera-tab-panel-active-color': activeColor,
-			}}
-		>
-			{children}
-		</div>
-	);
-};
-
 export default function StateContainer({
-	name,
-	clientId,
 	children,
 	availableStates,
-	isGlobalStylesPanelRoot = false,
 	blockeraUnsavedData,
-	isGlobalStylesCardWrapper = false,
-	insideBlockInspector = true,
 }: Object): Element<any> {
 	const { currentBlock, currentState, currentInnerBlockState } =
-		useExtensionsStore({ name, clientId });
+		useExtensionsStore();
 	const { getState, getInnerState } = useEditorStore();
 
 	const activeColor = useMemo(() => {
@@ -61,16 +35,10 @@ export default function StateContainer({
 			: fallbackState?.settings?.color;
 
 		if (
-			!isGlobalStylesPanelRoot &&
 			isInnerBlock(currentBlock) &&
 			isNormalState(currentInnerBlockState)
 		) {
 			color = '#cc0000';
-		} else if (
-			(!insideBlockInspector || isGlobalStylesCardWrapper) &&
-			isNormalState(currentState)
-		) {
-			color = '#1ca120';
 		}
 
 		return color;
@@ -80,9 +48,19 @@ export default function StateContainer({
 		currentState,
 		availableStates,
 		blockeraUnsavedData,
-		insideBlockInspector,
 		currentInnerBlockState,
 	]);
 
-	return <Container activeColor={activeColor}>{children}</Container>;
+	return (
+		<div
+			className="blockera-state-colors-container"
+			style={{
+				color: 'inherit',
+				'--blockera-controls-primary-color': activeColor,
+				'--blockera-tab-panel-active-color': activeColor,
+			}}
+		>
+			{children}
+		</div>
+	);
 }

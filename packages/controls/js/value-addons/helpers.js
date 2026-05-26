@@ -17,15 +17,18 @@ import {
 	getPostDynamicValueItemsBy,
 	getSiteDynamicValueItemsBy,
 	getUserDynamicValueItemsBy,
+	getColorsTitle,
 	getColors,
 	getFontSizes,
+	getFontSizesTitle,
+	getLinearGradientsTitle,
 	getLinearGradients,
-	getMergedGlobalStylePresetVariables,
+	getRadialGradientsTitle,
 	getRadialGradients,
 	getSpacings,
+	getSpacingsTitle,
 	getVariable,
-	resolveThemeJsonPaintPresetStringFromWpEditor,
-	resolveThemeJsonVariableStringFromWpEditor,
+	getWidthSizesTitle,
 	getWidthSizes,
 	type VariableCategory,
 } from '@blockera/data';
@@ -173,10 +176,7 @@ export function setValueAddon(
 	setState(newValue);
 }
 
-export function getValueAddonRealValue(
-	value: ValueAddon | string | void,
-	options?: {| blockName?: string |} | void
-): any {
+export function getValueAddonRealValue(value: ValueAddon | string): any {
 	if (value === undefined) {
 		return '';
 	}
@@ -186,89 +186,35 @@ export function getValueAddonRealValue(
 	}
 
 	if (typeof value === 'string') {
-		const stripped = value.endsWith('func') ? value.slice(0, -4) : value;
-		return resolveThemeJsonVariableStringFromWpEditor(
-			stripped,
-			options?.blockName ?? ''
-		);
+		return value.endsWith('func') ? value.slice(0, -4) : value;
 	}
 
 	if (isObject(value)) {
 		if (value?.isValueAddon) {
-			const blockName = options?.blockName ?? '';
-
 			const variable = getVariable(
 				value?.settings?.type,
 				value?.settings?.id
 			);
 
-			let currentValue: mixed = '';
-			let currentVar = '';
-
 			//
-			// use current saved value
-			//
-			if (!isUndefined(variable?.value) && variable?.value) {
-				currentValue = variable.value;
-			}
-
-			//
-			// use saved value if current value is not set
+			// use current saved value if variable was not found
 			//
 			if (
-				!currentValue &&
+				isUndefined(variable?.value) &&
 				!isUndefined(value.settings.value) &&
-				value.settings.value
+				value.settings.value !== ''
 			) {
-				currentValue = value.settings.value;
+				return value.settings.value;
 			}
 
-			if (!isUndefined(value?.settings?.var) && value?.settings?.var) {
-				currentVar = value.settings.var;
+			if (
+				isUndefined(value?.settings?.var) ||
+				value?.settings?.var === ''
+			) {
+				return '';
 			}
 
-			if (currentValue && currentVar) {
-				// Structured preset payloads (objects) are not valid var() fallbacks; emit token only.
-				if (typeof currentValue === 'object' && currentValue !== null) {
-					return resolveThemeJsonVariableStringFromWpEditor(
-						`var(${currentVar})`,
-						blockName
-					);
-				}
-
-				// If the value already starts with var({$value['settings']['var']}), return it as is
-				if (
-					typeof currentValue === 'string' &&
-					currentValue.startsWith(`var(${currentVar}`)
-				) {
-					return resolveThemeJsonVariableStringFromWpEditor(
-						currentValue,
-						blockName
-					);
-				}
-
-				return resolveThemeJsonVariableStringFromWpEditor(
-					`var(${currentVar}, ${String(currentValue)})`,
-					blockName
-				);
-			}
-
-			if (currentValue) {
-				if (typeof currentValue === 'string') {
-					return resolveThemeJsonVariableStringFromWpEditor(
-						currentValue,
-						blockName
-					);
-				}
-				return currentValue;
-			}
-
-			if (currentVar) {
-				return resolveThemeJsonVariableStringFromWpEditor(
-					`var(${currentVar})`,
-					blockName
-				);
-			}
+			return `var(${value?.settings?.var})`;
 		}
 
 		return ''; // return empty string because there is no real string value
@@ -278,167 +224,34 @@ export function getValueAddonRealValue(
 	return value;
 }
 
-export type VariableIconSize = 'small' | 'normal' | 'large';
-
-// Per tier: `default` px for all types; other keys match `getVariableIcon` `type`.
-export type VariableIconSizeTierConfig = {
-	default: number,
-	[string]: number,
-};
-
-const VARIABLE_ICON_SIZE_PX: {
-	[VariableIconSize]: VariableIconSizeTierConfig,
-} = {
-	small: { default: 16, color: 12 },
-	normal: {
-		default: 20,
-		border: 14,
-		transform: 16,
-		transition: 16,
-		'border-radius': 14,
-		color: 16,
-	},
-	large: { default: 24, border: 22 },
-};
-
-function resolveVariableIconSizePx(
-	variableType: string,
-	iconSize?: VariableIconSize
-): number {
-	const tier: VariableIconSize =
-		iconSize === 'small' || iconSize === 'normal' || iconSize === 'large'
-			? iconSize
-			: 'normal';
-
-	const tierConfig = VARIABLE_ICON_SIZE_PX[tier];
-	const override = tierConfig[variableType];
-
-	if (typeof override === 'number') {
-		return override;
-	}
-
-	return tierConfig.default;
-}
-
-function resolveVariableIconPaintString({
-	type,
-	value,
-	presetSlug,
-	themeJsonResolutionBlockName,
-	themeJsonResolutionPresetCssVarInfix,
-}: {
-	type: string,
-	value?: string,
-	presetSlug?: string,
-	themeJsonResolutionBlockName?: string,
-	themeJsonResolutionPresetCssVarInfix?: string,
-}): string {
-	const paintable =
-		type === 'color' ||
-		type === 'linear-gradient' ||
-		type === 'radial-gradient';
-	if (!paintable) {
-		return '';
-	}
-
-	return resolveThemeJsonPaintPresetStringFromWpEditor({
-		value,
-		presetSlug,
-		blockName: themeJsonResolutionBlockName ?? '',
-		presetCssVarInfix: themeJsonResolutionPresetCssVarInfix,
-		variablePickerType: type,
-	});
-}
-
 export function getVariableIcon({
 	type,
 	value,
-	iconSize = 'normal',
-	presetSlug,
-	themeJsonResolutionBlockName,
-	themeJsonResolutionPresetCssVarInfix,
 }: {
 	type: string,
 	value?: string,
-	iconSize?: VariableIconSize,
-	presetSlug?: string,
-	themeJsonResolutionBlockName?: string,
-	themeJsonResolutionPresetCssVarInfix?: string,
 }): MixedElement {
-	const sizePx = resolveVariableIconSizePx(type, iconSize);
-	const iconSizeProp = String(sizePx);
-
-	const paintStr = resolveVariableIconPaintString({
-		type,
-		value,
-		presetSlug,
-		themeJsonResolutionBlockName,
-		themeJsonResolutionPresetCssVarInfix,
-	});
-
-	const inferGradient =
-		type === 'linear-gradient' ||
-		type === 'radial-gradient' ||
-		(paintStr !== '' && paintStr.includes('gradient('));
-
 	switch (type) {
 		case 'font-size':
-			return <Icon icon="variable-font-size" iconSize={iconSizeProp} />;
+			return <Icon icon="variable-font-size" iconSize="20" />;
 
 		case 'radial-gradient':
 		case 'linear-gradient':
 			return (
 				<ColorIndicator
 					type="gradient"
-					value={paintStr !== '' ? paintStr : ''}
-					size={sizePx}
+					value={value !== '' ? value : ''}
 				/>
 			);
 
 		case 'color':
-			if (inferGradient && paintStr !== '') {
-				return (
-					<ColorIndicator
-						type="gradient"
-						value={paintStr}
-						size={sizePx}
-					/>
-				);
-			}
-			return (
-				<ColorIndicator
-					type="color"
-					value={paintStr !== '' ? paintStr : value}
-					size={sizePx}
-				/>
-			);
+			return <ColorIndicator type="color" value={value} />;
 
 		case 'spacing':
-			return <Icon icon="variable-spacing" iconSize={iconSizeProp} />;
+			return <Icon icon="variable-spacing" iconSize="20" />;
 
 		case 'width-size':
-			return <Icon icon="variable-width-size" iconSize={iconSizeProp} />;
-
-		case 'border':
-			return <Icon icon="border" iconSize={iconSizeProp} />;
-
-		case 'border-radius':
-			return <Icon icon="border-radius" iconSize={iconSizeProp} />;
-
-		case 'text-shadow':
-			return <Icon icon="text-shadow" iconSize={iconSizeProp} />;
-
-		case 'shadow':
-			return <Icon icon="wp-shadows" iconSize={iconSizeProp} />;
-
-		case 'transform':
-			return <Icon icon="transform-move" iconSize={iconSizeProp} />;
-
-		case 'filter':
-			return <Icon icon="variable-filter" iconSize={iconSizeProp} />;
-
-		case 'transition':
-			return <Icon icon="transition" iconSize={iconSizeProp} />;
+			return <Icon icon="variable-width-size" iconSize="20" />;
 	}
 
 	return <></>;
@@ -450,93 +263,44 @@ export function getVariableCategory(
 	switch (category) {
 		case 'font-size':
 			return {
-				label: __('Font Size Variables', 'blockera'),
+				label: getFontSizesTitle(),
 				items: getFontSizes(),
 				type: 'font-size',
 			};
 
 		case 'linear-gradient':
 			return {
-				label: __('Linear Gradient Variables', 'blockera'),
+				label: getLinearGradientsTitle(),
 				items: getLinearGradients(),
 				type: 'linear-gradient',
 			};
 
 		case 'radial-gradient':
 			return {
-				label: __('Radial Gradient Variables', 'blockera'),
+				label: getRadialGradientsTitle(),
 				items: getRadialGradients(),
 				type: 'radial-gradient',
 			};
 
 		case 'width-size':
 			return {
-				label: __('Width & Height Variables', 'blockera'),
+				label: getWidthSizesTitle(),
 				items: getWidthSizes(),
 				type: 'width-size',
 			};
 
 		case 'spacing':
 			return {
-				label: __('Spacing Variables', 'blockera'),
+				label: getSpacingsTitle(),
 				items: getSpacings(),
 				type: 'spacing',
 			};
 
 		case 'color':
 			return {
-				label: __('Color Variables', 'blockera'),
+				label: getColorsTitle(),
 				items: getColors(),
 				type: 'color',
-			};
-
-		case 'shadow':
-			return {
-				label: __('Shadow variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('shadow'),
-				type: 'shadow',
-			};
-
-		case 'text-shadow':
-			return {
-				label: __('Text shadow variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('text-shadow'),
-				type: 'text-shadow',
-			};
-
-		case 'border-radius':
-			return {
-				label: __('Border radius variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('border-radius'),
-				type: 'border-radius',
-			};
-
-		case 'border':
-			return {
-				label: __('Border variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('border'),
-				type: 'border',
-			};
-
-		case 'transition':
-			return {
-				label: __('Transition variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('transition'),
-				type: 'transition',
-			};
-
-		case 'transform':
-			return {
-				label: __('Transform variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('transform'),
-				type: 'transform',
-			};
-
-		case 'filter':
-			return {
-				label: __('Filter variables', 'blockera'),
-				items: getMergedGlobalStylePresetVariables('filter'),
-				type: 'filter',
 			};
 	}
 
@@ -833,67 +597,4 @@ export function getDeletedItemInfo(item: ValueAddon): {
 	}
 
 	return result;
-}
-
-/** Info payload for the variable deleted-state popover when a plain stored theme.json preset slug is missing from merged features. */
-export function getDeletedPlainThemeJsonPresetInfo(
-	slug: string,
-	options?: {| compositePaint?: string |}
-): {
-	name: string,
-	id: string,
-	value: string,
-	referenceType: string,
-	referenceName: string,
-	tooltip: string,
-	before: string,
-	after: string,
-	after2: string | MixedElement,
-} {
-	const trimmedPaint =
-		typeof options?.compositePaint === 'string'
-			? options.compositePaint.trim()
-			: '';
-	const hasCompositePaint = trimmedPaint !== '';
-
-	if (hasCompositePaint) {
-		return {
-			name: slug,
-			id: '',
-			value: trimmedPaint,
-			referenceType: 'preset',
-			referenceName: __('Block Editor', 'blockera'),
-			tooltip: '',
-			before: __(
-				'This theme preset slug is no longer present in theme.json for this control. A resolved color was stored with the slug.',
-				'blockera'
-			),
-			after: __(
-				'You can switch to another variable, unlink to keep only this resolved color, or remove to clear the value.',
-				'blockera'
-			),
-			after2: '',
-		};
-	}
-
-	return {
-		name: slug,
-		id: '',
-		value: __(
-			'Not defined in the merged theme styles anymore.',
-			'blockera'
-		),
-		referenceType: 'preset',
-		referenceName: __('Block Editor', 'blockera'),
-		tooltip: '',
-		before: __(
-			'This theme preset slug is no longer present in theme.json for this control.',
-			'blockera'
-		),
-		after: __(
-			'You have the option to either switch it with another variable or unlink it to clear this reference.',
-			'blockera'
-		),
-		after2: '',
-	};
 }
