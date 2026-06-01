@@ -26,7 +26,10 @@ import { componentInnerClassNames } from '@blockera/classnames';
 /**
  * Internal dependencies
  */
-import { sanitizeStyleVariationId } from './utils';
+import {
+	BLOCK_SIZE_VARIATION_CLASS_PREFIX,
+	sanitizeStyleVariationId,
+} from './utils';
 
 export const RenameModal = ({
 	style,
@@ -36,11 +39,13 @@ export const RenameModal = ({
 	isConfirmedChangeID,
 	setIsOpenRenameModal,
 	setIsConfirmedChangeID,
+	isSizeVariationUi = false,
 }: {
 	style: Object,
 	buttonText: string,
 	blockStyles: Array<Object>,
 	isConfirmedChangeID: boolean,
+	isSizeVariationUi?: boolean,
 	setIsOpenRenameModal: (isOpen: boolean) => void,
 	setIsConfirmedChangeID: (isConfirmed: boolean) => void,
 	handleOnRename: (
@@ -93,20 +98,29 @@ export const RenameModal = ({
 		(styleID === style.name
 			? styleName === buttonText
 			: !isConfirmedChangeID || !styleID.trim());
+	const variationClassPrefix = isSizeVariationUi
+		? BLOCK_SIZE_VARIATION_CLASS_PREFIX
+		: 'is-style-';
+
+	let headerTitle = isSizeVariationUi
+		? __('Rename size variation', 'blockera')
+		: __('Rename style variation', 'blockera');
+
+	if (style.label) {
+		headerTitle = sprintf(
+			/* translators: %s: The variation label. */
+			__('Rename "%s"', 'blockera'),
+			style.label
+		);
+	}
 
 	return (
 		<Modal
-			className={componentInnerClassNames('style-variation-modal')}
+			className={componentInnerClassNames('style-variation-modal', {
+				'is-variation-ui-size': isSizeVariationUi,
+			})}
 			headerIcon={<Icon icon="pen" iconSize="34" />}
-			headerTitle={
-				style.label
-					? sprintf(
-							/* translators: %s: The style variation label. */
-							__('Rename "%s"', 'blockera'),
-							style.label
-						)
-					: __('Rename style variation', 'blockera')
-			}
+			headerTitle={headerTitle}
 			isDismissible={true}
 			onRequestClose={() => {
 				setIsOpenRenameModal(false);
@@ -151,10 +165,15 @@ export const RenameModal = ({
 			<Flex direction="column" gap={40}>
 				<Flex direction="column" gap={25}>
 					<p style={{ margin: '0', color: '#707070' }}>
-						{__(
-							"The name is just a label and can be changed freely. Change the ID only if you haven't used this style on any block yet.",
-							'blockera'
-						)}
+						{isSizeVariationUi
+							? __(
+									"The name is just a label and can be changed freely. Change the ID only if you haven't used this size on any block yet.",
+									'blockera'
+								)
+							: __(
+									"The name is just a label and can be changed freely. Change the ID only if you haven't used this style on any block yet.",
+									'blockera'
+								)}
 					</p>
 
 					<Flex direction="column" gap={20}>
@@ -218,13 +237,18 @@ export const RenameModal = ({
 																	'500',
 															}}
 														>
-															.is-style-
+															{
+																variationClassPrefix
+															}
 															{style.name}
 														</code>
 													),
 													new: (
 														<code>
-															.is-style-{styleID}
+															{
+																variationClassPrefix
+															}
+															{styleID}
 														</code>
 													),
 												}}
@@ -291,10 +315,17 @@ export const RenameModal = ({
 							}}
 						>
 							<CheckboxControl
-								checkboxLabel={__(
-									'I understand that blocks using the old ID will lose their styles.',
-									'blockera'
-								)}
+								checkboxLabel={
+									isSizeVariationUi
+										? __(
+												'I understand that blocks using the old ID will lose their size.',
+												'blockera'
+											)
+										: __(
+												'I understand that blocks using the old ID will lose their styles.',
+												'blockera'
+											)
+								}
 								onChange={(newValue: boolean) =>
 									setIsConfirmedChangeID(newValue)
 								}

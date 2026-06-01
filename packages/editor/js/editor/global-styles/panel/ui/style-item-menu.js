@@ -79,6 +79,7 @@ export const StyleItemMenu = (): MixedElement => {
 					blockStyles={blockStyles}
 					handleOnRename={handleOnRename}
 					isConfirmedChangeID={isConfirmedChangeID}
+					isSizeVariationUi={!variationAllowsMultipleBlocks}
 					setIsOpenRenameModal={setIsOpenRenameModal}
 					setIsConfirmedChangeID={setIsConfirmedChangeID}
 				/>
@@ -87,6 +88,7 @@ export const StyleItemMenu = (): MixedElement => {
 				<DeleteModal
 					style={style}
 					handleOnDelete={handleOnDelete}
+					isSizeVariationUi={!variationAllowsMultipleBlocks}
 					setIsOpenDeleteModal={setIsOpenDeleteModal}
 				/>
 			)}
@@ -96,6 +98,7 @@ export const StyleItemMenu = (): MixedElement => {
 					buttonText={buttonText}
 					handleOnDuplicate={handleOnDuplicate}
 					isConfirmedChangeID={isConfirmedChangeID}
+					isSizeVariationUi={!variationAllowsMultipleBlocks}
 					setIsOpenDuplicateModal={setIsOpenDuplicateModal}
 					setIsConfirmedChangeID={setIsConfirmedChangeID}
 					blockStyles={blockStyles}

@@ -113,7 +113,9 @@ export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
 	}
 
 	const accentDefault =
-		uiSurface === VARIATION_SURFACE_SIZE ? '#0516FF' : '#1ca120';
+		uiSurface === VARIATION_SURFACE_SIZE
+			? 'var(--blockera-controls-block-variations-size)'
+			: 'var(--blockera-controls-block-variations-style)';
 
 	if (!['global-styles-panel', 'inspector-controls'].includes(context)) {
 		return <></>;
@@ -216,20 +218,24 @@ export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
 				>
 					{buttonText}
 
-					<ChangeIndicator
-						isChanged={hasChangesets}
-						isAnimated={true}
-						primaryColor={
-							activeStyleId === 'default'
-								? accentDefault
-								: '#ffffff'
-						}
-						size={'5'}
-						outlineSize={activeStyleId === 'default' ? '1.5' : '0'}
-						style={{
-							opacity: '0.8',
-						}}
-					/>
+					{uiSurface !== VARIATION_SURFACE_SIZE && (
+						<ChangeIndicator
+							isChanged={hasChangesets}
+							isAnimated={true}
+							primaryColor={
+								activeStyleId === 'default'
+									? accentDefault
+									: '#ffffff'
+							}
+							size={'5'}
+							outlineSize={
+								activeStyleId === 'default' ? '1.5' : '0'
+							}
+							style={{
+								opacity: '0.8',
+							}}
+						/>
+					)}
 
 					<Icon icon="more-vertical-small" iconSize={24} />
 				</Flex>
@@ -239,7 +245,11 @@ export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
 				<BlockStyles
 					blockName={blockName}
 					originDefaultAttributes={originDefaultAttributes}
-					hasChangesets={hasChangesets}
+					hasChangesets={
+						uiSurface === VARIATION_SURFACE_SIZE
+							? false
+							: hasChangesets
+					}
 					setChangesets={setChangesets}
 					pickerVariationSurface={uiSurface}
 					styles={{
