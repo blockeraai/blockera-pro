@@ -17,8 +17,12 @@ import { isEmpty, getSortedObject, mergeObject } from '@blockera/utils';
  * Internal dependencies
  */
 import { generateExtensionId } from '../../../utils';
-import { getBaseBreakpoint } from '../../../../../canvas-editor';
-import { isNormalState, isInnerBlock } from '../../../../components';
+import { getBaseBreakpoint } from '../../../../../editor/header-ui';
+import {
+	isInnerBlock,
+	isNormalState,
+	useBlockContext,
+} from '../../../../components';
 import type {
 	TStates,
 	StateTypes,
@@ -39,20 +43,39 @@ export const useBlockStates = ({
 	attributes,
 	currentBlock,
 	currentState,
+	setCurrentBlock,
 	deleteCacheData,
 	availableStates,
-	currentBreakpoint,
+	// currentBreakpoint,
 	currentInnerBlockState,
 }: StatesManagerHookProps): Object => {
-	let states = { ...(attributes?.blockeraBlockStates || {}) };
+	const { getAttributes } = useBlockContext();
+	const blockAttributes = getAttributes();
+	let states = useMemo(() => {
+		return { ...(attributes?.blockeraBlockStates || {}) };
+	}, [attributes?.blockeraBlockStates]);
+
+	if (isInnerBlock(currentBlock)) {
+		states = {
+			...(blockAttributes?.blockeraInnerBlocks?.[currentBlock]?.attributes
+				?.blockeraBlockStates || {}),
+			...states,
+		};
+	}
 	const {
 		changeExtensionCurrentBlockState: setCurrentState,
 		changeExtensionInnerBlockState: setInnerBlockState,
+		setBlockClientMasterState,
+		setBlockClientInnerState,
 	} = dispatch('blockera/extensions') || {};
 	const { getBlockStates, getActiveMasterState, getActiveInnerState } =
 		select('blockera/extensions');
-	const { getStates, getBreakpoints, getInnerStates } =
-		select('blockera/editor');
+	const {
+		getStates,
+		getBreakpoints,
+		getInnerStates,
+		getSelectedBlockStyleVariation,
+	} = select('blockera/editor');
 	const savedBlockStates = getBlockStates(
 		block?.clientId,
 		!isMasterBlockStates(id) ? currentBlock : block?.blockName
@@ -64,7 +87,9 @@ export const useBlockStates = ({
 
 	if (isEmpty(states)) {
 		// Sets initialize states ...
-		states = savedBlockStates;
+		if (Object.keys(availableStates)?.length) {
+			states = savedBlockStates;
+		}
 	} else {
 		states = mergeObject(savedBlockStates, states);
 	}
@@ -126,7 +151,7 @@ export const useBlockStates = ({
 			const memoizedInitialValue = memoize(
 				([itemId, state]: [
 					TStates,
-					{ ...StateTypes, isSelected: boolean }
+					{ ...StateTypes, isSelected: boolean },
 				]): void => {
 					const activeInnerBlockState = getActiveInnerState(
 						block.clientId,
@@ -189,8 +214,19 @@ export const useBlockStates = ({
 		}
 
 		return forcedStates;
-		// eslint-disable-next-line
-	}, [currentBlock, states, currentBreakpoint]);
+	}, [
+		id,
+		block,
+		states,
+		currentBlock,
+		currentState,
+		preparedStates,
+		setCurrentState,
+		setInnerBlockState,
+		getActiveInnerState,
+		getActiveMasterState,
+		currentInnerBlockState,
+	]);
 
 	const defaultRepeaterItemValue = {
 		deletable: true,
@@ -248,7 +284,7 @@ export const useBlockStates = ({
 			Object.entries(items).forEach(
 				([_itemId, _item]: [
 					TStates,
-					{ ...StateTypes, isSelected: boolean }
+					{ ...StateTypes, isSelected: boolean },
 				]): void => {
 					// Skip the deleted item.
 					if (_itemId === itemId) {
@@ -308,12 +344,14 @@ export const useBlockStates = ({
 						: clonedSavedStates,
 					{
 						ref: {
-							path: isInnerBlock(currentBlock)
-								? `blockeraInnerBlocks.value[${currentBlock}].attributes.blockeraBlockStates`
-								: `blockeraBlockStates`,
-							reset: false,
-							action: 'normal',
-							defaultValue: {},
+							current: {
+								path: isInnerBlock(currentBlock)
+									? `blockeraInnerBlocks.value[${currentBlock}].attributes.blockeraBlockStates`
+									: `blockeraBlockStates`,
+								reset: false,
+								action: 'normal',
+								defaultValue: {},
+							},
 						},
 					}
 				);
@@ -324,6 +362,137 @@ export const useBlockStates = ({
 		// eslint-disable-next-line
 		[clonedSavedStates]
 	);
+
+	const onReset = useCallback(
+		(
+			itemId: TStates,
+			repeaterItems: { [key: TStates]: Object }
+		): Object => {
+			let mergedStates: { [key: TStates]: Object } = {
+				...(attributes?.blockeraBlockStates || {}),
+			};
+
+			if (isInnerBlock(currentBlock)) {
+				mergedStates = {
+					...(blockAttributes?.blockeraInnerBlocks?.[currentBlock]
+						?.attributes?.blockeraBlockStates || {}),
+					...mergedStates,
+				};
+			}
+
+			const filteredStates: {
+				[key: TStates]: Object,
+			} = {};
+
+			for (const key of Object.keys(mergedStates)) {
+				const stateItem = mergedStates[key];
+
+				if (key !== itemId) {
+					filteredStates[key] =
+						stateItem && 'object' === typeof stateItem
+							? { ...stateItem }
+							: stateItem;
+
+					continue;
+				}
+
+				const prevBreakpoints = stateItem?.breakpoints || {};
+				const nextBreakpoints: {
+					[string]: { attributes: Object },
+				} = {};
+
+				for (const breakpoint of Object.keys(prevBreakpoints)) {
+					nextBreakpoints[breakpoint] = {
+						attributes: {},
+					};
+				}
+
+				if (!Object.keys(nextBreakpoints).length) {
+					nextBreakpoints[getBaseBreakpoint()] = {
+						attributes: {},
+					};
+				}
+
+				filteredStates[key] = {
+					...stateItem,
+					breakpoints: nextBreakpoints,
+					...(undefined !== stateItem &&
+					null !== stateItem &&
+					'content' in stateItem
+						? { content: '' }
+						: {}),
+				};
+			}
+
+			onChange('blockeraBlockStates', filteredStates, {
+				ref: {
+					current: {
+						path: isInnerBlock(currentBlock)
+							? `blockeraInnerBlocks.value[${currentBlock}].attributes.blockeraBlockStates`
+							: `blockeraBlockStates`,
+						reset: false,
+						defaultValue: {},
+						action: 'normal',
+					},
+				},
+				stateReadyToReset: itemId,
+				resetStateAllValues: true,
+			});
+
+			if (isMasterBlockStates(id)) {
+				setCurrentState?.('normal');
+				setBlockClientMasterState?.({
+					currentState: 'normal',
+					name: block.blockName,
+					clientId: block.clientId,
+				});
+			} else {
+				setInnerBlockState?.('normal');
+				setBlockClientInnerState?.({
+					currentState: 'normal',
+					innerBlockType: currentBlock,
+					clientId: block.clientId,
+				});
+			}
+
+			const nextRepeaterItems: { [key: string]: Object } = {};
+
+			for (const key of Object.keys(repeaterItems)) {
+				const persisted = filteredStates[key];
+
+				if (persisted) {
+					nextRepeaterItems[key] = {
+						...repeaterItems[key],
+						...persisted,
+						breakpoints: persisted.breakpoints,
+						isSelected: key === 'normal',
+					};
+				} else {
+					nextRepeaterItems[key] = {
+						...repeaterItems[key],
+						isSelected: key === 'normal',
+					};
+				}
+			}
+
+			return nextRepeaterItems;
+		},
+		// eslint-disable-next-line
+		[
+			attributes?.blockeraBlockStates,
+			blockAttributes?.blockeraInnerBlocks,
+			block.blockName,
+			block.clientId,
+			currentBlock,
+			id,
+			onChange,
+			setBlockClientInnerState,
+			setBlockClientMasterState,
+			setCurrentState,
+			setInnerBlockState,
+		]
+	);
+
 	/**
 	 * Retrieve dynamic default value for repeater items.
 	 *
@@ -368,6 +537,7 @@ export const useBlockStates = ({
 			onChangeBlockStates(
 				newValue,
 				{
+					block,
 					states,
 					onChange,
 					currentState,
@@ -375,7 +545,10 @@ export const useBlockStates = ({
 					valueCleanup,
 					getStateInfo,
 					getBlockStates,
+					setCurrentBlock,
 					currentInnerBlockState,
+					currentBlockStyleVariation:
+						getSelectedBlockStyleVariation(),
 					isMasterBlockStates: isMasterBlockStates(id),
 				},
 				preparedStates
@@ -410,6 +583,7 @@ export const useBlockStates = ({
 	return {
 		id,
 		states,
+		onReset,
 		onDelete,
 		contextValue,
 		valueCleanup,
@@ -422,3 +596,5 @@ export const useBlockStates = ({
 		getDynamicDefaultRepeaterItem,
 	};
 };
+
+export { useResetBlockStateToNormal } from './use-reset-block-state-to-normal';

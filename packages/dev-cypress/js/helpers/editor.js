@@ -34,6 +34,8 @@ export function getWindowProperty(path) {
  * when the window object is not available.
  */
 export function getWPDataObject() {
+	cy.waitForAssertValue();
+
 	return cy
 		.window()
 		.its('wp.data')
@@ -75,6 +77,51 @@ export function getSelectedBlock(data, field = '') {
 }
 
 /**
+ * Get the style of the selected block.
+ *
+ * @param {Object} data the WordPress data.
+ * @param {string} name the name of the block.
+ * @param {string} variation the variation of the block. Default is 'default'.
+ *
+ * @return {*} retrieved the style of the selected block.
+ */
+export function getSelectedBlockStyle(data, name, variation = 'default') {
+	const { getBlockStyles } = data.select('blockera/editor');
+
+	return getBlockStyles(name, variation);
+}
+
+/**
+ * Get the WordPress globalStyles entity record.
+ *
+ * @param {*} data the @wordpress/data package object.
+ * @param {*} prop the property of record. like style, settings, etc.
+ * @param {*} innerField the inner property name in record[prop] object.
+ *
+ * @return anythings.
+ */
+export function getEditedGlobalStylesRecord(data, prop, innerField) {
+	const { __experimentalGetCurrentGlobalStylesId } = data.select('core');
+	const { getEditedEntityRecord } = data.select('core');
+
+	const record = getEditedEntityRecord(
+		'root',
+		'globalStyles',
+		__experimentalGetCurrentGlobalStylesId()
+	);
+
+	if (prop) {
+		if (innerField) {
+			return record?.[prop]?.[innerField];
+		}
+
+		return record?.[prop];
+	}
+
+	return record;
+}
+
+/**
  * Get editor content.
  *
  * @param {Object} data the WordPress data.
@@ -104,6 +151,41 @@ export function getBlockeraEntity(data, field) {
 	return data.select('blockera/data').getEntity('blockera')[field];
 }
 
+/**
+ * Persist all dirty entity records (e.g. global styles) from the site or post editor.
+ * Mirrors the multi-entity save flow used when clicking Save in the editor UI.
+ *
+ * @return {Cypress.Chainable} Resolves when WordPress `saveEditedEntityRecord` calls complete.
+ */
+export function saveSiteEditorDirtyEntities() {
+	return cy.window().then((win) => {
+		const select = win.wp.data.select('core');
+		const dispatch = win.wp.data.dispatch('core');
+		const getDirty = select.__experimentalGetDirtyEntityRecords;
+
+		if (typeof getDirty !== 'function') {
+			throw new Error(
+				'wp.data.select("core").__experimentalGetDirtyEntityRecords is not available'
+			);
+		}
+
+		const dirtyRecords = getDirty() || [];
+		const entitiesToSave = dirtyRecords.filter(
+			(record) => !(record.kind === 'root' && record.name === 'site')
+		);
+
+		return Promise.all(
+			entitiesToSave.map((record) =>
+				dispatch.saveEditedEntityRecord(
+					record.kind,
+					record.name,
+					record.key
+				)
+			)
+		);
+	});
+}
+
 export function getBlockClientId(data) {
 	return data.select('core/block-editor').getSelectedBlock().clientId;
 }
@@ -117,23 +199,75 @@ export function disableGutenbergFeatures() {
 	});
 }
 
-export function getBlockInserter() {
-	return cy.get(
-		'.edit-post-header [aria-label="Toggle block inserter"], .edit-site-header [aria-label="Toggle block inserter"], .edit-post-header [aria-label="Block Inserter"], .edit-site-header [aria-label="Block Inserter"], .edit-post-header-toolbar__inserter-toggle[aria-pressed="false"], .editor-document-tools__inserter-toggle is-primary[aria-pressed="false"]'
-	);
+export function openBlockInserter(selector = false) {
+	if (selector) {
+		return cy.getIframeBody().find(selector).click();
+	}
+	return cy.get('body').then(($body) => {
+		const secondarySidebar = $body.find(
+			'[aria-label="Show secondary sidebar"]'
+		);
+		if (secondarySidebar.length > 0) {
+			return cy.get('[aria-label="Show secondary sidebar"]').click();
+		}
+		return cy;
+	});
+}
+
+export function closeBlockInserter() {
+	return cy.get('body').then(($body) => {
+		const secondarySidebar = $body.find(
+			'[aria-label="Hide secondary sidebar"]'
+		);
+		if (secondarySidebar.length > 0) {
+			return cy.get('[aria-label="Hide secondary sidebar"]').click();
+		}
+		return cy;
+	});
 }
 
 /**
  * From inside the WordPress editor open the blockera Gutenberg editor panel
+ *
+ * for simple blocks you can use the blockName as 'core/image'
+ * for blocks with variations you can use the blockName as {category}/{blockType}/{variation}
+ * examples:
+ * - 'core/group/group'
+ * - 'core/image/blockera/icon'
  *
  * @param {string}  blockName   The name to find in the block inserter
  *                              e.g 'core/image'.
  * @param {boolean} clearEditor Should clear editor of all blocks
  * @param {string} className The block css class name
  */
-export function addBlockToPost(blockName, clearEditor = false, className = '') {
-	const blockCategory = blockName.split('/')[0] || false;
-	const blockID = blockName.split('/')[1] || false;
+export function addBlockToPost(
+	blockName,
+	clearEditor = false,
+	className = '',
+	blockInserterSelector = false
+) {
+	const blockNameArray = blockName.split('/');
+
+	let blockCategory = false;
+	let blockType = false;
+	let blockID = false;
+	let blockSearchName = false;
+
+	if (blockNameArray.length === 4) {
+		blockCategory = blockNameArray[0];
+		blockType = blockNameArray[1];
+		blockID = blockNameArray[2] + '/' + blockNameArray[3];
+		blockSearchName = blockNameArray[3];
+	} else if (blockNameArray.length === 3) {
+		blockCategory = blockNameArray[0];
+		blockType = blockNameArray[1];
+		blockID = blockNameArray[2];
+		blockSearchName = blockNameArray[2];
+	} else {
+		blockCategory = blockNameArray[0];
+		blockID = blockNameArray[1];
+		blockSearchName = blockNameArray[1];
+	}
 
 	if (!blockCategory || !blockID) {
 		return;
@@ -143,27 +277,35 @@ export function addBlockToPost(blockName, clearEditor = false, className = '') {
 		clearBlocks();
 	}
 
-	getBlockInserter().click();
+	openBlockInserter(blockInserterSelector);
 
 	// eslint-disable-next-line
 	cy.get(
 		'.block-editor-inserter__search-input,input.block-editor-inserter__search, .components-search-control__input, input[placeholder="Search"]'
 	)
 		.click()
-		.type(blockName, { delay: 0 });
+		.type(blockSearchName, { delay: 0 });
 
 	/**
 	 * The network request to block-directory may be cached and is not consistently fired with each test.
 	 * Instead of intercepting we can await known dom elements that appear only when search results are present.
 	 * This should correct a race condition in CI.
 	 */
-	cy.get('div.block-editor-inserter__main-area:not(.show-as-tabs)');
+	if (!blockInserterSelector) {
+		cy.get('div.block-editor-inserter__main-area:not(.show-as-tabs)');
+	}
 
-	const targetClassName =
-		(blockCategory === 'core' ? '' : `-${blockCategory}`) + `-${blockID}`;
-	cy.get('.editor-block-list-item' + targetClassName)
-		.first()
-		.click({ force: true });
+	let targetClassName = '';
+
+	if (blockType) {
+		targetClassName = `.editor-block-list-item-${CSS.escape(
+			`${blockType}/${blockID}`
+		)}`;
+	} else {
+		targetClassName = `.editor-block-list-item-${CSS.escape(blockID)}`;
+	}
+
+	cy.get(targetClassName).first().click({ force: true });
 
 	// Make sure the block was added to our page
 	cy.get(`[class*="-visual-editor"]`)
@@ -180,8 +322,11 @@ export function addBlockToPost(blockName, clearEditor = false, className = '') {
 
 	cy.openDocumentSettingsSidebar('Block');
 
-	// Click on added new block item.
-	cy.getBlock(blockName).click();
+	if (blockType) {
+		cy.getBlock(`${blockCategory}/${blockType}`).last().click();
+	} else {
+		cy.getBlock(`${blockCategory}/${blockID}`).last().click();
+	}
 
 	cy.window()
 		.its('wp.hooks')
@@ -288,7 +433,7 @@ export function redirectToFrontPage() {
 		win.stop();
 	});
 
-	cy.get('.blockera-control-canvas-editor-preview-link a')
+	cy.get('.blockera-preview-button-wrapper a')
 		.invoke('attr', 'href')
 		.then((href) => {
 			cy.visit(href);
@@ -489,9 +634,13 @@ export function openMoreFeaturesControl(label) {
 		});
 }
 
-export const reSelectBlock = (blockType = 'core/paragraph') => {
-	// unfocus block
+// unfocus block
+export const deSelectBlock = () => {
 	cy.getIframeBody().find('h1').click();
+};
+
+export const reSelectBlock = (blockType = 'core/paragraph') => {
+	deSelectBlock();
 
 	// reselect block
 	cy.getIframeBody()
@@ -504,37 +653,136 @@ export const reSelectBlock = (blockType = 'core/paragraph') => {
  * Close welcome guide if it exists
  */
 export function closeWelcomeGuide() {
+	// Return inner cy chains from `.then` so Cypress runs clicks *before* the overlay
+	// assertion below (nested cy.* without return can enqueue after the sibling).
 	cy.get('body').then(($body) => {
-		if (
+		const hasClose =
 			$body.find(
 				'.components-modal__screen-overlay button[aria-label="Close"]'
-			).length > 0
-		) {
-			cy.get('.components-modal__screen-overlay [aria-label="Close"]')
+			).length > 0;
+		const hasFinish =
+			$body.find(
+				'.components-modal__screen-overlay button.components-guide__finish-button'
+			).length > 0;
+
+		if (hasClose) {
+			return cy
+				.get('.components-modal__screen-overlay [aria-label="Close"]')
 				.last()
 				.click();
 		}
 
-		// Check for either button and click the first one found
-		if (
-			$body.find(
-				'.components-modal__screen-overlay button.components-guide__finish-button'
-			).length > 0
-		) {
-			cy.get(
-				'.components-modal__screen-overlay button.components-guide__finish-button'
-			).click();
+		if (hasFinish) {
+			return cy
+				.get(
+					'.components-modal__screen-overlay button.components-guide__finish-button'
+				)
+				.click();
 		}
 	});
 
-	cy.wait(10);
-
-	cy.get('body').then(($body) => {
-		// Check and remove screen overlay if it exists
-		if ($body.find('.components-modal__screen-overlay').length > 0) {
-			cy.get('.components-modal__screen-overlay').invoke('remove', {
-				force: true,
-			});
-		}
+	// Wait until no modal overlay remains (dismiss animation after Close/Finish).
+	// Do not use `invoke('remove', { force: true })` — Cypress passes the second
+	// argument to jQuery `.remove(selector)`, so the overlay may never detach.
+	// Avoid native `el.remove()` here: that can desync React on post-new.
+	cy.get('body', { timeout: 20000 }).should(($b) => {
+		expect($b.find('.components-modal__screen-overlay')).to.have.length(0);
+		// Overlay can unmount before modal chrome; :visible avoids counting hidden shells.
+		expect(
+			$b.find('.components-modal__header-heading-container:visible')
+		).to.have.length(0);
 	});
+}
+
+/**
+ * Resolve mu-plugin target filename under wp-content/mu-plugins/.
+ *
+ * @param {string} muPluginPath Full path to the mu-plugin.php file (relative to plugin root).
+ * @param {string|null} targetName Optional target filename.
+ * @return {string} Target filename under wp-content/mu-plugins/.
+ */
+function getMuPluginTargetName(muPluginPath, targetName = null) {
+	if (targetName) {
+		return targetName;
+	}
+	// e.g. "block-query-title" from "tests/fixtures/block-query-title/mu-plugin.php"
+	const pathParts = muPluginPath.split('/');
+	const folderName = pathParts[pathParts.length - 2] || 'mu-plugin';
+	return `blockera-test-${folderName}.php`;
+}
+
+/**
+ * Run `wp eval` for mu-plugin helpers and log stdout/stderr in the Cypress command log.
+ *
+ * @param {string} action Short label (e.g. activateMuPlugin).
+ * @param {string} label Human-readable context for the log line.
+ * @param {string} escapedPhpCode Shell-escaped PHP passed to wp eval.
+ * @return {Cypress.Chainable} Wrapped wp-cli exec result with stdout/stderr logged.
+ */
+function runMuPluginWpEval(action, label, escapedPhpCode) {
+	return cy
+		.wpCli(`wp eval '${escapedPhpCode}'`, true, true)
+		.then((result) => {
+			const stdout = (result.stdout || '').trim();
+			const stderr = (result.stderr || '').trim();
+			const exitCode = result.code ?? 0;
+			const parts = [`[${action}] ${label}`];
+			if (stdout) {
+				parts.push(`stdout: ${stdout}`);
+			}
+			if (stderr) {
+				parts.push(`stderr: ${stderr}`);
+			}
+			if (exitCode !== 0) {
+				parts.push(`exit: ${exitCode}`);
+			}
+			cy.log(parts.join(' | '));
+			return cy.wrap(result);
+		});
+}
+
+/**
+ * Activate mu-plugin by copying it to wp-content/mu-plugins/ directory.
+ * This function accepts a full path to the mu-plugin.php file and copies it to the mu-plugins directory.
+ *
+ * @param {string} muPluginPath Full path to the mu-plugin.php file (relative to plugin root).
+ * @param {string} [targetName] Optional target filename. If not provided, generates from path.
+ * @return {Cypress.Chainable} Cypress chainable.
+ */
+export function activateMuPlugin(muPluginPath, targetName = null) {
+	targetName = getMuPluginTargetName(muPluginPath, targetName);
+
+	// Build PHP code to copy mu-plugin to mu-plugins directory
+	// Use wp eval to execute PHP code directly without creating temp files
+	const phpCode = `if (!file_exists(WPMU_PLUGIN_DIR)) { wp_mkdir_p(WPMU_PLUGIN_DIR); } $rel = '${muPluginPath}'; $sourceFile = null; if (defined('BLOCKERA_SB_PATH')) { $try = rtrim(BLOCKERA_SB_PATH, '/') . '/' . $rel; if (is_file($try)) { $sourceFile = $try; } } if (!$sourceFile) { $try = rtrim(WP_PLUGIN_DIR, '/') . '/blockera/' . $rel; if (is_file($try)) { $sourceFile = $try; } } if (!$sourceFile && is_dir(WP_PLUGIN_DIR)) { foreach ((glob(rtrim(WP_PLUGIN_DIR, '/') . '/*', GLOB_ONLYDIR) ?: []) as $dir) { $try = rtrim($dir, '/') . '/' . $rel; if (is_file($try)) { $sourceFile = $try; break; } } } $targetFile = WPMU_PLUGIN_DIR . '/${targetName}'; if ($sourceFile && is_file($sourceFile)) { file_put_contents($targetFile, file_get_contents($sourceFile)); echo 'activated:' . $targetFile . ' from:' . $sourceFile; } else { echo 'activate_failed: source not found for ' . $rel; }`;
+
+	// Escape single quotes for shell: ' becomes '\''
+	// Use single quotes in shell command to preserve $ signs in PHP
+	const escapedPhpCode = phpCode.replace(/'/g, "'\\''");
+
+	return runMuPluginWpEval(
+		'activateMuPlugin',
+		`${muPluginPath} -> ${targetName}`,
+		escapedPhpCode
+	);
+}
+
+/**
+ * Deactivate mu-plugin by removing it from wp-content/mu-plugins/ directory.
+ * This function removes the mu-plugin file that was previously activated.
+ *
+ * @param {string} muPluginPath Full path to the mu-plugin.php file (relative to plugin root).
+ * @param {string} [targetName] Optional target filename. If not provided, generates from path (must match activateMuPlugin).
+ * @return {Cypress.Chainable} Cypress chainable.
+ */
+export function deactivateMuPlugin(muPluginPath, targetName = null) {
+	targetName = getMuPluginTargetName(muPluginPath, targetName);
+
+	// Build PHP code to remove mu-plugin from mu-plugins directory
+	const phpCode = `$targetFile = WPMU_PLUGIN_DIR . '/${targetName}'; if (file_exists($targetFile)) { unlink($targetFile); echo 'deactivated:' . $targetFile; } else { echo 'deactivate_skip: not found ' . $targetFile; }`;
+
+	// Escape single quotes for shell: ' becomes '\''
+	const escapedPhpCode = phpCode.replace(/'/g, "'\\''");
+
+	return runMuPluginWpEval('deactivateMuPlugin', targetName, escapedPhpCode);
 }
