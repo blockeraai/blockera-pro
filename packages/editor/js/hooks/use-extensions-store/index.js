@@ -8,7 +8,7 @@ import { useSelect, select, dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { getBaseBreakpoint } from '../../canvas-editor';
+import { getBaseBreakpoint } from '../../editor/header-ui';
 import type { ExtensionsStoreType } from './ExtensionsStoreType';
 import { isInnerBlock } from '../../extensions/components/utils';
 import { STORE_NAME } from '../../extensions/libs/base/store/constants';
@@ -46,7 +46,6 @@ export function getExtensionConfig(
 
 export const useExtensionsStore = (props: Object): ExtensionsStoreType => {
 	const {
-		config,
 		getBlockExtensionBy,
 		currentBlock = 'master',
 		currentState = 'normal',
@@ -54,7 +53,16 @@ export const useExtensionsStore = (props: Object): ExtensionsStoreType => {
 		currentBreakpoint = getBaseBreakpoint(),
 	} = useSelect((select) => {
 		const { getSelectedBlock } = select('core/block-editor');
-		const { name, clientId } = getSelectedBlock() || props || {};
+		const selected = getSelectedBlock();
+		// Prefer the block instance passed into this hook (e.g. BlockStyle,
+		// feature wrappers). Using only getSelectedBlock() breaks canvas CSS when
+		// another block stays selected — common after programmatic insert (AI/JSON).
+		const { name, clientId } =
+			typeof props?.clientId === 'string' &&
+			props.clientId !== '' &&
+			typeof props?.name === 'string'
+				? { name: props.name, clientId: props.clientId }
+				: selected || props || {};
 		const {
 			getBlockExtensionBy,
 			getActiveInnerState,
@@ -68,7 +76,6 @@ export const useExtensionsStore = (props: Object): ExtensionsStoreType => {
 		return {
 			currentBlock,
 			getBlockExtensionBy,
-			config: getExtensionConfig(name, currentBlock),
 			currentState: getActiveMasterState(clientId, name),
 			currentBreakpoint: getExtensionCurrentBlockStateBreakpoint(),
 			currentInnerBlockState: getActiveInnerState(clientId, currentBlock),
@@ -80,7 +87,6 @@ export const useExtensionsStore = (props: Object): ExtensionsStoreType => {
 	);
 
 	return {
-		config,
 		currentState,
 		currentBlock,
 		currentBreakpoint,

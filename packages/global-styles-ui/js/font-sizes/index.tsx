@@ -14,6 +14,7 @@ import type { FontSize as FontSizeType } from '@wordpress/global-styles-engine';
 /**
  * Blockera dependencies
  */
+import { normalizeFontSizeThemeJsonPreset } from '@blockera/data';
 import { isEquals } from '@blockera/utils';
 
 /**
@@ -37,18 +38,24 @@ import { useGlobalSetting } from '../context/global-style-hooks';
 import { type VariableType } from '../components/types';
 import { FontSizePresetOpener } from './font-size-preset-opener';
 import { NavItemScreen } from '../navigation/nav-item-screen';
-import { useOverrideNavigator } from '../use-override-navigator';
+import {
+	useOverrideNavigator,
+	BLOCKERA_FONT_SIZE_PRESET_INSPECTOR_ACTIVE_CLASS,
+	disablePresetInspectorCleanup,
+	enablePresetInspectorCleanup,
+} from '../panel-override';
 
-const onBackFontSizes = () => {
-	const parent = document.querySelector(
-		'.blockera-font-size-presets-count-active'
+const onBack = () => {
+	disablePresetInspectorCleanup(
+		BLOCKERA_FONT_SIZE_PRESET_INSPECTOR_ACTIVE_CLASS
 	);
-	if (parent && parent instanceof HTMLElement) {
-		parent.classList.remove('blockera-font-size-presets-count-active');
-		(parent.previousElementSibling as HTMLElement).style.removeProperty(
-			'display'
-		);
-	}
+};
+
+const onClick = (event: Event) => {
+	enablePresetInspectorCleanup(
+		BLOCKERA_FONT_SIZE_PRESET_INSPECTOR_ACTIVE_CLASS,
+		event
+	);
 };
 
 interface FontSizeGroupProps {
@@ -70,6 +77,18 @@ export type DefaultPresetValue = {
 
 const fontSizePresetFieldsPropsResolver =
 	createPresetFieldsPropsResolver('fontSize');
+
+function normalizeFontSizePresetsForUi(
+	presets: FontSizeType[] | void | null
+): FontSizeType[] {
+	if (!Array.isArray(presets)) {
+		return [];
+	}
+
+	return presets.map(
+		(preset) => normalizeFontSizeThemeJsonPreset(preset) as FontSizeType
+	);
+}
 
 function FontSizeGroupComponent({
 	sizes,
@@ -249,8 +268,18 @@ export function FontSizesPresetContent() {
 		[customFontSizes.length, clearCustomSizes]
 	);
 
-	const themeSizes = (themeFontSizes ?? []) as FontSizeType[];
-	const defaultSizes = (defaultFontSizes ?? []) as FontSizeType[];
+	const themeSizes = useMemo(
+		() => normalizeFontSizePresetsForUi(themeFontSizes as FontSizeType[]),
+		[themeFontSizes]
+	);
+	const defaultSizes = useMemo(
+		() => normalizeFontSizePresetsForUi(defaultFontSizes as FontSizeType[]),
+		[defaultFontSizes]
+	);
+	const customSizesForUi = useMemo(
+		() => normalizeFontSizePresetsForUi(customFontSizes as FontSizeType[]),
+		[customFontSizes]
+	);
 	const showDefaultOriginGroup = shouldShowDefaultPresetGroup(
 		!!defaultFontSizesEnabled,
 		themeSizes.length,
@@ -263,7 +292,7 @@ export function FontSizesPresetContent() {
 	);
 
 	return (
-		<VStack spacing={8}>
+		<VStack className="blockera-font-size-editor-groups" spacing={8}>
 			{showThemeOriginGroup && (
 				<FontSizeGroup
 					origin="theme"
@@ -287,7 +316,7 @@ export function FontSizesPresetContent() {
 			<FontSizeGroup
 				origin="custom"
 				label={__('Custom', 'blockera')}
-				sizes={customFontSizes as FontSizeType[]}
+				sizes={customSizesForUi}
 				handleUpdateSizes={handleUpdateCustomSizes}
 				handleResetFontSizes={customResetHandler}
 			/>
@@ -299,11 +328,11 @@ function FontSizesEditorScreenShell() {
 	return (
 		<VStack
 			spacing={2}
-			className="blockera-font-size-presets"
+			className="blockera-font-size-editor"
 			style={{ paddingBottom: '10px' }}
 		>
 			<ScreenHeader
-				onBack={onBackFontSizes}
+				onBack={onBack}
 				title={__('Font Size Variables', 'blockera')}
 				description={__(
 					'Create and edit font size variables used for typography across the site.',
@@ -323,16 +352,24 @@ function FontSizesEditorScreenShell() {
 function FontSizes({ screenSelector }: { screenSelector: string }) {
 	useOverrideNavigator({ panel: 'typography' });
 
+	const target = document.querySelector(screenSelector);
+
+	if (!target) {
+		return null;
+	}
+
 	return createPortal(
-		<Navigator initialPath="/">
-			<NavItemScreen path="/">
-				<FontSizesScreen />
-			</NavItemScreen>
-			<NavItemScreen path="/typography/font-sizes">
-				<FontSizesEditorScreenShell />
-			</NavItemScreen>
-		</Navigator>,
-		document.querySelector(screenSelector)
+		<div className="blockera-block-inspector-controls-wrapper">
+			<Navigator initialPath="/">
+				<NavItemScreen path="/">
+					<FontSizesScreen onClick={onClick} />
+				</NavItemScreen>
+				<NavItemScreen path="/typography/font-sizes">
+					<FontSizesEditorScreenShell />
+				</NavItemScreen>
+			</Navigator>
+		</div>,
+		target
 	);
 }
 

@@ -27,12 +27,14 @@ import {
 export default function ColorControl({
 	type = 'normal',
 	noBorder,
+	showButtonLabel = true,
 	contentAlign = 'left',
 	//
 	id,
 	label,
 	labelDescription,
 	labelPopoverTitle,
+	labelProps: propsForLabelControl = {},
 	columns,
 	defaultValue,
 	onChange = () => {},
@@ -49,6 +51,9 @@ export default function ColorControl({
 	//
 	...props
 }: ColorControlProps): MixedElement {
+	const normalizedVariableTypes =
+		typeof variableTypes === 'string' ? [variableTypes] : variableTypes;
+
 	const {
 		value,
 		setValue,
@@ -77,6 +82,14 @@ export default function ColorControl({
 		variableTypes,
 		onChange: setValue,
 		size,
+		presetInterface:
+			Array.isArray(normalizedVariableTypes) &&
+			normalizedVariableTypes.includes('color')
+				? {
+						variableTypes: normalizedVariableTypes,
+						attribute,
+					}
+				: undefined,
 	});
 
 	const labelProps = {
@@ -92,9 +105,11 @@ export default function ColorControl({
 		resetToDefault,
 		mode: 'advanced',
 		path: getControlPath(attribute, id),
+		...propsForLabelControl,
 	};
 
-	if (isSetValueAddon()) {
+	// Keep the color picker open while typing custom CSS (e.g. currentColor).
+	if (isSetValueAddon() && !isOpen) {
 		return (
 			<BaseControl
 				columns={columns}
@@ -116,9 +131,9 @@ export default function ColorControl({
 		);
 	}
 
-	let buttonLabel: MixedElement;
+	let buttonLabel: MixedElement | void;
 
-	if (type === 'normal') {
+	if (type === 'normal' && showButtonLabel) {
 		buttonLabel = value ? (
 			<span className="color-label" data-cy="color-label">
 				{value}

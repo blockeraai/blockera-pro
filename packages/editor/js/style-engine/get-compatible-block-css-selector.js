@@ -8,18 +8,22 @@ import { select } from '@wordpress/data';
 /**
  * Blockera dependencies
  */
-import { isInnerBlock } from '../extensions/components/utils';
-import type { TStates } from '../extensions/libs/block-card/block-states/types';
-import { isEmpty, isUndefined, union, isObject } from '@blockera/utils';
-import type { InnerBlockType } from '../extensions/libs/block-card/inner-blocks/types';
+import { isEmpty, isUndefined, union } from '@blockera/utils';
 
 /**
+ 
  * Internal dependencies
  */
 import { replaceVariablesValue } from './utils';
+import {
+	getSelectorWithRootBody,
+	getExtractedSelectorFromRootBody,
+} from './root-body-selector-helpers';
 import type { NormalizedSelectorProps } from './types';
-import { isNormalState } from '../extensions/components';
 import { getBlockCSSSelector } from './get-block-css-selector';
+import { isInnerBlock, isNormalState } from '../extensions/components/utils';
+import type { TStates } from '../extensions/libs/block-card/block-states/types';
+import type { InnerBlockType } from '../extensions/libs/block-card/inner-blocks/types';
 
 /**
  * Returns the appropriate state symbol for the given state.
@@ -31,6 +35,47 @@ export const getStateSymbol = (state: TStates): string => {
 	return ['marker', 'placeholder', 'before', 'after'].includes(state)
 		? '::'
 		: ':';
+};
+
+/**
+ * Creates a standard selector based on the provided selector and state.
+ * If selector ends with a pseudo-class (:before or :after), combine it with
+ * the current state pseudo-class to create a valid CSS selector.
+ * For example, an icon selector like "any:before" becomes "any:hover:before"
+ *
+ * @param {Object} params - The parameters to create a standard selector.
+ * @param {TStates} params.state - The state to create a standard selector for.
+ * @param {string} params.selector - The selector to create a standard selector for.
+ * @param {string} params.mergedSelector - The merged selector to create a standard selector for.
+ * @param {string} params.originSelector - The origin selector to create a standard selector for.
+ *
+ * @return {string} The standard selector for the provided selector and state.
+ */
+export const createStandardSelector = ({
+	state,
+	selector,
+	mergedSelector,
+	originSelector,
+}: {
+	state: TStates,
+	selector: string,
+	mergedSelector: string,
+	originSelector: string,
+}): string => {
+	const matches = selector.match(/:(before|after)$/);
+
+	if (matches && !isNormalState(state)) {
+		const detectedPseudoElement = matches[1];
+
+		const newSelectorSection = selector.replace(
+			`:${detectedPseudoElement}`,
+			`:${state}:${detectedPseudoElement}`
+		);
+
+		return originSelector.replace(mergedSelector, newSelectorSection);
+	}
+
+	return originSelector;
 };
 
 /**
@@ -99,14 +144,78 @@ export const getNormalizedSelector = (
 		state,
 		suffixClass,
 		masterState,
-		rootSelector,
 		getInnerState,
 		getMasterState,
 		fromInnerBlock = false,
-		customizedPseudoClasses,
+		customizedPseudoClasses = [],
 		currentStateHasSelectors,
 	} = options;
-	const parsedSelectors = selector.split(',');
+	let { rootSelector } = options;
+	const originalRootSelector = rootSelector;
+
+	// Helper function to split selectors by comma, respecting parentheses, brackets, and quotes
+	const splitSelectors = (selectorString: string): Array<string> => {
+		const selectors: Array<string> = [];
+		let current = '';
+		let depth = 0;
+		let inSingleQuote = false;
+		let inDoubleQuote = false;
+
+		for (let i = 0; i < selectorString.length; i++) {
+			const char = selectorString[i];
+			const prevChar = i > 0 ? selectorString[i - 1] : '';
+
+			// Handle quotes (but not escaped quotes)
+			if (char === "'" && prevChar !== '\\') {
+				inSingleQuote = !inSingleQuote;
+				current += char;
+			} else if (char === '"' && prevChar !== '\\') {
+				inDoubleQuote = !inDoubleQuote;
+				current += char;
+			} else if (
+				!inSingleQuote &&
+				!inDoubleQuote &&
+				(char === '(' || char === '[')
+			) {
+				depth++;
+				current += char;
+			} else if (
+				!inSingleQuote &&
+				!inDoubleQuote &&
+				(char === ')' || char === ']')
+			) {
+				depth--;
+				current += char;
+			} else if (
+				char === ',' &&
+				depth === 0 &&
+				!inSingleQuote &&
+				!inDoubleQuote
+			) {
+				// Only split on comma if we're at the top level
+				selectors.push(current.trim());
+				current = '';
+			} else {
+				current += char;
+			}
+		}
+
+		// Add the last selector
+		if (current.trim()) {
+			selectors.push(current.trim());
+		}
+
+		return selectors.length > 0 ? selectors : [selectorString];
+	};
+
+	let parsedSelectors = splitSelectors(selector);
+	// Check if selector starts with a pseudo-class (e.g., :hover, :focus, ::before)
+	const startsWithPseudoClass = /^::?[a-z-]+/.test(selector.trim());
+
+	if (startsWithPseudoClass) {
+		parsedSelectors = [selector];
+	}
+
 	const { getState, getInnerState: _getInnerState } =
 		select('blockera/editor') || {};
 	const {
@@ -119,18 +228,29 @@ export const getNormalizedSelector = (
 
 	// Replace '&' with the rootSelector and trim unnecessary spaces
 	const processAmpersand = (selector: string): string => {
-		if (/^{{BLOCK_ID}}&/.test(selector)) {
-			return selector.replace(/^{{BLOCK_ID}}&/, '{{BLOCK_ID}}');
+		// Handle selectors starting with {{UNIQUE_CLASSNAME}}&
+		if (/^{{UNIQUE_CLASSNAME}}&/.test(selector)) {
+			return selector.replace(
+				/^{{UNIQUE_CLASSNAME}}&/,
+				'{{UNIQUE_CLASSNAME}}'
+			);
 		}
 
 		// Handle selectors starting with &&
 		if (selector.trim().startsWith('&&')) {
 			isProcessedSelector = true;
 			// Extract the first part of the root selector (everything before the first space)
-			const rootFirstPart = rootSelector.split(' ')[0];
+			const extractedFirstPart =
+				getExtractedSelectorFromRootBody(rootSelector).split(' ')[0];
+			// Only wrap with html:root body :where() when rootSelector uses that format
+			const rootFirstPart = /^html:root body :where\(/.test(rootSelector)
+				? getSelectorWithRootBody(extractedFirstPart)
+				: extractedFirstPart;
+
 			return `${rootFirstPart}${selector.trim().substring(2)}`;
 		}
 
+		// Handle selectors starting with &
 		if (selector.trim().startsWith('&')) {
 			isProcessedSelector = true;
 
@@ -144,6 +264,11 @@ export const getNormalizedSelector = (
 	const generateSelector = (selector: string): string => {
 		const innerStateType = getInnerState();
 		const masterStateType = getMasterState();
+
+		// If selector contains root selector, set root selector to empty string to avoid duplicate selectors.
+		if (-1 !== selector.indexOf(rootSelector) && !fromInnerBlock) {
+			rootSelector = '';
+		}
 
 		// Current Block is inner block.
 		if (fromInnerBlock) {
@@ -181,11 +306,18 @@ export const getNormalizedSelector = (
 							)}${state}`;
 						}
 
-						return `${rootSelector}${getStateSymbol(
-							masterState
-						)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
-							state
-						)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`;
+						return createStandardSelector({
+							state,
+							selector,
+							mergedSelector: `${selector}${suffixClass}${getStateSymbol(
+								state
+							)}${state}`,
+							originSelector: `${rootSelector}${getStateSymbol(
+								masterState
+							)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
+								state
+							)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`,
+						});
 					}
 
 					// If current state has selectors, we should return the selector as is with master state.
@@ -195,11 +327,18 @@ export const getNormalizedSelector = (
 						)}${masterState}${spacer}${selector}${suffixClass}`;
 					}
 
-					return `${rootSelector}${getStateSymbol(
-						masterState
-					)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}`;
+					return createStandardSelector({
+						state,
+						selector,
+						mergedSelector: `${selector}${suffixClass}${getStateSymbol(
+							state
+						)}${state}`,
+						originSelector: `${rootSelector}${getStateSymbol(
+							masterState
+						)}${masterState}${spacer}${selector}${suffixClass}${getStateSymbol(
+							state
+						)}${state}`,
+					});
 				}
 
 				return `${rootSelector}${getStateSymbol(
@@ -224,9 +363,16 @@ export const getNormalizedSelector = (
 						)}${state}`;
 					}
 
-					return `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
-						state
-					)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`;
+					return createStandardSelector({
+						state,
+						selector,
+						mergedSelector: `${selector}${suffixClass}${getStateSymbol(
+							state
+						)}${state}`,
+						originSelector: `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
+							state
+						)}${state}, ${rootSelector}${spacer}${selector}${suffixClass}`,
+					});
 				}
 
 				// If current state has selectors, return selector as is.
@@ -234,9 +380,16 @@ export const getNormalizedSelector = (
 					return `${rootSelector}${spacer}${selector}${suffixClass}`;
 				}
 
-				return `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
-					state
-				)}${state}`;
+				return createStandardSelector({
+					state,
+					selector,
+					mergedSelector: `${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}`,
+					originSelector: `${rootSelector}${spacer}${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}`,
+				});
 			}
 
 			return `${rootSelector}${spacer}${selector}${suffixClass}`;
@@ -257,12 +410,28 @@ export const getNormalizedSelector = (
 					)}${state}`;
 				}
 
-				return `${selector}${suffixClass}${getStateSymbol(
-					state
-				)}${state}, ${selector}${suffixClass}`;
+				return createStandardSelector({
+					state,
+					selector,
+					mergedSelector: `${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}`,
+					originSelector: `${selector}${suffixClass}${getStateSymbol(
+						state
+					)}${state}, ${selector}${suffixClass}`,
+				});
 			}
 
-			return `${selector}${suffixClass}${getStateSymbol(state)}${state}`;
+			const mergedSelector = `${selector}${suffixClass}${getStateSymbol(
+				state
+			)}${state}`;
+
+			return createStandardSelector({
+				state,
+				selector,
+				mergedSelector,
+				originSelector: mergedSelector,
+			});
 		}
 
 		return `${selector}${suffixClass}`;
@@ -280,13 +449,18 @@ export const getNormalizedSelector = (
 	// Handle multiple selectors.
 	return parsedSelectors
 		.map((selector) => {
-			const processedSelector = processAmpersand(selector);
+			// Reset isProcessedSelector and rootSelector for each selector
+			isProcessedSelector = false;
+			rootSelector = originalRootSelector;
+			const processedSelector = processAmpersand(selector.trim());
 			return customizedPseudoClasses.includes(state)
 				? processedSelector
 				: generateSelector(processedSelector);
 		})
 		.join(', ');
 };
+
+export { getSelectorWithRootBody, getExtractedSelectorFromRootBody };
 
 export const getCompatibleBlockCssSelector = ({
 	state,
@@ -301,9 +475,18 @@ export const getCompatibleBlockCssSelector = ({
 	className = '',
 	suffixClass = '',
 	fallbackSupportId,
+	styleVariationName,
+	variationClassPrefix = 'is-style-',
+	isStyleVariation = false,
+	isGlobalStylesWrapper = false,
 	currentStateHasSelectors = false,
 }: NormalizedSelectorProps): string => {
-	const rootSelector = '{{BLOCK_ID}}';
+	let rootSelector = '{{UNIQUE_CLASSNAME}}';
+
+	// If current block is inner block, we should append the root selector to the root body for specificity reasons.
+	if (isInnerBlock(currentBlock)) {
+		rootSelector = getSelectorWithRootBody(rootSelector);
+	}
 
 	const selectors: {
 		[key: TStates]: {
@@ -332,7 +515,19 @@ export const getCompatibleBlockCssSelector = ({
 		block = getSelectedBlock();
 	}
 
-	const register = (_selector: string): void => {
+	const register = (
+		_selector: string,
+		{
+			from,
+			getSelectorBasedOnContext,
+		}: {
+			from?: 'edit-post/block' | 'edit-site/global-styles',
+			getSelectorBasedOnContext?: (generatedSelector: string) => string,
+		} = {
+			from: 'edit-post/block',
+			getSelectorBasedOnContext: undefined,
+		}
+	): void => {
 		const registerSelector = (generatedSelector: string) => {
 			switch (state) {
 				case 'parent-class':
@@ -359,7 +554,10 @@ export const getCompatibleBlockCssSelector = ({
 
 			selectors[state] = {
 				// $FlowFixMe
-				[currentBlock]: generatedSelector,
+				[currentBlock]:
+					'function' === typeof getSelectorBasedOnContext
+						? getSelectorBasedOnContext(generatedSelector)
+						: generatedSelector,
 			};
 		};
 
@@ -380,7 +578,10 @@ export const getCompatibleBlockCssSelector = ({
 
 					selectors[state] = {
 						// $FlowFixMe
-						[currentBlock]: _selector,
+						[currentBlock]:
+							'function' === typeof getSelectorBasedOnContext
+								? getSelectorBasedOnContext(_selector)
+								: _selector,
 					};
 
 					return;
@@ -389,11 +590,16 @@ export const getCompatibleBlockCssSelector = ({
 
 			selectors[state] = {
 				// $FlowFixMe
-				[currentBlock]: rootSelector + suffixClass,
+				[currentBlock]:
+					'function' === typeof getSelectorBasedOnContext
+						? getSelectorBasedOnContext(rootSelector + suffixClass)
+						: rootSelector + suffixClass,
 			};
 
 			return;
 		}
+
+		const blockType = select('core/blocks')?.getBlockType(blockName);
 
 		// Assume current block is one of inners type.
 		if (isInnerBlock(currentBlock)) {
@@ -411,12 +617,15 @@ export const getCompatibleBlockCssSelector = ({
 							state,
 							suffixClass,
 							masterState,
-							rootSelector,
 							getInnerState,
 							getMasterState,
 							fromInnerBlock: true,
 							customizedPseudoClasses,
 							currentStateHasSelectors,
+							rootSelector:
+								'edit-site/global-styles' === from
+									? getBlockCSSSelector(blockType) || ''
+									: rootSelector,
 						})
 					);
 					break;
@@ -438,11 +647,14 @@ export const getCompatibleBlockCssSelector = ({
 							state,
 							suffixClass,
 							masterState,
-							rootSelector,
 							getInnerState,
 							getMasterState,
 							customizedPseudoClasses,
 							currentStateHasSelectors,
+							rootSelector:
+								'edit-site/global-styles' === from
+									? getBlockCSSSelector(blockType) || ''
+									: rootSelector,
 						})
 					);
 					break;
@@ -467,7 +679,71 @@ export const getCompatibleBlockCssSelector = ({
 	});
 
 	if (selector && selector.trim()) {
-		if (isInnerBlock(currentBlock)) {
+		if (isStyleVariation && styleVariationName) {
+			register(selector, {
+				from: 'edit-site/global-styles',
+				getSelectorBasedOnContext: (generatedSelector: string) => {
+					if ('default' === styleVariationName) {
+						return getSelectorWithRootBody(
+							generatedSelector,
+							false
+						);
+					}
+					const blockType =
+						select('core/blocks')?.getBlockType(blockName);
+					const blockClassSelector = `.wp-block-${blockName
+						.replace('core/', '')
+						.replace('/', '-')}`;
+					const variationRootSelector = getBlockCSSSelector(
+						{
+							...(blockType || {}),
+							selectors: blockSelectors,
+						},
+						'root',
+						{ fallback: true }
+					);
+					const selectorConstant =
+						blockClassSelector || variationRootSelector || '';
+
+					const variationClass = `${variationClassPrefix}${styleVariationName}`;
+					let selectorWithStyle = generatedSelector;
+					if (
+						variationRootSelector &&
+						blockClassSelector &&
+						generatedSelector.trim() === blockClassSelector &&
+						variationRootSelector !== blockClassSelector &&
+						variationRootSelector.includes(blockClassSelector)
+					) {
+						selectorWithStyle = variationRootSelector;
+					}
+					// Handle case when selector contains child combinator.
+					if (
+						selectorConstant &&
+						selectorWithStyle.includes(' ') &&
+						selectorWithStyle.includes(selectorConstant)
+					) {
+						selectorWithStyle = selectorWithStyle.replace(
+							selectorConstant,
+							`${selectorConstant}.${variationClass}`
+						);
+					}
+					// Handle case when selector does not contain child combinator.
+					else {
+						selectorWithStyle = `${generatedSelector}.${variationClass}`;
+					}
+
+					return getSelectorWithRootBody(selectorWithStyle, false);
+				},
+			});
+		} else if (isGlobalStylesWrapper) {
+			// Normalizing selector before registration for global styles purposes.
+			register(selector, {
+				from: 'edit-site/global-styles',
+				getSelectorBasedOnContext: (generatedSelector: string) => {
+					return getSelectorWithRootBody(generatedSelector, false);
+				},
+			});
+		} else if (isInnerBlock(currentBlock)) {
 			register(selector);
 		} else {
 			register(appendRootBlockCssSelector(selector, rootSelector));
@@ -476,7 +752,7 @@ export const getCompatibleBlockCssSelector = ({
 		register(rootSelector);
 	}
 
-	// Replace: {{BLOCK_ID}} and {{className}} with values on prepared block selector.
+	// Replace: {{UNIQUE_CLASSNAME}} and {{className}} with values on prepared block selector.
 	return replaceVariablesValue({
 		state,
 		clientId,
@@ -494,7 +770,7 @@ export const getCompatibleBlockCssSelector = ({
  * @return {string} the css selector for support.
  */
 export function prepareBlockCssSelector(params: {
-	query?: string,
+	query?: Array<string> | string,
 	support?: string,
 	supports: Object,
 	blockName: string,
@@ -523,19 +799,33 @@ export function prepareBlockCssSelector(params: {
 	if (!selector) {
 		let fallbackSelector;
 
+		// Create fallback selector from fallback support id as an array.
 		if (Array.isArray(fallbackSupportId)) {
 			const fallbacks = union(
-				fallbackSupportId.map((supportId) =>
-					getBlockCSSSelector(blockType, supportId || 'root', {
-						fallback: true,
-					})
-				)
+				fallbackSupportId.map((supportId) => {
+					const picked = getBlockCSSSelector(
+						blockType,
+						supportId || 'root',
+						{
+							fallback: false,
+						}
+					);
+
+					if ('object' === typeof picked) {
+						return union(Object.values(picked || {})).join(', ');
+					}
+
+					return picked;
+				})
 			);
 
 			fallbackSelector = fallbacks
-				.filter((selector: any): boolean => !isObject(selector))
+				.filter((selector: any): boolean => !isEmpty(selector))
 				.join(', ');
-		} else {
+		}
+
+		// Create fallback selector from fallback support ID as a string (used as the last resort fallback).
+		if (!fallbackSelector) {
 			fallbackSelector = getBlockCSSSelector(
 				blockType,
 				fallbackSupportId || 'root',
@@ -546,9 +836,17 @@ export function prepareBlockCssSelector(params: {
 		}
 
 		if (isUndefined(support)) {
-			return (
-				fallbackSelector || selectors[support].root || selectors.root
-			);
+			if (fallbackSelector) {
+				return fallbackSelector;
+			}
+
+			if (selectors?.[support]?.root) {
+				return selectors[support].root;
+			}
+
+			if (selectors?.root) {
+				return selectors.root;
+			}
 		}
 
 		// Preparing selector with support identifier.
@@ -586,10 +884,16 @@ const appendRootBlockCssSelector = (selector: string, root: string): string => {
 			return `${selector}${root}, ${root}${selector}`;
 		}
 
-		const subject = matches[0];
-		const regexp = new RegExp('^.\\b' + subject + '\\b', 'gi');
+		// If selector starts with a space, append root before the selector to handle cases like:
+		// " .wp-block-foo" becomes ".wp-block-bar .wp-block-foo"
+		if (selector.startsWith(' ')) {
+			return `${root}${selector}`;
+		}
 
-		return `${selector.replace(regexp, `${root}.${subject}`)}`;
+		const subject = matches[0];
+		const regexp = new RegExp('.\\b' + subject + '\\b', 'gi');
+
+		return selector.replace(regexp, `${root}.${subject}`);
 	}
 
 	// If selector has combinators (space, >, +, ~) or starts with a-z html tag name,

@@ -32,13 +32,13 @@ describe('Background Image → Functionality', () => {
 			cy.get('[data-test="popover-header"]')
 				.parent()
 				.within(() => {
-					cy.contains('button', /choose image/i).click();
+					cy.contains('button', /media library/i).click();
 				});
 
 			cy.get('#menu-item-upload').click();
 
 			cy.get('input[type="file"]').selectFile(
-				'packages/dev-cypress/js/fixtures/bg-extension-test.jpeg',
+				'packages/dev-cypress/js/fixtures/bg-extension-test.png',
 				{
 					force: true,
 				}
@@ -167,7 +167,7 @@ describe('Background Image → Functionality', () => {
 					cy.get('button[data-value="no-repeat"]').click();
 				});
 
-				cy.getParentContainer('Effect').within(() => {
+				cy.getParentContainer('Scroll Attachment').within(() => {
 					cy.get('button')
 						.contains('button', /parallax/i)
 						.click();
@@ -240,7 +240,7 @@ describe('Background Image → Functionality', () => {
 			});
 
 			// promotion popover should not appear.
-			cy.get('.blockera-component-promotion-popover').should('exist');
+			cy.get('.blockera-component-upgrade-prompt').should('exist');
 		});
 	});
 
@@ -273,7 +273,7 @@ describe('Background Image → Functionality', () => {
 				});
 
 				// set effect
-				cy.getParentContainer('Effect').within(() => {
+				cy.getParentContainer('Scroll Attachment').within(() => {
 					cy.get('button')
 						.contains('button', /parallax/i)
 						.click();
@@ -357,7 +357,7 @@ describe('Background Image → Functionality', () => {
 					settings: {
 						name: 'Vivid cyan blue to vivid purple',
 						id: 'vivid-cyan-blue-to-vivid-purple',
-						value: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+						value: 'linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%)',
 						reference: {
 							type: 'theme',
 							theme: 'Twenty Twenty-Five',
@@ -420,7 +420,7 @@ describe('Background Image → Functionality', () => {
 			});
 
 			// promotion popover should not appear.
-			cy.get('.blockera-component-promotion-popover').should('exist');
+			cy.get('.blockera-component-upgrade-prompt').should('exist');
 		});
 	});
 
@@ -466,7 +466,7 @@ describe('Background Image → Functionality', () => {
 				});
 
 				// set effect
-				cy.getParentContainer('Effect').within(() => {
+				cy.getParentContainer('Scroll Attachment').within(() => {
 					cy.get('button')
 						.contains('button', /parallax/i)
 						.click();
@@ -573,7 +573,7 @@ describe('Background Image → Functionality', () => {
 			});
 
 			// promotion popover should not appear.
-			cy.get('.blockera-component-promotion-popover').should('exist');
+			cy.get('.blockera-component-upgrade-prompt').should('exist');
 		});
 	});
 
@@ -603,7 +603,7 @@ describe('Background Image → Functionality', () => {
 				});
 
 				// set effect
-				cy.getParentContainer('Effect').within(() => {
+				cy.getParentContainer('Scroll Attachment').within(() => {
 					cy.get('button')
 						.contains('button', /parallax/i)
 						.click();
@@ -698,7 +698,134 @@ describe('Background Image → Functionality', () => {
 			});
 
 			// promotion popover should not appear.
-			cy.get('.blockera-component-promotion-popover').should('exist');
+			cy.get('.blockera-component-upgrade-prompt').should('exist');
+		});
+	});
+
+	describe('None', () => {
+		const noneNotice =
+			'Background is set to none. This block will not have a layered background at this style context.';
+
+		const getNoneBackgroundItem = (blockeraBackground) => {
+			return Object.entries(blockeraBackground).find(
+				([, item]) => item?.type === 'none'
+			);
+		};
+
+		const assertNoneLayeredBackgroundCss = ($block) => {
+			expect($block.css('background-image')).to.be.equal('none');
+			expect($block.css('background-size')).to.be.equal('auto');
+			expect($block.css('background-position')).to.be.equal('0px 0px');
+			expect($block.css('background-repeat')).to.be.equal('repeat');
+			expect($block.css('background-attachment')).to.be.equal('scroll');
+		};
+
+		const selectBackgroundType = (type) => {
+			cy.get('.blockera-component-popover')
+				.last()
+				.within(() => {
+					cy.getParentContainer('Type').within(() => {
+						cy.get(`button[data-value="${type}"]`).click();
+					});
+				});
+		};
+
+		beforeEach(() => {
+			cy.getParentContainer('Image & Gradient').as('image-and-gradient');
+
+			cy.get('@image-and-gradient').within(() => {
+				cy.getByAriaLabel('Add New Background').click();
+			});
+
+			selectBackgroundType('none');
+		});
+
+		it('should set none type, show notice, and apply layered background reset', () => {
+			cy.get('.blockera-component-popover')
+				.last()
+				.within(() => {
+					cy.contains(noneNotice).should('be.visible');
+				});
+
+			getWPDataObject().then((data) => {
+				const blockeraBackground = getSelectedBlock(
+					data,
+					'blockeraBackground'
+				);
+				const noneEntry = getNoneBackgroundItem(blockeraBackground);
+
+				expect(noneEntry).to.not.equal(undefined);
+				expect(noneEntry[1].type).to.be.equal('none');
+				expect(noneEntry[1].isVisible).to.not.equal(false);
+			});
+
+			cy.getBlock('core/paragraph').should(
+				assertNoneLayeredBackgroundCss
+			);
+
+			savePage();
+			redirectToFrontPage();
+			cy.get('.blockera-block').should(assertNoneLayeredBackgroundCss);
+		});
+
+		it('should clear layered background when switching from image to none', () => {
+			selectBackgroundType('image');
+
+			cy.get('[data-test="popover-header"]')
+				.parent()
+				.within(() => {
+					cy.contains('button', /media library/i).click();
+				});
+
+			cy.get('#menu-item-upload').click();
+
+			cy.get('input[type="file"]').selectFile(
+				'packages/dev-cypress/js/fixtures/bg-extension-test.png',
+				{
+					force: true,
+				}
+			);
+
+			cy.get('.media-toolbar-primary > .button').click();
+
+			cy.getBlock('core/paragraph')
+				.should('have.css', 'background-image')
+				.and('match', /bg-extension-test/);
+
+			selectBackgroundType('none');
+
+			cy.get('.blockera-component-popover')
+				.last()
+				.within(() => {
+					cy.contains(noneNotice).should('be.visible');
+				});
+
+			getWPDataObject().then((data) => {
+				const blockeraBackground = getSelectedBlock(
+					data,
+					'blockeraBackground'
+				);
+				const noneEntry = getNoneBackgroundItem(blockeraBackground);
+
+				expect(noneEntry).to.not.equal(undefined);
+				expect(noneEntry[1].type).to.be.equal('none');
+			});
+
+			cy.getBlock('core/paragraph').should(($block) => {
+				expect($block.css('background-image')).to.be.equal('none');
+				expect($block.css('background-image')).to.not.match(
+					/bg-extension-test/
+				);
+			});
+
+			savePage();
+			redirectToFrontPage();
+			cy.get('.blockera-block').should(($block) => {
+				expect($block.css('background-image')).to.be.equal('none');
+				expect($block.css('background-image')).to.not.match(
+					/bg-extension-test/
+				);
+			});
 		});
 	});
 });

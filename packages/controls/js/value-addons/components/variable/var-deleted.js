@@ -16,7 +16,11 @@ import { Icon } from '@blockera/icons';
  */
 import { Button, Flex, Popover, Tooltip } from '../../../';
 import type { ValueAddonControlProps } from '../control/types';
-import { getDeletedItemInfo } from '../../helpers';
+import {
+	getDeletedItemInfo,
+	getDeletedPlainThemeJsonPresetInfo,
+} from '../../helpers';
+import { hasThemeJsonPlainPresetSlug } from '../../utils';
 
 export default function ({
 	controlProps,
@@ -25,7 +29,25 @@ export default function ({
 	controlProps: ValueAddonControlProps,
 	popoverOffset?: number,
 }): Element<any> {
-	const deletedItem = getDeletedItemInfo(controlProps.value);
+	const deletedItem =
+		controlProps.isDeletedPlainThemeJsonPreset &&
+		hasThemeJsonPlainPresetSlug(controlProps.themeJsonPlainPresetSlug)
+			? getDeletedPlainThemeJsonPresetInfo(
+					controlProps.themeJsonPlainPresetSlug || '',
+					{
+						compositePaint:
+							controlProps.themeJsonPlainPresetCompositePaint,
+					}
+				)
+			: getDeletedItemInfo(controlProps.value);
+
+	const isCompositeMissingPlainPreset =
+		Boolean(controlProps.isDeletedPlainThemeJsonPreset) &&
+		typeof controlProps.themeJsonPlainPresetCompositePaint === 'string' &&
+		controlProps.themeJsonPlainPresetCompositePaint !== '';
+
+	const resolvedBoldLabel =
+		deletedItem.name !== '' ? deletedItem.name : deletedItem.id;
 
 	return (
 		<Popover
@@ -57,9 +79,7 @@ export default function ({
 								color: 'var(--blockera-value-addon-deleted-color)',
 							}}
 						>
-							{deletedItem.name !== ''
-								? controlProps.value?.settings?.name
-								: controlProps.value?.settings?.id}
+							{resolvedBoldLabel}
 						</b>
 					</Flex>
 
@@ -100,6 +120,7 @@ export default function ({
 													iconSize="16"
 													style={{
 														fill: 'var(--blockera-controls-border-color-soft)',
+														border: 'none',
 													}}
 												/>
 											</span>
@@ -160,11 +181,23 @@ export default function ({
 								tabIndex="-1"
 								size={'small'}
 								onClick={controlProps.handleOnUnlinkVar}
-								label={__('Unlink Variable Value', 'blockera')}
+								label={
+									isCompositeMissingPlainPreset
+										? __(
+												'Unlink to resolved color',
+												'blockera'
+											)
+										: __(
+												'Unlink Variable Value',
+												'blockera'
+											)
+								}
 								style={{ padding: '2px 8px' }}
 							>
 								<Icon icon="unlink" iconSize="20" />
-								{__('Unlink Variable', 'blockera')}
+								{isCompositeMissingPlainPreset
+									? __('Unlink color value', 'blockera')
+									: __('Unlink Variable', 'blockera')}
 							</Button>
 							<Button
 								variant="tertiary"

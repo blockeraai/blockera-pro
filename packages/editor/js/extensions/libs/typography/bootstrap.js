@@ -55,24 +55,30 @@ import {
 	fontColorToWPCompatibility,
 } from './compatibility/font-color';
 import type { BlockDetail } from '../block-card/block-states/types';
-import { isBlockNotOriginalState, isInvalidCompatibilityRun } from '../utils';
+import { isInvalidCompatibilityRun } from '../utils';
+import {
+	registerHideCoreTextAlignToolbarDom,
+	registerHideCoreTextAlignToolbarSupports,
+} from './hide-core-text-align-toolbar';
 
 export const bootstrap = (): void => {
+	registerHideCoreTextAlignToolbarSupports();
+	registerHideCoreTextAlignToolbarDom();
+
 	addFilter(
 		'blockera.blockEdit.attributes',
 		'blockera.blockEdit.typographyExtension.bootstrap',
 		(attributes: Object, blockDetail: BlockDetail) => {
-			const { blockId } = blockDetail;
-
-			if (isBlockNotOriginalState(blockDetail)) {
-				return attributes;
-			}
+			const { blockId, insideBlockInspector, editorSelectedBlockEvent } =
+				blockDetail;
 
 			//
 			// Font Family
 			//
 			attributes = fontFamilyFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -80,6 +86,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = fontSizeFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -87,6 +95,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = lineHeightFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -95,6 +105,8 @@ export const bootstrap = (): void => {
 			attributes = textAlignFromWPCompatibility({
 				attributes,
 				blockId,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -102,6 +114,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = textDecorationFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -109,6 +123,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = fontAppearanceFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -116,6 +132,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = textTransformFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -123,6 +141,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = letterSpacingFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -130,6 +150,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = textOrientationFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			//
@@ -137,6 +159,8 @@ export const bootstrap = (): void => {
 			//
 			attributes = fontColorFromWPCompatibility({
 				attributes,
+				insideBlockInspector,
+				editorSelectedBlockEvent,
 			});
 
 			return attributes;
@@ -167,7 +191,8 @@ export const bootstrap = (): void => {
 			getAttributes: () => Object,
 			blockDetail: BlockDetail
 		): Object => {
-			const { blockId } = blockDetail;
+			const { blockId, insideBlockInspector, editorSelectedBlockEvent } =
+				blockDetail;
 
 			if (isInvalidCompatibilityRun(blockDetail, ref)) {
 				return nextState;
@@ -180,6 +205,8 @@ export const bootstrap = (): void => {
 						fontFamilyToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -189,6 +216,8 @@ export const bootstrap = (): void => {
 						fontAppearanceToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -198,6 +227,8 @@ export const bootstrap = (): void => {
 						fontSizeToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -207,6 +238,8 @@ export const bootstrap = (): void => {
 						lineHeightToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -217,6 +250,8 @@ export const bootstrap = (): void => {
 							newValue,
 							ref,
 							blockId,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -226,6 +261,8 @@ export const bootstrap = (): void => {
 						textDecorationToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -235,6 +272,8 @@ export const bootstrap = (): void => {
 						textTransformToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -244,6 +283,8 @@ export const bootstrap = (): void => {
 						letterSpacingToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -253,6 +294,8 @@ export const bootstrap = (): void => {
 						textOrientationToWPCompatibility({
 							newValue,
 							ref,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 
@@ -264,6 +307,8 @@ export const bootstrap = (): void => {
 							ref,
 							getAttributes,
 							blockDetail,
+							insideBlockInspector,
+							editorSelectedBlockEvent,
 						})
 					);
 			}

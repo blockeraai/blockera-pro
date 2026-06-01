@@ -15,6 +15,8 @@ export type BlockType = {
 	name: string,
 	targetBlock: string,
 	maxInnerBlocks?: number,
+	hasSizeVariations?: boolean,
+	hasStyleVariations?: boolean,
 	blockeraInnerBlocks?: InnerBlocks,
 	edit: (props: Object) => MixedElement,
 	availableBlockStates?: {
@@ -24,4 +26,9 @@ export type BlockType = {
 	supports?: Object,
 	selectors?: Object,
 	blockFeatures?: TBlockFeatures,
+	supportsExtensions?: (
+		blockName: string,
+		current: Object,
+		variationSurface: 'size' | 'style'
+	) => Object,
 };

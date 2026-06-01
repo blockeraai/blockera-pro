@@ -4,7 +4,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import type { MixedElement } from 'react';
-import { useRef } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 
 /**
  * Blockera dependencies
@@ -51,6 +51,246 @@ import MatrixSpaceBetweenEndFillIcon from './matrix/matrix-space-between-end-fil
 import MatrixStretchSpaceBetweenIcon from './matrix/matrix-stretch-space-between';
 import MatrixStretchSpaceAroundIcon from './matrix/matrix-stretch-space-around';
 
+type FlexAxisKey = 'justifyContent' | 'alignItems';
+
+const AXIS_CLASS_NAMES: { [key: FlexAxisKey]: string } = {
+	justifyContent: 'layout-matrix__justify-content',
+	alignItems: 'layout-matrix__align-items',
+};
+
+function getAxisTooltip(
+	propertyKey: FlexAxisKey,
+	propertyValue: string
+): string {
+	const cssProperty =
+		propertyKey === 'justifyContent' ? 'justify-content' : 'align-items';
+
+	if (propertyValue) {
+		return cssProperty + ': ' + propertyValue;
+	}
+
+	return cssProperty;
+}
+
+function getJustifyContentOptions(): Array<Object> {
+	return [
+		{
+			label: __('Empty', 'blockera'),
+			value: '',
+			icon: (
+				<Icon
+					icon="justify-content-empty"
+					iconSize="20"
+					data-test="layout-matrix-justify-empty"
+				/>
+			),
+		},
+		{
+			label: __('Start', 'blockera'),
+			value: 'flex-start',
+			icon: (
+				<Icon
+					icon="justify-content-start"
+					iconSize="20"
+					className="blockera-flex-justify-content-flex-start"
+					data-test="layout-matrix-justify-start"
+				/>
+			),
+		},
+		{
+			label: __('Center', 'blockera'),
+			value: 'center',
+			icon: (
+				<Icon
+					icon="justify-content-center"
+					iconSize="20"
+					data-test="layout-matrix-justify-center"
+				/>
+			),
+		},
+		{
+			label: __('End', 'blockera'),
+			value: 'flex-end',
+			icon: (
+				<Icon
+					icon="justify-content-end"
+					iconSize="20"
+					className="blockera-flex-justify-content-flex-end"
+					data-test="layout-matrix-justify-end"
+				/>
+			),
+		},
+		{
+			label: __('Space Around', 'blockera'),
+			value: 'space-around',
+			icon: (
+				<Icon
+					icon="justify-content-space-around"
+					iconSize="20"
+					data-test="layout-matrix-justify-around"
+				/>
+			),
+		},
+		{
+			label: __('Space Between', 'blockera'),
+			value: 'space-between',
+			icon: (
+				<Icon
+					icon="justify-content-space-between"
+					iconSize="20"
+					data-test="layout-matrix-justify-between"
+				/>
+			),
+		},
+	];
+}
+
+function getAlignItemsOptions(): Array<Object> {
+	return [
+		{
+			label: __('Empty', 'blockera'),
+			value: '',
+			icon: (
+				<Icon
+					icon="flex-align-empty"
+					iconSize="20"
+					data-test="layout-matrix-align-empty"
+				/>
+			),
+		},
+		{
+			label: __('Start', 'blockera'),
+			value: 'flex-start',
+			icon: (
+				<Icon
+					icon="flex-align-start"
+					iconSize="20"
+					data-test="layout-matrix-align-start"
+				/>
+			),
+		},
+		{
+			label: __('Center', 'blockera'),
+			value: 'center',
+			icon: (
+				<Icon
+					icon="flex-align-center"
+					iconSize="20"
+					data-test="layout-matrix-align-center"
+				/>
+			),
+		},
+		{
+			label: __('End', 'blockera'),
+			value: 'flex-end',
+			icon: (
+				<Icon
+					icon="flex-align-end"
+					iconSize="20"
+					data-test="layout-matrix-align-end"
+				/>
+			),
+		},
+		{
+			label: __('Stretch', 'blockera'),
+			value: 'stretch',
+			icon: (
+				<Icon
+					icon="flex-align-stretch"
+					iconSize="20"
+					data-test="layout-matrix-align-stretch"
+				/>
+			),
+		},
+	];
+}
+
+function getAxisOptions(propertyKey: FlexAxisKey): Array<Object> {
+	return propertyKey === 'justifyContent'
+		? getJustifyContentOptions()
+		: getAlignItemsOptions();
+}
+
+const SIMPLE_AXIS_VALUES: Set<string> = new Set([
+	'',
+	'flex-start',
+	'center',
+	'flex-end',
+]);
+
+/**
+ * When flex-direction toggles, preserve on-screen layout:
+ * - flex-start/center/flex-end can apply on both axes → swap properties.
+ * - stretch only exists on align-items (cross); space-* only on justify-content (main)
+ *   → keep values on the same property when direction changes.
+ */
+function remapFlexLayoutForDirectionChange(
+	alignItems: string,
+	justifyContent: string,
+	nextDirection: string
+): {
+	direction: string,
+	alignItems: string,
+	justifyContent: string,
+} {
+	const alignSimple = SIMPLE_AXIS_VALUES.has(alignItems);
+	const justifySimple = SIMPLE_AXIS_VALUES.has(justifyContent);
+
+	if (alignSimple && justifySimple) {
+		return {
+			direction: nextDirection,
+			alignItems: justifyContent,
+			justifyContent: alignItems,
+		};
+	}
+
+	return {
+		direction: nextDirection,
+		alignItems,
+		justifyContent,
+	};
+}
+
+/**
+ * Map screen vertical/horizontal alignment to stored flex properties.
+ * Row: justify = horizontal, align = vertical. Column: align = horizontal, justify = vertical.
+ */
+function flexLayoutFromScreenAxes(
+	direction: string,
+	vertical: string,
+	horizontal: string
+): {
+	alignItems: string,
+	justifyContent: string,
+} {
+	if (direction === 'column') {
+		return {
+			alignItems: horizontal,
+			justifyContent: vertical,
+		};
+	}
+
+	return {
+		alignItems: vertical,
+		justifyContent: horizontal,
+	};
+}
+
+function matchesScreenAxes(
+	direction: string,
+	alignItems: string,
+	justifyContent: string,
+	vertical: string,
+	horizontal: string
+): boolean {
+	const layout = flexLayoutFromScreenAxes(direction, vertical, horizontal);
+
+	return (
+		alignItems === layout.alignItems &&
+		justifyContent === layout.justifyContent
+	);
+}
+
 export default function LayoutMatrixControl({
 	isDirectionActive = true,
 	defaultDirection = '',
@@ -60,7 +300,9 @@ export default function LayoutMatrixControl({
 	label,
 	labelPopoverTitle,
 	labelDescription,
+	labelProps: propsForLabelControl = {},
 	columns,
+	style,
 	defaultValue = {
 		direction: 'row',
 		alignItems: '',
@@ -113,6 +355,7 @@ export default function LayoutMatrixControl({
 		resetToDefault,
 		mode: 'advanced',
 		path: getControlPath(attribute, id),
+		...propsForLabelControl,
 	};
 
 	let matrixType = 'normal';
@@ -125,8 +368,6 @@ export default function LayoutMatrixControl({
 		} else {
 			matrixType = 'stretch';
 		}
-	} else if (value.alignItems === 'stretch') {
-		matrixType = 'stretch-space-around';
 	} else if (value.justifyContent === 'space-around') {
 		matrixType = 'space-around';
 	} else if (value.justifyContent === 'space-between') {
@@ -141,7 +382,46 @@ export default function LayoutMatrixControl({
 		direction = defaultDirection || defaultValue?.direction || 'row';
 	}
 
+	const isRowDirection = direction === 'row';
+	const xAxisKey: FlexAxisKey = isRowDirection
+		? 'justifyContent'
+		: 'alignItems';
+	const yAxisKey: FlexAxisKey = isRowDirection
+		? 'alignItems'
+		: 'justifyContent';
+
 	const clickTimerRef = useRef();
+	const prevDirectionRef = useRef(value?.direction ?? direction);
+
+	// ToggleSelectControl updates only `direction` via nested propId; remap axes here
+	// after direction lands in store so align-items / justify-content stay in sync.
+	useEffect(() => {
+		const prev = prevDirectionRef.current;
+		const next = value?.direction ?? direction;
+
+		if (
+			isDirectionActive &&
+			prev !== undefined &&
+			prev !== '' &&
+			next !== undefined &&
+			next !== '' &&
+			prev !== next
+		) {
+			const remapped = remapFlexLayoutForDirectionChange(
+				value.alignItems ?? '',
+				value.justifyContent ?? '',
+				next
+			);
+
+			setValue({
+				...value,
+				...remapped,
+			});
+		}
+
+		prevDirectionRef.current = next;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [value?.direction]);
 
 	const onClickHandler = (
 		event?: MouseEvent,
@@ -161,11 +441,32 @@ export default function LayoutMatrixControl({
 			columns={columns}
 			controlName={field}
 			className={className}
+			style={style}
 			{...labelProps}
 		>
 			<Flex gap="10px" direction="column">
+				{isDirectionActive && (
+					<ToggleSelectControl
+						id="direction"
+						label=""
+						options={[
+							{
+								label: __('Row', 'blockera'),
+								'aria-label': 'flex-direction: row',
+								value: 'row',
+							},
+							{
+								label: __('Column', 'blockera'),
+								'aria-label': 'flex-direction: column',
+								value: 'column',
+							},
+						]}
+						defaultValue={direction}
+					/>
+				)}
+
 				<Flex
-					gap="10px"
+					gap="12px"
 					direction="row"
 					justifyContent="space-between"
 					className={controlClassNames(
@@ -186,6 +487,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'top-left'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-start;
+												<br />
+												justify-content: flex-start;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-start' &&
 										value.justifyContent === 'flex-start'
@@ -220,10 +530,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'top-center'}
-									selected={
-										value.alignItems === 'flex-start' &&
-										value.justifyContent === 'center'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: flex-start;
+													<br />
+													justify-content: center;
+												</span>
+											) : (
+												<span>
+													align-items: center;
+													<br />
+													justify-content: flex-start;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'flex-start',
+										'center'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -237,8 +567,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'flex-start',
-											justifyContent: 'center',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'flex-start',
+												'center'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -264,10 +597,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'top-right'}
-									selected={
-										value.alignItems === 'flex-start' &&
-										value.justifyContent === 'flex-end'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: flex-start;
+													<br />
+													justify-content: flex-end;
+												</span>
+											) : (
+												<span>
+													align-items: flex-end;
+													<br />
+													justify-content: flex-start;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'flex-start',
+										'flex-end'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -281,8 +634,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'flex-start',
-											justifyContent: 'flex-end',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'flex-start',
+												'flex-end'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -308,10 +664,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center-left'}
-									selected={
-										value.alignItems === 'center' &&
-										value.justifyContent === 'flex-start'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: center;
+													<br />
+													justify-content: flex-start;
+												</span>
+											) : (
+												<span>
+													align-items: flex-start;
+													<br />
+													justify-content: center;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'center',
+										'flex-start'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -325,8 +701,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'center',
-											justifyContent: 'flex-start',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'center',
+												'flex-start'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -352,6 +731,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center-center'}
+									tooltipText={
+										<>
+											<span>
+												align-items: center;
+												<br />
+												justify-content: center;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'center' &&
 										value.justifyContent === 'center'
@@ -386,10 +774,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center-right'}
-									selected={
-										value.alignItems === 'center' &&
-										value.justifyContent === 'flex-end'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: center;
+													<br />
+													justify-content: flex-end;
+												</span>
+											) : (
+												<span>
+													align-items: flex-end;
+													<br />
+													justify-content: center;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'center',
+										'flex-end'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -403,8 +811,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'center',
-											justifyContent: 'flex-end',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'center',
+												'flex-end'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -430,10 +841,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'bottom-left'}
-									selected={
-										value.alignItems === 'flex-end' &&
-										value.justifyContent === 'flex-start'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: flex-end;
+													<br />
+													justify-content: flex-start;
+												</span>
+											) : (
+												<span>
+													align-items: flex-start;
+													<br />
+													justify-content: flex-end;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'flex-end',
+										'flex-start'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -447,8 +878,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'flex-end',
-											justifyContent: 'flex-start',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'flex-end',
+												'flex-start'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -474,10 +908,30 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'bottom-center'}
-									selected={
-										value.alignItems === 'flex-end' &&
-										value.justifyContent === 'center'
+									tooltipText={
+										<>
+											{direction === 'row' ? (
+												<span>
+													align-items: flex-end;
+													<br />
+													justify-content: center;
+												</span>
+											) : (
+												<span>
+													align-items: center;
+													<br />
+													justify-content: flex-end;
+												</span>
+											)}
+										</>
 									}
+									selected={matchesScreenAxes(
+										direction,
+										value.alignItems ?? '',
+										value.justifyContent ?? '',
+										'flex-end',
+										'center'
+									)}
 									normalIcon={
 										<MatrixNormalEmptyIcon
 											direction={direction}
@@ -491,8 +945,11 @@ export default function LayoutMatrixControl({
 									onClick={() => {
 										setValue({
 											...value,
-											alignItems: 'flex-end',
-											justifyContent: 'center',
+											...flexLayoutFromScreenAxes(
+												direction,
+												'flex-end',
+												'center'
+											),
 										});
 									}}
 									onMouseDown={(event: MouseEvent) => {
@@ -518,6 +975,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'bottom-right'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-end;
+												<br />
+												justify-content: flex-end;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-end' &&
 										value.justifyContent === 'flex-end'
@@ -556,6 +1022,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'stretch-space-around'}
+									tooltipText={
+										<>
+											<span>
+												align-items: stretch;
+												<br />
+												justify-content: space-around;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'stretch' &&
 										value.justifyContent === 'space-around'
@@ -594,6 +1069,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'stretch-space-between'}
+									tooltipText={
+										<>
+											<span>
+												align-items: stretch;
+												<br />
+												justify-content: space-between;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'stretch' &&
 										value.justifyContent === 'space-between'
@@ -632,6 +1116,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'start'}
+									tooltipText={
+										<>
+											<span>
+												align-items: stretch;
+												<br />
+												justify-content: flex-start;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'stretch' &&
 										value.justifyContent === 'flex-start'
@@ -666,6 +1159,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center'}
+									tooltipText={
+										<>
+											<span>
+												align-items: stretch;
+												<br />
+												justify-content: center;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'stretch' &&
 										value.justifyContent === 'center'
@@ -700,6 +1202,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'end'}
+									tooltipText={
+										<>
+											<span>
+												align-items: stretch;
+												<br />
+												justify-content: flex-end;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'stretch' &&
 										value.justifyContent === 'flex-end'
@@ -738,6 +1249,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'start'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-start;
+												<br />
+												justify-content: space-around;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-start' &&
 										value.justifyContent === 'space-around'
@@ -772,6 +1292,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center'}
+									tooltipText={
+										<>
+											<span>
+												align-items: center;
+												<br />
+												justify-content: space-around;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'center' &&
 										value.justifyContent === 'space-around'
@@ -806,6 +1335,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'end'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-end;
+												<br />
+												justify-content: space-around;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-end' &&
 										value.justifyContent === 'space-around'
@@ -844,6 +1382,15 @@ export default function LayoutMatrixControl({
 							<>
 								<MatrixItem
 									id={'start'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-start;
+												<br />
+												justify-content: space-between;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-start' &&
 										value.justifyContent === 'space-between'
@@ -878,6 +1425,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'center'}
+									tooltipText={
+										<>
+											<span>
+												align-items: center;
+												<br />
+												justify-content: space-between;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'center' &&
 										value.justifyContent === 'space-between'
@@ -912,6 +1468,15 @@ export default function LayoutMatrixControl({
 
 								<MatrixItem
 									id={'end'}
+									tooltipText={
+										<>
+											<span>
+												align-items: flex-end;
+												<br />
+												justify-content: space-between;
+											</span>
+										</>
+									}
 									selected={
 										value.alignItems === 'flex-end' &&
 										value.justifyContent === 'space-between'
@@ -953,211 +1518,123 @@ export default function LayoutMatrixControl({
 						className={controlInnerClassNames(
 							'layout-matrix__controls'
 						)}
+						grow={1}
 					>
-						{isDirectionActive && (
-							<ToggleSelectControl
-								id="direction"
-								label=""
-								options={[
-									{
-										label: __('Row', 'blockera'),
-										value: 'row',
-										icon: (
-											<Icon
-												icon="flex-direction-row"
-												iconSize="18"
-											/>
-										),
-									},
-									{
-										label: __('Column', 'blockera'),
-										value: 'column',
-										icon: (
-											<Icon
-												icon="flex-direction-column"
-												iconSize="18"
-											/>
-										),
-									},
-								]}
-								defaultValue={direction}
-								onChange={(newValue) =>
-									setValue({
-										...value,
-										direction: newValue,
-									})
-								}
-							/>
-						)}
-
-						<Flex direction="row" justifyContent="space-between">
+						<Tooltip
+							text={getAxisTooltip(
+								xAxisKey,
+								value[xAxisKey] ?? ''
+							)}
+						>
 							<SelectControl
-								id="alignItems"
-								label=""
-								options={[
-									{
-										label: __('Empty', 'blockera'),
-										value: '',
-										icon: (
-											<Icon
-												icon="flex-align-empty"
-												iconSize="18"
-												data-test="layout-matrix-align-empty"
-											/>
-										),
-									},
-									{
-										label: __('Start', 'blockera'),
-										value: 'flex-start',
-										icon: (
-											<Icon
-												icon="flex-align-start"
-												iconSize="18"
-												data-test="layout-matrix-align-start"
-											/>
-										),
-									},
-									{
-										label: __('Center', 'blockera'),
-										value: 'center',
-										icon: (
-											<Icon
-												icon="flex-align-center"
-												iconSize="18"
-												data-test="layout-matrix-align-center"
-											/>
-										),
-									},
-									{
-										label: __('End', 'blockera'),
-										value: 'flex-end',
-										icon: (
-											<Icon
-												icon="flex-align-end"
-												iconSize="18"
-												data-test="layout-matrix-align-end"
-											/>
-										),
-									},
-									{
-										label: __('Stretch', 'blockera'),
-										value: 'stretch',
-										icon: (
-											<Icon
-												icon="flex-align-stretch"
-												iconSize="18"
-												data-test="layout-matrix-align-stretch"
-											/>
-										),
-									},
-								]}
-								onChange={(newValue) =>
-									setValue({
-										...value,
-										alignItems: newValue,
-									})
+								id={xAxisKey}
+								label={
+									<Icon
+										icon="axis-x"
+										style={{ fill: 'currentColor' }}
+									/>
 								}
+								labelPopoverTitle={__('Horizontal', 'blockera')}
+								labelDescription={
+									<>
+										<p>
+											{__(
+												'Control horizontal spacing and positioning from left to right',
+												'blockera'
+											)}
+										</p>
+									</>
+								}
+								labelProps={{
+									changesetGraphPreview: {
+										type: 'string',
+									},
+								}}
+								columns="30px 1fr"
+								style={{
+									'--gap': '0',
+								}}
+								options={getAxisOptions(xAxisKey)}
+								onChange={(newValue) => {
+									if (xAxisKey === 'justifyContent') {
+										setValue({
+											...value,
+											justifyContent: newValue,
+										});
+									} else {
+										setValue({
+											...value,
+											alignItems: newValue,
+										});
+									}
+								}}
 								type="custom"
-								defaultValue={defaultValue.alignItems}
+								defaultValue={defaultValue[xAxisKey]}
 								className={classNames(
 									'input-hide-label',
-									'input-hide-caret',
-									'layout-matrix__align-items',
+									AXIS_CLASS_NAMES[xAxisKey],
 									'selected-item-' +
-										(value.alignItems || 'empty')
+										(value[xAxisKey] || 'empty')
 								)}
 							/>
+						</Tooltip>
 
+						<Tooltip
+							text={getAxisTooltip(
+								yAxisKey,
+								value[yAxisKey] ?? ''
+							)}
+						>
 							<SelectControl
-								id="justifyContent"
-								label=""
-								options={[
-									{
-										label: __('Empty', 'blockera'),
-										value: '',
-										icon: (
-											<Icon
-												icon="justify-content-empty"
-												iconSize="18"
-												data-test="layout-matrix-justify-empty"
-											/>
-										),
-									},
-									{
-										label: __('Start', 'blockera'),
-										value: 'flex-start',
-										icon: (
-											<Icon
-												icon="justify-content-start"
-												iconSize="18"
-												className="blockera-flex-justify-content-flex-start"
-												data-test="layout-matrix-justify-start"
-											/>
-										),
-									},
-									{
-										label: __('Center', 'blockera'),
-										value: 'center',
-										icon: (
-											<Icon
-												icon="justify-content-center"
-												iconSize="18"
-												data-test="layout-matrix-justify-center"
-											/>
-										),
-									},
-									{
-										label: __('End', 'blockera'),
-										value: 'flex-end',
-										icon: (
-											<Icon
-												icon="justify-content-end"
-												iconSize="18"
-												className="blockera-flex-justify-content-flex-end"
-												data-test="layout-matrix-justify-end"
-											/>
-										),
-									},
-									{
-										label: __('Space Around', 'blockera'),
-										value: 'space-around',
-										icon: (
-											<Icon
-												icon="justify-content-space-around"
-												iconSize="18"
-												data-test="layout-matrix-justify-around"
-											/>
-										),
-									},
-									{
-										label: __('Space Between', 'blockera'),
-										value: 'space-between',
-										icon: (
-											<Icon
-												icon="justify-content-space-between"
-												iconSize="18"
-												data-test="layout-matrix-justify-between"
-											/>
-										),
-									},
-								]}
-								onChange={(newValue) =>
-									setValue({
-										...value,
-										justifyContent: newValue,
-									})
+								id={yAxisKey}
+								label={
+									<Icon
+										icon="axis-y"
+										style={{ fill: 'currentColor' }}
+									/>
 								}
+								labelPopoverTitle={__('Vertical', 'blockera')}
+								labelDescription={
+									<p>
+										{__(
+											'Control vertical spacing and positioning from top to bottom',
+											'blockera'
+										)}
+									</p>
+								}
+								labelProps={{
+									changesetGraphPreview: {
+										type: 'string',
+									},
+								}}
+								columns="30px 1fr"
+								style={{
+									'--gap': '0',
+								}}
+								options={getAxisOptions(yAxisKey)}
+								onChange={(newValue) => {
+									if (yAxisKey === 'justifyContent') {
+										setValue({
+											...value,
+											justifyContent: newValue,
+										});
+									} else {
+										setValue({
+											...value,
+											alignItems: newValue,
+										});
+									}
+								}}
 								type="custom"
-								defaultValue={defaultValue.justifyContent}
+								defaultValue={defaultValue[yAxisKey]}
 								className={classNames(
 									'input-hide-label',
-									'input-hide-caret',
-									'layout-matrix__justify-content',
+									AXIS_CLASS_NAMES[yAxisKey],
 									'selected-item-' +
-										(value.justifyContent || 'empty')
+										(value[yAxisKey] || 'empty')
 								)}
 							/>
-						</Flex>
+						</Tooltip>
 					</Flex>
 				</Flex>
 
@@ -1178,7 +1655,10 @@ export default function LayoutMatrixControl({
 											}}
 										>
 											<b>
-												{__('Dense mode:', 'blockera')}{' '}
+												{__(
+													'Dense mode:',
+													'blockera'
+												)}{' '}
 											</b>
 											{__(
 												'fills empty spaces with items that fit, potentially changing their visual order.',
