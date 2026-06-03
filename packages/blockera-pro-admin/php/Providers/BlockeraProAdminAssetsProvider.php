@@ -200,7 +200,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
                 'auth-pro',
                 'auth-pro-styles',
                 'blockera-pro-admin',
-                'blockera-pro-styles',
+                'blockera-pro-admin-styles',
             ],
             parent::getAssets()
         );
