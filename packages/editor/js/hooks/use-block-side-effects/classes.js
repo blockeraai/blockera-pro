@@ -31,7 +31,9 @@ export const classes = [
 			'core/latest-posts',
 			'core/loginout',
 			'core/media-text',
+			'core/navigation',
 			'core/navigation-link',
+			'core/navigation-overlay-close',
 			'core/navigation-submenu',
 			'core/page-list',
 			'core/post-author-name',
@@ -71,6 +73,7 @@ export const classes = [
 			'core/search',
 			'core/post-navigation-link',
 			'core/post-time-to-read',
+			'core/breadcrumbs',
 		],
 	},
 	// "core/avatar" - Hide range control for image size
