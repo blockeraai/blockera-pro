@@ -63,6 +63,7 @@ type TBlockStyleVariations = {
 	setCurrentPreviewStyle: (style: Object) => void,
 	blockeraGlobalStylesMetaData: Object,
 	variationUiSurface?: string,
+	closeSiblingPicker?: () => void,
 };
 
 export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
@@ -91,6 +92,7 @@ export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
 	setIsHovered,
 	setCurrentPreviewStyle,
 	variationUiSurface,
+	closeSiblingPicker,
 }: TBlockStyleVariations): MixedElement => {
 	const { variationSurface = VARIATION_SURFACE_STYLE } =
 		useGlobalStylesPanelContext();
@@ -173,8 +175,17 @@ export const BlockStyleVariations: ComponentType<TBlockStyleVariations> = ({
 						setIsOpen(false);
 						setIsHovered(false);
 					} else {
-						// $FlowFixMe
-						setPopoverAnchor(event.currentTarget); // the <button> element itself
+						closeSiblingPicker?.();
+						// $FlowFixMe — currentTarget is the variations button (HTMLElement).
+						const button: HTMLElement = event.currentTarget;
+						const anchor =
+							'inspector-controls' === context
+								? (button.closest(
+										'[data-style-variations-anchor]'
+									) ?? button)
+								: button;
+						// $FlowFixMe — hook stores HTMLElement anchor; prop type is stale.
+						setPopoverAnchor(anchor);
 						setIsOpen(true);
 					}
 				}}

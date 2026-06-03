@@ -52,6 +52,11 @@ import { BlockCardVariationView } from './block-card-variation-view';
 import type { TStyleVariationBlockCardLabels } from '../types';
 import type { UpdateBlockEditorSettings } from '../../types';
 
+const closeVariationPicker = (pickerProps: Object): void => {
+	pickerProps.setIsOpen(false);
+	pickerProps.setCurrentPreviewStyle(null);
+};
+
 export function BlockCard({
 	notice,
 	isActive,
@@ -239,31 +244,57 @@ export function BlockCard({
 		}
 	};
 
+	const hasExclusiveInspectorVariationPickers =
+		hasStyleVariations && hasSizeVariations;
+
 	const blockInspectorVariationUI = (
 		<>
-			{hasStyleVariations && (
-				<BlockStyleVariations
-					{...blockStyleVariationsProps}
-					variationUiSurface={VARIATION_SURFACE_STYLE}
-					clientId={clientId}
-					blockName={blockName}
-					currentBlock={currentBlock}
-					currentState={currentState}
-					context={'inspector-controls'}
-					currentBreakpoint={currentBreakpoint}
-				/>
-			)}
-			{hasSizeVariations && (
-				<BlockSizeVariations
-					{...blockSizeVariationsProps}
-					clientId={clientId}
-					blockName={blockName}
-					currentBlock={currentBlock}
-					currentState={currentState}
-					context={'inspector-controls'}
-					currentBreakpoint={currentBreakpoint}
-				/>
-			)}
+			<div
+				data-style-variations-anchor
+				className={extensionInnerClassNames(
+					'block-card__variations-picker-anchor'
+				)}
+			>
+				{hasStyleVariations && (
+					<BlockStyleVariations
+						{...blockStyleVariationsProps}
+						variationUiSurface={VARIATION_SURFACE_STYLE}
+						clientId={clientId}
+						blockName={blockName}
+						currentBlock={currentBlock}
+						currentState={currentState}
+						context={'inspector-controls'}
+						currentBreakpoint={currentBreakpoint}
+						closeSiblingPicker={
+							hasExclusiveInspectorVariationPickers
+								? () =>
+										closeVariationPicker(
+											blockSizeVariationsProps
+										)
+								: undefined
+						}
+					/>
+				)}
+				{hasSizeVariations && (
+					<BlockSizeVariations
+						{...blockSizeVariationsProps}
+						clientId={clientId}
+						blockName={blockName}
+						currentBlock={currentBlock}
+						currentState={currentState}
+						context={'inspector-controls'}
+						currentBreakpoint={currentBreakpoint}
+						closeSiblingPicker={
+							hasExclusiveInspectorVariationPickers
+								? () =>
+										closeVariationPicker(
+											blockStyleVariationsProps
+										)
+								: undefined
+						}
+					/>
+				)}
+			</div>
 			<BlockVariationTransforms blockClientId={clientId} />
 		</>
 	);
