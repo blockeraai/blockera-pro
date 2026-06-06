@@ -51,9 +51,31 @@ import BrandsIconsSearchData from './library-brands/search-data.json';
 import { EssentialsIcons } from './library-essentials';
 import { default as EssentialsLibraryIcon } from './library-essentials/library-icon';
 import EssentialsIconsSearchData from './library-essentials/search-data.json';
+// Feather Library
+import { FeatherIcons } from './library-feather';
+import { default as FeatherLibraryIcon } from './library-feather/library-icon';
+import FeatherIconsSearchData from './library-feather/search-data.json';
+// Lucide Library
+import { LucideIcons } from './library-lucide';
+import { default as LucideLibraryIcon } from './library-lucide/library-icon';
+import LucideIconsSearchData from './library-lucide/search-data.json';
+// Untitled UI Library
+import { UntitleduiIcons } from './library-untitledui';
+import { default as UntitleduiLibraryIcon } from './library-untitledui/library-icon';
+import UntitleduiIconsSearchData from './library-untitledui/search-data.json';
 import { default as BrandsIcon } from './library-brands/library-icon';
 import searchLibraries from './search-libraries.json';
 import searchLibraries2 from './search-libraries-2.json';
+
+const BLOCKERA_LIBRARY_ATTRIBUTION = {
+	author: 'Blockera AI',
+	link: 'https://blockera.ai',
+};
+
+const FONT_AWESOME_LIBRARY_ATTRIBUTION = {
+	author: 'Font Awesome',
+	link: 'https://github.com/fortawesome/font-awesome',
+};
 
 export const IconLibraries: {
 	[key: string]: IconLibrary,
@@ -64,6 +86,8 @@ export const IconLibraries: {
 		name: __('WordPress Icons', 'blockera'),
 		icon: <WPLibraryIcon />,
 		count: Object.keys(WPIcons).length,
+		author: 'WordPress',
+		link: 'https://wordpress.org',
 	},
 	faregular: {
 		id: 'faregular',
@@ -71,6 +95,7 @@ export const IconLibraries: {
 		name: __('FontAwesome Regular', 'blockera'),
 		icon: <FaRegularLibraryIcon />,
 		count: Object.keys(FaRegularIcons).length,
+		...FONT_AWESOME_LIBRARY_ATTRIBUTION,
 	},
 	fasolid: {
 		id: 'fasolid',
@@ -78,6 +103,7 @@ export const IconLibraries: {
 		name: __('FontAwesome Solid', 'blockera'),
 		icon: <FaSolidLibraryIcon />,
 		count: Object.keys(FaSolidIcons).length,
+		...FONT_AWESOME_LIBRARY_ATTRIBUTION,
 	},
 	fabrands: {
 		id: 'fabrands',
@@ -85,6 +111,34 @@ export const IconLibraries: {
 		name: __('FontAwesome Brands', 'blockera'),
 		icon: <FaBrandsLibraryIcon />,
 		count: Object.keys(FaBrandsIcons).length,
+		...FONT_AWESOME_LIBRARY_ATTRIBUTION,
+	},
+	feather: {
+		id: 'feather',
+		// translators: Icon library name
+		name: __('Feather Icons', 'blockera'),
+		icon: <FeatherLibraryIcon />,
+		count: Object.keys(FeatherIcons).length,
+		author: 'Feather',
+		link: 'https://github.com/feathericons/feather',
+	},
+	lucide: {
+		id: 'lucide',
+		// translators: Icon library name
+		name: __('Lucide Icons', 'blockera'),
+		icon: <LucideLibraryIcon />,
+		count: Object.keys(LucideIcons).length,
+		author: 'Lucide',
+		link: 'https://github.com/lucide-icons/lucide',
+	},
+	untitledui: {
+		id: 'untitledui',
+		// translators: Icon library name
+		name: __('Untitled UI Icons', 'blockera'),
+		icon: <UntitleduiLibraryIcon />,
+		count: Object.keys(UntitleduiIcons).length,
+		author: 'Untitled UI',
+		link: 'https://github.com/untitleduico/icons',
 	},
 	brands: {
 		id: 'brands',
@@ -92,6 +146,7 @@ export const IconLibraries: {
 		name: __('Blockera Branding', 'blockera'),
 		icon: <BrandsIcon />,
 		count: Object.keys(BrandsIcons).length,
+		...BLOCKERA_LIBRARY_ATTRIBUTION,
 	},
 	blockera: {
 		id: 'blockera',
@@ -99,6 +154,7 @@ export const IconLibraries: {
 		name: __('Blockera Products', 'blockera'),
 		icon: <LibraryIcon />,
 		count: Object.keys(BlockeraIcons).length,
+		...BLOCKERA_LIBRARY_ATTRIBUTION,
 	},
 	ui: {
 		id: 'ui',
@@ -106,6 +162,7 @@ export const IconLibraries: {
 		name: __('User Interface', 'blockera'),
 		icon: <LibraryUIIcon />,
 		count: Object.keys(BlockeraUIIcons).length,
+		...BLOCKERA_LIBRARY_ATTRIBUTION,
 	},
 	cursor: {
 		id: 'cursor',
@@ -113,6 +170,7 @@ export const IconLibraries: {
 		name: __('Cursors', 'blockera'),
 		icon: <LibraryCursorIcon />,
 		count: Object.keys(CursorIcons).length,
+		...BLOCKERA_LIBRARY_ATTRIBUTION,
 	},
 	essentials: {
 		id: 'essentials',
@@ -120,6 +178,7 @@ export const IconLibraries: {
 		name: __('Blockera Essentials', 'blockera'),
 		icon: <EssentialsLibraryIcon />,
 		count: Object.keys(EssentialsIcons).length,
+		...BLOCKERA_LIBRARY_ATTRIBUTION,
 	},
 };
 
@@ -173,6 +232,15 @@ export function getIconLibraryIcons(iconLibrary: IconLibraryTypes): Object {
 
 		case 'essentials':
 			return EssentialsIcons;
+
+		case 'feather':
+			return FeatherIcons;
+
+		case 'lucide':
+			return LucideIcons;
+
+		case 'untitledui':
+			return UntitleduiIcons;
 	}
 
 	return {};
@@ -196,6 +264,12 @@ function _getLibraryIcons(library: IconLibraryTypes): Array<any> {
 			return BrandsIconsSearchData;
 		case 'essentials':
 			return EssentialsIconsSearchData;
+		case 'feather':
+			return FeatherIconsSearchData;
+		case 'lucide':
+			return LucideIconsSearchData;
+		case 'untitledui':
+			return UntitleduiIconsSearchData;
 	}
 
 	return [];
