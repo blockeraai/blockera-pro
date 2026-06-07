@@ -15,20 +15,33 @@ import type { BlockDetail } from '@blockera/editor/js/extensions/libs/block-card
 /**
  * Internal dependencies
  */
-import {
-	coreIconColorFromWPCompatibility,
-	coreIconColorToWPCompatibility,
-} from './compatibility/icon-color';
-import {
-	coreIconWidthFromWPCompatibility,
-	coreIconWidthToWPCompatibility,
-} from './compatibility/width';
+import { applyCoreIconBlockCompatibility } from './compatibility/core-icon-block-sync';
 import { hydrateBlockeraIconFromCoreEntity } from './compatibility/hydrate-icon';
 import { syncIconBlockClassName } from '@blockera/feature-icon';
 
 const BLOCK_ID = 'core/icon';
 
+const CORE_ICON_ICON_CONFIG_ALIASES = {
+	blockeraIconSize: {
+		config: {
+			attribute: 'blockeraWidth',
+		},
+	},
+	blockeraIconColor: {
+		config: {
+			attribute: 'blockeraFontColor',
+		},
+	},
+};
+
 export const bootstrapCoreIconBlock = (): void => {
+	addFilter(
+		'blockera.block.core.icon.extension.iconConfig',
+		'blockera.blockEdit.coreIconBlock.iconConfig.aliases',
+		(iconConfig: Object) =>
+			mergeObject(iconConfig, CORE_ICON_ICON_CONFIG_ALIASES)
+	);
+
 	addFilter(
 		'blockera.blockEdit.attributes',
 		'blockera.blockEdit.coreIconBlock.bootstrap',
@@ -38,8 +51,6 @@ export const bootstrapCoreIconBlock = (): void => {
 			}
 
 			attributes = hydrateBlockeraIconFromCoreEntity(attributes);
-			attributes = coreIconColorFromWPCompatibility({ attributes });
-			attributes = coreIconWidthFromWPCompatibility({ attributes });
 			attributes = syncIconBlockClassName(attributes, BLOCK_ID);
 
 			return attributes;
@@ -63,39 +74,11 @@ export const bootstrapCoreIconBlock = (): void => {
 				return nextState;
 			}
 
-			if (featureId === 'blockeraIcon') {
-				if (newValue?.icon) {
-					nextState = mergeObject(nextState, {
-						icon: newValue.icon,
-					});
-				}
-
-				return nextState;
-			}
-
-			if (featureId === 'blockeraIconColor') {
-				return mergeObject(
-					nextState,
-					coreIconColorToWPCompatibility({
-						newValue,
-						ref,
-						attributes: getAttributes(),
-					})
-				);
-			}
-
-			if (featureId === 'blockeraWidth') {
-				return mergeObject(
-					nextState,
-					coreIconWidthToWPCompatibility({
-						newValue,
-						ref,
-						attributes: getAttributes(),
-					})
-				);
-			}
-
-			return nextState;
+			return applyCoreIconBlockCompatibility(
+				nextState,
+				featureId,
+				newValue
+			);
 		}
 	);
 };
