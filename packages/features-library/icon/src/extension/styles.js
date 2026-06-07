@@ -108,7 +108,7 @@ export const IconStyles = ({
 					getCustomIconSvgSource(iconValue) ||
 						decodeRenderedIcon(iconValue?.renderedIcon),
 					iconValue?.library || ''
-			  );
+				);
 
 		// Standalone icon blocks render inline SVG, not CSS mask.
 		if (!isIconBlockVariation) {
