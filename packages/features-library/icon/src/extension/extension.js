@@ -5,8 +5,8 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import type { MixedElement, ComponentType } from 'react';
-import { createRoot, useCallback } from '@wordpress/element';
-import { dispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
+import { dispatch, useSelect } from '@wordpress/data';
 
 /**
  * Blockera dependencies
@@ -23,25 +23,32 @@ import {
 	ToggleSelectControl,
 	ControlContextProvider,
 } from '@blockera/controls';
-import {
-	Icon,
-	isStrokeIconLibrary,
-	isStrokeSvgMarkup,
-	prepareIconSvgForStorage,
-	extractSvgMarkup,
-} from '@blockera/icons';
+import { Icon } from '@blockera/icons';
 import { extensionClassNames } from '@blockera/classnames';
 import { isShowField } from '@blockera/editor/js/extensions/api/utils';
 import { isEquals, addAngle, isEmpty, isUndefined } from '@blockera/utils';
 import { generateExtensionId } from '@blockera/editor/js/extensions/libs/utils';
+import { STORE_NAME as EXTENSIONS_CONFIG_STORE_NAME } from '@blockera/editor/js/extensions/libs/base/store/constants';
 import { default as EditorFeatureWrapper } from '@blockera/editor/js/components/editor-feature-wrapper';
 
 /**
  * Internal dependencies
  */
 import type { TIconProps } from './types/icon-extension-props';
-import { getIconSizeAttributeId, isStandaloneIconBlock } from '../helpers';
-import { decodeRenderedIcon } from '../icon-attribute-utils';
+import {
+	getIconColorAttributeId,
+	getIconSizeAttributeId,
+	isStandaloneIconBlock,
+} from '../helpers';
+import {
+	decodeRenderedIcon,
+	hasBlockeraIconValue,
+} from '../icon-attribute-utils';
+import {
+	CORE_ICON_EMPTY_RENDERED_ICON,
+	encodeIconMarkup,
+	renderLibraryIconMarkup,
+} from '../icon-render-utils';
 
 export const IconExtension: ComponentType<{
 	...TIconProps,
@@ -81,12 +88,29 @@ export const IconExtension: ComponentType<{
 	const { initialOpen, onToggle } = useBlockSection('iconConfig');
 	const blockName = block.activeBlockVariation?.name || block?.blockName;
 	const showInlineIconLayout = !isStandaloneIconBlock(blockName);
-	const iconSizeAttributeId = getIconSizeAttributeId(blockeraIconSize);
+	const registeredIconConfig = useSelect(
+		(select) => {
+			const { getExtension } = select(EXTENSIONS_CONFIG_STORE_NAME) || {};
+
+			return 'function' === typeof getExtension
+				? getExtension('iconConfig', blockName)
+				: null;
+		},
+		[blockName]
+	);
+	const resolvedIconSizeConfig =
+		registeredIconConfig?.blockeraIconSize || blockeraIconSize;
+	const resolvedIconColorConfig =
+		registeredIconConfig?.blockeraIconColor || blockeraIconColor;
+	const iconSizeAttributeId = getIconSizeAttributeId(resolvedIconSizeConfig);
+	const iconColorAttributeId = getIconColorAttributeId(
+		resolvedIconColorConfig
+	);
+
 	const {
 		blockeraIcon: icon,
 		blockeraIconGap: iconGap,
 		blockeraIconLink: iconLink,
-		blockeraIconColor: iconColor,
 		blockeraIconPosition: iconPosition,
 		blockeraIconRotate: iconRotate,
 		blockeraIconFlipHorizontal: iconFlipHorizontal,
@@ -97,112 +121,26 @@ export const IconExtension: ComponentType<{
 		('blockeraIconSize' !== iconSizeAttributeId
 			? currentStateAttributes.blockeraIconSize
 			: undefined);
-
-	const encodeIcon = useCallback(
-		(
-			iconHTML: string,
-			{
-				library = '',
-				hasInlineStyle = false,
-				color,
-				preserveSvg = false,
-			} = {}
-		) => {
-			let normalizedHTML = preserveSvg
-				? extractSvgMarkup(iconHTML) || iconHTML
-				: prepareIconSvgForStorage(iconHTML, library);
-
-			if (hasInlineStyle) {
-				const iconDoc = new DOMParser().parseFromString(
-					normalizedHTML,
-					'text/html'
-				);
-				const svgElement = iconDoc.querySelector('svg');
-
-				if (svgElement) {
-					if (color) {
-						svgElement.style.color = color;
-
-						if (
-							!preserveSvg &&
-							!isStrokeIconLibrary(library) &&
-							!isStrokeSvgMarkup(svgElement.outerHTML)
-						) {
-							svgElement.style.fill = color;
-						} else if (
-							preserveSvg &&
-							!isStrokeSvgMarkup(svgElement.outerHTML)
-						) {
-							svgElement.style.fill = color;
-						} else {
-							svgElement.style.fill = 'none';
-							svgElement.setAttribute('stroke', 'currentColor');
-						}
-					}
-
-					normalizedHTML = preserveSvg
-						? svgElement.outerHTML
-						: prepareIconSvgForStorage(
-								svgElement.outerHTML,
-								library
-							);
-				}
-			}
-
-			return {
-				encodedIcon: btoa(unescape(encodeURIComponent(normalizedHTML))),
-				icon: encodeURIComponent(normalizedHTML),
-			};
-		},
-		[]
-	);
+	const iconColor =
+		currentStateAttributes[iconColorAttributeId] ??
+		('blockeraIconColor' !== iconColorAttributeId
+			? currentStateAttributes.blockeraIconColor
+			: undefined);
 
 	const renderIcon = useCallback(
 		async (newValue, effectiveItems = {}) => {
-			const iconNode = document.createElement('span');
-			document
-				.querySelector('.blockera-temp-icon-wrapper')
-				?.append(iconNode);
-			const iconRoot = createRoot(iconNode);
-
 			const color = !isUndefined(effectiveItems?.blockeraIconColor?.value)
 				? effectiveItems?.blockeraIconColor?.value
 				: iconColor?.value || iconColor;
-			const isStrokeLibrary = isStrokeIconLibrary(newValue.library);
 
-			iconRoot.render(
-				<Icon
-					style={{
-						color,
-						...(!isStrokeLibrary && color ? { fill: color } : {}),
-						width: iconSize ? iconSize : '1em',
-						height: iconSize ? iconSize : '1em',
-						...(iconPosition === 'start' && {
-							marginRight: iconGap,
-						}),
-						...(iconPosition === 'end' && {
-							marginLeft: iconGap,
-						}),
-					}}
-					xmlns="http://www.w3.org/2000/svg"
-					icon={newValue.icon}
-					library={newValue.library}
-					uploadSVG={newValue.uploadSVG}
-				/>
-			);
-
-			return new Promise((resolve) => {
-				setTimeout(() => {
-					const renderedIcon = encodeIcon(iconNode?.innerHTML || '', {
-						library: newValue.library,
-						color,
-					});
-					resolve(renderedIcon);
-					iconRoot.unmount();
-				}, 1);
+			return renderLibraryIconMarkup(newValue, {
+				iconColor: color,
+				iconSize: iconSize ? iconSize : '1em',
+				iconGap,
+				iconPosition,
 			});
 		},
-		[iconColor, iconSize, iconGap, iconPosition, encodeIcon]
+		[iconColor, iconSize, iconGap, iconPosition]
 	);
 
 	const handleOnChangeAttributesIcon = useCallback(
@@ -214,20 +152,14 @@ export const IconExtension: ComponentType<{
 			if (newValue.icon) {
 				const renderedIcon = await renderIcon(newValue, effectiveItems);
 
-				const iconEffectiveItems = {
-					...effectiveItems,
-					...(blockName === 'core/icon' && newValue.icon
-						? { icon: newValue.icon }
-						: {}),
-				};
-
+				// core/icon `icon` attribute sync is handled in blocks-core icon bootstrap.
 				handleOnChangeAttributes(
 					'blockeraIcon',
 					{
 						...newValue,
 						renderedIcon: renderedIcon.encodedIcon,
 					},
-					{ ref, effectiveItems: iconEffectiveItems }
+					{ ref, effectiveItems }
 				);
 			} else if (newValue.svgString || !isEmpty(effectiveItems)) {
 				if (!newValue.hasOwnProperty('svgString')) {
@@ -240,7 +172,7 @@ export const IconExtension: ComponentType<{
 						ref,
 						newValue,
 						blockName,
-						encodeIcon,
+						encodeIcon: encodeIconMarkup,
 						isIconBlock:
 							isStandaloneIconBlock(blockName) ||
 							String(attributes?.className || '').includes(
@@ -263,8 +195,7 @@ export const IconExtension: ComponentType<{
 				const emptyIcon = {
 					icon: '',
 					library: '',
-					renderedIcon:
-						'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiPgogIDxwYXRoIGQ9Ik01LjEyMzIxMjE2LDEzLjU0Njg3ODUgTDUuMDczNzAwNzgsMTMuNjMzNjI0OCBDNC44MzA3NzM4MywxNC4xMzIyMDY2IDUuMjE4OTIwMjcsMTQuNzM1MjE1NSA1Ljc5MTEzNjkyLDE0LjY4MjU4NzYgTDEwLjI2MjQ3MTUsMTQuMjcwNTQ5IEw5LjgyOTMzODY2LDIxLjcyMjc5MTkgQzkuNzg1OTcwMjEsMjIuNDY4Njc1OSAxMC43NDQ3ODYyLDIyLjc5Mzc2NjkgMTEuMTU0NDQ0OCwyMi4xNzIwNzUzIEwxOC44NzY3OTMyLDEwLjQ1Mjc1NTMgTDE4LjkyNjMwNDYsMTAuMzY2MDA1OSBDMTkuMTY5MjI5NSw5Ljg2NzQwNjc2IDE4Ljc4MTA0NDksOS4yNjQzOTE1IDE4LjIwODgxNTIsOS4zMTcwNTkxOCBMMTMuNzM2NTYzLDkuNzI4NDc0NDggTDE0LjE3MDY2MTEsMi4yNzcyMDgxNCBDMTQuMjE0MDI5MiwxLjUzMTMyOTYgMTMuMjU1MjI0OCwxLjIwNjIzNDg5IDEyLjg0NTU2MDYsMS44Mjc5MTYxNCBMNS4xMjMyMTIxNiwxMy41NDY4Nzg1IFogTTEyLjU2NzU5MjUsNC44ODk1MTk2MSBMMTIuMjQyNTcyNSwxMC40OTIxMTk2IEwxMi4yNDI5OTI1LDEwLjU4NjU4MjIgQzEyLjI3MDI1MjEsMTAuOTg5NDk2OCAxMi42MjE0MTk2LDExLjMwMjIzOTYgMTMuMDMwODg2MiwxMS4yNjQ1NTI1IEwxNi44MzEyOTQxLDEwLjkxNDA0MjggTDExLjQzMTQ0MiwxOS4xMDk1MDM4IEwxMS43NTc0MjcyLDEzLjUwNzg4MDQgTDExLjc1NzAwNzUsMTMuNDEzNDIxOCBDMTEuNzI5NzUxLDEzLjAxMDUyMzUgMTEuMzc4NjEyNCwxMi42OTc3ODUgMTAuOTY5MTYxMSwxMi43MzU0NDMxIEw3LjE2Nzc0MDMyLDEzLjA4NDk4MDYgTDEyLjU2NzU5MjUsNC44ODk1MTk2MSBaIj48L3BhdGg+Cjwvc3ZnPg==',
+					renderedIcon: CORE_ICON_EMPTY_RENDERED_ICON,
 				};
 
 				handleOnChangeAttributes('blockeraIcon', emptyIcon, {
@@ -288,14 +219,7 @@ export const IconExtension: ComponentType<{
 				});
 			}
 		},
-		[
-			icon,
-			blockName,
-			renderIcon,
-			encodeIcon,
-			handleOnChangeAttributes,
-			iconColor,
-		]
+		[icon, blockName, renderIcon, handleOnChangeAttributes, iconColor]
 	);
 
 	// Icon is not available in inner blocks.
@@ -326,7 +250,7 @@ export const IconExtension: ComponentType<{
 	const isShownIconColor = isShowField(
 		blockeraIconColor,
 		iconColor,
-		attributes?.blockeraIconColor?.default?.value
+		attributes?.[iconColorAttributeId]?.default?.value
 	);
 	const isShownIconLink = isShowField(
 		blockeraIconLink,
@@ -394,7 +318,7 @@ export const IconExtension: ComponentType<{
 				</ControlContextProvider>
 			</EditorFeatureWrapper>
 
-			{icon?.renderedIcon && (
+			{hasBlockeraIconValue(icon) && (
 				<>
 					<BaseControl
 						label={__('Style', 'blockera')}
@@ -604,7 +528,7 @@ export const IconExtension: ComponentType<{
 										'icon-color'
 									),
 									value: iconColor,
-									attribute: 'blockeraIconColor',
+									attribute: iconColorAttributeId,
 									blockName: block.blockName,
 								}}
 							>
@@ -632,12 +556,12 @@ export const IconExtension: ComponentType<{
 									}
 									columns="columns-2"
 									defaultValue={
-										attributes?.blockeraIconColor?.default
-											?.value
+										attributes?.[iconColorAttributeId]
+											?.default?.value
 									}
 									onChange={(newValue, ref) => {
 										handleOnChangeAttributes(
-											'blockeraIconColor',
+											iconColorAttributeId,
 											newValue,
 											{ ref }
 										);
