@@ -3,17 +3,12 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
  */
-import {
-	buildCustomIconDataUrl,
-	encodeCustomSvgIcon,
-	isStandaloneIconBlock,
-} from './custom-icon-utils';
+import { encodeCustomSvgIcon } from './custom-icon-utils';
 
 export const applyIconExtensionHook = () => {
 	addFilter(
@@ -24,14 +19,8 @@ export const applyIconExtensionHook = () => {
 				return payload;
 			}
 
-			const {
-				ref,
-				newValue,
-				effectiveItems,
-				handleOnChangeAttributes,
-				blockName,
-				isIconBlock,
-			} = payload;
+			const { ref, newValue, effectiveItems, handleOnChangeAttributes } =
+				payload;
 
 			if (!newValue?.svgString || !handleOnChangeAttributes) {
 				return payload;
@@ -39,8 +28,6 @@ export const applyIconExtensionHook = () => {
 
 			// Preserve custom SVG markup exactly; only encode for storage/transport.
 			const renderedIcon = encodeCustomSvgIcon(newValue.svgString);
-			const shouldSetIconBlockUrl =
-				isIconBlock ?? isStandaloneIconBlock(blockName);
 
 			handleOnChangeAttributes(
 				'blockeraIcon',
@@ -52,26 +39,7 @@ export const applyIconExtensionHook = () => {
 				},
 				{
 					ref,
-					effectiveItems: {
-						...effectiveItems,
-						...(shouldSetIconBlockUrl
-							? {
-									url: buildCustomIconDataUrl(
-										newValue.svgString
-									),
-									alt: newValue.uploadSVG?.title
-										? sprintf(
-												// translators: %s is the icon name.
-												__('%s Icon', 'blockera'),
-												newValue.uploadSVG.title.replaceAll(
-													'-',
-													' '
-												)
-										  )
-										: '',
-							  }
-							: {}),
-					},
+					effectiveItems,
 				}
 			);
 

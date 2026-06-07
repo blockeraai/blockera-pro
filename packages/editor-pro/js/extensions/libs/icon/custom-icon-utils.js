@@ -8,7 +8,7 @@
 
 /** Standalone icon blocks (not inline icon on text/button blocks). */
 export const isStandaloneIconBlock = (blockName?: string): boolean =>
-	blockName === 'blockera/icon' || blockName === 'core/icon';
+	blockName === 'core/icon';
 
 /**
  * Encode custom SVG for storage without stroke/fill normalization.
@@ -30,12 +30,3 @@ export const encodeCustomSvgIcon = (
 		icon: encodeURIComponent(markup),
 	};
 };
-
-/**
- * Build a data URL for icon block img[src] from raw SVG markup.
- *
- * @param {string} svgString Raw SVG markup.
- * @return {string} data:image/svg+xml URL.
- */
-export const buildCustomIconDataUrl = (svgString: string): string =>
-	`data:image/svg+xml;utf8,${encodeURIComponent(svgString?.trim() || '')}`;

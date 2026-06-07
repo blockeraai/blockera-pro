@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d4f2e0543581882b6636f4c20c3bafb",
+    "content-hash": "b3ffb37b597b13463961c938e6e0cd0c",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -29,28 +29,6 @@
                 }
             },
             "description": "OAuth 2.0 client functionality implementation for authentication and subscription management",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "blockera/block-icon",
-            "version": "1.0.0",
-            "dist": {
-                "type": "path",
-                "url": "packages/blocks-library/icon",
-                "reference": "a2fda4a3bb8cab32a4feca4930d36e95e0f02938"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Blockera\\Block\\Icon\\": "src/"
-                },
-                "files": [
-                    "src/functions.php"
-                ]
-            },
-            "description": "The Blockera block icon package for Blockera editor.",
             "transport-options": {
                 "relative": true
             }
@@ -237,7 +215,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/editor",
-                "reference": "9c8593b537df02ab7fb36b2abefd5697e81e8296"
+                "reference": "37d18cacd9b6f80ace664b28be7960b6cde1108a"
             },
             "type": "library",
             "autoload": {
@@ -245,9 +223,7 @@
                     "Blockera\\Editor\\": "php/"
                 },
                 "files": [
-                    "php/helpers.php",
-                    "php/rest-api-helpers.php",
-                    "php/global-styles-and-settings.php"
+                    "php/helpers.php"
                 ]
             },
             "autoload-dev": {
@@ -9462,5 +9438,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
