@@ -59,6 +59,15 @@ export function isPresetTaxonomyInterfaceSizeSmall(
 	return raw !== undefined && raw.toLowerCase() === 'small';
 }
 
+export type PresetRepeaterItemSize = 'full' | 'small';
+
+/** Layout size for flat/simple repeater rows with `meta.interface-size: small`. */
+export function resolvePresetRepeaterItemSize(
+	item: Record<string, unknown>
+): PresetRepeaterItemSize {
+	return isPresetTaxonomyInterfaceSizeSmall(item) ? 'small' : 'full';
+}
+
 /** All presets under a taxonomy category (direct rows + sub-section rows). */
 export function collectTaxonomyCategoryPresets<
 	T extends Record<string, unknown>,

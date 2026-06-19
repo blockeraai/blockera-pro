@@ -34,7 +34,7 @@ import {
 } from '../utils';
 import Flex from '../../flex';
 import GroupControl from '../../group-control';
-import type { RepeaterItemProps } from '../types';
+import type { RepeaterItemProps, RepeaterItemSize } from '../types';
 import { useControlContext } from '../../../context';
 
 export function RepeaterItemVariationsPane({
@@ -59,7 +59,9 @@ const RepeaterItem = ({
 	item,
 	itemId,
 	showVariations = true,
+	size,
 }: RepeaterItemProps): null | Element<any> => {
+	const rowSize: RepeaterItemSize = size ?? 'full';
 	const [isOpen, setOpen] = useState(
 		isBoolean(item?.isOpen) ? item?.isOpen : false
 	);
@@ -432,6 +434,7 @@ const RepeaterItem = ({
 				'repeater-item',
 				isVisible ? ' is-active' : ' is-inactive',
 				{
+					'is-small': rowSize === 'small',
 					draggable: !isOpen,
 					'is-native': shouldApplyRepeaterItemNativeStyle(
 						itemId,

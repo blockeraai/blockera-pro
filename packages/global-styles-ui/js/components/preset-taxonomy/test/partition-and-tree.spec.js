@@ -12,7 +12,10 @@ import {
 	resolvePresetTaxonomyDisplayName,
 	resolvePresetTaxonomyEditName,
 } from '../taxonomy-meta';
-import { isPresetTaxonomyInterfaceSizeSmall } from '../../preset-taxonomy-ui/preset-taxonomy-utils';
+import {
+	isPresetTaxonomyInterfaceSizeSmall,
+	resolvePresetRepeaterItemSize,
+} from '../../preset-taxonomy-ui/preset-taxonomy-utils';
 import {
 	getThemeTaxonomyBasePalette,
 	getThemeTaxonomyPrimaryCategoryPalette,
@@ -99,6 +102,43 @@ describe('partition-and-tree', () => {
 		expect(taxonomySlugSet.has('primary')).toBe(true);
 		expect(simplePresets).toHaveLength(1);
 		expect(simplePresets[0].slug).toBe('base');
+	});
+
+	it('keeps flat presets with meta in simplePresets (e.g. interface-size on Base)', () => {
+		const presets = [
+			{
+				slug: 'base',
+				name: 'Base',
+				color: '#fff',
+				meta: {
+					'interface-size': 'small',
+					description: 'Black text color.',
+				},
+			},
+			{
+				slug: 'primary',
+				name: 'Design System/Primary',
+				color: '#f00',
+				meta: { 'interface-size': 'small' },
+			},
+		];
+		const { taxonomyPresets, simplePresets, taxonomySlugSet } =
+			partitionPresetsForTaxonomyUi(presets);
+		expect(taxonomyPresets).toHaveLength(1);
+		expect(taxonomySlugSet.has('primary')).toBe(true);
+		expect(simplePresets.map((p) => p.slug)).toEqual(['base']);
+	});
+
+	it('resolves interface-size small layout size for flat presets with meta', () => {
+		const base = {
+			slug: 'base',
+			name: 'Base',
+			meta: { 'interface-size': 'small' },
+		};
+		expect(resolvePresetRepeaterItemSize(base)).toBe('small');
+		expect(resolvePresetRepeaterItemSize({ slug: 'contrast' })).toBe(
+			'full'
+		);
 	});
 
 	it('builds nested tree and merges mixed spacing into one group', () => {
