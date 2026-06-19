@@ -83,6 +83,13 @@ export type RepeaterControlProps = {
 	 */
 	shouldRenderRepeaterItem?: (itemId: string, item: Object) => boolean,
 	/**
+	 * Row layout size; defaults to full width when omitted.
+	 */
+	resolveRepeaterItemSize?: (
+		itemId: string,
+		item: Object
+	) => 'full' | 'small',
+	/**
 	 * When true, selectable rows show an edit control to open item settings (e.g. popover).
 	 */
 	showItemEditButton?: boolean,
@@ -298,6 +305,8 @@ export type TRepeaterDefaultStateProps = {
 	popoverTitle: string | MixedElement,
 };
 
+export type RepeaterItemSize = 'full' | 'small';
+
 export type RepeaterItemProps = {
 	item: Object,
 	itemId: string,
@@ -308,6 +317,12 @@ export type RepeaterItemProps = {
 	 * @default true
 	 */
 	showVariations?: boolean,
+	/**
+	 * Row layout size; full width by default.
+	 *
+	 * @default 'full'
+	 */
+	size?: RepeaterItemSize,
 };
 
 export type CleanupRepeaterArgs = {
