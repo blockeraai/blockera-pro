@@ -19,6 +19,7 @@ import {
 	normalizeVariablePickerSearchQuery,
 	resolveVariablePickerPresetGroupLabel,
 	usePresetVariablesViewMode,
+	useVarPickerCustomAddContext,
 	useVarPickerPresetContext,
 	variablePickerItemMatchesSearch,
 } from '@blockera/controls';
@@ -111,6 +112,16 @@ type PresetsProps = {
 	) => 'full' | 'small';
 	canEditGlobalStyles: boolean;
 	repeaterItemVariations?: PresetGroupPropsType['repeaterItemVariations'];
+	withoutAdvancedLabel?: boolean;
+	onRegisterAddNewAction?: (
+		action: {
+			onClick: () => void;
+			label: string;
+			dataTest?: string;
+			canAdd: boolean;
+			disabled?: boolean;
+		} | null
+	) => (() => void) | void;
 };
 
 const PresetFieldsComponent = ({
@@ -157,6 +168,8 @@ const Presets = ({
 	resolveRepeaterItemSize,
 	canEditGlobalStyles,
 	repeaterItemVariations,
+	withoutAdvancedLabel = false,
+	onRegisterAddNewAction,
 	...props
 }: PresetsProps) => {
 	const renderPromo = useCallback(
@@ -282,6 +295,8 @@ const Presets = ({
 			actionButtonDelete={canEditGlobalStyles}
 			actionButtonClone={canEditGlobalStyles}
 			enablePromoCountOnRepeaterItemHeader={'custom' === origin}
+			withoutAdvancedLabel={withoutAdvancedLabel}
+			onRegisterAddNewAction={onRegisterAddNewAction}
 			{...props}
 		/>
 	);
@@ -303,6 +318,7 @@ export const PresetGroup = ({
 	suppressThemeRepeaterWhenTaxonomyBasePopulated = false,
 }: PresetGroupPropsType) => {
 	const pickerCtx = useVarPickerPresetContext();
+	const customAddCtx = useVarPickerCustomAddContext();
 	const { viewMode } = usePresetVariablesViewMode();
 	const canEditGlobalStyles = useCanEditGlobalStyles();
 	const isVariablePicker =
@@ -417,6 +433,29 @@ export const PresetGroup = ({
 			isVariablePicker &&
 			normalizeVariablePickerSearchQuery(pickerCtx.searchQuery) !== '',
 		[isVariablePicker, pickerCtx.searchQuery]
+	);
+
+	const registerCustomAddNewAction = useCallback(
+		(
+			action: {
+				onClick: () => void;
+				label: string;
+				dataTest?: string;
+				canAdd: boolean;
+				disabled?: boolean;
+			} | null
+		) => {
+			if (
+				origin !== 'custom' ||
+				!isVariablePicker ||
+				!customAddCtx?.register
+			) {
+				return undefined;
+			}
+
+			return customAddCtx.register(action);
+		},
+		[origin, isVariablePicker, customAddCtx]
 	);
 
 	const hasPickerSearchMatches = useMemo(() => {
@@ -545,6 +584,8 @@ export const PresetGroup = ({
 							resolveRepeaterItemInterfaceSize
 						}
 						repeaterItemVariations={repeaterItemVariations}
+						withoutAdvancedLabel={isVariablePicker}
+						onRegisterAddNewAction={registerCustomAddNewAction}
 					/>
 				</BaseControl>
 			</ControlContextProvider>
