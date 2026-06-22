@@ -23,6 +23,11 @@ export {
 	tokenizeVariablePickerSearchQuery,
 	buildVariablePickerSearchHaystack,
 	variablePickerItemMatchesSearch,
+	variablePickerHasAnySearchMatches,
+	VarPickerSearchContext,
+	useVarPickerSearchContext,
+	VarPickerSearchEmptyState,
+	useVarPickerSingleTypeCustomAddAction,
 	PresetVariablesViewModeProvider,
 	usePresetVariablesViewMode,
 	loadPresetVariablesViewMode,
@@ -31,6 +36,8 @@ export {
 	PRESET_VARIABLES_VIEW_MODE_CHANGE_EVENT,
 	PresetVariablesSummaryRow,
 	PRESET_VARIABLES_SECTION_GAP,
+	MISSING_VARIABLE_CAN_RECREATE_FILTER,
+	MISSING_VARIABLE_RECREATE_FILTER,
 } from './variable';
 export {
 	ValueAddonControl,
