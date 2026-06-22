@@ -3,6 +3,8 @@ export {
 	VAR_PICKER_PRESET_PANEL_FILTER,
 	VAR_PICKER_GLOBAL_STYLES_PRESET_PANEL_FILTER,
 	VAR_PICKER_FALLBACK_PRESET_PANEL_FILTER,
+	MISSING_VARIABLE_CAN_RECREATE_FILTER,
+	MISSING_VARIABLE_RECREATE_FILTER,
 } from './var-picker';
 export { default as VarDeleted } from './var-deleted';
 export {
@@ -23,7 +25,14 @@ export {
 	tokenizeVariablePickerSearchQuery,
 	buildVariablePickerSearchHaystack,
 	variablePickerItemMatchesSearch,
+	variablePickerHasAnySearchMatches,
 } from './var-picker-helpers';
+export {
+	VarPickerSearchContext,
+	useVarPickerSearchContext,
+} from './var-picker-search-context';
+export { VarPickerSearchEmptyState } from './var-picker-search-empty-state';
+export { useVarPickerSingleTypeCustomAddAction } from './use-var-picker-single-type-custom-add-action';
 export {
 	PresetVariablesViewModeProvider,
 	usePresetVariablesViewMode,
