@@ -247,10 +247,33 @@ export function mergeWPCompatibility(
 	compatResult: Object,
 	blockDetail: BlockDetail
 ): Object {
-	return mergeObject(
-		nextState,
-		omitUnregisteredInnerBlockData(compatResult, blockDetail.blockId)
+	if (!compatResult) {
+		return nextState;
+	}
+
+	const sanitized = omitUnregisteredInnerBlockData(
+		compatResult,
+		blockDetail.blockId
 	);
+
+	if (!sanitized) {
+		return nextState;
+	}
+
+	const {
+		forceUpdated,
+		deletedProps,
+		...attributePatch
+	}: {
+		forceUpdated?: Array<string>,
+		deletedProps?: Array<string>,
+		...Object,
+	} = sanitized;
+
+	return mergeObject(nextState, attributePatch, {
+		forceUpdated: forceUpdated ?? [],
+		deletedProps: deletedProps ?? [],
+	});
 }
 
 /**
