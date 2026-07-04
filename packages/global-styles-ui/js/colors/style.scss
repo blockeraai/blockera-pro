@@ -38,25 +38,10 @@
 	/* Shade ramp chromeless controls (color-preset-fields) */
 	.blockera-component-global-styles-color-shade-swatch {
 		.blockera-component-base-breakpoint-icon {
-			left: -5px;
-			top: -3px;
+			left: 1px;
+			top: -4px;
+			width: 14px;
+			height: 14px;
 		}
-	}
-}
-
-/* Overlapped mini swatches (stack header + opener strip) — matches ColorIndicator stack spacing */
-.blockera-component-global-styles-color-shade-indicator-stack {
-	display: flex;
-	align-items: center;
-	--stack-space: -5px;
-
-	.blockera-component-global-styles-color-shade-swatch:not(:first-child) {
-		margin-left: var(--stack-space);
-	}
-
-	.blockera-component-color-indicator {
-		box-shadow:
-			inset 0 0 0 1px rgba(0, 0, 0, 0.25),
-			0 0 0 2px #ffffff;
 	}
 }

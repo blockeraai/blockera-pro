@@ -76,6 +76,7 @@ import {
 	resolvePresetTaxonomyEditName,
 } from '../components/preset-taxonomy/taxonomy-meta';
 import { shouldUsePresetTaxonomyFullPickerLabel } from '../components/preset-taxonomy/use-preset-taxonomy-header-label';
+import { isPresetTaxonomyInterfaceSizeSmall } from '../components/preset-taxonomy-ui/preset-taxonomy-utils';
 import './style.scss';
 
 export type ColorPresetOpenerProps = {
@@ -320,7 +321,17 @@ export function ColorPresetOpener({
 		viewMode,
 	]);
 
-	const showHexValue = shadeVariationCount === 0 && colorItem?.color;
+	// Shade accordion headers use the stack preview instead of a trailing hex.
+	// Compact half-width rows (`meta.interface-size: small`) also omit the value; list view is full width.
+	const showHexValue =
+		shadeVariationCount === 0 &&
+		Boolean(colorItem?.color) &&
+		!(
+			viewMode !== 'list' &&
+			isPresetTaxonomyInterfaceSizeSmall(
+				colorItem as Record<string, unknown>
+			)
+		);
 
 	const shadeSlugParsed = parsePaletteShadeSlug(String(colorItem.slug ?? ''));
 	const parentBaseProp = String(
@@ -478,25 +489,7 @@ export function ColorPresetOpener({
 	]);
 
 	let trailingHeaderValues: React.ReactNode = null;
-	if (contextType === 'taxonomy') {
-		if (headerIcon || shadeVariationCount > 0) {
-			trailingHeaderValues = (
-				<span
-					className={controlInnerClassNames('header-values')}
-					data-cy="header-values"
-				>
-					{shadeVariationCount > 0 ? (
-						<ColorPresetShadeStackHeader
-							baseSlug={baseSlug}
-							mainPreset={mainPresetForStack}
-						/>
-					) : (
-						headerIcon
-					)}
-				</span>
-			);
-		}
-	} else if (showHexValue) {
+	if (showHexValue) {
 		trailingHeaderValues = (
 			<span
 				className={controlInnerClassNames('header-values')}
@@ -524,8 +517,7 @@ export function ColorPresetOpener({
 				controlInnerClassNames('repeater-group-header'),
 				{
 					'is-preset-variable-variations-picker-header':
-						isVariableVariationsPickerHeader ||
-						'taxonomy' === contextType,
+						isVariableVariationsPickerHeader,
 				}
 			)}
 			onClick={getPresetRepeaterHeaderOnClick({
@@ -551,12 +543,10 @@ export function ColorPresetOpener({
 				variationsAccordionOpen={variationsAccordionOpen}
 				isVariablePickerActive={true === pickerCtx.active}
 				collapsedVariationStack={
-					contextType === 'taxonomy' ? null : (
-						<ColorPresetShadeStackHeader
-							baseSlug={baseSlug}
-							mainPreset={mainPresetForStack}
-						/>
-					)
+					<ColorPresetShadeStackHeader
+						baseSlug={baseSlug}
+						mainPreset={mainPresetForStack}
+					/>
 				}
 				variablePickerVariationStrip={
 					<ColorShadesRepeaterItem
@@ -568,7 +558,7 @@ export function ColorPresetOpener({
 						}
 					/>
 				}
-				icon={contextType === 'taxonomy' ? null : headerIcon}
+				icon={headerIcon}
 				label={headerLabel}
 			/>
 
