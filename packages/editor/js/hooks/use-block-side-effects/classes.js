@@ -11,6 +11,8 @@ export const classes = [
 		children: [
 			'.components-panel__body .block-editor-hooks__flex-layout-justification-controls',
 			'.components-panel__body .block-editor-hooks__flex-layout-orientation-controls',
+			'.components-panel__body .block-editor-hooks__grid-layout-columns-and-rows-controls',
+			'.components-panel__body .block-editor-hooks__grid-layout-minimum-width-control',
 		],
 		childrenCheck: 'first',
 	},
@@ -29,7 +31,9 @@ export const classes = [
 			'core/latest-posts',
 			'core/loginout',
 			'core/media-text',
+			'core/navigation',
 			'core/navigation-link',
+			'core/navigation-overlay-close',
 			'core/navigation-submenu',
 			'core/page-list',
 			'core/post-author-name',
@@ -46,16 +50,37 @@ export const classes = [
 			'core/table',
 			'core/tag-cloud',
 			'core/video',
-			'core/image',
+			'core/audio',
+			'core/avatar',
 			'core/file',
 			'outermost/icon-block',
+			'core/accordion',
+			'core/accordion-item',
+			'core/term-name',
+			'core/comment-author-name',
+			'core/comment-date',
+			'core/comment-edit-link',
+			'core/comments-pagination',
+			'core/gallery',
+			'core/site-logo',
+			'core/rss',
+			'core/comments-title',
+			'core/file',
+			'core/latest-posts',
+			'core/post-author',
+			'core/post-title',
+			'core/search',
+			'core/post-navigation-link',
+			'core/post-time-to-read',
+			'core/breadcrumbs',
+			'core/icon',
 		],
 	},
 	// "core/avatar" - Hide range control for image size
 	{
 		parent: '.components-range-control',
 		children: [
-			'.components-panel__body .components-range-control .components-base-control__label',
+			'.components-tools-panel .components-range-control .components-base-control__label',
 		],
 		include: ['core/avatar'],
 	},
@@ -85,19 +110,40 @@ export const classes = [
 		],
 		include: ['core/image'],
 	},
-	// "blockera/icon" - Hide ratio
-	{
-		parent: '.components-tools-panel-item',
-		children: ['.components-tools-panel-item select'],
-		include: ['blockera/icon'],
-	},
-	// "blockera/icon" - Hide width & height
+	// "core/gallery" - Hide aspect ratio
 	{
 		parent: '.components-tools-panel-item',
 		children: [
-			'.components-tools-panel-item .components-input-control__input',
+			'.components-tools-panel select.components-select-control__input option[value="auto"]',
+			'.components-tools-panel select.components-select-control__input option[value="1"]',
+			'.components-tools-panel select.components-select-control__input option[value="4/3"]',
 		],
-		include: ['blockera/icon'],
+		include: ['core/gallery'],
+	},
+	// "core/site-logo" - Remove range control for width
+	{
+		parent: '.components-tools-panel-item',
+		children: [
+			'.components-tools-panel-item .components-range-control__slider',
+		],
+		include: ['core/site-logo'],
 		childrenCheck: 'all',
+	},
+	// "outermost/icon-block" - Remove range control for width
+	{
+		parent: '.components-tools-panel-item',
+		children: [
+			'.components-tools-panel .components-tools-panel-item input[type="number"]',
+		],
+		include: ['outermost/icon-block', 'core/icon'],
+	},
+	// "core/search" - Remove width input control
+	{
+		parent: '.components-tools-panel-item',
+		children: [
+			'.components-tools-panel .components-tools-panel-item input[type="number"]',
+			'.components-tools-panel .components-tools-panel-item .components-toggle-group-control',
+		],
+		include: ['core/search'],
 	},
 ];

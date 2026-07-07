@@ -4,9 +4,11 @@
 import {
 	savePage,
 	createPost,
+	selectBlock,
 	appendBlocks,
 	setInnerBlock,
 	setParentBlock,
+	openBlockNavigator,
 	redirectToFrontPage,
 } from '@blockera/dev-cypress/js/helpers';
 
@@ -24,11 +26,16 @@ describe('Social Links Block', () => {
 <!-- wp:social-link {"url":"#test","service":"behance"} /--></ul>
 <!-- /wp:social-links -->`);
 
-		// Select target block
-		cy.getBlock('core/social-link').first().click();
+		// select target block by opening block navigator and selecting the block
+		// because there is a strange behavior in the block navigator that sometimes the block is not selected
 
-		// Switch to parent block
-		cy.getByAriaLabel('Select parent block: Social Icons').click();
+		// Open block navigator
+		openBlockNavigator();
+
+		// Select target block
+		selectBlock('Social Icons');
+
+		cy.getByAriaControls('styles-view').click();
 
 		// Block supported is active
 		cy.get('.blockera-extension-block-card').should('be.visible');
@@ -95,14 +102,14 @@ describe('Social Links Block', () => {
 		//
 		// 1.3.1. BG color
 		//
-		cy.setColorControlValue('BG Color', 'ff2020');
+		cy.setColorControlValue('BG Color', '730000');
 
 		cy.getBlock('core/social-links')
 			.first()
 			.within(() => {
-				cy.get('.wp-block-social-link svg')
+				cy.get('.wp-block-social-link .block-editor-block-icon svg')
 					.first()
-					.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+					.should('have.css', 'background-color', 'rgb(115, 0, 0)');
 			});
 
 		//
@@ -116,21 +123,21 @@ describe('Social Links Block', () => {
 		//
 		// 1.4.1. BG color
 		//
-		cy.setColorControlValue('BG Color', 'ff2020');
+		cy.setColorControlValue('BG Color', '320000');
 
 		cy.getBlock('core/social-links')
 			.first()
 			.within(() => {
 				cy.get('.wp-block-social-link .wp-block-social-link-label')
 					.first()
-					.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+					.should('have.css', 'background-color', 'rgb(50, 0, 0)');
 			});
 
 		//
 		// 2. Check settings tab
 		//
 		setParentBlock();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
@@ -162,13 +169,13 @@ describe('Social Links Block', () => {
 			'.blockera-block.wp-block-social-links .wp-block-social-link svg'
 		)
 			.first()
-			.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+			.should('have.css', 'background-color', 'rgb(115, 0, 0)');
 
 		// elements/item-names
 		cy.get(
 			'.blockera-block.wp-block-social-links .wp-block-social-link .wp-block-social-link-label'
 		)
 			.first()
-			.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+			.should('have.css', 'background-color', 'rgb(50, 0, 0)');
 	});
 });
