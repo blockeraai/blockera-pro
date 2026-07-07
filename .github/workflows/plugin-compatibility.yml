@@ -75,13 +75,17 @@ jobs:
             - name: Create required environment files
               run: |
                   # Get Blockera version based on strategy
-                  if [ "${{ matrix.strategy }}" = "blockera-free-previous" ]; then
-                    # Get previous supported version (index -1)
-                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
-                  elif [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
-                    # Get latest version (index 0) 
-                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
-                  fi
+                  case "${{ matrix.strategy }}" in
+                    blockera-free-previous)
+                      # Get previous supported version (index -1)
+                      BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
+                      ;;
+                    blockera-free-latest)
+                      # Get latest version (index 0)
+                      BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
+                      ;;
+                  esac
+
 
                   echo "Using Blockera version: $BLOCKERA_DOWNLOAD_URL"
 
