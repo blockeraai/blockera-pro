@@ -9,6 +9,8 @@ BRANCH=""
 WORKFLOW=""
 OUTPUT=""
 TOKEN="${GITHUB_TOKEN:-}"
+RUN_ID=""
+ARTIFACT_ID=""
 
 usage() {
 	cat <<EOF
@@ -28,6 +30,10 @@ Options:
 Environment:
   GITHUB_TOKEN        GitHub token for API authentication (required for cross-repo access)
 EOF
+}
+
+log() {
+	echo "$*" >&2
 }
 
 while [[ $# -gt 0 ]]; do
@@ -61,7 +67,7 @@ while [[ $# -gt 0 ]]; do
 			exit 0
 			;;
 		*)
-			echo "Error: Unknown option '$1'" >&2
+			log "Error: Unknown option '$1'"
 			usage >&2
 			exit 1
 			;;
@@ -69,7 +75,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$TOKEN" ]; then
-	echo "Error: GITHUB_TOKEN environment variable is required." >&2
+	log "Error: GITHUB_TOKEN environment variable is required."
 	exit 1
 fi
 
@@ -84,65 +90,74 @@ api() {
 		"$@"
 }
 
-find_artifact_id_from_branch() {
+resolve_artifact_from_branch() {
 	local encoded_branch
 	encoded_branch=$(jq -rn --arg branch "$BRANCH" '$branch|@uri')
 
 	local runs_url="https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW/runs?branch=${encoded_branch}&status=success&per_page=1"
-	local run_id
-	run_id=$(api "$runs_url" | jq -r '.workflow_runs[0].id // empty')
+	RUN_ID=$(api "$runs_url" | jq -r '.workflow_runs[0].id // empty')
 
-	if [ -z "$run_id" ]; then
-		echo "Error: No successful '$WORKFLOW' runs found for branch '$BRANCH' in $OWNER/$REPO." >&2
+	if [ -z "$RUN_ID" ]; then
+		log "Error: No successful '$WORKFLOW' runs found for branch '$BRANCH' in $OWNER/$REPO."
 		exit 1
 	fi
 
-	echo "Using workflow run ID $run_id from branch '$BRANCH' in $OWNER/$REPO."
+	log "Using workflow run ID $RUN_ID from branch '$BRANCH' in $OWNER/$REPO."
 
-	local artifact_id
-	artifact_id=$(
-		api "https://api.github.com/repos/$OWNER/$REPO/actions/runs/$run_id/artifacts" \
+	ARTIFACT_ID=$(
+		api "https://api.github.com/repos/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts" \
 			| jq --arg name "$ARTIFACT_NAME" '.artifacts | map(select(.name == $name and .expired == false)) | .[0].id // empty'
 	)
 
-	if [ -z "$artifact_id" ]; then
-		echo "Error: Artifact '$ARTIFACT_NAME' not found in workflow run $run_id." >&2
+	if [ -z "$ARTIFACT_ID" ]; then
+		log "Error: Artifact '$ARTIFACT_NAME' not found in workflow run $RUN_ID."
 		exit 1
 	fi
-
-	echo "$artifact_id"
 }
 
-find_latest_artifact_id() {
-	local artifact_id
-	artifact_id=$(
+resolve_latest_artifact() {
+	local artifact
+	artifact=$(
 		api "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts?per_page=100" \
 			| jq --arg name "$ARTIFACT_NAME" '
 				.artifacts
 				| map(select(.name == $name and .expired == false))
 				| sort_by(.created_at)
 				| reverse
-				| .[0].id // empty
+				| .[0] // empty
 			'
 	)
 
-	if [ -z "$artifact_id" ]; then
-		echo "Error: Artifact '$ARTIFACT_NAME' not found in $OWNER/$REPO." >&2
+	if [ -z "$artifact" ] || [ "$artifact" = "null" ]; then
+		log "Error: Artifact '$ARTIFACT_NAME' not found in $OWNER/$REPO."
 		exit 1
 	fi
 
-	echo "$artifact_id"
+	ARTIFACT_ID=$(echo "$artifact" | jq -r '.id')
+	RUN_ID=$(echo "$artifact" | jq -r '.workflow_run.id // empty')
+
+	if [ -z "$RUN_ID" ]; then
+		log "Error: Could not resolve workflow run ID for artifact $ARTIFACT_ID."
+		exit 1
+	fi
 }
 
 if [ -n "$BRANCH" ]; then
-	ARTIFACT_ID=$(find_artifact_id_from_branch)
+	resolve_artifact_from_branch
 else
-	ARTIFACT_ID=$(find_latest_artifact_id)
+	resolve_latest_artifact
 fi
 
-echo "Artifact ID: $ARTIFACT_ID"
+DOWNLOAD_URL="https://github.com/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID"
 
-api -o "$OUTPUT" \
-	"https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACT_ID/zip"
+log "Run ID: $RUN_ID"
+log "Artifact ID: $ARTIFACT_ID"
+log "Download URL: $DOWNLOAD_URL"
+
+curl -sfSL \
+	-H "Authorization: Bearer $TOKEN" \
+	-H "Accept: application/vnd.github+json" \
+	-o "$OUTPUT" \
+	"$DOWNLOAD_URL"
 
 echo "Downloaded as $OUTPUT"
