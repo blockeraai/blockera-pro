@@ -89,13 +89,17 @@ jobs:
                       BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
                       ;;
                     blockera-pro-current|blockera-pro-previous)
-                      if [ ! -f ".pr-free-branch.txt" ]; then
-                        echo "Error: .pr-free-branch.txt is required for ${{ matrix.strategy }} to specify the Blockera free repo branch."
-                        exit 1
+                      FREE_BRANCH=""
+                      if [ -f ".pr-free-branch.txt" ]; then
+                        FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-branch.txt)
                       fi
 
-                      FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-branch.txt)
-                      echo "Using Blockera free branch from .pr-free-branch.txt: $FREE_BRANCH"
+                      if [ -z "$FREE_BRANCH" ]; then
+                        FREE_BRANCH="master"
+                        echo "No .pr-free-branch.txt found; using Blockera free master branch."
+                      else
+                        echo "Using Blockera free branch from .pr-free-branch.txt: $FREE_BRANCH"
+                      fi
 
                       bash .github/scripts/download-artifact.sh \
                         --owner blockeraai \
