@@ -90,33 +90,45 @@ api() {
 		"$@"
 }
 
+find_artifact_in_run() {
+	local run_id="$1"
+
+	jq --arg name "$ARTIFACT_NAME" '
+		.artifacts
+		| map(select(.name == $name and .expired == false))
+		| .[0].id // empty
+	' <<< "$(api "https://api.github.com/repos/$OWNER/$REPO/actions/runs/$run_id/artifacts")"
+}
+
 resolve_artifact_from_branch() {
-	local encoded_branch
+	local encoded_branch page run_id artifact_id
+
 	encoded_branch=$(jq -rn --arg branch "$BRANCH" '$branch|@uri')
 
-	local runs_url="https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW/runs?branch=${encoded_branch}&status=success&per_page=1"
-	RUN_ID=$(api "$runs_url" | jq -r '.workflow_runs[0].id // empty')
+	for page in 1 2 3; do
+		while IFS= read -r run_id; do
+			[ -z "$run_id" ] && continue
 
-	if [ -z "$RUN_ID" ]; then
-		log "Error: No successful '$WORKFLOW' runs found for branch '$BRANCH' in $OWNER/$REPO."
-		exit 1
-	fi
+			artifact_id=$(find_artifact_in_run "$run_id")
+			if [ -n "$artifact_id" ]; then
+				RUN_ID="$run_id"
+				ARTIFACT_ID="$artifact_id"
+				log "Using workflow run ID $RUN_ID from branch '$BRANCH' in $OWNER/$REPO."
+				return 0
+			fi
+		done < <(
+			api "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW/runs?branch=${encoded_branch}&status=success&per_page=10&page=${page}" \
+				| jq -r '.workflow_runs[].id // empty'
+		)
+	done
 
-	log "Using workflow run ID $RUN_ID from branch '$BRANCH' in $OWNER/$REPO."
-
-	ARTIFACT_ID=$(
-		api "https://api.github.com/repos/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts" \
-			| jq --arg name "$ARTIFACT_NAME" '.artifacts | map(select(.name == $name and .expired == false)) | .[0].id // empty'
-	)
-
-	if [ -z "$ARTIFACT_ID" ]; then
-		log "Error: Artifact '$ARTIFACT_NAME' not found in workflow run $RUN_ID."
-		exit 1
-	fi
+	log "Error: Artifact '$ARTIFACT_NAME' not found for branch '$BRANCH' in $OWNER/$REPO."
+	exit 1
 }
 
 resolve_latest_artifact() {
 	local artifact
+
 	artifact=$(
 		api "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts?per_page=100" \
 			| jq --arg name "$ARTIFACT_NAME" '
@@ -148,15 +160,18 @@ else
 	resolve_latest_artifact
 fi
 
-DOWNLOAD_URL="https://github.com/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID"
+ARTIFACT_PAGE_URL="https://github.com/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID"
+DOWNLOAD_URL="https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACT_ID/zip"
 
 log "Run ID: $RUN_ID"
 log "Artifact ID: $ARTIFACT_ID"
-log "Download URL: $DOWNLOAD_URL"
+log "Artifact page: $ARTIFACT_PAGE_URL"
+log "Downloading from API: $DOWNLOAD_URL"
 
 curl -sfSL \
 	-H "Authorization: Bearer $TOKEN" \
 	-H "Accept: application/vnd.github+json" \
+	-H "X-GitHub-Api-Version: 2022-11-28" \
 	-o "$OUTPUT" \
 	"$DOWNLOAD_URL"
 
