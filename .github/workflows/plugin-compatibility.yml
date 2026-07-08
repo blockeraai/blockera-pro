@@ -101,14 +101,15 @@ jobs:
                         echo "Using Blockera free branch from .pr-free-branch.txt: $FREE_BRANCH"
                       fi
 
-                      bash .github/scripts/download-artifact.sh \
+                      BLOCKERA_PLUGIN_DIR=".github/cache/blockera-free"
+                      rm -rf "$BLOCKERA_PLUGIN_DIR"
+
+                      BLOCKERA_DOWNLOAD_URL=$(bash .github/scripts/download-artifact.sh \
                         --owner blockeraai \
                         --repo blockera \
                         --name blockera \
                         --branch "$FREE_BRANCH" \
-                        --output blockera.zip
-
-                      BLOCKERA_DOWNLOAD_URL="$(pwd)/blockera.zip"
+                        --extract-dir "$BLOCKERA_PLUGIN_DIR")
                       ;;
                   esac
 

@@ -8,6 +8,7 @@ ARTIFACT_NAME="blockera"
 BRANCH=""
 WORKFLOW=""
 OUTPUT=""
+EXTRACT_DIR=""
 TOKEN="${GITHUB_TOKEN:-}"
 RUN_ID=""
 ARTIFACT_ID=""
@@ -24,7 +25,8 @@ Options:
   --name NAME         Artifact name (default: blockera)
   --branch BRANCH     Branch name to resolve the latest successful workflow run (optional)
   --workflow FILE     Workflow file name when using --branch (default: build-plugin-zip.yml)
-  --output PATH       Output zip file path (default: \$REPO.zip)
+  --output PATH       Output artifact zip file path (default: \$REPO.zip)
+  --extract-dir PATH  Extract the plugin directory for wp-env (prints path to stdout)
   --help              Show this help
 
 Environment:
@@ -60,6 +62,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--output)
 			OUTPUT="$2"
+			shift 2
+			;;
+		--extract-dir)
+			EXTRACT_DIR="$2"
 			shift 2
 			;;
 		--help)
@@ -154,6 +160,47 @@ resolve_latest_artifact() {
 	fi
 }
 
+extract_plugin_dir() {
+	local artifact_zip="$1"
+	local extract_dir="$2"
+	local staging_dir inner_zip
+
+	staging_dir=$(mktemp -d)
+	rm -rf "$extract_dir"
+	mkdir -p "$extract_dir"
+
+	unzip -qo "$artifact_zip" -d "$staging_dir"
+
+	for inner_zip in \
+		"$staging_dir/${ARTIFACT_NAME}.zip" \
+		"$staging_dir/${REPO}.zip" \
+		"$staging_dir/blockera.zip"; do
+		if [ -f "$inner_zip" ]; then
+			unzip -qo "$inner_zip" -d "$extract_dir"
+			rm -rf "$staging_dir"
+			break
+		fi
+	done
+
+	if [ -d "$staging_dir" ]; then
+		if [ -f "$staging_dir/blockera.php" ]; then
+			mv "$staging_dir"/* "$extract_dir/"
+			rm -rf "$staging_dir"
+		else
+			rm -rf "$staging_dir"
+			log "Error: Could not find plugin zip inside downloaded artifact."
+			exit 1
+		fi
+	fi
+
+	if [ ! -f "$extract_dir/blockera.php" ]; then
+		log "Error: Extracted plugin is missing blockera.php in $extract_dir."
+		exit 1
+	fi
+
+	log "Extracted Blockera free plugin to $extract_dir"
+}
+
 if [ -n "$BRANCH" ]; then
 	resolve_artifact_from_branch
 else
@@ -168,11 +215,26 @@ log "Artifact ID: $ARTIFACT_ID"
 log "Artifact page: $ARTIFACT_PAGE_URL"
 log "Downloading from API: $DOWNLOAD_URL"
 
-curl -sfSL \
-	-H "Authorization: Bearer $TOKEN" \
-	-H "Accept: application/vnd.github+json" \
-	-H "X-GitHub-Api-Version: 2022-11-28" \
-	-o "$OUTPUT" \
-	"$DOWNLOAD_URL"
+if [ -n "$EXTRACT_DIR" ]; then
+	artifact_zip=$(mktemp)
+	trap 'rm -f "$artifact_zip"' EXIT
 
-echo "Downloaded as $OUTPUT"
+	curl -sfSL \
+		-H "Authorization: Bearer $TOKEN" \
+		-H "Accept: application/vnd.github+json" \
+		-H "X-GitHub-Api-Version: 2022-11-28" \
+		-o "$artifact_zip" \
+		"$DOWNLOAD_URL"
+
+	extract_plugin_dir "$artifact_zip" "$EXTRACT_DIR"
+	printf './%s\n' "${EXTRACT_DIR#./}"
+else
+	curl -sfSL \
+		-H "Authorization: Bearer $TOKEN" \
+		-H "Accept: application/vnd.github+json" \
+		-H "X-GitHub-Api-Version: 2022-11-28" \
+		-o "$OUTPUT" \
+		"$DOWNLOAD_URL"
+
+	echo "Downloaded as $OUTPUT"
+fi
