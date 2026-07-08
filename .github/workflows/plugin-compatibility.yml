@@ -90,15 +90,15 @@ jobs:
                       ;;
                     blockera-pro-current|blockera-pro-previous)
                       FREE_BRANCH=""
-                      if [ -f ".pr-free-branch.txt" ]; then
-                        FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-branch.txt)
+                      if [ -f ".pr-free-plugin-compat-check.txt" ]; then
+                        FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-plugin-compat-check.txt)
                       fi
 
                       if [ -z "$FREE_BRANCH" ]; then
                         FREE_BRANCH="master"
-                        echo "No .pr-free-branch.txt found; using Blockera free master branch."
+                        echo "No .pr-free-plugin-compat-check.txt found; using Blockera free master branch."
                       else
-                        echo "Using Blockera free branch from .pr-free-branch.txt: $FREE_BRANCH"
+                        echo "Using Blockera free branch from .pr-free-plugin-compat-check.txt: $FREE_BRANCH"
                       fi
 
                       BLOCKERA_PLUGIN_DIR=".github/cache/blockera-free"
