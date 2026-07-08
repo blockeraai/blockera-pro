@@ -13,6 +13,7 @@ import {
 	controlClassNames,
 	controlInnerClassNames,
 } from '@blockera/classnames';
+import type { VariableCategory } from '@blockera/data';
 import { Icon } from '@blockera/icons';
 
 /**
@@ -20,6 +21,7 @@ import { Icon } from '@blockera/icons';
  */
 import { isValid } from '../../';
 import { useControlContext } from '../../context';
+import type { AddonTypes } from '../../value-addons/types';
 import {
 	Grid,
 	Button,
@@ -35,6 +37,7 @@ export default function BoxBorderControl({
 	label = '',
 	labelPopoverTitle,
 	labelDescription,
+	labelProps: propsForLabelControl = {},
 	repeaterItem,
 	singularId,
 	defaultValue = {
@@ -71,7 +74,18 @@ export default function BoxBorderControl({
 	field = 'box-border',
 	//
 	className,
+	withoutValueAddons = false,
+	showLinkedSidesToggle = true,
+	controlAddonTypes,
+	variableTypes,
 }: BoxBorderControlProps): MixedElement {
+	const resolvedControlAddonTypes: AddonTypes = withoutValueAddons
+		? ([]: AddonTypes)
+		: (controlAddonTypes ?? ['variable']);
+	const resolvedVariableTypes: Array<VariableCategory> = withoutValueAddons
+		? ([]: Array<VariableCategory>)
+		: (variableTypes ?? ['border']);
+
 	const {
 		value,
 		setValue,
@@ -90,7 +104,12 @@ export default function BoxBorderControl({
 	});
 
 	// value clean up for removing extra values to prevent saving extra data!
-	function valueCleanup(value: TValueTypes) {
+	function valueCleanup(value: TValueTypes | any) {
+		// Whole-control border may be stored as a variable value addon.
+		if (isValid((value: any))) {
+			return value;
+		}
+
 		if (value.type === 'all') {
 			delete value?.top;
 			delete value?.right;
@@ -132,6 +151,7 @@ export default function BoxBorderControl({
 		resetToDefault,
 		mode: 'advanced',
 		path: getControlPath(attribute, id),
+		...propsForLabelControl,
 	};
 
 	return (
@@ -153,82 +173,96 @@ export default function BoxBorderControl({
 						</LabelControlContainer>
 					)}
 
-					<Grid
-						gridTemplateColumns="122px 30px"
-						gap="8px"
-						justifyItems="end"
-						justifyContent="end"
-					>
-						{value.type === 'all' ? (
-							<BorderControl
-								id="all"
-								onChange={(newValue) => {
-									setValue({ ...value, all: newValue });
-									modifyControlValue({
-										controlId,
-										value: { ...value, all: newValue },
-									});
-								}}
-								defaultValue={defaultValue?.all}
-							/>
-						) : (
-							<span></span>
-						)}
-
-						<Button
-							showTooltip={true}
-							tooltipPosition="top"
-							label={__('Custom Box Border', 'blockera')}
-							size="extra-small"
-							style={{
-								padding: '4px',
-								width: 'var(--blockera-controls-input-height)',
-								height: 'var(--blockera-controls-input-height)',
-							}}
-							className={
-								value.type === 'custom'
-									? 'is-toggle-btn is-toggled'
-									: 'is-toggle-btn'
+					{(value.type === 'all' || showLinkedSidesToggle) && (
+						<Grid
+							gridTemplateColumns={
+								showLinkedSidesToggle ? '1fr 30px' : '1fr'
 							}
-							onClick={() => {
-								if (value.type === 'all') {
-									setValue({
-										...value,
-										type: 'custom',
-										top: value.all,
-										right: value.all,
-										bottom: value.all,
-										left: value.all,
-									});
-									modifyControlValue({
-										controlId,
-										value: {
-											...value,
-											type: 'custom',
-											top: value.all,
-											right: value.all,
-											bottom: value.all,
-											left: value.all,
-										},
-									});
-								} else {
-									setValue({
-										...value,
-										type: 'all',
-									});
-									modifyControlValue({
-										controlId,
-										value: {
-											...value,
-											type: 'all',
-										},
-									});
-								}
-							}}
+							gap="8px"
+							justifyItems="end"
+							justifyContent="end"
 						>
-							<Icon icon="border" iconSize="14" />
-						</Button>
-					</Grid>
+							{value.type === 'all' ? (
+								<BorderControl
+									id="all"
+									onChange={(newValue) => {
+										setValue({ ...value, all: newValue });
+										modifyControlValue({
+											controlId,
+											value: { ...value, all: newValue },
+										});
+									}}
+									controlAddonTypes={
+										resolvedControlAddonTypes
+									}
+									variableTypes={resolvedVariableTypes}
+									defaultValue={defaultValue?.all}
+								/>
+							) : (
+								<span></span>
+							)}
+
+							{showLinkedSidesToggle && (
+								<Button
+									showTooltip={true}
+									tooltipPosition="top"
+									label={__('Custom Box Border', 'blockera')}
+									size="extra-small"
+									style={{
+										padding: '4px',
+										width: 'var(--blockera-controls-input-height)',
+										height: 'var(--blockera-controls-input-height)',
+									}}
+									className={
+										value.type === 'custom'
+											? 'is-toggle-btn is-toggled'
+											: 'is-toggle-btn'
+									}
+									onClick={() => {
+										if (value.type === 'all') {
+											setValue({
+												...value,
+												type: 'custom',
+												top: value.all,
+												right: value.all,
+												bottom: value.all,
+												left: value.all,
+											});
+											modifyControlValue({
+												controlId,
+												value: {
+													...value,
+													type: 'custom',
+													top: value.all,
+													right: value.all,
+													bottom: value.all,
+													left: value.all,
+												},
+											});
+										} else {
+											setValue({
+												...value,
+												type: 'all',
+											});
+											modifyControlValue({
+												controlId,
+												value: {
+													...value,
+													type: 'all',
+												},
+											});
+										}
+									}}
+								>
+									{value.type === 'all' ? (
+										<Icon icon="lock" iconSize="24" />
+									) : (
+										<Icon icon="unlock" iconSize="24" />
+									)}
+								</Button>
+							)}
+						</Grid>
+					)}
 				</div>
 
 				{value.type === 'custom' && (
@@ -254,6 +288,8 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
+							controlAddonTypes={resolvedControlAddonTypes}
+							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.top}
 						/>
 						<BorderControl
@@ -277,6 +313,8 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
+							controlAddonTypes={resolvedControlAddonTypes}
+							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.right}
 						/>
 						<BorderControl
@@ -299,6 +337,8 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
+							controlAddonTypes={resolvedControlAddonTypes}
+							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.bottom}
 						/>
 						<BorderControl
@@ -322,6 +362,8 @@ export default function BoxBorderControl({
 									},
 								});
 							}}
+							controlAddonTypes={resolvedControlAddonTypes}
+							variableTypes={resolvedVariableTypes}
 							defaultValue={defaultValue.left}
 						/>
 						<div

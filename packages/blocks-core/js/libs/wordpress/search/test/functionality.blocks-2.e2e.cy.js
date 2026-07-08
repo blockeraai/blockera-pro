@@ -126,12 +126,26 @@ describe('Search Block', () => {
 		// 2. Check settings tab
 		//
 		setParentBlock();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
 			cy.get('.components-tools-panel-header')
 				.contains('Settings')
+				.scrollIntoView()
+				.should('be.visible');
+
+			cy.get(
+				'.components-tools-panel .components-tools-panel-item input[type="number"]'
+			)
+				.should('be.exist')
+				.scrollIntoView()
+				.should('not.be.visible');
+
+			cy.get(
+				'.components-tools-panel .components-tools-panel-item .components-toggle-group-control'
+			)
+				.should('be.exist')
 				.scrollIntoView()
 				.should('not.be.visible');
 		});
