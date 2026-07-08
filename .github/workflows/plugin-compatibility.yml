@@ -73,7 +73,11 @@ jobs:
               uses: ./.github/build-plugin-zip
 
             - name: Create required environment files
+              env:
+                  GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
               run: |
+                  BLOCKERA_DOWNLOAD_URL=""
+
                   # Get Blockera version based on strategy
                   case "${{ matrix.strategy }}" in
                     blockera-free-previous)
@@ -84,10 +88,29 @@ jobs:
                       # Get latest version (index 0)
                       BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
                       ;;
+                    blockera-pro-current|blockera-pro-previous)
+                      if [ ! -f ".pr-free-branch.txt" ]; then
+                        echo "Error: .pr-free-branch.txt is required for ${{ matrix.strategy }} to specify the Blockera free repo branch."
+                        exit 1
+                      fi
+
+                      FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-branch.txt)
+                      echo "Using Blockera free branch from .pr-free-branch.txt: $FREE_BRANCH"
+
+                      bash .github/scripts/download-artifact.sh \
+                        --owner blockeraai \
+                        --repo blockera \
+                        --name blockera \
+                        --branch "$FREE_BRANCH" \
+                        --output blockera.zip
+
+                      BLOCKERA_DOWNLOAD_URL="$(pwd)/blockera.zip"
+                      ;;
                   esac
 
-
-                  echo "Using Blockera version: $BLOCKERA_DOWNLOAD_URL"
+                  if [ -n "$BLOCKERA_DOWNLOAD_URL" ]; then
+                    echo "Using Blockera plugin source: $BLOCKERA_DOWNLOAD_URL"
+                  fi
 
                   # Create wp-env config with version
                   node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
