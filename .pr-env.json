@@ -1,3 +1,6 @@
 {
-	"plugins": ["."]
+	"plugins": [
+		".",
+		"https://github.com/blockeraai/blockera/actions/runs/28939551788/artifacts/8166990292"
+	]
 }
