@@ -28,6 +28,15 @@ describe('Read More Block', () => {
 		//
 		cy.checkBlockCardItems(['normal', 'hover', 'focus', 'active']);
 
+		cy.checkBlockStatesPickerItems([
+			'elements/bold',
+			'elements/italic',
+			'elements/kbd',
+			'elements/code',
+			'elements/span',
+			'elements/mark',
+		]);
+
 		//
 		// 3. Edit Block
 		//
@@ -54,7 +63,7 @@ describe('Read More Block', () => {
 		//
 		// 4. Check settings tab
 		//
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {

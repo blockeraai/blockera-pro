@@ -74,19 +74,25 @@ describe('Site Logo Block', () => {
 		//
 		// 2. Check settings tab
 		//
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
-			cy.get('.components-panel__body-title button')
+			cy.get('.components-tools-panel-header')
 				.contains('Media')
 				.scrollIntoView()
 				.should('be.visible');
 
-			cy.get('.components-panel__body-title button')
+			cy.get('.components-tools-panel-header')
 				.contains('Settings')
 				.scrollIntoView()
 				.should('be.visible');
+
+			cy.get(
+				'.components-tools-panel-item .components-range-control__slider'
+			)
+				.should('be.exist')
+				.should('not.be.visible');
 		});
 
 		//

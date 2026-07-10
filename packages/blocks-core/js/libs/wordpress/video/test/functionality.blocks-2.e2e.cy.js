@@ -24,7 +24,7 @@ describe('Video Block', () => {
 		// Block supported is active
 		cy.get('.blockera-extension-block-card').should('be.visible');
 
-		cy.checkBlockCardItems(['normal', 'hover']);
+		cy.checkBlockCardItems(['normal', 'hover', 'elements/caption']);
 
 		//
 		// 1. Edit Block
@@ -52,7 +52,7 @@ describe('Video Block', () => {
 		//
 		// 2. Check settings tab
 		//
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {

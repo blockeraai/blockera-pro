@@ -28,7 +28,7 @@ describe('Audio Block', () => {
 		// Block supported is active
 		cy.get('.blockera-extension-block-card').should('be.visible');
 
-		cy.checkBlockCardItems(['normal', 'hover']);
+		cy.checkBlockCardItems(['normal', 'hover', 'elements/caption']);
 
 		//
 		// 1.0. Block Styles
@@ -52,11 +52,11 @@ describe('Audio Block', () => {
 		//
 		// 2. Check settings tab
 		//
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
-			cy.get('.components-panel__body-title button')
+			cy.get('.components-tools-panel-header')
 				.contains('Settings')
 				.should('be.visible');
 		});
