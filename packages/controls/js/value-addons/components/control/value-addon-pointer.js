@@ -26,7 +26,7 @@ import {
 	VarDeleted,
 	DVSettingsAdvanced,
 } from '../index';
-import { isValid } from '../../utils';
+import { hasThemeJsonPlainPresetSlug, isValid } from '../../utils';
 import RemoveIcon from '../../icons/remove';
 import type { ValueAddonControlProps } from './types';
 import DynamicValueIcon from '../../icons/dynamic-value';
@@ -42,8 +42,9 @@ export default function ({
 	pickerProps: Object,
 }): Element<any> {
 	const isVarActive =
-		isValid(controlProps.value) &&
-		controlProps.value?.valueType === 'variable';
+		(isValid(controlProps.value) &&
+			controlProps.value?.valueType === 'variable') ||
+		hasThemeJsonPlainPresetSlug(controlProps.themeJsonPlainPresetSlug);
 	const isDVActive =
 		isValid(controlProps.value) &&
 		controlProps.value?.valueType === 'dynamic-value';
@@ -69,7 +70,9 @@ export default function ({
 							'open-value-addon',
 						controlProps.isDeletedDV && 'is-value-addon-deleted'
 					)}
-					onClick={handleDynamicValueModal}
+					onMouseDown={(e: SyntheticMouseEvent<EventTarget>) => {
+						handleDynamicValueModal(e);
+					}}
 					{...pointerProps}
 				>
 					<DynamicValueIcon
@@ -93,8 +96,9 @@ export default function ({
 					style={{
 						'--tooltip-bg': !isVarActive
 							? 'var(--blockera-value-addon-var-color)'
-							: '#e20000',
+							: '#e20b0b',
 					}}
+					delay={400}
 				>
 					<div
 						key={'variable-value-addon-pointer'}
@@ -104,16 +108,20 @@ export default function ({
 							isVarActive && 'active-value-addon',
 							controlProps.isOpen.startsWith('var-') &&
 								'open-value-addon',
-							controlProps.isDeletedVar &&
+							(controlProps.isDeletedVar ||
+								controlProps.isDeletedPlainThemeJsonPreset) &&
 								'is-value-addon-deleted'
 						)}
-						onClick={handleVariableModal}
+						onMouseDown={(e: SyntheticMouseEvent<EventTarget>) => {
+							handleVariableModal(e);
+						}}
 						{...pointerProps}
 					>
 						<Icon
 							icon="variable"
 							iconSize="16"
 							data-cy="value-addon-btn-open"
+							data-test="value-addon-btn-open"
 							className={controlInnerClassNames(
 								'var-pointer-icon'
 							)}
@@ -193,18 +201,22 @@ export default function ({
 						controlProps.handleOnClickRemove(e);
 					} else {
 						controlProps.setOpen('dv-picker');
-						if (pickerProps.onShown) pickerProps.onShown();
+						if (pickerProps.onShown) {
+							pickerProps.onShown();
+						}
 					}
 
 					e.stopPropagation();
 				}}
 				handleVariableModal={(e: SyntheticMouseEvent<EventTarget>) => {
-					if (isValid(controlProps.value)) {
+					if (isVarActive) {
 						controlProps.setOpen('');
 						controlProps.handleOnClickRemove(e);
 					} else {
 						controlProps.setOpen('var-picker');
-						if (pickerProps.onShown) pickerProps.onShown();
+						if (pickerProps.onShown) {
+							pickerProps.onShown();
+						}
 					}
 
 					e.stopPropagation();

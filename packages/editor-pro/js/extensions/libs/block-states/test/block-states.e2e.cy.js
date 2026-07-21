@@ -1010,4 +1010,16 @@ describe('Block State E2E Test', () => {
 				.and('have.css', 'background-attachment', 'fixed');
 		});
 	});
+
+	it('should not inherit data of normal state while current state in master block is pseudo-element like "after" or "before"', () => {
+		initialSetting();
+
+		setBlockState('Normal');
+
+		cy.getByDataTest('border-control-width').type(5);
+
+		addBlockState('after');
+
+		cy.getByDataTest('border-control-width').should('have.value', '');
+	});
 });

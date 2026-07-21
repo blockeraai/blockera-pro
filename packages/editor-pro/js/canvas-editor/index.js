@@ -10,6 +10,11 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { validateSecretKeys } from '@blockera/validator';
 
+/**
+ * Internal dependencies
+ */
+import { unlockGlobalStyles } from './global-styles';
+
 export const bootstrapCanvasEditor = () => {
 	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
@@ -20,6 +25,7 @@ export const bootstrapCanvasEditor = () => {
 			refresh_token: refreshToken,
 			license: {
 				id,
+				type,
 				name,
 				status,
 				startDate,
@@ -90,7 +96,10 @@ export const bootstrapCanvasEditor = () => {
 		}
 
 		// Validation: Next payment due date.
-		if (new Date(nextPaymentDueDate) < new Date()) {
+		if (
+			new Date(nextPaymentDueDate) < new Date() &&
+			'subscription' === type
+		) {
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
@@ -100,7 +109,7 @@ export const bootstrapCanvasEditor = () => {
 		}
 
 		// Validation: Start date.
-		if (new Date(startDate) > new Date()) {
+		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
@@ -109,6 +118,29 @@ export const bootstrapCanvasEditor = () => {
 			return;
 		}
 	}
+
+	// Pro removes workspace tab limits whenever the Pro editor bootstrap runs. This must run
+	// before the CI_ENV license gate: that gate can return early in dev/local setups without
+	// full account fields, which previously skipped all addFilter calls below.
+	addFilter(
+		'blockera.editor.tabs',
+		'blockeraPro.editorPro.tabs.bootstrap',
+		(tabsConfig) => {
+			const nextConfig: { [string]: any } = {};
+
+			if (tabsConfig && 'object' === typeof tabsConfig) {
+				Object.assign(nextConfig, tabsConfig);
+			}
+
+			nextConfig.limits = {
+				regular: Infinity,
+				recentlyClosed: 30,
+				pinned: Infinity,
+			};
+
+			return nextConfig;
+		}
+	);
 
 	addFilter(
 		'blockera.editor.canvasEditor.bootstrap.breakpoints',
@@ -126,4 +158,6 @@ export const bootstrapCanvasEditor = () => {
 			);
 		}
 	);
+
+	unlockGlobalStyles();
 };

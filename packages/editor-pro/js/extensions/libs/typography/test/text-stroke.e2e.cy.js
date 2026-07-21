@@ -25,12 +25,14 @@ describe('Text Stroke → Functionality', () => {
 
 	it('should update text-stroke, when add data', () => {
 		/* Color */
-		cy.getParentContainer('Text Stroke').within(() => {
-			cy.getByDataCy('color-btn').click();
-		});
+		cy.getParentContainer('Text Stroke')
+			.scrollIntoView()
+			.within(() => {
+				cy.getByDataCy('color-btn').click({ force: true });
+			});
 
 		cy.getByDataTest('popover-body').within(() => {
-			cy.get('input[maxlength="9"]').clear();
+			cy.get('input[maxlength="9"]').clear({ force: true });
 			cy.get('input[maxlength="9"]').type('5a22a4', { delay: 0 });
 		});
 

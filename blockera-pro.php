@@ -17,8 +17,6 @@
  */
 
 use Blockera\Auth\Repositories\OptionRepository;
-use Blockera\Bootstrap\Application;
-use Blockera\SiteBuilder\StyleEngine;
 
 // security code.
 if (! defined('ABSPATH')) {
@@ -27,23 +25,37 @@ if (! defined('ABSPATH')) {
 }
 
 ### BEGIN AUTO-GENERATED AUTOLOADER
-// loading autoloader.
-require __DIR__ . '/vendor/autoload.php';
+// the fallback way to load the composer default autoloader.
+if (! is_plugin_active('blockera/blockera.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+} else {
+	// the shared autoloader way to load the composer customized autoloader.
+	add_filter(
+        'blockera/autoloader-coordinator/plugins/dependencies',
+        function ( array $plugins): array {
+			$plugins['blockera-pro'] = [
+				'dir' => __DIR__,
+				'priority' => 20,
+			];
 
-// Register into shared autoload coordinator.
-require_once __DIR__ . '/packages/autoloader-coordinator/class-shared-autoload-coordinator.php';
+			return $plugins;
+		}
+    );
 
-// Register into shared autoload coordinator.
-\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
-\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
-### END AUTO-GENERATED AUTOLOADER
+	// Register into shared autoload coordinator.
+	// This replaces vendor/autoload.php by loading directly from Composer-generated static files.
+	require_once __DIR__ . '/packages/autoloader-coordinator/loader.php';
 
-if (file_exists(__DIR__ . '/.env')) {
-	
-	// Env Loading ...
-	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-	$dotenv->safeLoad();
+	// Register into shared autoload coordinator and bootstrap autoloading.
+	\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin();
+	\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
+
+	// Invalidate package manifest cache on plugin activation, deactivation, and upgrade.
+	add_action('activated_plugin', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
+	add_action('deactivated_plugin', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
+	add_action('upgrader_process_complete', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
 }
+### END AUTO-GENERATED AUTOLOADER
 
 define('BLOCKERA_PRO_FILE', __FILE__);
 define('BLOCKERA_PRO_URI', plugin_dir_url(__FILE__));
@@ -98,29 +110,6 @@ add_filter(
 	}
 );
 
-$env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
-$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
-
-global $blockera_compat_pro_with_free;
-
-$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
-    [
-        'file' => __FILE__,
-        'slug' => 'blockera-pro',
-        'version' => BLOCKERA_PRO_VERSION,
-        'plugin_path' => BLOCKERA_PRO_PATH,
-        'compatible_with_slug' => 'blockera',
-        'callback' => function () {
-            if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
-                define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
-            }
-        },
-        'transient_key' => 'blockera-pro-compat-redirect',
-        'mode' => $mode ? 'development' : 'production',
-    ],
-    new Blockera\Utils\Utils()
-);
-
 add_action('plugins_loaded', 'blockera_pro_init', 5);
 
 /**
@@ -130,7 +119,34 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
+	if (file_exists(__DIR__ . '/.env')) {		
+		// Env Loading ...
+		$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+		$dotenv->safeLoad();
+	}
+
+	$env_mode = 'development' === ( $_ENV['APP_MODE'] ?? 'production' );
+	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+
 	global $blockera_compat_pro_with_free, $is_compatible_with_free;
+
+	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
+		[
+			'file' => __FILE__,
+			'slug' => 'blockera-pro',
+			'version' => BLOCKERA_PRO_VERSION,
+			'plugin_path' => BLOCKERA_PRO_PATH,
+			'compatible_with_slug' => 'blockera',
+			'callback' => function () {
+				if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+					define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+				}
+			},
+			'transient_key' => 'blockera-pro-compat-redirect',
+			'mode' => $mode ? 'development' : 'production',
+		],
+		new Blockera\Utils\Utils()
+	);
 
 	$is_compatible_with_free = $blockera_compat_pro_with_free->load();
 
@@ -166,28 +182,6 @@ function blockera_pro_init(): void {
     add_action('blockera/after/setup', 'blockera_pro_after_setup_free_version');
 
     function blockera_pro_after_setup_free_version(): void {
-		
-		// Gate: if Pro is disabled, do not bootstrap functionality.
-		// We should replace the free style engine with the pro style engine while pro version is disabled.
-		if (! function_exists('blockera_pro_is_enabled') || ! blockera_pro_is_enabled()) {
-			
-			global $blockera;
-
-			$blockera->singleton(
-				StyleEngine::class,
-				function ( Application $app, array $params = []) use ( $blockera) {
-					$style_engine = new \Blockera\Editor\StyleEngine($params['block'], $params['fallbackSelector']);
-
-					$style_engine->setApp($blockera);
-					$style_engine->setBreakpoint(blockera_core_config('breakpoints.base'));
-					$style_engine->setBreakpoints($app->getEntity('breakpoints'));
-
-					return $style_engine;
-				}
-			);
-
-			return;
-		}
 
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
@@ -225,6 +219,8 @@ register_activation_hook(__FILE__, 'blockera_pro_activation');
  * @return void
  */
 function blockera_pro_activation(): void {
+	// the fallback way to load the composer default autoloader on just plugin activation.
+	require_once __DIR__ . '/vendor/autoload.php';
 	
 	if (! wp_next_scheduled('blockera_pro_each_per_day')) {
 

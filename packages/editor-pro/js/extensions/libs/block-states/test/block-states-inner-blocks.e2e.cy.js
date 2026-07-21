@@ -1453,4 +1453,18 @@ describe('Inner Blocks E2E Test', () => {
 			);
 		});
 	});
+
+	it('should not inherit data of normal state while current state in inner block is pseudo-element like "after" or "before"', () => {
+		initialSetting();
+
+		setInnerBlock('elements/link');
+
+		setBlockState('Normal');
+
+		cy.getByDataTest('border-control-width').type(5);
+
+		addBlockState('after');
+
+		cy.getByDataTest('border-control-width').should('have.value', '');
+	});
 });

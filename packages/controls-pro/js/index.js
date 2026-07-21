@@ -15,6 +15,7 @@ import { applyTransformControlHooks } from './transform-control/apply';
 import { applyTransitionControlHooks } from './transition-control/apply';
 import { applyFilterControlHooks } from './filter-control/apply';
 import { applyIconControlHooks } from './icon-control/apply';
+import { applyRepeaterControlHooks } from './repeater-control/apply';
 
 export const applyControls = () => {
 	if ('false' === process.env.CI_ENV) {
@@ -26,6 +27,7 @@ export const applyControls = () => {
 			refresh_token: refreshToken,
 			license: {
 				id,
+				type,
 				name,
 				status,
 				startDate,
@@ -96,7 +98,10 @@ export const applyControls = () => {
 		}
 
 		// Validation: Next payment due date.
-		if (new Date(nextPaymentDueDate) < new Date()) {
+		if (
+			new Date(nextPaymentDueDate) < new Date() &&
+			'subscription' === type
+		) {
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
@@ -106,7 +111,7 @@ export const applyControls = () => {
 		}
 
 		// Validation: Start date.
-		if (new Date(startDate) > new Date()) {
+		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
@@ -123,4 +128,5 @@ export const applyControls = () => {
 	applyTransitionControlHooks();
 	applyFilterControlHooks();
 	applyIconControlHooks();
+	applyRepeaterControlHooks();
 };
