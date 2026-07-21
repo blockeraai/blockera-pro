@@ -96,7 +96,7 @@ class AppServiceProvider extends ServiceProvider {
 
         $client_info       = OptionRepository::getOption();
         $auth_config_array = blockera_pro_core_config('auth');
-        $config            = $this->app->make(AuthConfig::class, $auth_config_array);
+        $config            = $this->app->make(AuthConfig::class, is_array($auth_config_array) ? $auth_config_array : []);
         
 		$config->setIcons([ blockera_pro_core_config('app.root_url') . '/assets/icon-256x256.png' ]);
 
