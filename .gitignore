@@ -85,3 +85,6 @@ Scratch
 # Github Directory some files
 .github/wp-env-configs/development.json
 cypress-image-diff-html-report
+
+# images directory
+images/

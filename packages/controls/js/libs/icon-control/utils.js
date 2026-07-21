@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * External dependencies
  */
@@ -7,9 +9,11 @@ import { applyFilters } from '@wordpress/hooks';
 /**
  * Blockera dependencies
  */
+import { isString } from '@blockera/utils';
 import { controlInnerClassNames } from '@blockera/classnames';
 import {
 	Icon,
+	getIcon,
 	iconSearch,
 	isValidIcon,
 	getIconLibraryIcons,
@@ -20,9 +24,238 @@ import {
 /**
  * Internal dependencies
  */
-import { Tooltip } from '../';
+import { Tooltip, Button } from '../';
 import { FeatureWrapper } from '../feature-wrapper';
 import ConditionalWrapper from '../conditional-wrapper';
+
+/**
+ * Whether the current icon value represents a custom SVG (not a library icon).
+ *
+ * @param {Object} icon The current icon state object.
+ * @return {boolean} True when the icon is custom-uploaded or rendered-only custom.
+ */
+export function isCustomIcon(icon) {
+	if (!icon) {
+		return false;
+	}
+
+	if (icon.svgString && icon.svgString !== '') {
+		return true;
+	}
+
+	if (icon.uploadSVG && icon.uploadSVG !== '') {
+		if (typeof icon.uploadSVG === 'object' && icon.uploadSVG.url) {
+			return true;
+		}
+
+		if (typeof icon.uploadSVG === 'string' && icon.uploadSVG !== '') {
+			return true;
+		}
+	}
+
+	// Pro-persisted custom icons may only retain renderedIcon.
+	if (icon.renderedIcon && !icon.icon) {
+		return true;
+	}
+
+	return false;
+}
+
+const SVG_PREVIEW_SIZE = 50;
+
+/**
+ * Whether SVG markup carries explicit fill colors (not currentColor / none).
+ *
+ * @param {string} svgMarkup Raw SVG markup.
+ * @return {boolean} True when SVG has hardcoded fill paints.
+ */
+export function svgHasPreservedColors(svgMarkup) {
+	if (!svgMarkup || typeof svgMarkup !== 'string') {
+		return false;
+	}
+
+	const fills = new Set();
+	const attrFills = svgMarkup.match(/\bfill=["']([^"']+)["']/gi) || [];
+
+	for (const match of attrFills) {
+		const value = match.replace(/^fill=["']/i, '').replace(/["']$/, '');
+
+		if (
+			value &&
+			!['none', 'currentcolor', 'inherit', 'transparent'].includes(
+				value.toLowerCase()
+			)
+		) {
+			fills.add(value.toLowerCase());
+		}
+	}
+
+	const styleFills = svgMarkup.match(/fill\s*:\s*([^;"'}]+)/gi) || [];
+
+	for (const match of styleFills) {
+		const value = match.replace(/fill\s*:\s*/i, '').trim();
+
+		if (
+			value &&
+			!['none', 'currentcolor', 'inherit', 'transparent'].includes(
+				value.toLowerCase()
+			) &&
+			!value.toLowerCase().startsWith('url(')
+		) {
+			fills.add(value.toLowerCase());
+		}
+	}
+
+	return fills.size > 0;
+}
+
+/**
+ * Ensure custom SVG preview markup has a definite render box in the sidebar control.
+ *
+ * @param {string} svgString Raw SVG markup.
+ * @param {number} previewSize Preview box size in pixels.
+ * @return {string} SVG markup sized for the icon control preview.
+ */
+export function prepareSvgForPreviewDisplay(
+	svgString,
+	previewSize = SVG_PREVIEW_SIZE
+) {
+	if (!svgString || typeof svgString !== 'string') {
+		return '';
+	}
+
+	if (typeof document === 'undefined') {
+		return svgString;
+	}
+
+	const template = document.createElement('template');
+	template.innerHTML = svgString.trim();
+	const svg = template.content.querySelector('svg');
+
+	if (!svg) {
+		return svgString;
+	}
+
+	const width = svg.getAttribute('width');
+	const height = svg.getAttribute('height');
+	const hasViewBox = svg.hasAttribute('viewBox');
+
+	if (!width && !height && hasViewBox) {
+		svg.setAttribute('width', String(previewSize));
+		svg.setAttribute('height', String(previewSize));
+	} else if (!width && height) {
+		svg.setAttribute('width', height);
+	} else if (width && !height && hasViewBox) {
+		svg.setAttribute('height', width);
+	}
+
+	return svg.outerHTML;
+}
+
+/**
+ * Build draft SVG content from the current icon for the Custom Icon tab.
+ *
+ * @param {Object} icon The current icon state object.
+ * @return {{ svgString: string, uploadSVG: ?Object }} Draft values for editing.
+ */
+export function getCustomSvgDraft(icon) {
+	if (!icon) {
+		return { svgString: '', uploadSVG: null };
+	}
+
+	if (icon.svgString) {
+		return {
+			svgString: icon.svgString,
+			uploadSVG:
+				icon.uploadSVG &&
+				typeof icon.uploadSVG === 'object' &&
+				icon.uploadSVG.url
+					? icon.uploadSVG
+					: null,
+		};
+	}
+
+	if (icon.renderedIcon && isString(icon.renderedIcon)) {
+		try {
+			return {
+				svgString: atob(icon.renderedIcon),
+				uploadSVG:
+					icon.uploadSVG &&
+					typeof icon.uploadSVG === 'object' &&
+					icon.uploadSVG.url
+						? icon.uploadSVG
+						: null,
+			};
+		} catch (error) {
+			return {
+				svgString: '',
+				uploadSVG:
+					icon.uploadSVG &&
+					typeof icon.uploadSVG === 'object' &&
+					icon.uploadSVG.url
+						? icon.uploadSVG
+						: null,
+			};
+		}
+	}
+
+	return {
+		svgString: '',
+		uploadSVG: null,
+	};
+}
+
+/**
+ * Resolve FeatureWrapper type for custom icon upload controls.
+ *
+ * @return {'native'|'none'} Locked (`native`) on free; unlocked (`none`) when Pro filter is active.
+ */
+export function getCustomIconFeatureType() {
+	return applyFilters(
+		'blockera.controls.iconControl.customIcon.featureType',
+		'native'
+	);
+}
+
+/**
+ * Whether custom icon file upload (drop / media library) is locked to PRO.
+ *
+ * @return {boolean} True on free; false when Pro filter unlocks uploads.
+ */
+export function isCustomIconUploadLocked() {
+	return getCustomIconFeatureType() === 'native';
+}
+
+/**
+ * Read the first dropped SVG file as text.
+ *
+ * @param {FileList|File[]} files   Dropped files.
+ * @param {Function}        onRead  Callback with the SVG string.
+ */
+export function readSvgFromDroppedFiles(files, onRead) {
+	if (!files?.length) {
+		return;
+	}
+
+	const file = files[0];
+	const isSvgFile =
+		file.type === 'image/svg+xml' ||
+		file.name?.toLowerCase().endsWith('.svg');
+
+	if (!isSvgFile) {
+		return;
+	}
+
+	const reader = new FileReader();
+
+	reader.onload = () => {
+		if (typeof reader.result === 'string') {
+			onRead(reader.result);
+		}
+	};
+
+	reader.readAsText(file);
+}
 
 export function getLibraryIcons({
 	library,
@@ -81,7 +314,7 @@ export function getLibraryIcons({
 			iconLibraryIcons[iconKey]
 		);
 
-		if (isValidIcon(icon, iconKey))
+		if (isValidIcon(icon, iconKey)) {
 			iconsStack.push(
 				<ConditionalWrapper
 					key={`${iconKey}-${icon.iconName}`}
@@ -126,6 +359,9 @@ export function getLibraryIcons({
 										'faregular',
 										'fasolid',
 										'fabrands',
+										'feather',
+										'lucide',
+										'untitledui',
 									].includes(icon.library)
 										? 18
 										: 24
@@ -135,9 +371,255 @@ export function getLibraryIcons({
 					</span>
 				</ConditionalWrapper>
 			);
+		}
 	}
 
 	return iconsStack;
+}
+
+/**
+ * Build React elements for recently used icons grid.
+ *
+ * @param {Object}   options              Options.
+ * @param {Array}    options.items        Recent icon storage entries.
+ * @param {Function} options.onSelect     Click handler (event, action).
+ * @param {Function} options.onRemove     Remove handler (id).
+ * @param {Function} options.isCurrentIcon Whether icon is currently selected.
+ * @return {Array} React elements.
+ */
+export function buildRecentIconElements({
+	items = [],
+	onSelect = () => {},
+	onRemove = () => {},
+	isCurrentIcon = () => false,
+}) {
+	const elements = [];
+
+	for (const entry of items) {
+		if (entry.type === 'library') {
+			const icon = getIcon(entry.icon, entry.library);
+
+			if (!icon || !isValidIcon(icon, entry.icon)) {
+				continue;
+			}
+
+			const iconType = applyFilters(
+				'blockera.controls.iconControl.utils.getLibraryIcons.type',
+				NativeIconLibrariesList.includes(entry.library)
+					? 'native'
+					: 'none',
+				entry.library
+			);
+
+			elements.push(
+				<ConditionalWrapper
+					key={entry.id}
+					condition={iconType === 'native'}
+					wrapper={(children) => (
+						<FeatureWrapper
+							className={controlInnerClassNames('icon-wrapper')}
+							type={iconType}
+						>
+							{children}
+						</FeatureWrapper>
+					)}
+				>
+					<span
+						className={controlInnerClassNames(
+							'icon-control-icon',
+							'recent-icon-item',
+							'library-' + icon.library,
+							'icon-' + icon.iconName,
+							isCurrentIcon(icon.iconName, icon.library)
+								? 'icon-current'
+								: ''
+						)}
+						aria-label={sprintf(
+							// translators: %s is icon ID in icon libraries for example arrow-left
+							__('%s Icon', 'blockera'),
+							icon.iconName
+						)}
+						onClick={(event) =>
+							onSelect(event, {
+								type: 'UPDATE_ICON',
+								icon: icon.iconName,
+								library: icon.library,
+							})
+						}
+					>
+						<Button
+							className={controlInnerClassNames(
+								'recent-icon-remove'
+							)}
+							label={__('Remove from recently used', 'blockera')}
+							noBorder={true}
+							icon={
+								<Icon icon="close" library="ui" iconSize={12} />
+							}
+							onClick={(event) => {
+								event.stopPropagation();
+								onRemove(entry.id);
+							}}
+							showTooltip={true}
+						/>
+
+						<Tooltip text={icon.iconName}>
+							<Icon
+								library={icon.library}
+								icon={icon}
+								iconSize={
+									[
+										'faregular',
+										'fasolid',
+										'fabrands',
+										'feather',
+										'lucide',
+										'untitledui',
+									].includes(icon.library)
+										? 18
+										: 24
+								}
+							/>
+						</Tooltip>
+					</span>
+				</ConditionalWrapper>
+			);
+
+			continue;
+		}
+
+		if (entry.type === 'custom') {
+			const label =
+				entry.uploadSVG &&
+				typeof entry.uploadSVG === 'object' &&
+				entry.uploadSVG.title
+					? entry.uploadSVG.title.replaceAll('-', ' ')
+					: __('Custom icon', 'blockera');
+
+			let preview = null;
+
+			if (entry.svgString) {
+				preview = (
+					<div
+						className={controlInnerClassNames(
+							'recent-icon-custom-preview'
+						)}
+						dangerouslySetInnerHTML={{
+							__html: entry.svgString.replace(
+								/\s*style\s*=\s*["'][^"']*["']/g,
+								''
+							),
+						}}
+					/>
+				);
+			} else if (
+				entry.uploadSVG &&
+				typeof entry.uploadSVG === 'object' &&
+				entry.uploadSVG.url
+			) {
+				preview = <img src={entry.uploadSVG.url} alt={label} />;
+			}
+
+			if (!preview) {
+				continue;
+			}
+
+			elements.push(
+				<span
+					key={entry.id}
+					className={controlInnerClassNames(
+						'icon-control-icon',
+						'recent-icon-item',
+						'is-custom'
+					)}
+					aria-label={label}
+					onClick={(event) =>
+						onSelect(event, {
+							type: 'UPDATE_SVG',
+							svgString: entry.svgString,
+							uploadSVG: entry.uploadSVG || '',
+						})
+					}
+				>
+					<Button
+						className={controlInnerClassNames('recent-icon-remove')}
+						aria-label={__('Remove from recently used', 'blockera')}
+						noBorder={true}
+						icon={<Icon icon="close" library="ui" iconSize={12} />}
+						onClick={(event) => {
+							event.stopPropagation();
+							onRemove(entry.id);
+						}}
+					/>
+					<Tooltip text={label}>{preview}</Tooltip>
+				</span>
+			);
+		}
+	}
+
+	return elements;
+}
+
+/**
+ * Extract the single root SVG element from a parsed SVG document.
+ * Tolerates XML declarations, comments, and other non-element nodes
+ * before or after the root `<svg>` (common in Illustrator/Tabler exports).
+ *
+ * @param {Document} svgDoc Parsed SVG document.
+ * @return {SVGSVGElement | null} Root svg element or null when invalid.
+ */
+function extractRootSvgElement(svgDoc) {
+	if (!svgDoc || svgDoc.querySelector('parsererror')) {
+		return null;
+	}
+
+	const root = svgDoc.documentElement;
+
+	if (!root || root.nodeName.toLowerCase() !== 'svg') {
+		return null;
+	}
+
+	// Reject multiple root-level `<svg>` siblings (security / malformed input).
+	let svgCount = 0;
+
+	for (let i = 0; i < svgDoc.childNodes.length; i++) {
+		const node = svgDoc.childNodes[i];
+
+		if (node.nodeType === 1 && node.nodeName.toLowerCase() === 'svg') {
+			svgCount++;
+		}
+	}
+
+	if (svgCount !== 1) {
+		return null;
+	}
+
+	return /** @type {SVGSVGElement} */ (root);
+}
+
+/**
+ * Whether an SVG root has enough structure to display in the icon picker.
+ *
+ * @param {Element} svgElement Root svg element.
+ * @return {boolean} True when the SVG can be rendered.
+ */
+function isRenderableSvgElement(svgElement) {
+	if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+		return false;
+	}
+
+	if (
+		svgElement.hasAttribute('viewBox') ||
+		(svgElement.hasAttribute('width') && svgElement.hasAttribute('height'))
+	) {
+		return true;
+	}
+
+	return (
+		svgElement.querySelector(
+			'path, rect, circle, ellipse, line, polyline, polygon, text, use, image, g'
+		) !== null
+	);
 }
 
 export function sanitizeRawSVGString(rawString) {
@@ -161,24 +643,15 @@ export function sanitizeRawSVGString(rawString) {
 		return '';
 	}
 
-	// Check for parsing errors
-	if (svgDoc.querySelector('parsererror')) {
+	const svgElement = extractRootSvgElement(svgDoc);
+
+	if (!svgElement || !isRenderableSvgElement(svgElement)) {
 		/* @debug-ignore */
-		console.warn('SVG contains parsing errors');
+		console.warn(
+			'Invalid SVG structure: missing or non-renderable root svg element'
+		);
 		return '';
 	}
-
-	// Validate that we have exactly one SVG element
-	if (
-		svgDoc.childNodes.length !== 1 ||
-		svgDoc.firstChild.nodeName !== 'svg'
-	) {
-		/* @debug-ignore */
-		console.warn('Invalid SVG structure: expected single SVG element');
-		return '';
-	}
-
-	const svgElement = svgDoc.documentElement;
 
 	// Sanitize the SVG element
 	sanitizeSVGElement(svgElement);

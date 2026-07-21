@@ -73,17 +73,49 @@ jobs:
               uses: ./.github/build-plugin-zip
 
             - name: Create required environment files
+              env:
+                  GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
               run: |
-                  # Get Blockera version based on strategy
-                  if [ "${{ matrix.strategy }}" = "blockera-free-previous" ]; then
-                    # Get previous supported version (index -1)
-                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
-                  elif [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
-                    # Get latest version (index 0) 
-                    BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
-                  fi
+                  BLOCKERA_DOWNLOAD_URL=""
 
-                  echo "Using Blockera version: $BLOCKERA_DOWNLOAD_URL"
+                  # Get Blockera version based on strategy
+                  case "${{ matrix.strategy }}" in
+                    blockera-free-previous)
+                      # Get previous supported version (index -1)
+                      BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
+                      ;;
+                    blockera-free-latest)
+                      # Get latest version (index 0)
+                      BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
+                      ;;
+                    blockera-pro-current|blockera-pro-previous)
+                      FREE_BRANCH=""
+                      if [ -f ".pr-free-plugin-compat-check.txt" ]; then
+                        FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-plugin-compat-check.txt)
+                      fi
+
+                      if [ -z "$FREE_BRANCH" ]; then
+                        FREE_BRANCH="master"
+                        echo "No .pr-free-plugin-compat-check.txt found; using Blockera free master branch."
+                      else
+                        echo "Using Blockera free branch from .pr-free-plugin-compat-check.txt: $FREE_BRANCH"
+                      fi
+
+                      BLOCKERA_PLUGIN_DIR=".github/cache/blockera-free"
+                      rm -rf "$BLOCKERA_PLUGIN_DIR"
+
+                      BLOCKERA_DOWNLOAD_URL=$(bash .github/scripts/download-artifact.sh \
+                        --owner blockeraai \
+                        --repo blockera \
+                        --name blockera \
+                        --branch "$FREE_BRANCH" \
+                        --extract-dir "$BLOCKERA_PLUGIN_DIR")
+                      ;;
+                  esac
+
+                  if [ -n "$BLOCKERA_DOWNLOAD_URL" ]; then
+                    echo "Using Blockera plugin source: $BLOCKERA_DOWNLOAD_URL"
+                  fi
 
                   # Create wp-env config with version
                   node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"

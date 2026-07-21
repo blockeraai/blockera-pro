@@ -75,11 +75,11 @@ describe('Comment Date Block', () => {
 		// 2. Check settings tab
 		//
 		setParentBlock();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
-			cy.get('.components-panel__body-title button')
+			cy.get('.components-tools-panel-header')
 				.contains('Settings')
 				.should('be.visible');
 		});

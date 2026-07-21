@@ -70,21 +70,18 @@ describe('Latest Posts Block', () => {
 		// 2. Check settings tab
 		//
 		setParentBlock();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		cy.get('.block-editor-block-inspector').within(() => {
-			['Post content', 'Post meta'].forEach((item) => {
+			[
+				'Post content',
+				'Post meta',
+				'Featured image',
+				'Sorting and filtering',
+			].forEach((item) => {
 				cy.get('.components-tools-panel-header')
 					.contains(item)
-					.scrollIntoView()
-					.should('be.visible');
-			});
-
-			['Featured image', 'Sorting and filtering'].forEach((item) => {
-				cy.get('.components-panel__body-title button')
-					.contains(item)
-					.scrollIntoView()
-					.should('be.visible');
+					.should('not.be.hidden');
 			});
 		});
 

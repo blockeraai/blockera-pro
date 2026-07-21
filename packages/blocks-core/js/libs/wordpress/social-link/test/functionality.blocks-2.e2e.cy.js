@@ -38,6 +38,14 @@ describe('Social Link Block', () => {
 			'elements/item-name',
 		]);
 
+		cy.get('.blockera-extension-block-card.master-block-card').within(
+			() => {
+				cy.get('button[data-test="back-to-parent-navigation"]').should(
+					'be.visible'
+				);
+			}
+		);
+
 		//
 		// 1. Edit Block
 		//
@@ -71,14 +79,14 @@ describe('Social Link Block', () => {
 		//
 		// 1.2.1. BG color
 		//
-		cy.setColorControlValue('BG Color', 'ff0000');
+		cy.setColorControlValue('BG Color', '730000');
 
 		cy.getBlock('core/social-link')
 			.first()
 			.within(() => {
-				cy.get('svg')
+				cy.get('.block-editor-block-icon svg')
 					.first()
-					.should('have.css', 'background-color', 'rgb(255, 0, 0)');
+					.should('have.css', 'background-color', 'rgb(115, 0, 0)');
 			});
 
 		//
@@ -92,21 +100,21 @@ describe('Social Link Block', () => {
 		//
 		// 1.2.1. BG color
 		//
-		cy.setColorControlValue('BG Color', 'ff2020');
+		cy.setColorControlValue('BG Color', '320000');
 
 		cy.getBlock('core/social-link')
 			.first()
 			.within(() => {
 				cy.get('.wp-block-social-link-label')
 					.first()
-					.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+					.should('have.css', 'background-color', 'rgb(50, 0, 0)');
 			});
 
 		//
 		// 2. Check settings tab
 		//
 		setParentBlock();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// layout settings should be hidden
 		cy.get('.block-editor-block-inspector').within(() => {
@@ -132,12 +140,12 @@ describe('Social Link Block', () => {
 			// elements/item-icon
 			cy.get('svg')
 				.first()
-				.should('have.css', 'background-color', 'rgb(255, 0, 0)');
+				.should('have.css', 'background-color', 'rgb(115, 0, 0)');
 
 			// elements/item-name
 			cy.get('.wp-block-social-link-label')
 				.first()
-				.should('have.css', 'background-color', 'rgb(255, 32, 32)');
+				.should('have.css', 'background-color', 'rgb(50, 0, 0)');
 		});
 	});
 });
