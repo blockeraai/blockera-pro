@@ -4,29 +4,42 @@
 import {
 	goTo,
 	createPost,
+	dismissOpenModals,
 	resetPanelSettings,
 } from '@blockera/dev-cypress/js/helpers';
+
+/**
+ * Enable a settings-panel breakpoint checkbox only when it is currently off.
+ * Re-clicking an already-enabled breakpoint would disable it and break later asserts.
+ *
+ * @param {string} dataTest Breakpoint data-test id (e.g. `2xl-desktop`).
+ */
+const enableBreakpointSetting = (dataTest) => {
+	cy.getByDataTest(dataTest).should('be.visible');
+	cy.getByDataTest(dataTest).within(() => {
+		cy.get('input').then(($input) => {
+			if (!$input.is(':checked')) {
+				cy.wrap($input).click({ force: true });
+			}
+		});
+	});
+};
 
 describe('Canvas Editor', () => {
 	it('should re-render canvas editor correctly', () => {
 		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
 
-		cy.getByDataTest('2xl-desktop').should('be.visible');
-		cy.getByDataTest('2xl-desktop').within(() => {
-			cy.get('input').click();
-		});
-		cy.getByDataTest('xl-desktop').should('be.visible');
-		cy.getByDataTest('xl-desktop').within(() => {
-			cy.get('input').click();
-		});
-		cy.getByDataTest('l-desktop').should('be.visible');
-		cy.getByDataTest('l-desktop').within(() => {
-			cy.get('input').click();
-		});
-		cy.getByDataTest('mobile-landscape').should('be.visible');
-		cy.getByDataTest('mobile-landscape').within(() => {
-			cy.get('input').click();
-		});
+		dismissOpenModals();
+
+		// Start from defaults so toggles are deterministic.
+		resetPanelSettings(true);
+		cy.reload();
+		dismissOpenModals();
+
+		enableBreakpointSetting('2xl-desktop');
+		enableBreakpointSetting('xl-desktop');
+		enableBreakpointSetting('l-desktop');
+		enableBreakpointSetting('mobile-landscape');
 
 		cy.getByDataTest('update-settings').as('update');
 		cy.get('@update').then(() => {
@@ -36,77 +49,48 @@ describe('Canvas Editor', () => {
 
 		createPost();
 
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Widescreens and TVs').click();
-		});
-
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'1920px'
+		cy.get('.edit-post-visual-editor', { timeout: 30000 }).should('exist');
+		cy.getByDataTest('blockera-canvas-editor', { timeout: 30000 }).should(
+			'be.visible'
 		);
+		cy.getByAriaLabel('Breakpoints').eq(0).should('be.visible');
 
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Extra Large Desktop').click();
-		});
+		const selectBreakpoint = (label) => {
+			cy.getByAriaLabel('Breakpoints')
+				.eq(0)
+				.should('be.visible')
+				.within(() => {
+					cy.getByAriaLabel(label).should('exist').click({
+						force: true,
+					});
+				});
+		};
 
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'1440px'
-		);
+		const assertCanvasWidth = (width) => {
+			// Prefer exist + css over be.visible: the post settings sidebar can
+			// cover the fixed iframe without meaning the canvas width is wrong.
+			cy.get('iframe[name="editor-canvas"]')
+				.should('exist')
+				.and('have.css', 'width', width);
+		};
 
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Large Desktop').click();
-		});
+		selectBreakpoint('Widescreens and TVs');
+		assertCanvasWidth('1920px');
 
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'1280px'
-		);
+		selectBreakpoint('Extra Large Desktop');
+		assertCanvasWidth('1440px');
 
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Tablet').click();
-		});
+		selectBreakpoint('Large Desktop');
+		assertCanvasWidth('1280px');
 
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'991px'
-		);
+		selectBreakpoint('Tablet');
+		assertCanvasWidth('991px');
 
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Mobile Landscape').click();
-		});
+		selectBreakpoint('Mobile Landscape');
+		assertCanvasWidth('767px');
 
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'767px'
-		);
-
-		cy.getByAriaLabel('Breakpoints').should('be.visible');
-		cy.getByAriaLabel('Breakpoints').within(() => {
-			cy.getByAriaLabel('Mobile Portrait').click();
-		});
-
-		cy.get('iframe[name="editor-canvas"]').should('be.visible');
-		cy.get('iframe[name="editor-canvas"]').should(
-			'have.css',
-			'width',
-			'478px'
-		);
+		selectBreakpoint('Mobile Portrait');
+		assertCanvasWidth('478px');
 
 		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
 
