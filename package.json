@@ -22,6 +22,7 @@
 		"format": "wp-scripts format",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style packages/**/*.scss",
+		"lint:css:fix": "npm run lint:css -- --fix",
 		"lint:php": "composer run lint",
 		"update:changelogs": "node ./bin/plugin/cli.js update-packages-changelog",
 		"other:changelog": "node ./bin/plugin/cli.js changelog",
@@ -143,6 +144,7 @@
 		"@wordpress/eslint-plugin": "^14.4.0",
 		"@wordpress/icons": "^10.10.0",
 		"@wordpress/scripts": "^26.3.0",
+		"@wordpress/stylelint-config": "^23.29.0",
 		"@wordpress/interface": "^9.22.0",
 		"autoprefixer": "^10.4.14",
 		"babel-jest": "^29.6.1",
@@ -202,7 +204,8 @@
 		"simple-git": "^3.16.0",
 		"source-map-loader": "3.0.0",
 		"style-loader": "^3.3.2",
-		"stylelint": "^14.16.1",
+		"stylelint": "^16.8.2",
+		"stylelint-scss": "^6.4.0",
 		"terser-webpack-plugin": "^5.3.7",
 		"tiny-swiper": "^2.2.0",
 		"ts-jest": "^29.1.0",
@@ -224,6 +227,10 @@
 		"*.php": [
 			"./bin/phpcs.sh --report-full --report-checkstyle=./.cache/phpcs-report.xml --standard=phpcs.xml"
 		]
+	},
+	"overrides": {
+		"stylelint": "^16.8.2",
+		"@wordpress/stylelint-config": "^23.29.0"
 	},
 	"wp-env": {
 		"plugin-dir": "blockera-pro",
