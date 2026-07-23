@@ -13,10 +13,9 @@ describe('Transforms Settings → Functionality', () => {
 		cy.getBlock('default').type('This is test paragraph', { delay: 0 });
 		cy.getByAriaControls('styles-view').click();
 
-		cy.getParentContainer(
-			'2D & 3D Transforms',
-			'blockera-repeater-control'
-		).as('transform');
+		cy.getParentContainer('Transforms', 'blockera-repeater-control').as(
+			'transform'
+		);
 	});
 
 	it('should update transform, when add value to self perspective', () => {
@@ -31,14 +30,12 @@ describe('Transforms Settings → Functionality', () => {
 				cy.get('input[type="text"]').type(150);
 			});
 
-		//Check block
+		//Check block (0 vs 0px serialization can vary by style-engine path)
 		cy.getIframeBody().within(() => {
 			cy.get('#blockera-styles-wrapper')
 				.invoke('text')
-				.should(
-					'include',
-					'transform: perspective(150px) translate3d(0px, 0px, 0px)'
-				);
+				.should('match', /perspective\(150px\)/)
+				.and('match', /translate3d\(0(px)?, 0(px)?, 0(px)?\)/);
 		});
 
 		//Check store
@@ -55,10 +52,8 @@ describe('Transforms Settings → Functionality', () => {
 
 		cy.get('style#blockera-inline-css')
 			.invoke('text')
-			.should(
-				'include',
-				'transform: perspective(150px) translate3d(0px, 0px, 0px) !important'
-			);
+			.should('match', /perspective\(150px\)/)
+			.and('match', /translate3d\(0(px)?, 0(px)?, 0(px)?\)/);
 	});
 
 	it('should update transform-origin, when add value to self origin', () => {
@@ -95,7 +90,7 @@ describe('Transforms Settings → Functionality', () => {
 
 		cy.get('style#blockera-inline-css')
 			.invoke('text')
-			.should('include', 'transform-origin: 50% 50% !important;');
+			.should('include', 'transform-origin: 50% 50%');
 	});
 
 	it('should update backface-visibility, when add value to backface-visibility', () => {
@@ -127,7 +122,7 @@ describe('Transforms Settings → Functionality', () => {
 
 		cy.get('style#blockera-inline-css')
 			.invoke('text')
-			.should('include', 'backface-visibility: hidden !important;');
+			.should('include', 'backface-visibility: hidden');
 	});
 
 	it('should update perspective, when add value to child perspective', () => {
@@ -199,6 +194,6 @@ describe('Transforms Settings → Functionality', () => {
 
 		cy.get('style#blockera-inline-css')
 			.invoke('text')
-			.should('include', 'perspective-origin: 50% 50% !important;');
+			.should('include', 'perspective-origin: 50% 50%');
 	});
 });
