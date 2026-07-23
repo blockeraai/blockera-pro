@@ -2,6 +2,7 @@ name: Create Demo and Attachment Files
 
 on:
     pull_request:
+        types: [opened, synchronize, reopened, closed]
 
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
@@ -10,12 +11,16 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
     cancel-in-progress: true
 
+permissions:
+    contents: write
+    pull-requests: read
+
 jobs:
     build:
         name: Create Demo and Attachments
         runs-on: ubuntu-latest
         if: |
-            always() && (
+            github.event.action != 'closed' && always() && (
               github.event_name == 'pull_request' ||
               github.event_name == 'workflow_dispatch' ||
               github.repository == 'blockeraai/blockera-pro'
@@ -38,18 +43,65 @@ jobs:
               with:
                   main-file-suffix: '-${{ github.event.pull_request.number }}'
 
-            - name: Upload ZIP to FTP server
-              uses: nerdoza/action-simple-file-upload@v2
+            - name: Upload ZIP as Actions artifact
+              uses: actions/upload-artifact@v4
               with:
-                  host: ${{ secrets.FTP_HOST }}
-                  user: ${{ secrets.FTP_USERNAME }}
-                  password: ${{ secrets.FTP_PASSWORD }}
-                  src: blockera-pro.zip
-                  dest: /domains/cd.blockera.ai/public_html/blockera-pro-${{ github.event.pull_request.number }}.zip
+                  name: blockera-pro-pr-${{ github.event.pull_request.number }}
+                  path: blockera-pro.zip
+                  retention-days: 14
+                  if-no-files-found: error
 
-            - name: Echo uploaded file link
+            - name: Publish ZIP to ci-artifacts prerelease
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  REPO: ${{ github.repository }}
+                  SHORT_SHA: ${{ github.event.pull_request.head.sha }}
               run: |
-                  echo "uploaded_zip_file=https://${{ secrets.FTP_HOST }}/blockera-pro-${{ github.event.pull_request.number }}.zip" >> $GITHUB_ENV
+                  set -euo pipefail
+
+                  RELEASE_TAG="ci-artifacts"
+                  SHORT_SHA="${SHORT_SHA:0:7}"
+                  ASSET_NAME="blockera-pro-pr-${PR_NUMBER}.zip"
+                  # Stable asset path; query string busts CDN/browser cache after each push.
+                  PUBLIC_URL="https://github.com/${REPO}/releases/download/${RELEASE_TAG}/${ASSET_NAME}?v=${SHORT_SHA}"
+
+                  cp blockera-pro.zip "${ASSET_NAME}"
+
+                  # Ensure a public prerelease exists (draft assets require auth and break Playground).
+                  if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+                    gh release create "${RELEASE_TAG}" \
+                      --repo "${REPO}" \
+                      --title "CI Artifacts" \
+                      --notes "Public PR build zips for WordPress Playground demos. Not a product release." \
+                      --prerelease
+                  fi
+
+                  # Overwrite the single zip for this PR.
+                  gh release upload "${RELEASE_TAG}" "${ASSET_NAME}" \
+                    --repo "${REPO}" \
+                    --clobber
+
+                  # Remove legacy sha-suffixed assets for this PR (blockera-pro-pr-{N}-{sha}.zip).
+                  LEGACY_PREFIX="blockera-pro-pr-${PR_NUMBER}-"
+                  mapfile -t LEGACY_ASSETS < <(
+                    gh release view "${RELEASE_TAG}" --repo "${REPO}" --json assets \
+                      | jq -r --arg prefix "${LEGACY_PREFIX}" '
+                          .assets
+                          | map(select(.name | startswith($prefix)))
+                          | .[].name
+                        '
+                  )
+
+                  if ((${#LEGACY_ASSETS[@]} > 0)); then
+                    for legacy_asset in "${LEGACY_ASSETS[@]}"; do
+                      echo "Deleting legacy release asset: ${legacy_asset}"
+                      gh release delete-asset "${RELEASE_TAG}" "${legacy_asset}" --repo "${REPO}" --yes
+                    done
+                  fi
+
+                  echo "uploaded_zip_file=${PUBLIC_URL}" >> "$GITHUB_ENV"
+                  echo "Public zip URL: ${PUBLIC_URL}"
 
             - name: Find existing bot comment
               id: find_comment
@@ -72,41 +124,57 @@ jobs:
             - name: Encode JSON with Base64
               id: encode_json
               run: |
-                  # Define the original JSON
-                  JSON_STRING='{
-                    "meta": {
-                      "title": "Install Blockera PRO plugin from github artifact",
-                      "author": "blockera.ai",
-                      "description": "Install and activate a WordPress Blockera PRO plugin from a .php file stored in a github artifact.",
-                      "categories": ["plugins"]
-                    },
-                    "landingPage": "/wp-admin/plugins.php",
-                    "preferredVersions": {
-                      "wp": "beta",
-                      "php": "8.0"
-                    },
-                    "steps": [
-                      {
-                        "step": "login"
-                      },
-                      {
-                        "step": "installPlugin",
-                        "pluginZipFile": {
-                          "resource": "url",
-                          "url": "URL_PLACEMENT"
-                        }
-                      }
-                    ]
-                  }'
+                  # Load the base JSON configuration from file
+                  if [ -f ".github-playground.json" ]; then
+                    JSON_STRING=$(cat .github-playground.json)
+                  else
+                    echo "Error: .github-playground.json file not found"
+                    exit 1
+                  fi
+
+                  # Check if .pr-github-playground.json exists and merge it with JSON_STRING
+                  if [ -f ".pr-github-playground.json" ]; then
+                    # Read PR playground JSON
+                    PR_JSON=$(cat .pr-github-playground.json)
+                    
+                    # If PR JSON has steps, use them to completely replace base steps
+                    if echo "$PR_JSON" | jq -e 'has("steps")' > /dev/null; then
+                      MERGED_JSON=$(echo "$JSON_STRING" | jq --argjson pr "$PR_JSON" '. * ($pr | del(.steps)) + {steps: $pr.steps}')
+                    else
+                      # Regular merge without steps replacement
+                      MERGED_JSON=$(echo "$JSON_STRING" | jq --argjson pr "$PR_JSON" '. * $pr')
+                    fi
+                    FINAL_JSON="$MERGED_JSON"
+                  else
+                    FINAL_JSON="$JSON_STRING"
+                  fi
 
                   # Replace URL_PLACEMENT with the newly generated URL
-                  ENCODED_JSON=$(echo "$JSON_STRING" | jq --arg new_url "${{ env.uploaded_zip_file }}" '.steps[1].pluginZipFile.url = "${{ env.uploaded_zip_file }}"')
+                  ENCODED_JSON=$(echo "$FINAL_JSON" | jq --arg new_url "${{ env.uploaded_zip_file }}" '.steps[2].pluginData.url = $new_url')
+
+                  # Update the blogname to append PR number
+                  ENCODED_JSON=$(echo "$ENCODED_JSON" | jq --arg pr_num "${{ github.event.pull_request.number }}" '.steps[3].options.blogname += " (PR \($pr_num))"')
+
+                  # Unique per workflow run so the blueprint hash / Playground setup fingerprint changes.
+                  ENCODED_JSON=$(echo "$ENCODED_JSON" | jq \
+                    --arg run_id "${{ github.run_id }}-${{ github.run_attempt }}" \
+                    '
+                      .meta.title = ((.meta.title // "Blockera PRO Demo") + " [" + $run_id + "]")
+                      | .steps |= map(
+                          if .step == "defineWpConfigConsts" then
+                            .consts.BLOCKERA_PLAYGROUND_RUN_ID = $run_id
+                          else
+                            .
+                          end
+                        )
+                    ')
 
                   # Base64 encode the updated JSON
                   BASE64_ENCODED_JSON=$(echo "$ENCODED_JSON" | base64 -w 0)
 
                   # Generate the final URL with encoded JSON appended
-                  DEMO_URL="https://playground.wordpress.net/#${BASE64_ENCODED_JSON}"
+                  # storage=temp + can-save=no: fresh site each open; no OPFS autosave restore.
+                  DEMO_URL="https://playground.wordpress.net/?storage=temp&can-save=no#${BASE64_ENCODED_JSON}"
 
                   # Save the URL as an output for later steps if needed
                   echo "demo_url=$DEMO_URL" >> $GITHUB_ENV
@@ -126,7 +194,7 @@ jobs:
                   RUN_ID="${{ github.run_id }}"
 
                   # Define the comment body following the desired structure
-                  COMMENT_BODY="**Branch Links**\n\n- [**🔗 Playground Demo**](${{ env.demo_url }})\n\n- [**📦 Download Zip** (Build)](${{ env.uploaded_zip_file }})"
+                  COMMENT_BODY="# 🔗 PR Playground Demo\n\n**Branch Links**\n\n- [**🔗 Playground Demo**](${{ env.demo_url }})\n\n- [**📦 Download Zip** (Build)](${{ env.uploaded_zip_file }})"
 
                   if [ -z "${{ env.comment_id }}" ]; then
                       # No existing comment found, create a new one
@@ -147,3 +215,44 @@ jobs:
                         $COMMENT_URL \
                         -d "{\"body\":\"${COMMENT_BODY}\"}"
                   fi
+
+    cleanup:
+        name: Remove PR CI Artifact
+        runs-on: ubuntu-latest
+        if: github.event.action == 'closed'
+        steps:
+            - name: Delete PR zip from ci-artifacts prerelease
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+
+                  RELEASE_TAG="ci-artifacts"
+                  ASSET_NAME="blockera-pro-pr-${PR_NUMBER}.zip"
+                  LEGACY_PREFIX="blockera-pro-pr-${PR_NUMBER}-"
+
+                  if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+                    echo "Release ${RELEASE_TAG} not found; nothing to clean up."
+                    exit 0
+                  fi
+
+                  mapfile -t ASSETS_TO_DELETE < <(
+                    gh release view "${RELEASE_TAG}" --repo "${REPO}" --json assets \
+                      | jq -r --arg exact "${ASSET_NAME}" --arg prefix "${LEGACY_PREFIX}" '
+                          .assets
+                          | map(select(.name == $exact or (.name | startswith($prefix))))
+                          | .[].name
+                        '
+                  )
+
+                  if ((${#ASSETS_TO_DELETE[@]} == 0)); then
+                    echo "No release assets found for PR ${PR_NUMBER}."
+                    exit 0
+                  fi
+
+                  for asset in "${ASSETS_TO_DELETE[@]}"; do
+                    echo "Deleting release asset: ${asset}"
+                    gh release delete-asset "${RELEASE_TAG}" "${asset}" --repo "${REPO}" --yes || true
+                  done
