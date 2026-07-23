@@ -16,8 +16,8 @@ inputs:
 runs:
     using: 'composite'
     steps:
-        - name: Use desired version of Node.js
-          uses: actions/setup-node@v3
+        - name: Setup Node.js with built-in npm cache
+          uses: actions/setup-node@v4
           with:
               node-version-file: '.nvmrc'
               node-version: ${{ inputs.node-version }}
@@ -31,18 +31,18 @@ runs:
 
         - name: Cache node_modules
           id: cache-node_modules
-          uses: actions/cache@v3
+          uses: actions/cache@v4
           with:
               path: '**/node_modules'
               key: node_modules-${{ runner.os }}-${{ steps.node-version.outputs.NODE_VERSION }}-${{ inputs.chdir}}-${{ hashFiles('package-lock.json') }}
 
         - name: Install npm dependencies
-          if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
+          if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' || cancelled() }}
           run: |
               if [ -n "${{ inputs.chdir }}" ]; then
                   cd ${{ inputs.chdir }}
               fi
-              npm ci
+              bash "${GITHUB_WORKSPACE}/.github/scripts/retry-npm-ci.sh"
               if [ -n "${{ inputs.dir }}" ]; then
                   cd ../${{ inputs.dir }}
               fi
