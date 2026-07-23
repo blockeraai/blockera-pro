@@ -9,6 +9,7 @@ BRANCH=""
 WORKFLOW=""
 OUTPUT=""
 EXTRACT_DIR=""
+ARTIFACT_URL=""
 TOKEN="${GITHUB_TOKEN:-}"
 RUN_ID=""
 ARTIFACT_ID=""
@@ -25,6 +26,8 @@ Options:
   --name NAME         Artifact name (default: blockera)
   --branch BRANCH     Branch name to resolve the latest successful workflow run (optional)
   --workflow FILE     Workflow file name when using --branch (default: build-plugin-zip.yml)
+  --url URL           GitHub Actions artifact page URL
+                      (https://github.com/OWNER/REPO/actions/runs/RUN_ID/artifacts/ARTIFACT_ID)
   --output PATH       Output artifact zip file path (default: \$REPO.zip)
   --extract-dir PATH  Extract the plugin directory for wp-env (prints path to stdout)
   --help              Show this help
@@ -68,6 +71,10 @@ while [[ $# -gt 0 ]]; do
 			EXTRACT_DIR="$2"
 			shift 2
 			;;
+		--url)
+			ARTIFACT_URL="$2"
+			shift 2
+			;;
 		--help)
 			usage
 			exit 0
@@ -87,6 +94,21 @@ fi
 
 OUTPUT="${OUTPUT:-${REPO}.zip}"
 WORKFLOW="${WORKFLOW:-build-plugin-zip.yml}"
+
+parse_artifact_url() {
+	local url="$1"
+
+	if [[ ! "$url" =~ ^https://github.com/([^/]+)/([^/]+)/actions/runs/([0-9]+)/artifacts/([0-9]+)/?$ ]]; then
+		log "Error: Invalid GitHub Actions artifact URL: $url"
+		log "Expected: https://github.com/OWNER/REPO/actions/runs/RUN_ID/artifacts/ARTIFACT_ID"
+		exit 1
+	fi
+
+	OWNER="${BASH_REMATCH[1]}"
+	REPO="${BASH_REMATCH[2]}"
+	RUN_ID="${BASH_REMATCH[3]}"
+	ARTIFACT_ID="${BASH_REMATCH[4]}"
+}
 
 api() {
 	curl -sfSL \
@@ -201,7 +223,10 @@ extract_plugin_dir() {
 	log "Extracted Blockera free plugin to $extract_dir"
 }
 
-if [ -n "$BRANCH" ]; then
+if [ -n "$ARTIFACT_URL" ]; then
+	parse_artifact_url "$ARTIFACT_URL"
+	log "Using artifact from URL in $OWNER/$REPO (run $RUN_ID, artifact $ARTIFACT_ID)."
+elif [ -n "$BRANCH" ]; then
 	resolve_artifact_from_branch
 else
 	resolve_latest_artifact
