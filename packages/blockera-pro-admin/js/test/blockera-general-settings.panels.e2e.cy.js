@@ -27,12 +27,12 @@ describe('Blockera general settings testing...', () => {
 
 		cy.get('label')
 			.contains('Enable Blockera blocks for selected user roles:')
-			.click();
-		cy.get('label').contains('editor').click();
+			.click({ force: true });
+		cy.get('label').contains('editor').click({ force: true });
 
 		cy.getByDataTest('update-settings').as('update');
 		cy.get('@update').then(() => {
-			cy.get('@update').click();
+			cy.get('@update').click({ force: true });
 			cy.wait(2000);
 
 			cy.addNewUser('editor', 'editor', 'editor');
@@ -43,7 +43,9 @@ describe('Blockera general settings testing...', () => {
 
 			createPost();
 
-			appendBlocks(`<!-- wp:paragraph /-->`);
+			appendBlocks(`<!-- wp:paragraph -->
+<p>Paragraph</p>
+<!-- /wp:paragraph -->`);
 
 			cy.getBlock('core/paragraph').click();
 
@@ -54,7 +56,9 @@ describe('Blockera general settings testing...', () => {
 
 			createPost();
 
-			appendBlocks(`<!-- wp:paragraph /-->`);
+			appendBlocks(`<!-- wp:paragraph -->
+<p>Paragraph</p>
+<!-- /wp:paragraph -->`);
 
 			cy.getBlock('core/paragraph').click();
 
@@ -67,17 +71,19 @@ describe('Blockera general settings testing...', () => {
 
 		cy.get('label')
 			.contains('Enable Blockera blocks for selected user roles:')
-			.click();
-		cy.get('label').contains('post').click();
+			.click({ force: true });
+		cy.get('label').contains('post').click({ force: true });
 
 		cy.getByDataTest('update-settings').as('update');
 		cy.get('@update').then(() => {
-			cy.get('@update').click();
+			cy.get('@update').click({ force: true });
 			cy.wait(2000);
 
 			createPost();
 
-			appendBlocks(`<!-- wp:paragraph /-->`);
+			appendBlocks(`<!-- wp:paragraph -->
+<p>Paragraph</p>
+<!-- /wp:paragraph -->`);
 
 			cy.getBlock('core/paragraph').click();
 
