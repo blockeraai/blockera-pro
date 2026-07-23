@@ -43,7 +43,7 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 		// select image block
 		cy.getBlock('core/image').last().click();
 
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		cy.getByDataCy('upload-svg-btn').click({ force: true });
 
@@ -72,7 +72,7 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 
 		cy.getBlock('core/image').last().click();
 
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		cy.getByAriaLabel('Icon Library').click({ force: true });
 
@@ -101,7 +101,7 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 
 		cy.getBlock('core/image').last().click();
 
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		cy.getByDataCy('upload-svg-btn').click({ force: true });
 
@@ -117,7 +117,7 @@ describe('Icon Block → Functionality + Visual Test (Custom SVG)', () => {
 		cy.getByAriaLabel('Flip Horizontal').click({ force: true });
 		cy.getByAriaLabel('Flip Vertical').click({ force: true });
 
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		cy.getParentContainer('Width').within(() => {
 			cy.get('input').clear({ force: true });

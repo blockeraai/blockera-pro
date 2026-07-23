@@ -34,7 +34,7 @@ describe('Button Block → Icon Functionality + Visual Test (Custom SVG)', () =>
 		 * 1. Simple custom svg icon
 		 */
 		cy.getBlock('core/button').first().click();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		cy.getByAriaLabel('Choose Icon…').click();
 
@@ -59,7 +59,7 @@ describe('Button Block → Icon Functionality + Visual Test (Custom SVG)', () =>
 		 * 2. customized icon
 		 */
 		cy.getBlock('core/button').eq(1).click();
-		cy.getByDataTest('settings-tab').click();
+		cy.getByAriaControls('settings-view').click();
 
 		// set icon
 		cy.getByAriaLabel('Choose Icon…').click();

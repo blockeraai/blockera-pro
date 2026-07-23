@@ -12,7 +12,7 @@ describe('Cursor → Functionality', () => {
 
 		cy.getBlock('default').type('This is test paragraph', { delay: 0 });
 
-		cy.getByDataTest('interactions-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		cy.getParentContainer('Cursor').as('container');
 	});

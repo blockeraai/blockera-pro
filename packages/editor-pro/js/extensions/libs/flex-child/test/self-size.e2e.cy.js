@@ -22,7 +22,7 @@ describe('Flex Child → Self Size', () => {
 
 		cy.getBlock('core/paragraph').click();
 
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 	});
 
 	it('Sizing Buttons (Shrink & Grow)', () => {

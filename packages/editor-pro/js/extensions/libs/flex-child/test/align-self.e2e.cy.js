@@ -21,7 +21,7 @@ describe('Flex Child → Align Self', () => {
 		appendBlocks(code);
 
 		cy.getBlock('core/paragraph').click();
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		//
 		// Flex Start
