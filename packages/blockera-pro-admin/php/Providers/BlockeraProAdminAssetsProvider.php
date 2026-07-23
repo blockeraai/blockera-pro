@@ -50,6 +50,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
 							'@blockera/data',
 							'@blockera/data-editor',
 							'@blockera/env',
+							'@blockera/storage',
 							'@blockera/controls',
                     	],
 						'@blockera/blockera-pro-admin' => [
@@ -59,6 +60,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
 							'@blockera/data',
 							'@blockera/data-editor',
 							'@blockera/env',
+							'@blockera/storage',
 							'@blockera/controls',
                     	],
 					],
