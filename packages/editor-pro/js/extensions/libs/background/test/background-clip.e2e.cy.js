@@ -34,14 +34,19 @@ describe('Background Clip → Functionality', () => {
 				cy.contains('button', /Upload Image/i).click();
 			});
 
-		cy.get('#menu-item-upload').click();
-		cy.get('input[type="file"]').selectFile(
-			'packages/dev-cypress/js/fixtures/bg-extension-test.jpeg',
-			{
-				force: true,
-			}
-		);
-		cy.get('.media-toolbar-primary > .button').click();
+		cy.get('.media-modal').should('be.visible');
+		cy.get('.media-modal').within(() => {
+			cy.contains('button', 'Upload files').click();
+			cy.get('input[type="file"]').selectFile(
+				'packages/dev-cypress/js/fixtures/bg-extension-test.png',
+				{
+					force: true,
+				}
+			);
+			cy.get('.media-toolbar-primary > .button')
+				.should('not.be.disabled')
+				.click();
+		});
 
 		// act : selecting clip to text
 		cy.get('@clippingContainer').within(() => {
