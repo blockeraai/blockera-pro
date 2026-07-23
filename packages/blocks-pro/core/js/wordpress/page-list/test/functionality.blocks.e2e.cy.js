@@ -46,7 +46,7 @@ describe('Page List Block', () => {
 
 		cy.setColorControlValue('Text Color', 'ff0000');
 
-		cy.wait(100);
+		cy.wait(500);
 
 		cy.getBlock('core/page-list')
 			.first()
@@ -116,7 +116,7 @@ describe('Page List Block', () => {
 			cy.get('input[type=text]').type('Marker');
 		});
 
-		cy.wait(100);
+		cy.wait(500);
 
 		cy.getBlock('core/page-list')
 			.first()
