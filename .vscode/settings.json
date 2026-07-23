@@ -1,5 +1,9 @@
 {
 	"cSpell.words": ["blockera"],
+	"stylelint.enable": true,
+	"stylelint.validate": ["css", "scss", "less"],
+	"stylelint.configFile": ".stylelintrc.js",
+	"stylelint.snippet": ["css", "scss", "less"],
 	"[php]": {
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "valeryanm.vscode-phpsab",
