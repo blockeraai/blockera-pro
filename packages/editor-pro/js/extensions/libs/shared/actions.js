@@ -9,7 +9,7 @@ import { addAction } from '@wordpress/hooks';
 /**
  * Blockera dependencies
  */
-import { setItem } from '@blockera/storage';
+import { localStorage } from '@blockera/storage';
 import { validateSecretKeys } from '@blockera/validator';
 
 const STORE_NAME = 'blockera/extensions/config';
@@ -23,7 +23,7 @@ export const clearCache = (): void => {
 				const { getExtensions } = select(STORE_NAME);
 				const extensions = getExtensions(props.name);
 
-				setItem(cacheKey, extensions);
+				localStorage.setJSON(cacheKey, extensions);
 			}
 		);
 	};
