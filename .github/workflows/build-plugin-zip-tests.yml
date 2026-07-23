@@ -60,6 +60,9 @@ jobs:
             - name: Create Requirements
               # Only run if Specs files are found.
               if: steps.find_specs_files.outputs.file_count != '0'
+              env:
+                  # Cross-repo download of Blockera free Actions artifacts from .pr-env.json.
+                  GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
               run: |
                   cd ./build/blockera-pro
                   mkdir packages
