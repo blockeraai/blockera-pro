@@ -6,29 +6,9 @@ import {
 	appendBlocks,
 	getWPDataObject,
 	getSelectedBlock,
-	activateMuPlugin,
-	deactivateMuPlugin,
 } from '@blockera/dev-cypress/js/helpers';
 
-const ALLOW_SVG_MU =
-	'packages/controls-pro/js/icon-control/test/fixtures/allow-svg-uploads.php';
-const ALLOW_SVG_MU_NAME = 'blockera-test-allow-svg-uploads.php';
-
 describe('icon-control → custom SVG upload (Pro)', () => {
-	before(() => {
-		activateMuPlugin({
-			pluginPath: ALLOW_SVG_MU,
-			pluginName: ALLOW_SVG_MU_NAME,
-		});
-	});
-
-	after(() => {
-		deactivateMuPlugin({
-			pluginPath: ALLOW_SVG_MU,
-			pluginName: ALLOW_SVG_MU_NAME,
-		});
-	});
-
 	beforeEach(() => {
 		createPost();
 		appendBlocks(`<!-- wp:buttons -->
