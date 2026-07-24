@@ -23,9 +23,6 @@
 	"ignoreFiles": [
 		"coverage/**/*.css",
 		"packages/dev-cypress/**/*.css",
-		"packages/dev-cypress/**/*.scss",
-		"packages/dev-storybook/**/*.css",
-		"packages/dev-storybook/**/*.scss",
-		"packages/blockera-pro-admin/js/style.scss"
+		"packages/dev-cypress/**/*.scss"
 	]
 }
