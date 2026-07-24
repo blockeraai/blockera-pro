@@ -61,6 +61,9 @@ jobs:
               run: composer install --no-dev -o --apcu-autoloader -a
 
             - name: Create required environment files
+              env:
+                  # Cross-repo download of Blockera free Actions artifacts from .pr-env.json.
+                  GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
               run: |
                   touch cypress.env.json
                   echo '{
