@@ -62,9 +62,6 @@ dist
 # any cache files
 .cache/**
 
-# Storybook Build directory
-storybook-static
-
 # nyc plugin of cypress
 .nyc_output
 
