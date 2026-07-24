@@ -4,10 +4,8 @@
 import {
 	appendBlocks,
 	getSelectedBlock,
-	getWPDataObject,
+	assertBlockData,
 	setInnerBlock,
-	setBlockState,
-	addBlockState,
 	createPost,
 } from '@blockera/dev-cypress/js/helpers';
 
@@ -33,10 +31,15 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 
 					// Select target block
-					cy.getBlock('core/paragraph').click();
+					cy.getBlock('core/heading').first().click();
 
 					// Switch to parent block
 					cy.getByAriaLabel('Select Group').click();
+
+					cy.getByAriaControls('styles-view').click();
+
+					// Force shared extensions (incl. compatibility) to initialize
+					cy.addNewTransition();
 
 					// add alias to the feature container
 					cy.getParentContainer('Image & Gradient').as('container');
@@ -46,7 +49,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					//
 
 					// WP data should come to Blockera
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'linear-gradient-0': {
@@ -81,14 +84,18 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						cy.get('@repeaterBtn').click();
 					});
 
-					cy.getParentContainer('Angle').within(() => {
-						cy.get('input[type="number"]').as('angelInput');
-						cy.get('@angelInput').clear();
-						cy.get('@angelInput').type('45');
-					});
+					cy.get('.components-popover')
+						.last()
+						.within(() => {
+							cy.getParentContainer('Angle').within(() => {
+								cy.get('input[type="number"]').as('angelInput');
+								cy.get('@angelInput').clear();
+								cy.get('@angelInput').type('45');
+							});
+						});
 
 					// Blockera value should be moved to WP data
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'linear-gradient-0': {
@@ -109,7 +116,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect(
 							'linear-gradient(45deg,rgb(135,254,56) 1%,rgb(255,147,147) 97%)'
 						).to.be.equal(
@@ -130,14 +137,14 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					// WP data should be removed too
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect(undefined).to.be.equal(
 							getSelectedBlock(data, 'style')?.elements?.heading
 								?.color?.gradient
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({}).to.be.deep.equal(
 							getSelectedBlock(data, 'blockeraInnerBlocks')[
 								'core/heading'
@@ -165,6 +172,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					// Switch to parent block
 					cy.getByAriaLabel('Select Group').click();
 
+					cy.getByAriaControls('styles-view').click();
+					cy.addNewTransition();
+
 					// add alias to the feature container
 					cy.getParentContainer('Image & Gradient').as('container');
 
@@ -173,7 +183,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					//
 
 					// WP data should come to Blockera
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'linear-gradient-0': {
@@ -239,14 +249,14 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					// Blockera value should be moved to WP data
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect('var:preset|gradient|gradient-2').to.be.equal(
 							getSelectedBlock(data, 'style')?.elements?.heading
 								?.color?.gradient
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'linear-gradient-0': {
@@ -293,14 +303,14 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					// WP data should be removed too
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect(undefined).to.be.equal(
 							getSelectedBlock(data, 'style')?.elements?.heading
 								?.color?.gradient
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({}).to.be.deep.equal(
 							getSelectedBlock(data, 'blockeraInnerBlocks')[
 								'core/heading'
@@ -325,10 +335,13 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 
 					// Select target block
-					cy.getBlock('core/paragraph').click();
+					cy.getBlock('core/heading').first().click();
 
 					// Switch to parent block
 					cy.getByAriaLabel('Select Group').click();
+
+					cy.getByAriaControls('styles-view').click();
+					cy.addNewTransition();
 
 					// add alias to the feature container
 					cy.getParentContainer('Image & Gradient').as('container');
@@ -338,7 +351,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					//
 
 					// WP data should come to Blockera
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'radial-gradient-0': {
@@ -389,7 +402,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						});
 
 					// Blockera value should be moved to WP data
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({
 							blockeraBackground: {
 								'radial-gradient-0': {
@@ -414,7 +427,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect(
 							'radial-gradient(#B1C5A4 0%,#F9F9F9 100%)'
 						).to.be.equal(
@@ -435,14 +448,14 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					// WP data should be removed too
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect(undefined).to.be.equal(
 							getSelectedBlock(data, 'style')?.elements?.heading
 								?.color?.gradient
 						);
 					});
 
-					getWPDataObject().then((data) => {
+					assertBlockData((data) => {
 						expect({}).to.be.deep.equal(
 							getSelectedBlock(data, 'blockeraInnerBlocks')[
 								'core/heading'
@@ -473,6 +486,9 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 				// Switch to parent block
 				cy.getByAriaLabel('Select Group').click();
 
+				cy.getByAriaControls('styles-view').click();
+				cy.addNewTransition();
+
 				// add alias to the feature container
 				cy.getParentContainer('Image & Gradient').as('imageContainer');
 				cy.getParentContainer('BG Color').as('colorContainer');
@@ -481,7 +497,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 				// Test 1: WP data to Blockera
 				//
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect({
 						blockeraBackgroundColor: '#ffcaca',
 					}).to.be.deep.equal(
@@ -491,7 +507,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 				});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect('#ffcaca').to.be.equal(
 						getSelectedBlock(data, 'style')?.elements?.heading
 							?.color?.background
@@ -517,7 +533,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 				// Blockera value should be moved to WP data
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect({
 						blockeraBackgroundColor: '#ffcaca',
 						blockeraBackground: {
@@ -543,7 +559,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 				});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect('#ffcaca').to.be.equal(
 						getSelectedBlock(data, 'style')?.elements?.heading
 							?.color?.background
@@ -573,7 +589,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						cy.get('@hexColorInput').type('666');
 					});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect({
 						blockeraBackgroundColor: '#666666',
 						blockeraBackground: {
@@ -599,7 +615,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 				});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect('#666666').to.be.equal(
 						getSelectedBlock(data, 'style')?.elements?.heading
 							?.color?.background
@@ -623,7 +639,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						).click();
 					});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect({
 						blockeraBackground: {
 							'radial-gradient-0': {
@@ -648,7 +664,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					);
 				});
 
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect(undefined).to.be.equal(
 						getSelectedBlock(data, 'style')?.elements?.heading
 							?.color?.background
@@ -674,7 +690,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 				});
 
 				// WP data should be removed too
-				getWPDataObject().then((data) => {
+				assertBlockData((data) => {
 					expect({}).to.be.deep.equal(
 						getSelectedBlock(data, 'blockeraInnerBlocks')[
 							'core/heading'

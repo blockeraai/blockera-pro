@@ -4,11 +4,7 @@
  * Notice Types
  */
 export type NoticeType =
-	| 'success'
-	| 'error'
-	| 'warning'
-	| 'info'
-	| 'information';
+	'success' | 'error' | 'warning' | 'info' | 'information';
 
 /**
  * Notice Context Types

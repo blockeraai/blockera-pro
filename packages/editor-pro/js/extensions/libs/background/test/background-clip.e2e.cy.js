@@ -12,7 +12,7 @@ describe('Background Clip → Functionality', () => {
 
 		cy.getBlock('default').type('This is test paragraph', { delay: 0 });
 		cy.get('[aria-label="Settings"]').eq(1).click({ force: true });
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		// add alias to the feature container
 		cy.getParentContainer('Clipping').as('clippingContainer');
@@ -34,14 +34,19 @@ describe('Background Clip → Functionality', () => {
 				cy.contains('button', /Upload Image/i).click();
 			});
 
-		cy.get('#menu-item-upload').click();
-		cy.get('input[type="file"]').selectFile(
-			'packages/dev-cypress/js/fixtures/bg-extension-test.jpeg',
-			{
-				force: true,
-			}
-		);
-		cy.get('.media-toolbar-primary > .button').click();
+		cy.get('.media-modal').should('be.visible');
+		cy.get('.media-modal').within(() => {
+			cy.contains('button', 'Upload files').click();
+			cy.get('input[type="file"]').selectFile(
+				'packages/dev-cypress/js/fixtures/bg-extension-test.png',
+				{
+					force: true,
+				}
+			);
+			cy.get('.media-toolbar-primary > .button')
+				.should('not.be.disabled')
+				.click();
+		});
 
 		// act : selecting clip to text
 		cy.get('@clippingContainer').within(() => {

@@ -82,6 +82,10 @@
 		},
 		{
 			"type": "path",
+			"url": "packages/storage"
+		},
+		{
+			"type": "path",
 			"url": "packages/dev-phpunit"
 		},
 		{
@@ -131,6 +135,7 @@
 		"blockera/http": "*",
 		"blockera/blocks-core": "*",
 		"blockera/env": "*",
+		"blockera/storage": "*",
 		"blockera/data": "*",
 		"blockera/data-editor": "*",
 		"blockera/feature-icon": "*",
@@ -171,5 +176,13 @@
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"cweagans/composer-patches": true
 		}
+	},
+	"scripts": {
+		"test": "@php ./vendor/bin/phpunit",
+		"lint": "./bin/phpcs.sh --standard=phpcs.xml",
+		"format": "phpcbf --standard=phpcs.xml --report-summary --report-source",
+		"test:coverage": "@php ./vendor/bin/phpunit --coverage-html php-coverage",
+		"phpcs": "./bin/phpcs.sh",
+		"phpcbf": "phpcbf"
 	}
 }

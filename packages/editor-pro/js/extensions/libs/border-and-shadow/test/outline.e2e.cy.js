@@ -11,7 +11,7 @@ describe('Outline → Functionality', () => {
 		createPost();
 
 		cy.getBlock('default').type('This is test paragraph', { delay: 0 });
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		cy.activateMoreSettingsItem('More Border Settings', 'Outline');
 
@@ -25,7 +25,7 @@ describe('Outline → Functionality', () => {
 			});
 		});
 
-		//add data
+		// Fill fields in the auto-opened repeater popover (matches outline-control.cy.js).
 		cy.getByDataTest('popover-body')
 			.last()
 			.within(() => {
@@ -34,24 +34,40 @@ describe('Outline → Functionality', () => {
 					force: true,
 				});
 
-				cy.get('[aria-haspopup="listbox"]').click({ force: true });
-				cy.get('div[aria-selected="false"]').eq(0).click();
+				// CustomSelectControl (Ariakit) — dashed is option index 1 (solid=0).
+				cy.getByDataTest('border-control-component')
+					.find('[aria-haspopup="listbox"]')
+					.click({ force: true });
 			});
 
-		cy.openRepeaterItem('Outline', 'Outline');
+		cy.get('[role="listbox"]:visible')
+			.find('[role="option"]')
+			.eq(1)
+			.click({ force: true });
 
 		cy.getByDataTest('popover-body')
 			.last()
 			.within(() => {
-				cy.get('input[type="range"]').setSliderValue(10);
+				cy.getByDataTest('outline-offset-input').clear({ force: true });
+				cy.getByDataTest('outline-offset-input').type(10, {
+					force: true,
+				});
 
 				cy.getByDataTest('border-control-color').click({ force: true });
-
-				cy.get('input[maxlength="9"]').clear({ force: true });
-				cy.get('input[maxlength="9"]').type('c5eef0ab ');
 			});
 
-		//Check block
+		cy.getByDataTest('popover-body')
+			.last()
+			.within(() => {
+				cy.get('[data-cy="color-picker-css-value"]').clear({
+					force: true,
+				});
+				cy.get('[data-cy="color-picker-css-value"]').type('c5eef0ab', {
+					delay: 0,
+				});
+			});
+
+		// Check block
 		cy.getBlock('core/paragraph').should(
 			'have.css',
 			'outline',
@@ -64,7 +80,7 @@ describe('Outline → Functionality', () => {
 			'10px'
 		);
 
-		//Check store
+		// Check store
 		getWPDataObject().then((data) => {
 			expect({
 				0: {
@@ -80,7 +96,7 @@ describe('Outline → Functionality', () => {
 			}).to.be.deep.equal(getSelectedBlock(data, 'blockeraOutline'));
 		});
 
-		//Check frontend
+		// Check frontend
 		savePage();
 
 		redirectToFrontPage();

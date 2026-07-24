@@ -45,7 +45,9 @@ export const validateSecretKeys = ({
 		}
 		return false;
 	}
-	if (licenseKey.length !== 32) return false;
+	if (licenseKey.length !== 32) {
+		return false;
+	}
 	if ('string' !== typeof licenseKey) {
 		if (process.env.NODE_ENV === 'development') {
 			console.warn(
@@ -122,7 +124,9 @@ export const validateSecretKeys = ({
 		}
 		return false;
 	}
-	if (clientSecret.length !== 32) return false;
+	if (clientSecret.length !== 32) {
+		return false;
+	}
 	if (!clientSecret) {
 		if (process.env.NODE_ENV === 'development') {
 			console.warn(

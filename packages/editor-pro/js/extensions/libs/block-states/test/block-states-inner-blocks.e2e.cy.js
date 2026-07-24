@@ -27,6 +27,16 @@ describe('Inner Blocks E2E Test', () => {
 	beforeEach(() => {
 		createPost();
 		cy.viewport(1440, 1025);
+
+		// Match free inner-blocks block-states: keep secondary sidebar closed.
+		cy.get('body').then(($body) => {
+			const $toggle = $body.find(
+				'[data-test="blockera-secondary-sidebar-toggle"][aria-pressed="true"]'
+			);
+			if ($toggle.length) {
+				cy.getByDataTest('blockera-secondary-sidebar-toggle').click();
+			}
+		});
 	});
 
 	const initialSetting = () => {
@@ -36,6 +46,7 @@ describe('Inner Blocks E2E Test', () => {
 			<!-- /wp:paragraph -->`
 		);
 		cy.getIframeBody().find('[data-type="core/paragraph"]').click();
+		cy.getByAriaControls('styles-view').click();
 	};
 
 	it.skip('should control value and attributes be correct, when navigate between states and devices', () => {
@@ -658,7 +669,7 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Set font-size
-		cy.getParentContainer('Size').within(() => {
+		cy.getParentContainer('Font Size').within(() => {
 			cy.get('input[type="text"]').clear();
 			cy.get('input[type="text"]').type(25, {
 				force: true,
@@ -726,7 +737,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		setDeviceType('Mobile Portrait');
 		// Set font-size
-		cy.getParentContainer('Size').within(() => {
+		cy.getParentContainer('Font Size').within(() => {
 			cy.get('input[type="text"]').clear();
 			cy.get('input[type="text"]').type(25, {
 				force: true,
@@ -796,7 +807,7 @@ describe('Inner Blocks E2E Test', () => {
 		setDeviceType('Mobile Portrait');
 
 		// Set font-size
-		cy.getParentContainer('Size').within(() => {
+		cy.getParentContainer('Font Size').within(() => {
 			cy.get('input[type="text"]').clear();
 			cy.get('input[type="text"]').type(25, {
 				force: true,
@@ -877,7 +888,8 @@ describe('Inner Blocks E2E Test', () => {
 		addBlockState('hover');
 		setInnerBlock('elements/link');
 
-		cy.setInputFieldValue('Border Line', 'Border And Shadow', 2);
+		// Label renamed from "Border Line" → "Border" (matches free border e2e).
+		cy.setInputFieldValue('Border', 'Border And Shadow', 2);
 		cy.setInputFieldValue('Radius', 'Border And Shadow', 5);
 
 		// Reselect

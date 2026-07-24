@@ -18,7 +18,7 @@ describe('Text Columns → Functionality', () => {
 			delay: 0,
 		});
 
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 
 		openMoreFeaturesControl('More typography settings');
 	});
@@ -122,11 +122,11 @@ describe('Text Columns → Functionality', () => {
 		cy.getByDataTest('popover-body')
 			.last()
 			.within(() => {
-				cy.get('input[maxlength="9"]').clear({
+				cy.get('[data-cy="color-picker-css-value"]').clear({
 					force: true,
 				});
-				cy.get('input[maxlength="9"]').type('36eade', {
-					force: true,
+				cy.get('[data-cy="color-picker-css-value"]').type('36eade', {
+					delay: 0,
 				});
 			});
 

@@ -1,6 +1,11 @@
 // @flow
 
 /**
+ * Blockera dependencies
+ */
+import { localStorage } from '@blockera/storage';
+
+/**
  * Default storage key for dismissed notices
  */
 const DEFAULT_STORAGE_KEY = 'blockera_dismissed_notices';

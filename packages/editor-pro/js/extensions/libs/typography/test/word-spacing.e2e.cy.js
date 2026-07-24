@@ -18,7 +18,7 @@ describe('Word Spacing → Functionality', () => {
 			delay: 0,
 		});
 
-		cy.getByDataTest('style-tab').click();
+		cy.getByAriaControls('styles-view').click();
 	});
 
 	it('Simple value', () => {
