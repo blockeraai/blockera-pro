@@ -5,7 +5,6 @@
 /packages/dev-playwright/*
 /packages/freemius-sdk/*
 /.patch/*
-/.storybook/*
 build/*
 dist/*
 node_modules/*
@@ -16,6 +15,4 @@ wordpress*
 **/stories/*
 /bin/plugin/**
 /bin/*.js
-tests/**/input.html
 packages/console/*
-packages/dev-storybook/*
