@@ -15,7 +15,6 @@ import { validateSecretKeys } from '@blockera/validator';
  * Internal dependencies
  */
 import * as config from './config';
-import { applyIconExtensionHook } from './libs/icon';
 import { applyBlockStates, clearCache } from './libs';
 
 export const registerEditorExtensions = () => {
@@ -173,8 +172,6 @@ export const registerEditorExtensions = () => {
 		},
 		10
 	);
-
-	applyIconExtensionHook();
 };
 
 export const applyExtensions = (): void => {
