@@ -111,16 +111,17 @@ export const ProfileComponent = (): MixedElement => {
 				</Flex>
 			) : (
 				<Promoter
-					heading={__('Activate Blockera Pro', 'blockera')}
+					design="minimal"
+					showTopbar={false}
+					heading={''}
 					buttonText={__('Activate Pro License', 'blockera')}
-					buttonURL={window?.blockeraActivateLicenseUrl}
+					buttonURL={blockeraActivateLicenseUrl}
 					buttonTarget="_self"
-					disableHintsText={true}
+					disableHintsText={false}
 					style={{
 						width: '100%',
 						boxShadow: 'var(--card-box-shadow)',
 						borderRadius: 'var(--card-border-radius)',
-						padding: '25px 35px',
 						backgroundColor: 'var(--card-bg-color)',
 						marginTop: 'auto',
 						boxSizing: 'border-box',
