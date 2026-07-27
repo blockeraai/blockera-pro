@@ -89,36 +89,18 @@ jobs:
                       BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
                       ;;
                     blockera-pro-current|blockera-pro-previous)
-                      FREE_BRANCH=""
-                      if [ -f ".pr-free-plugin-compat-check.txt" ]; then
-                        FREE_BRANCH=$(tr -d '[:space:]' < .pr-free-plugin-compat-check.txt)
-                      fi
-
-                      if [ -z "$FREE_BRANCH" ]; then
-                        FREE_BRANCH="master"
-                        echo "No .pr-free-plugin-compat-check.txt found; using Blockera free master branch."
-                      else
-                        echo "Using Blockera free branch from .pr-free-plugin-compat-check.txt: $FREE_BRANCH"
-                      fi
-
-                      BLOCKERA_PLUGIN_DIR=".github/cache/blockera-free"
-                      rm -rf "$BLOCKERA_PLUGIN_DIR"
-
-                      BLOCKERA_DOWNLOAD_URL=$(bash .github/scripts/download-artifact.sh \
-                        --owner blockeraai \
-                        --repo blockera \
-                        --name blockera \
-                        --branch "$FREE_BRANCH" \
-                        --extract-dir "$BLOCKERA_PLUGIN_DIR")
+                      # Free plugin comes from .pr-env.json branch name
+                      # (create-wp-env.js defaults to master when unset).
+                      echo "Using Blockera free from .pr-env.json for ${{ matrix.strategy }}."
                       ;;
                   esac
 
                   if [ -n "$BLOCKERA_DOWNLOAD_URL" ]; then
                     echo "Using Blockera plugin source: $BLOCKERA_DOWNLOAD_URL"
+                    node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
+                  else
+                    node .github/scripts/create-wp-env.js "general"
                   fi
-
-                  # Create wp-env config with version
-                  node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
                   cat .wp-env.json
 
                   # Create env file

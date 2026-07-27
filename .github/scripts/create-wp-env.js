@@ -9,26 +9,64 @@ const [blockeraDownloadUrl] = process.argv.slice(3);
 const ARTIFACT_URL_PATTERN =
 	/^https:\/\/github\.com\/[^/]+\/[^/]+\/actions\/runs\/\d+\/artifacts\/\d+\/?$/;
 
-// GitHub Actions artifact page URLs are not valid wp-env sources.
-// Download + extract them to a local path that wp-env can mount.
-function resolvePluginSource(pluginSource) {
-	if (!ARTIFACT_URL_PATTERN.test(pluginSource)) {
-		return pluginSource;
-	}
+// https://github.com/blockeraai/blockera/tree/feat/minor-improvements
+const GITHUB_TREE_URL_PATTERN =
+	/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/tree\/(.+?)\/?$/;
 
+const DEFAULT_FREE_REPO = {
+	owner: 'blockeraai',
+	repo: 'blockera',
+	branch: 'master',
+};
+
+const FREE_EXTRACT_DIR = '.github/cache/blockera-free';
+const DOWNLOAD_SCRIPT = path.join(__dirname, 'download-artifact.sh');
+
+function requireGitHubToken() {
 	if (!process.env.GITHUB_TOKEN) {
 		throw new Error(
 			'GITHUB_TOKEN is required to download GitHub Actions artifacts for wp-env. ' +
 				'Set secrets.BLOCKERABOT_PAT on the workflow step that runs create-wp-env.js.'
 		);
 	}
+}
 
-	const extractDir = '.github/cache/blockera-free';
-	const scriptPath = path.join(__dirname, 'download-artifact.sh');
+function isLocalOrDotSource(pluginSource) {
+	return (
+		pluginSource === '.' ||
+		pluginSource.startsWith('./') ||
+		pluginSource.startsWith('../') ||
+		pluginSource.startsWith('/')
+	);
+}
+
+function isHttpUrl(pluginSource) {
+	return /^https?:\/\//.test(pluginSource);
+}
+
+function isBranchName(pluginSource) {
+	return !isLocalOrDotSource(pluginSource) && !isHttpUrl(pluginSource);
+}
+
+function parseGitHubTreeUrl(pluginSource) {
+	const match = pluginSource.match(GITHUB_TREE_URL_PATTERN);
+	if (!match) {
+		return null;
+	}
+
+	return {
+		owner: match[1],
+		repo: match[2],
+		branch: decodeURIComponent(match[3]),
+	};
+}
+
+function downloadFreeArtifact(args, label) {
+	requireGitHubToken();
 
 	const resolvedPath = execFileSync(
 		'bash',
-		[scriptPath, '--url', pluginSource, '--extract-dir', extractDir],
+		[DOWNLOAD_SCRIPT, ...args, '--extract-dir', FREE_EXTRACT_DIR],
 		{
 			encoding: 'utf8',
 			env: process.env,
@@ -37,17 +75,64 @@ function resolvePluginSource(pluginSource) {
 	).trim();
 
 	if (!resolvedPath) {
-		throw new Error(
-			`Failed to download GitHub Actions artifact: ${pluginSource}`
+		throw new Error(`Failed to download Blockera free artifact: ${label}`);
+	}
+
+	console.log(
+		`Resolved Blockera free (${label}) to local wp-env source: ${resolvedPath}`
+	);
+	return resolvedPath;
+}
+
+function downloadFreeBranch({ owner, repo, branch }, label) {
+	return downloadFreeArtifact(
+		['--owner', owner, '--repo', repo, '--branch', branch],
+		label
+	);
+}
+
+// GitHub Actions artifact page URLs / free branch refs are not valid wp-env
+// sources. Download + extract them to a local path that wp-env can mount.
+function resolvePluginSource(pluginSource) {
+	if (ARTIFACT_URL_PATTERN.test(pluginSource)) {
+		return downloadFreeArtifact(['--url', pluginSource], pluginSource);
+	}
+
+	const treeRef = parseGitHubTreeUrl(pluginSource);
+	if (treeRef) {
+		return downloadFreeBranch(
+			treeRef,
+			`${treeRef.owner}/${treeRef.repo}@${treeRef.branch}`
 		);
 	}
 
-	console.log(`Resolved artifact to local wp-env source: ${resolvedPath}`);
-	return resolvedPath;
+	if (isBranchName(pluginSource)) {
+		return downloadFreeBranch(
+			{ ...DEFAULT_FREE_REPO, branch: pluginSource },
+			`blockeraai/blockera@${pluginSource}`
+		);
+	}
+
+	return pluginSource;
 }
 
 function resolvePlugins(plugins) {
 	return plugins.map(resolvePluginSource);
+}
+
+function getPrEnvPlugins(prEnv) {
+	const plugins = Array.isArray(prEnv?.plugins) ? [...prEnv.plugins] : [];
+	const hasFreeSource = plugins.some((plugin) => plugin !== '.');
+
+	if (!hasFreeSource) {
+		const defaultTreeUrl = `https://github.com/${DEFAULT_FREE_REPO.owner}/${DEFAULT_FREE_REPO.repo}/tree/${DEFAULT_FREE_REPO.branch}`;
+		console.log(
+			`No free plugin in .pr-env.json; defaulting to ${defaultTreeUrl}`
+		);
+		plugins.push(defaultTreeUrl);
+	}
+
+	return plugins;
 }
 
 // Read the .pr-env.json file when present (PR-specific free plugin source).
@@ -68,7 +153,7 @@ const wpEnvConfig = JSON.parse(fs.readFileSync(wpEnvFilePath, 'utf-8'));
 
 const extraPlugins = blockeraDownloadUrl
 	? [blockeraDownloadUrl]
-	: prEnv?.plugins || [];
+	: getPrEnvPlugins(prEnv);
 
 // Create the .wp-env.json content.
 const wpEnvContent = {
