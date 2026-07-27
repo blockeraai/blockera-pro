@@ -27,4 +27,11 @@ export const unlockGlobalStyles = () => {
 			return -1;
 		}
 	);
+
+	// Free gates shade-step ColorControls; unlock full shade color editing in Pro.
+	addFilter(
+		'blockera.globalStyles.colorShades.canEditShadeColors',
+		'blockera-pro',
+		() => true
+	);
 };
