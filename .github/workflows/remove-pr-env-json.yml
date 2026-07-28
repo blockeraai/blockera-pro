@@ -6,31 +6,31 @@ on:
         branches:
             - master
 
+permissions:
+    contents: write
+
 jobs:
     update-file:
         runs-on: ubuntu-latest
 
         steps:
-            # Step 1: Checkout the repository
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Remove .pr-env.json file
-              run: rm -rf .pr-env.json
-
-            # Step 3: Configure Git (required for committing changes)
             - name: Set up Git
               run: |
                   git config user.name "blockerabot"
                   git config user.email blockeraai+githubbot@gmail.com
 
-            # Step 4: Commit and push changes
-            - name: Commit and push changes
+            # Check existence first, then remove + commit. Deleting before the
+            # existence check made the commit step always skip (file already gone).
+            - name: Remove .pr-env.json and push
               run: |
                   if [ -f ".pr-env.json" ]; then
-                      git add .
+                      git rm .pr-env.json
                       git commit -m "chore: remove .pr-env.json redundant file"
-                      git push origin master
+                      git push origin HEAD:master
+                      echo "Removed .pr-env.json and pushed ✅"
                   else
                       echo "No .pr-env.json file found to remove and It is OK ✅"
                   fi
