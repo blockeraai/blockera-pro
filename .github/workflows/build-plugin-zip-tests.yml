@@ -79,9 +79,9 @@ jobs:
                   node .github/scripts/create-wp-env.js "general"
                   cat .wp-env.json
 
-                  # Copy the base configuration and add PHP version
-                  cp .github/wp-env-configs/general.json .wp-env.json
+                  # Keep resolved free plugin from create-wp-env; only add PHP version.
                   jq --arg php "${{ matrix.php }}" '. + {"phpVersion": $php}' .wp-env.json > .wp-env.json.tmp && mv .wp-env.json.tmp .wp-env.json
+                  cat .wp-env.json
 
                   touch cypress.env.json
                   echo '{"isLogin": false,"wpUsername": "admin","wpPassword": "password","testURL": "http://localhost:8888","e2e": {"excludeSpecPattern": [],"specPattern": ["packages/**/*.build.e2e.cy.js"]}}' >> cypress.env.json
