@@ -21,7 +21,7 @@ if ( ! function_exists( 'blockera_get_experimental' ) ) {
 			$blockera_experimental_config_file = BLOCKERA_SB_PATH . 'experimental.config.json';
 
 			### BEGIN DEV-ONLY LOCAL EXPERIMENTAL CONFIG
-			if ( defined( 'BLOCKERA_SB_PATH' ) && 'development' === BLOCKERA_SB_PATH ) {
+			if ( defined( 'BLOCKERA_SB_MODE' ) && 'development' === BLOCKERA_SB_MODE ) {
 				$blockera_local_experimental_config_file = BLOCKERA_SB_PATH . 'local.experimental.config.json';
 
 				if ( is_readable( $blockera_local_experimental_config_file ) ) {
