@@ -35,7 +35,9 @@ const tryToActivatingLicense = () => {
 					}
 				});
 
-			cy.getByDataTest('connect-button').should('be.visible').click();
+			cy.getByDataTest('activate-license-button')
+				.should('be.visible')
+				.click();
 			cy.getByDataTest('create-page-button').should('be.visible');
 			cy.getByDataTest('manage-licenses-button')
 				.should('be.visible')
