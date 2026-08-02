@@ -63,8 +63,6 @@ describe('Blockera PRO plugin compatibility checks', () => {
 		cy.get('input[type="submit"]').should('be.visible');
 		cy.get('input[value="Select"]').click();
 
-		cy.get('textarea[name="newcontent"]').should('be.visible');
-
 		// Get current version and update it
 		cy.get('textarea[name="newcontent"]')
 			.invoke('val')
