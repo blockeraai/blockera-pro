@@ -1,4 +1,4 @@
-import { goTo } from '@blockera/dev-cypress/js/helpers';
+import { goTo, visitBlockeraAI } from '@blockera/dev-cypress/js/helpers';
 
 const loginToBlockerAI = () => {
 	cy.get('body').then(($body) => {
@@ -35,7 +35,9 @@ const tryToActivatingLicense = () => {
 					}
 				});
 
-			cy.getByDataTest('connect-button').should('be.visible').click();
+			cy.getByDataTest('activate-license-button')
+				.should('be.visible')
+				.click();
 			cy.getByDataTest('create-page-button').should('be.visible');
 			cy.getByDataTest('manage-licenses-button')
 				.should('be.visible')
@@ -43,7 +45,7 @@ const tryToActivatingLicense = () => {
 			cy.getByDataTest('account-info').should('be.visible');
 
 			// Goto BlockeraAi website license panel for blockerabot account.
-			cy.visit('https://blockera.ai/my-account/licenses');
+			visitBlockeraAI('/my-account/licenses');
 
 			loginToBlockerAI();
 

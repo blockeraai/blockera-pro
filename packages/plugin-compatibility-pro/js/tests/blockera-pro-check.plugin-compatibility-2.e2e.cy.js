@@ -20,18 +20,8 @@ describe('Blockera PRO plugin compatibility checks', () => {
 		// add alias to the feature container
 		cy.getParentContainer('BG Color').as('bgColorContainer');
 
-		// act: clicking on color button
-		cy.get('@bgColorContainer').within(() => {
-			cy.get('button').as('colorBtn');
-			cy.get('@colorBtn').click();
-		});
-
-		// act: entering new hexColor
-		cy.get('.components-popover').each(() => {
-			cy.get('.components-popover input').as('hexColorInput');
-			cy.get('@hexColorInput').clear();
-			cy.get('@hexColorInput').type('666');
-		});
+		// Uses last Popover + data-cy hex field (avoids multi-match .components-popover input)
+		cy.setColorControlValue('BG Color', '666666');
 
 		//assert data
 		getWPDataObject().then((data) => {
@@ -72,8 +62,6 @@ describe('Blockera PRO plugin compatibility checks', () => {
 
 		cy.get('input[type="submit"]').should('be.visible');
 		cy.get('input[value="Select"]').click();
-
-		cy.get('textarea[name="newcontent"]').should('be.visible');
 
 		// Get current version and update it
 		cy.get('textarea[name="newcontent"]')
