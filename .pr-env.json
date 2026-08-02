@@ -1,6 +1,3 @@
 {
-	"plugins": [
-		".",
-		"https://github.com/blockeraai/blockera/tree/feat/minor-improvements"
-	]
+	"plugins": [".", "https://github.com/blockeraai/blockera/tree/master"]
 }
