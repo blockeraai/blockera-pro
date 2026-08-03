@@ -1,3 +1,6 @@
 {
-	"plugins": [".", "https://github.com/blockeraai/blockera/tree/master"]
+	"plugins": [
+		".",
+		"https://github.com/blockeraai/blockera/tree/fix/header-ui"
+	]
 }
