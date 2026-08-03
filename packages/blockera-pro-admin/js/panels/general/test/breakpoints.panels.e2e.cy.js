@@ -30,8 +30,8 @@ describe('Breakpoints Functionalities', () => {
 			});
 		});
 
-		cy.getByDataTest('custom-7').should('be.visible');
-		cy.getByDataTest('custom-7').click();
+		cy.getByDataTest('custom-1').should('be.visible');
+		cy.getByDataTest('custom-1').click();
 
 		cy.getParentContainer('Icon').within(() => {
 			cy.get('button').click();
@@ -42,15 +42,15 @@ describe('Breakpoints Functionalities', () => {
 				});
 		});
 
-		cy.getByDataTest('custom-7').should('be.visible');
-		cy.getByDataTest('custom-7').within(() => {
+		cy.getByDataTest('custom-1').should('be.visible');
+		cy.getByDataTest('custom-1').within(() => {
 			cy.get('div > div').realHover();
 		});
 
-		cy.getByAriaLabel('Delete custom 7').should('be.visible');
-		cy.getByAriaLabel('Delete custom 7').click();
+		cy.getByAriaLabel('Delete custom 1').should('be.visible');
+		cy.getByAriaLabel('Delete custom 1').click();
 
-		cy.getByDataTest('custom-7').should('not.exist');
+		cy.getByDataTest('custom-1').should('not.exist');
 	});
 
 	it('should enable status of Widescreens and TVs', () => {
