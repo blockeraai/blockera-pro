@@ -89,6 +89,9 @@ jobs:
               run: |
                   echo "Running category: ${{ matrix.category }}"
 
+            - name: Run License Activation Setup Test
+              run: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
+
             - name: Run Cypress E2E Tests
               run: |
                   if [ "${{ matrix.category }}" != "general" ]; then
