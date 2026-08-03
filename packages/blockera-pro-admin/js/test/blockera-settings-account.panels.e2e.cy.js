@@ -12,7 +12,7 @@ const loginToBlockerAI = () => {
 	});
 };
 
-const tryToActivatingLicense = () => {
+const tryToActivatingLicense = (checkWPLoggedIn = false) => {
 	cy.url({ timeout: 10000 }).then((url) => {
 		if (url.includes('/wp-login.php')) {
 			// eslint-disable-next-line
@@ -34,6 +34,10 @@ const tryToActivatingLicense = () => {
 						cy.get('input').eq(0).click();
 					}
 				});
+
+			if (checkWPLoggedIn && !Cypress.env('isLogin')) {
+				cy.login();
+			}
 
 			cy.getByDataTest('connect-button').should('be.visible').click();
 			cy.getByDataTest('create-page-button').should('be.visible');
@@ -64,9 +68,8 @@ describe('Activate License', () => {
 		cy.getByDataTest('activate-license-button').click();
 
 		tryToActivatingLicense();
-	});
 
-	it('should clear registered licenses and try again to login and activate license', () => {
+		// Should clear registered licenses and try again to login and activate license, Continue testing.
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 
 		cy.request(
@@ -79,7 +82,7 @@ describe('Activate License', () => {
 			expect(response.status).to.eq(200);
 			cy.reload();
 			cy.getByDataTest('activate-license-button').click();
-			tryToActivatingLicense();
+			tryToActivatingLicense(true);
 		});
 	});
 });
