@@ -30,20 +30,18 @@ describe('Outline → Functionality', () => {
 			.last()
 			.within(() => {
 				cy.getByDataTest('border-control-width').clear({ force: true });
-				cy.getByDataTest('border-control-width').type(3, {
-					force: true,
-				});
+				cy.getByDataTest('border-control-width').type(3);
 
 				// CustomSelectControl (Ariakit) — dashed is option index 1 (solid=0).
 				cy.getByDataTest('border-control-component')
 					.find('[aria-haspopup="listbox"]')
+					.click();
+
+				cy.get('[role="listbox"]:visible')
+					.find('[role="option"]')
+					.eq(1)
 					.click({ force: true });
 			});
-
-		cy.get('[role="listbox"]:visible')
-			.find('[role="option"]')
-			.eq(1)
-			.click({ force: true });
 
 		cy.getByDataTest('popover-body')
 			.last()
