@@ -266,17 +266,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 				//
 				setInnerBlock('elements/input');
 
-				cy.getParentContainer('Border').within(() => {
-					cy.getByDataTest('border-control-color').click();
-				});
-
-				// color
-				cy.getByDataTest('popover-body')
-					.last()
-					.within(() => {
-						cy.get('input[maxlength="9"]').clear({ force: true });
-						cy.get('input[maxlength="9"]').type('9958e3 ');
-					});
+				// Uses last Popover + data-cy hex field (avoids multi-match .components-popover input)
+				cy.setColorControlValue('Border', '9958e3');
 
 				//
 				// Check

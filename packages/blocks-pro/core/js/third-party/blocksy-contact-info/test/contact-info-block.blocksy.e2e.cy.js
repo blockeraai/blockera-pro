@@ -60,17 +60,7 @@ describe('Blocksy → Contact Info Block → WP Compatibility', () => {
 				//
 				setInnerBlock('elements/icons');
 
-				cy.getParentContainer('Border').within(() => {
-					cy.getByDataTest('border-control-color').click();
-				});
-
-				// color
-				cy.getByDataTest('popover-body')
-					.last()
-					.within(() => {
-						cy.get('input[maxlength="9"]').clear({ force: true });
-						cy.get('input[maxlength="9"]').type('9958e3 ');
-					});
+				cy.setColorControlValue('Border', '9958e3');
 
 				//
 				// Check
