@@ -27,6 +27,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 				// Select target block
 				cy.getBlock('blocksy/search').first().click();
 
+				cy.addNewTransition();
+
 				//
 				// Test 1: WP data to Blockera
 				//
@@ -109,6 +111,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 
 				// Select target block
 				cy.getBlock('blocksy/search').first().click();
+
+				cy.addNewTransition();
 
 				//
 				// Test 1: WP data to Blockera
@@ -234,6 +238,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 				// Select target block
 				cy.getBlock('blocksy/search').first().click();
 
+				cy.addNewTransition();
+
 				//
 				// Test 1: WP data to Blockera
 				//
@@ -260,7 +266,7 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 				//
 				setInnerBlock('elements/input');
 
-				cy.getParentContainer('Border Line').within(() => {
+				cy.getParentContainer('Border').within(() => {
 					cy.getByDataTest('border-control-color').click();
 				});
 
@@ -297,7 +303,7 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 
 				cy.resetBlockeraAttribute(
 					'Border And Shadow',
-					'Border Line',
+					'Border',
 					'reset'
 				);
 
@@ -331,6 +337,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 
 				// Select target block
 				cy.getBlock('blocksy/search').first().click();
+
+				cy.addNewTransition();
 
 				//
 				// Test 1: WP data to Blockera
@@ -423,6 +431,8 @@ describe('Blocksy → Search Block → WP Compatibility', () => {
 
 				// Select target block
 				cy.getBlock('blocksy/search').first().click();
+
+				cy.addNewTransition();
 
 				//
 				// Test 1: WP data to Blockera
