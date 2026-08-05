@@ -17,6 +17,7 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             should_test_previous: ${{ steps.check_version.outputs.should_test_previous }}
+            skip_free_latest: ${{ steps.check_pr_env.outputs.skip_free_latest }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -31,6 +32,18 @@ jobs:
                     echo "should_test_previous=false" >> $GITHUB_OUTPUT
                   fi
 
+            - name: Check .pr-env.json for Blockera free master source
+              id: check_pr_env
+              run: |
+                  SKIP_FREE_LATEST=false
+
+                  if [ -f .pr-env.json ] && grep -q 'blockeraai/blockera/tree/master' .pr-env.json; then
+                    echo "Blockera free master found in .pr-env.json; skipping blockera-free-latest matrix."
+                    SKIP_FREE_LATEST=true
+                  fi
+
+                  echo "skip_free_latest=$SKIP_FREE_LATEST" >> $GITHUB_OUTPUT
+
     test:
         name: Run Plugin Compatibility Tests
         needs: check_version
@@ -41,7 +54,7 @@ jobs:
             matrix:
                 strategy:
                     - blockera-free-previous
-                    - blockera-free-latest
+                    - ${{ needs.check_version.outputs.skip_free_latest != 'true' && 'blockera-free-latest' || '' }}
                     - blockera-pro-current
                     - ${{ needs.check_version.outputs.should_test_previous == 'true' && 'blockera-pro-previous' || '' }}
 
