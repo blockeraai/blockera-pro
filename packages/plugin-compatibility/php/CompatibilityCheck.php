@@ -310,7 +310,7 @@ class CompatibilityCheck {
 				
 				call_user_func($callback);
 			}
-        } elseif ($status || ( $this->required_plugin_version && $this->requires_at_least )) {
+        } elseif ($status || ( $this->required_plugin_version && $this->requires_at_least ) && version_compare($this->required_plugin_version, $this->requires_at_least, '>')) {
 
 			if ($callback && is_callable($callback)) {
 			
