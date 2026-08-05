@@ -91,6 +91,13 @@ class CompatibilityCheck {
 	protected $callback;
 
 	/**
+	 * Force the compatibility callback regardless of version comparison.
+	 *
+	 * @var bool $force
+	 */
+	protected bool $force = false;
+
+	/**
 	 * Store the instance of the utils class.
 	 *
 	 * @var Utils $utils the instance of the utils class.
@@ -174,6 +181,7 @@ class CompatibilityCheck {
 		$this->plugin_version = $plugin_args['version'];
 		$this->callback       = $plugin_args['callback'] ?? null;
 		$this->cache_key      = $plugin_args['transient_key'];
+		$this->force          = ! empty( $plugin_args['force'] );
 		$this->specific_pages = apply_filters('blockera/compatibility/specific_pages', []);
 
 		if (! function_exists('get_plugin_data')) {
@@ -225,7 +233,7 @@ class CompatibilityCheck {
 	 */
     public function load(): bool {
 
-		if (! $this->is_installed_third_party_plugin || ! $this->isActivePlugin()) {
+		if ((! $this->is_installed_third_party_plugin || ! $this->isActivePlugin()) && ! $this->force) {
 			return true;
 		}
 
@@ -242,7 +250,7 @@ class CompatibilityCheck {
 				}
 
 				// Schedule one-time redirect to compatibility page.
-				if (blockera_is_admin() && current_user_can('update_plugins')) {
+				if (! $this->force && blockera_is_admin() && current_user_can('update_plugins')) {
 					if (! get_transient($this->cache_key)) {
 						set_transient($this->cache_key, 1, 60);
 					}
@@ -254,7 +262,8 @@ class CompatibilityCheck {
 					wp_safe_redirect(admin_url());
 					exit;
 				}
-			}
+			},
+			$this->force
         );
 
 		return $this->is_compatible;
@@ -326,7 +335,7 @@ class CompatibilityCheck {
      */
     public function adminInitialize(): void {
 
-        if (! $this->is_installed_third_party_plugin || ! is_admin() || ! current_user_can('update_plugins')) {
+        if ((! $this->is_installed_third_party_plugin || ! is_admin() || ! current_user_can('update_plugins')) && ! $this->force) {
             return;
         }
 
@@ -337,7 +346,7 @@ class CompatibilityCheck {
 			return;
 		}
 
-        if (! get_transient($this->cache_key)) {
+        if (! $this->force && ! get_transient($this->cache_key)) {
             return;
         }
 
@@ -389,7 +398,7 @@ class CompatibilityCheck {
 	 */
     public function adminMenus(): void {
 
-		if (! $this->is_installed_third_party_plugin) {
+		if (! $this->is_installed_third_party_plugin && ! $this->force) {
 			return;
 		}
 
@@ -421,8 +430,8 @@ class CompatibilityCheck {
 					exit;
 				}
 
-				$plugin_name = $this->utils::pascalCaseWithSpace($this->plugin_slug);
-				
+				$plugin_name = $this->force ? $this->compatible_with_slug : $this->utils::pascalCaseWithSpace($this->plugin_slug);
+
 				// Get update plugins transient to check for available updates.
 				$update_plugins = get_site_transient('update_plugins');
 				$update_url     = '';
@@ -444,12 +453,14 @@ class CompatibilityCheck {
 					}
 				}
 
+				$required_name = $this->force ? $this->compatible_with_slug : $this->utils::pascalCaseWithSpace($this->compatible_with_slug);
+
 				echo '<script>
 					window.blockeraPluginUpdateUrl = "' . $update_url . '";
 					window.blockeraPluginName = "' . $plugin_name . '";
 					window.blockeraPluginVersion = "' . $this->plugin_version . '";
-					window.blockeraIsActiveCompatiblePlugin = ' . $this->isActivePlugin() . ';
-					window.blockeraPluginRequiredName = "' . $this->utils::pascalCaseWithSpace($this->compatible_with_slug) . '";
+					window.blockeraIsActiveCompatiblePlugin = Boolean(' . $this->isActivePlugin() . ');
+					window.blockeraPluginRequiredName = "' . $required_name . '";
 					window.blockeraPluginRequiredVersion = "' . $this->requires_at_least . '";
 					window.blockeraPluginRequiredPluginVersion = "' . $this->required_plugin_version . '";
 					window.blockeraPluginRequiredPluginSlug = "' . $this->compatible_with_slug . '";
