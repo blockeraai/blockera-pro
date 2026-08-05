@@ -80,7 +80,7 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 			}
 
 			continue;
-		} else if($is_theme) {
+		} elseif ( $is_theme ) {
 
 			continue;
 		}
@@ -105,8 +105,8 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 	return false;
 }
 
-if (blockera_pro_companions_missing_compatibility_check()) {
-	$mode     = defined('BLOCKERA_PRO_APP_MODE') && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+if ( blockera_pro_companions_missing_compatibility_check() ) {
+	$mode = defined( 'BLOCKERA_PRO_APP_MODE' ) && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
 	require_once __DIR__ . '/vendor/blockera/plugin-compatibility/php/CompatibilityCheck.php';
 	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
 		[
@@ -131,8 +131,8 @@ if (blockera_pro_companions_missing_compatibility_check()) {
 	$blockera_compat_pro_with_free->load();
 
 	// Add compatibility check hooks.
-	add_action('admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ]);
-	add_action('admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ]);	
+	add_action( 'admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ] );
+	add_action( 'admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ] );
 
 	return;
 }
