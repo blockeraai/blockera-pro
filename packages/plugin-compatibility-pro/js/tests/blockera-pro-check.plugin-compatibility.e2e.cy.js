@@ -2,6 +2,16 @@ import { goTo } from '@blockera/dev-cypress/js/helpers';
 
 const SPEC_LABEL = 'plugin-compatibility';
 
+const resolveTestUrl = (path) => {
+	const testURL = (Cypress.env('testURL') || 'http://localhost:8888').replace(
+		/\/$/,
+		''
+	);
+	const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+	return `${testURL}${normalizedPath}`;
+};
+
 const logToCi = (message) => {
 	cy.log(message);
 	cy.task('logToCi', message, { log: false });
@@ -9,11 +19,13 @@ const logToCi = (message) => {
 
 const logPluginCompatibilityVersions = () => {
 	cy.request({
-		url: '/wp-content/plugins/blockera-pro/blockera-pro.php',
+		url: resolveTestUrl(
+			'/wp-content/plugins/blockera-pro/blockera-pro.php'
+		),
 		failOnStatusCode: false,
 	}).then((proResponse) => {
 		cy.request({
-			url: '/wp-content/plugins/blockera/blockera.php',
+			url: resolveTestUrl('/wp-content/plugins/blockera/blockera.php'),
 			failOnStatusCode: false,
 		}).then((freeResponse) => {
 			const proVersion =
@@ -40,9 +52,9 @@ const logPluginCompatibilityVersions = () => {
 
 describe('Blockera PRO plugin compatibility checks', () => {
 	it('should be able to see plugin compatibility page while user try to navigate WordPress admin pages if not compatible with free version', () => {
-		logPluginCompatibilityVersions();
-
 		goTo('/wp-admin/admin.php?page=blockera-settings-dashboard');
+
+		logPluginCompatibilityVersions();
 
 		cy.location('href').then((href) => {
 			if (href.includes('page=blockera-compat')) {
