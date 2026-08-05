@@ -64,13 +64,36 @@ while ( true ) {
 		case '### BEGIN AUTO-GENERATED AUTOLOADER':
 			$inside_defines = true;
 			echo $line;
-			echo "require_once __DIR__ . '/inc/class-shared-autoload-coordinator.php';
-\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin('blockera-pro', __DIR__);
-\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
+			echo <<<'PHP'
+require_once __DIR__ . '/inc/bootstrap.php';
+blockera_bootstrap_shared_autoloader(
+	'blockera-pro',
+	__DIR__,
+	[
+		'priority'          => 20,
+		'default'           => ! defined('BLOCKERA_SB_FILE'),
+		'file'              => __FILE__,
+		'entry_constant'    => 'BLOCKERA_PRO_FILE',
+		'defer_files_until' => [ 'blockera' ],
+		'companions'        => [
+			[
+				'slug'           => 'blockera',
+				'plugin_file'    => 'blockera/blockera.php',
+				'entry_constant' => 'BLOCKERA_SB_FILE',
+			],
+			[
+				'slug'             => 'blockera-one',
+				'type'             => 'theme',
+				'theme_stylesheet' => 'blockera-one',
+			],
+		],
+	]
+);
 
-// loading autoloader.
+// Fallback Composer autoloader for non-Blockera vendor packages.
 require __DIR__ . '/vendor/autoload.php';
-";
+
+PHP;
 			break;
 
 		case '### END AUTO-GENERATED AUTOLOADER':

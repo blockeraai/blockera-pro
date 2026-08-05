@@ -25,36 +25,30 @@ if (! defined('ABSPATH')) {
 }
 
 ### BEGIN AUTO-GENERATED AUTOLOADER
-// the fallback way to load the composer default autoloader.
-if (! is_plugin_active('blockera/blockera.php')) {
-	require_once __DIR__ . '/vendor/autoload.php';
-} else {
-	// the shared autoloader way to load the composer customized autoloader.
-	add_filter(
-        'blockera/autoloader-coordinator/plugins/dependencies',
-        function ( array $plugins): array {
-			$plugins['blockera-pro'] = [
-				'dir' => __DIR__,
-				'priority' => 20,
-			];
-
-			return $plugins;
-		}
-    );
-
-	// Register into shared autoload coordinator.
-	// This replaces vendor/autoload.php by loading directly from Composer-generated static files.
-	require_once __DIR__ . '/packages/autoloader-coordinator/loader.php';
-
-	// Register into shared autoload coordinator and bootstrap autoloading.
-	\Blockera\SharedAutoload\Coordinator::getInstance()->registerPlugin();
-	\Blockera\SharedAutoload\Coordinator::getInstance()->bootstrap();
-
-	// Invalidate package manifest cache on plugin activation, deactivation, and upgrade.
-	add_action('activated_plugin', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
-	add_action('deactivated_plugin', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
-	add_action('upgrader_process_complete', [ \Blockera\SharedAutoload\Coordinator::getInstance(), 'invalidatePackageManifest' ]);
-}
+require_once __DIR__ . '/packages/autoloader-coordinator/bootstrap.php';
+blockera_bootstrap_shared_autoloader(
+	'blockera-pro',
+	__DIR__,
+	[
+		'priority'          => 20,
+		'default'           => ! defined('BLOCKERA_SB_FILE'),
+		'file'              => __FILE__,
+		'entry_constant'    => 'BLOCKERA_PRO_FILE',
+		'defer_files_until' => [ 'blockera' ],
+		'companions'        => [
+			[
+				'slug'           => 'blockera',
+				'plugin_file'    => 'blockera/blockera.php',
+				'entry_constant' => 'BLOCKERA_SB_FILE',
+			],
+			[
+				'slug'             => 'blockera-one',
+				'type'             => 'theme',
+				'theme_stylesheet' => 'blockera-one',
+			],
+		],
+	]
+);
 ### END AUTO-GENERATED AUTOLOADER
 
 define('BLOCKERA_PRO_FILE', __FILE__);
@@ -219,9 +213,6 @@ register_activation_hook(__FILE__, 'blockera_pro_activation');
  * @return void
  */
 function blockera_pro_activation(): void {
-	// the fallback way to load the composer default autoloader on just plugin activation.
-	require_once __DIR__ . '/vendor/autoload.php';
-	
 	if (! wp_next_scheduled('blockera_pro_each_per_day')) {
 
 		wp_schedule_event(time(), 'blockera_pro_1_day', 'blockera_pro_each_per_day');

@@ -16,20 +16,42 @@ jobs:
         name: Check Pro Version
         runs-on: ubuntu-latest
         outputs:
-            should_test_previous: ${{ steps.check_version.outputs.should_test_previous }}
+            strategies: ${{ steps.set_matrix.outputs.strategies }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Check version
-              id: check_version
+            - name: Build plugin compatibility matrix
+              id: set_matrix
               run: |
                   CURRENT_VERSION=$(grep "Version:" blockera-pro.php | awk -F': ' '{print $2}')
+                  SHOULD_TEST_PREVIOUS=false
+                  SKIP_FREE_LATEST=false
+
                   if [ "$(echo -e "1.1.1\n$CURRENT_VERSION" | sort -V | head -n1)" = "1.1.1" ]; then
-                    echo "should_test_previous=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "should_test_previous=false" >> $GITHUB_OUTPUT
+                    SHOULD_TEST_PREVIOUS=true
                   fi
+
+                  if [ -f .pr-env.json ] && grep -q 'blockeraai/blockera/tree/master' .pr-env.json; then
+                    echo "Blockera free master found in .pr-env.json; skipping blockera-free-latest matrix."
+                    SKIP_FREE_LATEST=true
+                  fi
+
+                  STRATEGIES=(blockera-free-previous)
+
+                  if [ "$SKIP_FREE_LATEST" != "true" ]; then
+                    STRATEGIES+=(blockera-free-latest)
+                  fi
+
+                  STRATEGIES+=(blockera-pro-current)
+
+                  if [ "$SHOULD_TEST_PREVIOUS" = "true" ]; then
+                    STRATEGIES+=(blockera-pro-previous)
+                  fi
+
+                  STRATEGIES_JSON=$(printf '%s\n' "${STRATEGIES[@]}" | jq -R . | jq -s -c .)
+                  echo "strategies=$STRATEGIES_JSON" >> $GITHUB_OUTPUT
+                  echo "Plugin compatibility matrix: $STRATEGIES_JSON"
 
     test:
         name: Run Plugin Compatibility Tests
@@ -39,11 +61,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                strategy:
-                    - blockera-free-previous
-                    - blockera-free-latest
-                    - blockera-pro-current
-                    - ${{ needs.check_version.outputs.should_test_previous == 'true' && 'blockera-pro-previous' || '' }}
+                strategy: ${{ fromJson(needs.check_version.outputs.strategies) }}
 
         steps:
             - name: Check Blockera Free Latest version

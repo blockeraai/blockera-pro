@@ -68,9 +68,7 @@ jobs:
                   touch cypress.env.json
                   echo '{
                     "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
-                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}",
-                    "blockeraAIUrl": "https://blockera.ai",
-                    "blockeraBypassRecaptchaSecret": "${{ secrets.BLOCKERA_BYPASS_RECAPTCHA_SECRET }}"
+                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}"
                   }' >> cypress.env.json
                   cat cypress.env.json
                   node .github/scripts/create-wp-env.js '${{ matrix.category }}'
@@ -90,6 +88,9 @@ jobs:
             - name: Debug Matrix Category
               run: |
                   echo "Running category: ${{ matrix.category }}"
+
+            - name: Run License Activation Setup Test
+              run: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
 
             - name: Run Cypress E2E Tests
               run: |
