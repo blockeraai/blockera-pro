@@ -9,33 +9,63 @@ import {
 	savePage,
 	redirectToFrontPage,
 	setDeviceType,
+	dismissOpenModals,
+	resetPanelSettings,
 } from '@blockera/dev-cypress/js/helpers';
 
-describe('Style Engine Testing ...', () => {
-	it('should generate css for Widescreens and Tvs breakpoints', () => {
-		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
-
-		cy.getByDataTest('2xl-desktop').should('be.visible');
-		cy.getByDataTest('2xl-desktop').within(() => {
-			cy.get('input').click();
-		});
-
-		cy.getByDataTest('update-settings').as('update');
-		cy.get('@update').then(() => {
-			cy.get('@update').click();
-			cy.wait(2000);
-		});
-
-		createPost();
-
-		appendBlocks(
-			`<!-- wp:paragraph -->
+const PARAGRAPH_WITH_LINK = `<!-- wp:paragraph -->
 <p>Test <a href="#">Link</a></p>
-<!-- /wp:paragraph -->`
-		);
+<!-- /wp:paragraph -->`;
 
-		// Select target block
-		cy.getBlock('core/paragraph').click();
+/**
+ * Enable a settings-panel breakpoint checkbox only when it is currently off.
+ * Re-clicking an already-enabled breakpoint would disable it and break later asserts.
+ *
+ * @param {string} dataTest Breakpoint data-test id (e.g. `2xl-desktop`).
+ */
+const enableBreakpointSetting = (dataTest) => {
+	cy.getByDataTest(dataTest).should('be.visible');
+	cy.getByDataTest(dataTest).within(() => {
+		cy.get('input').then(($input) => {
+			if (!$input.is(':checked')) {
+				cy.wrap($input).click({ force: true });
+			}
+		});
+	});
+};
+
+const openGeneralSettings = () => {
+	goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
+	dismissOpenModals();
+};
+
+const saveGeneralSettings = () => {
+	cy.getByDataTest('update-settings').should('be.visible').click();
+	cy.wait(2000);
+};
+
+const setupEditorWithParagraph = () => {
+	createPost();
+
+	appendBlocks(PARAGRAPH_WITH_LINK);
+
+	// Select target block
+	cy.getBlock('core/paragraph').click();
+};
+
+describe('Style Engine Testing ...', () => {
+	beforeEach(() => {
+		openGeneralSettings();
+		resetPanelSettings(true);
+		cy.reload();
+		dismissOpenModals();
+	});
+
+	it('should generate css for Widescreens and Tvs breakpoints', () => {
+		enableBreakpointSetting('2xl-desktop');
+		saveGeneralSettings();
+
+		setupEditorWithParagraph();
 
 		cy.getByAriaLabel('Breakpoints').eq(0).should('be.visible');
 		cy.getByAriaLabel('Breakpoints')
@@ -54,25 +84,24 @@ describe('Style Engine Testing ...', () => {
 
 		// 2- Assert master block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)}`;
+
 			// Before occurred real hover event.
 			// Because we expect block element should have css style to show activated hover state.
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
+				.find(blockSelector)
 				.should('have.css', 'width', '100px');
 
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
+				.find(blockSelector)
 				.should('have.css', 'width', '100px');
 		});
 
 		// ********************* Switch to normal state and check css ************************ //
 
-		cy.get('h1').realClick();
-		cy.getBlock('core/paragraph').click();
+		setBlockState('Normal');
 
 		// 4- Assert master block css.
 		cy.getBlock('core/paragraph').should('have.css', 'width', '100px');
@@ -95,12 +124,12 @@ describe('Style Engine Testing ...', () => {
 
 		// 9- Assert link inner block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)}`;
+
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
+				.find(`${blockSelector} a`)
 				.should('have.css', 'width', '50px');
 		});
 
@@ -119,12 +148,12 @@ describe('Style Engine Testing ...', () => {
 
 		// 13- Assert link inner block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)} a`;
+
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
+				.find(blockSelector)
 				.should('have.css', 'width', '2px');
 		});
 
@@ -136,18 +165,15 @@ describe('Style Engine Testing ...', () => {
 
 		cy.get('.blockera-block').should('have.css', 'width', '100px');
 
-		cy.get('.blockera-block').realHover();
+		cy.get('.blockera-block').safeRealHover();
 		cy.get('.blockera-block a').should('have.css', 'width', '50px');
 
-		cy.get('.blockera-block a').realHover();
+		cy.get('.blockera-block a').safeRealHover();
 		cy.get('.blockera-block a').should('have.css', 'width', '2px');
 	});
 
 	it('should generate css for Custom breakpoints (Laptops and Small Desktops)', () => {
-		goTo('/wp-admin/admin.php?page=blockera-settings-general-settings');
-
-		cy.getByDataTest('add-new-breakpoint').should('be.visible');
-		cy.getByDataTest('add-new-breakpoint').click();
+		cy.getByDataTest('add-new-breakpoint').should('be.visible').click();
 
 		cy.getParentContainer('Name').within(() => {
 			cy.get('input').type('Laptop');
@@ -159,9 +185,7 @@ describe('Style Engine Testing ...', () => {
 			});
 
 			cy.getParentContainer('Max Width').within(() => {
-				cy.get('input').type('1368', { delay: 0 });
-
-				cy.get('input').blur();
+				cy.get('input').type('1368', { delay: 0 }).blur();
 			});
 		});
 
@@ -169,22 +193,9 @@ describe('Style Engine Testing ...', () => {
 			cy.get('input').click();
 		});
 
-		cy.getByDataTest('update-settings').as('update');
-		cy.get('@update').then(() => {
-			cy.get('@update').click();
-			cy.wait(2000);
-		});
+		saveGeneralSettings();
 
-		createPost();
-
-		appendBlocks(
-			`<!-- wp:paragraph -->
-<p>Test <a href="#">Link</a></p>
-<!-- /wp:paragraph -->`
-		);
-
-		// Select target block
-		cy.getBlock('core/paragraph').click();
+		setupEditorWithParagraph();
 
 		cy.getByAriaLabel('Breakpoints').eq(0).should('be.visible');
 		cy.getByAriaLabel('Breakpoints')
@@ -203,25 +214,24 @@ describe('Style Engine Testing ...', () => {
 
 		// 2- Assert master block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)}`;
+
 			// Before occurred real hover event.
 			// Because we expect block element should have css style to show activated hover state.
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
+				.find(blockSelector)
 				.should('have.css', 'width', '100px');
 
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
+				.find(blockSelector)
 				.should('have.css', 'width', '100px');
 		});
 
 		// ********************* Switch to normal state and check css ************************ //
 
-		cy.get('h1').realClick();
-		cy.getBlock('core/paragraph').click();
+		setBlockState('Normal');
 
 		// 4- Assert master block css.
 		cy.getBlock('core/paragraph').should('have.css', 'width', '100px');
@@ -244,12 +254,12 @@ describe('Style Engine Testing ...', () => {
 
 		// 9- Assert link inner block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)}`;
+
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)}`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
+				.find(`${blockSelector} a`)
 				.should('have.css', 'width', '50px');
 		});
 
@@ -268,12 +278,12 @@ describe('Style Engine Testing ...', () => {
 
 		// 13- Assert link inner block css.
 		getWPDataObject().then((data) => {
+			const blockSelector = `#block-${getBlockClientId(data)} a`;
+
 			// Real hover
+			cy.getIframeBody().find(blockSelector).safeRealHover();
 			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
-				.realHover();
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
+				.find(blockSelector)
 				.should('have.css', 'width', '2px');
 		});
 
@@ -285,10 +295,10 @@ describe('Style Engine Testing ...', () => {
 
 		cy.get('.blockera-block').should('have.css', 'width', '100px');
 
-		cy.get('.blockera-block').realHover();
+		cy.get('.blockera-block').safeRealHover();
 		cy.get('.blockera-block a').should('have.css', 'width', '50px');
 
-		cy.get('.blockera-block a').realHover();
+		cy.get('.blockera-block a').safeRealHover();
 		cy.get('.blockera-block a').should('have.css', 'width', '2px');
 	});
 });

@@ -1,4 +1,4 @@
-import { goTo, visitBlockeraAI } from '@blockera/dev-cypress/js/helpers';
+import { goTo } from '@blockera/dev-cypress/js/helpers';
 
 const loginToBlockerAI = () => {
 	cy.get('body').then(($body) => {
@@ -12,7 +12,7 @@ const loginToBlockerAI = () => {
 	});
 };
 
-const tryToActivatingLicense = () => {
+const tryToActivatingLicense = (checkWPLoggedIn = false) => {
 	cy.url({ timeout: 10000 }).then((url) => {
 		if (url.includes('/wp-login.php')) {
 			// eslint-disable-next-line
@@ -35,9 +35,11 @@ const tryToActivatingLicense = () => {
 					}
 				});
 
-			cy.getByDataTest('activate-license-button')
-				.should('be.visible')
-				.click();
+			if (checkWPLoggedIn && !Cypress.env('isLogin')) {
+				cy.login();
+			}
+
+			cy.getByDataTest('connect-button').should('be.visible').click();
 			cy.getByDataTest('create-page-button').should('be.visible');
 			cy.getByDataTest('manage-licenses-button')
 				.should('be.visible')
@@ -45,7 +47,7 @@ const tryToActivatingLicense = () => {
 			cy.getByDataTest('account-info').should('be.visible');
 
 			// Goto BlockeraAi website license panel for blockerabot account.
-			visitBlockeraAI('/my-account/licenses');
+			cy.visit('https://blockera.ai/my-account/licenses');
 
 			loginToBlockerAI();
 
@@ -66,9 +68,8 @@ describe('Activate License', () => {
 		cy.getByDataTest('activate-license-button').click();
 
 		tryToActivatingLicense();
-	});
 
-	it('should clear registered licenses and try again to login and activate license', () => {
+		// Should clear registered licenses and try again to login and activate license, Continue testing.
 		goTo('/wp-admin/admin.php?page=blockera-settings-account');
 
 		cy.request(
@@ -81,7 +82,7 @@ describe('Activate License', () => {
 			expect(response.status).to.eq(200);
 			cy.reload();
 			cy.getByDataTest('activate-license-button').click();
-			tryToActivatingLicense();
+			tryToActivatingLicense(true);
 		});
 	});
 });

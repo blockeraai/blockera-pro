@@ -32,6 +32,8 @@ describe('Blocksy → About Me Block → WP Compatibility', () => {
 				// Select target block
 				cy.getBlock('blocksy/about-me').first().click();
 
+				cy.addNewTransition();
+
 				//
 				// Test 1: WP data to Blockera
 				//
@@ -58,17 +60,7 @@ describe('Blocksy → About Me Block → WP Compatibility', () => {
 				//
 				setInnerBlock('elements/icons');
 
-				cy.getParentContainer('Border Line').within(() => {
-					cy.getByDataTest('border-control-color').click();
-				});
-
-				// color
-				cy.getByDataTest('popover-body')
-					.last()
-					.within(() => {
-						cy.get('input[maxlength="9"]').clear({ force: true });
-						cy.get('input[maxlength="9"]').type('9958e3 ');
-					});
+				cy.setColorControlValue('Border', '9958e3');
 
 				//
 				// Check
@@ -95,7 +87,7 @@ describe('Blocksy → About Me Block → WP Compatibility', () => {
 
 				cy.resetBlockeraAttribute(
 					'Border And Shadow',
-					'Border Line',
+					'Border',
 					'reset'
 				);
 

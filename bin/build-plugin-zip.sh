@@ -103,6 +103,7 @@ status "Generating inc/app.php 📝"
 mkdir -p "inc"
 cp packages/blockera-pro/php/app.php inc/app.php
 cp packages/autoloader-coordinator/class-shared-autoload-coordinator.php inc/class-shared-autoload-coordinator.php
+cp packages/autoloader-coordinator/bootstrap.php inc/bootstrap.php
 
 build_files=$(find dist/ -type f \( -name "*.min.js" -o -name "*.min.css" -o -name "*.min.asset.php" \))
 
