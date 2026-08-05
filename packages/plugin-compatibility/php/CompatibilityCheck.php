@@ -233,7 +233,8 @@ class CompatibilityCheck {
 	 */
     public function load(): bool {
 
-		if ((! $this->is_installed_third_party_plugin || ! $this->isActivePlugin()) && ! $this->force) {
+		$should_skip = ! $this->is_installed_third_party_plugin || ! $this->isActivePlugin();
+		if ($should_skip && ! $this->force) {
 			return true;
 		}
 
@@ -335,7 +336,8 @@ class CompatibilityCheck {
      */
     public function adminInitialize(): void {
 
-        if ((! $this->is_installed_third_party_plugin || ! is_admin() || ! current_user_can('update_plugins')) && ! $this->force) {
+        $should_skip = ! $this->is_installed_third_party_plugin || ! is_admin() || ! current_user_can('update_plugins');
+        if ($should_skip && ! $this->force) {
             return;
         }
 
