@@ -96,6 +96,11 @@ describe('Blockera PRO plugin compatibility checks', () => {
 				}
 
 				const newVersion = `${newMajor}.${newMinor}.${newPatch}`;
+				const versionLog = `[plugin-compatibility-2] Blockera Pro version downgrade: ${currentVersion} -> ${newVersion}`;
+
+				cy.log(versionLog);
+				cy.task('logToCi', versionLog, { log: false });
+
 				const newContent = content.replace(
 					`Version: ${currentVersion}`,
 					`Version: ${newVersion}`

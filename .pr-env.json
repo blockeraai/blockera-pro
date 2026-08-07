@@ -1,6 +1,3 @@
 {
-	"plugins": [
-		".",
-		"https://github.com/blockeraai/blockera/tree/fix/autoloader"
-	]
+	"plugins": [".", "https://github.com/blockeraai/blockera/tree/master"]
 }

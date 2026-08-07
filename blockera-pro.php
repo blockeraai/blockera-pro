@@ -25,6 +25,117 @@ if (! defined('ABSPATH')) {
 }
 
 ### BEGIN AUTO-GENERATED AUTOLOADER
+/**
+ * Whether an active companion is missing CompatibilityCheck in its own vendor tree.
+ *
+ * Older companions cannot run a mutual version check; Pro must force the
+ * compatibility flow in that case.
+ *
+ * @return bool
+ */
+function blockera_pro_companions_missing_compatibility_check(): bool {
+
+	static $missing = null;
+
+	if ( null !== $missing ) {
+		return $missing;
+	}
+
+	$relative = 'vendor/blockera/plugin-compatibility/php/CompatibilityCheck.php';
+
+	$companions = [
+		[
+			'type'        => 'plugin',
+			'slug'        => 'blockera-plugin',
+			'plugin_file' => 'blockera-plugin/blockera-plugin.php',
+		],
+		[
+			'type'             => 'theme',
+			'slug'             => 'blockera-one',
+			'theme_stylesheet' => 'blockera-one',
+		],
+	];
+
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	foreach ( $companions as $companion ) {
+		$is_theme = 'theme' === ( $companion['type'] ?? 'plugin' );
+		if ( $is_theme && wp_get_theme()->get_stylesheet() === $companion['theme_stylesheet'] ) {
+			$stylesheet = $companion['theme_stylesheet'];
+			$theme      = wp_get_theme();
+
+			// Only active theme (child or parent) counts as a live companion.
+			if ( $theme->get_stylesheet() !== $stylesheet && $theme->get_template() !== $stylesheet ) {
+				continue;
+			}
+
+			$root = get_theme_root( $stylesheet ) . '/' . $stylesheet;
+
+			if ( ! is_readable( $root . '/' . $relative ) ) {
+				$missing = true;
+
+				return true;
+			}
+
+			continue;
+		} elseif ( $is_theme ) {
+
+			continue;
+		}
+
+		$plugin_file = $companion['plugin_file'];
+
+		if ( ! is_plugin_active( $plugin_file ) ) {
+			continue;
+		}
+
+		$check_file = WP_PLUGIN_DIR . '/' . $companion['slug'] . '/' . $relative;
+
+		if ( ! is_readable( $check_file ) ) {
+			$missing = true;
+
+			return true;
+		}
+	}
+
+	$missing = false;
+
+	return false;
+}
+
+if ( blockera_pro_companions_missing_compatibility_check() ) {
+	$mode = defined( 'BLOCKERA_PRO_APP_MODE' ) && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+	require_once __DIR__ . '/vendor/blockera/plugin-compatibility/php/CompatibilityCheck.php';
+	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
+		[
+			'file' => __FILE__,
+			'slug' => 'blockera-pro',
+			'version' => get_plugin_data(__FILE__, true, false)['Version'],
+			'plugin_path' => plugin_dir_path(__FILE__),
+			'compatible_with_slug' => 'blockera',
+			'callback' => function () {
+				if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
+					define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+				}
+			},
+			'transient_key' => 'blockera-pro-compat-redirect',
+			'mode' => $mode ? 'development' : 'production',
+			// Companions without CompatibilityCheck cannot mutual-check Pro; force incompat UI.
+			'force' => blockera_pro_companions_missing_compatibility_check(),
+		],
+		new Blockera\Utils\Utils()
+	);
+	
+	$blockera_compat_pro_with_free->load();
+
+	// Add compatibility check hooks.
+	add_action( 'admin_init', [ $blockera_compat_pro_with_free, 'adminInitialize' ] );
+	add_action( 'admin_menu', [ $blockera_compat_pro_with_free, 'adminMenus' ] );
+
+	return;
+}
 require_once __DIR__ . '/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',
@@ -138,6 +249,8 @@ function blockera_pro_init(): void {
 			},
 			'transient_key' => 'blockera-pro-compat-redirect',
 			'mode' => $mode ? 'development' : 'production',
+			// Companions without CompatibilityCheck cannot mutual-check Pro; force incompat UI.
+			'force' => blockera_pro_companions_missing_compatibility_check(),
 		],
 		new Blockera\Utils\Utils()
 	);
