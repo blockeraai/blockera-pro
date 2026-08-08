@@ -167,6 +167,61 @@ function runWpEval(phpCode) {
 }
 
 /**
+ * Downgrade Blockera Pro plugin header Version by one patch (file write via wp eval).
+ * Avoids WP plugin-editor CodeMirror, which ignores textarea.invoke('val').
+ *
+ * Uses str_replace (same style as Free-header mutate helpers) so version digits are
+ * never interpreted as preg_replace backreferences (e.g. "$11.1.0" → ".1.0").
+ *
+ * @return {{ ok: boolean, message: string, from?: string, to?: string }}
+ */
+function downgradeProPluginHeaderVersion() {
+	// Normal string (not a template literal) so PHP $vars are not interpolated by JS.
+	const php =
+		"$file = WP_PLUGIN_DIR . '/blockera-pro/blockera-pro.php'; " +
+		"if (!file_exists($file)) { echo 'pro_absent'; return; } " +
+		'$content = file_get_contents($file); ' +
+		"if ($content === false) { echo 'pro_read_failed'; return; } " +
+		"if (!preg_match('/^(\\s*\\*\\s*Version:\\s*)(\\d+\\.\\d+\\.\\d+)/m', $content, $m)) { echo 'pro_version_absent'; return; } " +
+		'$prefix = $m[1]; $current = $m[2]; ' +
+		"$parts = array_map('intval', explode('.', $current)); " +
+		'$major = (int) $parts[0]; $minor = (int) $parts[1]; $patch = (int) $parts[2]; ' +
+		'if ($patch > 0) { $patch--; } elseif ($minor > 0) { $minor--; $patch = 9; } else { $major--; $minor = 9; $patch = 9; } ' +
+		"$next = $major . '.' . $minor . '.' . $patch; " +
+		'$updated = str_replace($prefix . $current, $prefix . $next, $content, $count); ' +
+		"if ($count < 1 || $updated === $content) { echo 'pro_version_unchanged'; return; } " +
+		"if (false === strpos($updated, $prefix . $next)) { echo 'pro_version_invalid'; return; } " +
+		"if (false === file_put_contents($file, $updated)) { echo 'pro_write_failed'; return; } " +
+		"echo 'pro_version_downgraded:' . $current . ':' . $next;";
+
+	try {
+		const result = runWpEval(php);
+		const match = String(result).match(
+			/^pro_version_downgraded:(\d+\.\d+\.\d+):(\d+\.\d+\.\d+)$/
+		);
+
+		if (match) {
+			return {
+				ok: true,
+				message: result,
+				from: match[1],
+				to: match[2],
+			};
+		}
+
+		return {
+			ok: false,
+			message: result,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			message: error?.message || String(error),
+		};
+	}
+}
+
+/**
  * Strip or restore Free's "Requires at least blockera-pro" header for force-compat e2e.
  *
  * @param {'simulate'|'restore'} action
@@ -682,6 +737,9 @@ module.exports = (on, config, testingType = config.testingType || 'e2e') => {
 		},
 		restoreLegacyBlockeraFree() {
 			return mutateFreeRequiresProHeader('restore');
+		},
+		downgradeBlockeraProVersion() {
+			return downgradeProPluginHeaderVersion();
 		},
 	});
 
