@@ -26,10 +26,10 @@ if (! defined('ABSPATH')) {
 
 ### BEGIN AUTO-GENERATED AUTOLOADER
 /**
- * Whether an active companion is missing CompatibilityCheck in its own vendor tree.
+ * Whether an active companion cannot mutual-check Pro.
  *
- * Older companions cannot run a mutual version check; Pro must force the
- * compatibility flow in that case.
+ * True when CompatibilityCheck is missing from the companion vendor tree, or when
+ * active Free lacks the "Requires at least blockera-pro" header.
  *
  * @return bool
  */
@@ -46,8 +46,8 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 	$companions = [
 		[
 			'type'        => 'plugin',
-			'slug'        => 'blockera-plugin',
-			'plugin_file' => 'blockera-plugin/blockera-plugin.php',
+			'slug'        => 'blockera',
+			'plugin_file' => 'blockera/blockera.php',
 		],
 		[
 			'type'             => 'theme',
@@ -98,6 +98,26 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 
 			return true;
 		}
+
+		// Free without "Requires at least blockera-pro" cannot declare Pro compatibility.
+		if ( 'blockera/blockera.php' === $plugin_file ) {
+			$free_file = WP_PLUGIN_DIR . '/blockera/blockera.php';
+
+			if ( ! function_exists( 'get_file_data' ) ) {
+				require_once ABSPATH . 'wp-includes/functions.php';
+			}
+
+			$headers = get_file_data(
+				$free_file,
+				[ 'requires_pro' => 'Requires at least blockera-pro' ]
+			);
+
+			if ( '' === trim( (string) ( $headers['requires_pro'] ?? '' ) ) ) {
+				$missing = true;
+
+				return true;
+			}
+		}
 	}
 
 	$missing = false;
@@ -106,28 +126,36 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 }
 
 if ( blockera_pro_companions_missing_compatibility_check() ) {
-	$mode = defined( 'BLOCKERA_PRO_APP_MODE' ) && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
 	require_once __DIR__ . '/vendor/blockera/plugin-compatibility/php/CompatibilityCheck.php';
+	if ( ! class_exists( Blockera\Utils\Utils::class ) ) {
+		require_once __DIR__ . '/vendor/blockera/utils/php/Utils.php';
+	}
+
 	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
 		[
-			'file' => __FILE__,
-			'slug' => 'blockera-pro',
-			'version' => get_plugin_data(__FILE__, true, false)['Version'],
-			'plugin_path' => plugin_dir_path(__FILE__),
+			'file'                 => __FILE__,
+			'slug'                 => 'blockera-pro',
+			'version'              => get_plugin_data( __FILE__, true, false )['Version'],
+			'plugin_path'          => plugin_dir_path( __FILE__ ),
 			'compatible_with_slug' => 'blockera',
-			'callback' => function () {
-				if (! defined('BLOCKERA_PRO_DISABLED_RUNTIME')) {
-					define('BLOCKERA_PRO_DISABLED_RUNTIME', true);
+			'callback'             => function () {
+				if ( ! defined( 'BLOCKERA_PRO_DISABLED_RUNTIME' ) ) {
+					define( 'BLOCKERA_PRO_DISABLED_RUNTIME', true );
 				}
 			},
-			'transient_key' => 'blockera-pro-compat-redirect',
-			'mode' => $mode ? 'development' : 'production',
-			// Companions without CompatibilityCheck cannot mutual-check Pro; force incompat UI.
-			'force' => blockera_pro_companions_missing_compatibility_check(),
+			'transient_key'        => 'blockera-pro-compat-redirect',
+			// Early boot: defines/env may not be ready; force path always uses production assets.
+			'mode'                 => 'production',
+			// Companions without CompatibilityCheck / Pro header cannot mutual-check; force incompat UI.
+			'force'                => true,
 		],
 		new Blockera\Utils\Utils()
 	);
-	
+
 	$blockera_compat_pro_with_free->load();
 
 	// Add compatibility check hooks.
@@ -136,6 +164,7 @@ if ( blockera_pro_companions_missing_compatibility_check() ) {
 
 	return;
 }
+
 require_once __DIR__ . '/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',

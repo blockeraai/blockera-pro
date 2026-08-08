@@ -157,13 +157,86 @@ jobs:
                     sed -i.bak "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" blockera-pro.php && rm blockera-pro.php.bak
                   fi
 
+            # Compat e2e needs Free's mutual "Requires at least blockera-pro" header.
+            # Older Free releases may omit it; skip env + e2e in that case.
+            - name: Check Blockera free Requires at least blockera-pro header
+              id: check_free_header
+              run: |
+                  FREE_DIR=".github/cache/blockera-free"
+                  FREE_PHP="$FREE_DIR/blockera.php"
+
+                  # Release-zip strategies mount the URL in wp-env only; extract locally for the header check.
+                  if [ ! -f "$FREE_PHP" ]; then
+                    BLOCKERA_DOWNLOAD_URL=""
+                    case "${{ matrix.strategy }}" in
+                      blockera-free-previous)
+                        BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[1].assets[0].browser_download_url')
+                        ;;
+                      blockera-free-latest)
+                        BLOCKERA_DOWNLOAD_URL=$(curl -s https://api.github.com/repos/blockeraai/blockera/releases | jq -r '.[0].assets[0].browser_download_url')
+                        ;;
+                    esac
+
+                    if [ -n "$BLOCKERA_DOWNLOAD_URL" ] && [ "$BLOCKERA_DOWNLOAD_URL" != "null" ]; then
+                      echo "Extracting Free plugin from $BLOCKERA_DOWNLOAD_URL for header check..."
+                      TMP_ZIP=$(mktemp /tmp/blockera-free-XXXXXX.zip)
+                      STAGING=$(mktemp -d /tmp/blockera-free-staging-XXXXXX)
+                      curl -sL "$BLOCKERA_DOWNLOAD_URL" -o "$TMP_ZIP"
+                      unzip -qo "$TMP_ZIP" -d "$STAGING"
+                      rm -rf "$FREE_DIR"
+                      mkdir -p "$FREE_DIR"
+
+                      if [ -f "$STAGING/blockera.php" ]; then
+                        cp -R "$STAGING"/. "$FREE_DIR"/
+                      elif [ -f "$STAGING/blockera/blockera.php" ]; then
+                        cp -R "$STAGING/blockera"/. "$FREE_DIR"/
+                      else
+                        FOUND=$(find "$STAGING" -name 'blockera.php' -type f | head -n1)
+                        if [ -n "$FOUND" ]; then
+                          cp -R "$(dirname "$FOUND")"/. "$FREE_DIR"/
+                        fi
+                      fi
+
+                      rm -rf "$STAGING" "$TMP_ZIP"
+                    fi
+                  fi
+
+                  if [ ! -f "$FREE_PHP" ]; then
+                    echo "blockera.php not found at $FREE_PHP; skipping remaining workflow steps."
+                    echo "free_ready=false" >> "$GITHUB_OUTPUT"
+                    echo "has_header=false" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+
+                  echo "free_ready=true" >> "$GITHUB_OUTPUT"
+
+                  if grep -qE '^\s*\*\s*Requires at least blockera-pro:' "$FREE_PHP"; then
+                    echo "Found 'Requires at least blockera-pro' header in $FREE_PHP"
+                    grep -E '^\s*\*\s*Requires at least blockera-pro:' "$FREE_PHP" || true
+                    echo "has_header=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "Missing 'Requires at least blockera-pro' header in $FREE_PHP; will run force-compat (-3) e2e."
+                    echo "has_header=false" >> "$GITHUB_OUTPUT"
+                  fi
+
             - name: Setup WP Environment
+              if: steps.check_free_header.outputs.free_ready == 'true'
               run: |
                   npm run env:start
 
             - name: Run e2e tests
+              if: steps.check_free_header.outputs.free_ready == 'true'
               run: |
-                  # Run only plugin compatibility tests
+                  # -3 (force-compat) only when Free lacks "Requires at least blockera-pro".
+                  if [ "${{ steps.check_free_header.outputs.has_header }}" != "true" ]; then
+                    echo "Free has no Requires at least blockera-pro header; running plugin-compatibility-3."
+                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
+                    exit 0
+                  fi
+
+                  echo "Free has Requires at least blockera-pro header; skipping plugin-compatibility-3."
+
+                  # Header present → existing version-compat suites only.
                   if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
                     npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
                   elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
@@ -173,5 +246,5 @@ jobs:
                   fi
 
             - name: Stop WP Environment
-              if: always()
+              if: always() && steps.check_free_header.outputs.free_ready == 'true'
               run: npm run env:stop
