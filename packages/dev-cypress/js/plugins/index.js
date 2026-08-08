@@ -167,6 +167,38 @@ function runWpEval(phpCode) {
 }
 
 /**
+ * Strip or restore Free's "Requires at least blockera-pro" header for force-compat e2e.
+ *
+ * @param {'simulate'|'restore'} action
+ * @return {{ ok: boolean, message: string }}
+ */
+function mutateFreeRequiresProHeader(action) {
+	const simulate = action === 'simulate';
+	// Token names must not collide with parseWpEvalStdout()'s known mu-plugin tokens.
+	const php = simulate
+		? `$file = WP_PLUGIN_DIR . '/blockera/blockera.php'; if (!file_exists($file)) { echo 'free_absent'; return; } $content = file_get_contents($file); if ($content === false) { echo 'free_read_failed'; return; } if (strpos($content, 'Requires at least blockera-pro:') === false) { echo 'free_already_legacy'; return; } $backup = $file . '.legacy-e2e-bak'; if (!file_exists($backup)) { file_put_contents($backup, $content); } $updated = preg_replace('/^\\s*\\*\\s*Requires at least blockera-pro:.*\\n/m', '', $content, 1); if (!is_string($updated) || $updated === $content) { echo 'free_strip_failed'; return; } file_put_contents($file, $updated); echo 'free_header_stripped';`
+		: `$file = WP_PLUGIN_DIR . '/blockera/blockera.php'; $backup = $file . '.legacy-e2e-bak'; if (!file_exists($backup)) { echo 'free_no_backup'; return; } if (!file_exists($file)) { echo 'free_absent'; return; } file_put_contents($file, file_get_contents($backup)); unlink($backup); echo 'free_header_restored';`;
+
+	try {
+		const result = runWpEval(php);
+		return {
+			ok: [
+				'free_header_stripped',
+				'free_already_legacy',
+				'free_header_restored',
+				'free_no_backup',
+			].includes(result),
+			message: result,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			message: error?.message || String(error),
+		};
+	}
+}
+
+/**
  * Bust Blockera / core theme.json static caches after MU-plugin changes (CI production builds cache per worker).
  *
  * @return {{ ok: boolean, message: string }}
@@ -644,6 +676,12 @@ module.exports = (on, config, testingType = config.testingType || 'e2e') => {
 			);
 
 			return result;
+		},
+		simulateLegacyBlockeraFree() {
+			return mutateFreeRequiresProHeader('simulate');
+		},
+		restoreLegacyBlockeraFree() {
+			return mutateFreeRequiresProHeader('restore');
 		},
 	});
 
