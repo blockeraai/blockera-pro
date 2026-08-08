@@ -107,7 +107,12 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 
 if ( blockera_pro_companions_missing_compatibility_check() ) {
 	$mode = defined( 'BLOCKERA_PRO_APP_MODE' ) && 'development' === BLOCKERA_PRO_APP_MODE && $env_mode;
+
 	require_once __DIR__ . '/vendor/blockera/plugin-compatibility/php/CompatibilityCheck.php';
+	if (! class_exists(Blockera\Utils\Utils::class)) {
+		require_once __DIR__ . '/vendor/blockera/utils/php/Utils.php';
+	}
+
 	$blockera_compat_pro_with_free = new \Blockera\PluginCompatibility\CompatibilityCheck(
 		[
 			'file' => __FILE__,
