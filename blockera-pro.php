@@ -46,8 +46,8 @@ function blockera_pro_companions_missing_compatibility_check(): bool {
 	$companions = [
 		[
 			'type'        => 'plugin',
-			'slug'        => 'blockera-plugin',
-			'plugin_file' => 'blockera-plugin/blockera-plugin.php',
+			'slug'        => 'blockera',
+			'plugin_file' => 'blockera/blockera.php',
 		],
 		[
 			'type'             => 'theme',
