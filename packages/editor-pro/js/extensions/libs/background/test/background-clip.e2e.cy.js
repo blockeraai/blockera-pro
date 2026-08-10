@@ -38,7 +38,7 @@ describe('Background Clip → Functionality', () => {
 		cy.get('.media-modal').within(() => {
 			cy.contains('button', 'Upload files').click();
 			cy.get('input[type="file"]').selectFile(
-				'packages/dev-cypress/js/fixtures/bg-extension-test.png',
+				'packages/global-packages/packages/dev-cypress/js/fixtures/bg-extension-test.png',
 				{
 					force: true,
 				}
