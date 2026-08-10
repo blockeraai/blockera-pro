@@ -165,7 +165,7 @@ if ( blockera_pro_companions_missing_compatibility_check() ) {
 	return;
 }
 
-require_once __DIR__ . '/packages/autoloader-coordinator/bootstrap.php';
+require_once __DIR__ . '/packages/global-packages/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',
 	__DIR__,
