@@ -6,6 +6,20 @@
 	"repositories": [
 		{
 			"type": "path",
+			"url": "packages/global-packages/packages/*",
+			"options": {
+				"symlink": true
+			}
+		},
+		{
+			"type": "path",
+			"url": "packages/global-packages/packages/features-library/*",
+			"options": {
+				"symlink": true
+			}
+		},
+		{
+			"type": "path",
 			"url": "./packages/auth-pro"
 		},
 		{
@@ -22,95 +36,15 @@
 		},
 		{
 			"type": "path",
-			"url": "./packages/dev-phpunit"
-		},
-		{
-			"type": "path",
 			"url": "./packages/editor-pro"
 		},
 		{
 			"type": "path",
-			"url": "packages/bootstrap"
+			"url": "./packages/notice"
 		},
 		{
 			"type": "path",
-			"url": "packages/editor"
-		},
-		{
-			"type": "path",
-			"url": "packages/utils"
-		},
-		{
-			"type": "path",
-			"url": "packages/wordpress"
-		},
-		{
-			"type": "path",
-			"url": "packages/exceptions"
-		},
-		{
-			"type": "path",
-			"url": "packages/data"
-		},
-		{
-			"type": "path",
-			"url": "packages/data-editor"
-		},
-		{
-			"type": "path",
-			"url": "packages/controls"
-		},
-		{
-			"type": "path",
-			"url": "packages/classnames"
-		},
-		{
-			"type": "path",
-			"url": "packages/icons"
-		},
-		{
-			"type": "path",
-			"url": "packages/http"
-		},
-		{
-			"type": "path",
-			"url": "packages/blocks-core"
-		},
-		{
-			"type": "path",
-			"url": "packages/env"
-		},
-		{
-			"type": "path",
-			"url": "packages/storage"
-		},
-		{
-			"type": "path",
-			"url": "packages/dev-phpunit"
-		},
-		{
-			"type": "path",
-			"url": "packages/telemetry"
-		},
-		{
-			"type": "path",
-			"url": "packages/notice"
-		},
-		{
-			"type": "path",
-			"url": "packages/features-core"
-		},
-		{
-			"type": "path",
-			"url": "packages/features-library/icon"
-		},
-		{
-			"type": "path",
-			"url": "packages/plugin-compatibility"
-		},
-		{
-			"type": "path",
-			"url": "packages/plugin-compatibility-pro"
+			"url": "./packages/plugin-compatibility-pro"
 		}
 	],
 	"authors": [
@@ -151,6 +85,8 @@
 	},
 	"require-dev": {
 		"blockera/dev-phpunit": "*",
+		"blockera/dev-tools": "*",
+		"blockera/dev-cypress": "*",
 		"symfony/dom-crawler": "5.4.x-dev",
 		"symfony/css-selector": "5.4.x-dev",
 		"voku/simple_html_dom": "dev-master",

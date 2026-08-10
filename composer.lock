@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e6f09539e704ddbbb8a121c0fc43dcdd",
+    "content-hash": "b0d0a9eb4934e2c801957505ee2440fa",
     "packages": [
         {
             "name": "blockera/auth-pro",
@@ -84,8 +84,8 @@
             "version": "1.4.0",
             "dist": {
                 "type": "path",
-                "url": "packages/blocks-core",
-                "reference": "bd38bac5e5f9426dd358c0b8b2e682020b1fab53"
+                "url": "packages/global-packages/packages/blocks-core",
+                "reference": "8ed1ca395f3c28ee7fd4de915ebd4a8740a80e15"
             },
             "type": "library",
             "autoload": {
@@ -98,6 +98,7 @@
             },
             "description": "The WordPress core blocks package for Blockera editor.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -106,8 +107,8 @@
             "version": "1.0.2",
             "dist": {
                 "type": "path",
-                "url": "packages/bootstrap",
-                "reference": "b29223b2631eefbfc4258117eb35b167312ec9a9"
+                "url": "packages/global-packages/packages/bootstrap",
+                "reference": "c030cb60aa6ce80395072f6e400859113ea86b68"
             },
             "type": "library",
             "autoload": {
@@ -117,6 +118,7 @@
             },
             "description": "The initializer blockera any application on wordpress site.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -125,8 +127,8 @@
             "version": "1.0.1",
             "dist": {
                 "type": "path",
-                "url": "packages/classnames",
-                "reference": "85c3fead11a21822099e93913296b83be5e31385"
+                "url": "packages/global-packages/packages/classnames",
+                "reference": "262e4e68987f5dec133cfbdd0f36edbb209e375f"
             },
             "type": "library",
             "autoload": {
@@ -141,6 +143,7 @@
             },
             "description": "Css classnames generator for Blockera Core.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -149,8 +152,8 @@
             "version": "1.4.0",
             "dist": {
                 "type": "path",
-                "url": "packages/controls",
-                "reference": "53dc1e1a8b8aa9ad09d5a13ddfa3f8acb31a64cc"
+                "url": "packages/global-packages/packages/controls",
+                "reference": "6f7251f323f8467b3a198e6a17c18fcdc736ff9d"
             },
             "type": "library",
             "autoload": {
@@ -165,6 +168,7 @@
             },
             "description": "UI react.js components as controls for Blockera Core.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -173,8 +177,8 @@
             "version": "1.1.0",
             "dist": {
                 "type": "path",
-                "url": "packages/data",
-                "reference": "88f236ce6c61d25f11d550062763530d62df52cb"
+                "url": "packages/global-packages/packages/data",
+                "reference": "8ab2915466f9d9a323c2de96681149d8dddc2195"
             },
             "type": "library",
             "autoload": {
@@ -187,6 +191,7 @@
             },
             "description": "Core Data is a data module intended to simplify access and manipulation to core WordPress and entities.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -195,8 +200,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/data-editor",
-                "reference": "b7fc5f5dceb989ba71288002d42ffd371ecc6fae"
+                "url": "packages/global-packages/packages/data-editor",
+                "reference": "fcb397fd40265411906a3035f19351d458a9df1d"
             },
             "type": "library",
             "autoload": {
@@ -206,6 +211,7 @@
             },
             "description": "Blockera Data Editor package to access all property value with tokenized string.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -214,8 +220,8 @@
             "version": "2.0.1",
             "dist": {
                 "type": "path",
-                "url": "packages/editor",
-                "reference": "b429a97257de015b3e370e60c6566cd1ecc5b070"
+                "url": "packages/global-packages/packages/editor",
+                "reference": "1c5e3fbc6dda26129f23b9f4446bb332363cdee7"
             },
             "type": "library",
             "autoload": {
@@ -233,6 +239,7 @@
             },
             "description": "Blockera Editor php package to implements WordPress block and site editor functionalities on admin and front-end.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -265,8 +272,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/env",
-                "reference": "9e78bd120c211f116b3fcb8df02665e949c38f6d"
+                "url": "packages/global-packages/packages/env",
+                "reference": "590052e7765858f6d6bd2d437ce6a6d76afb66f1"
             },
             "type": "library",
             "autoload": {
@@ -279,6 +286,7 @@
             },
             "description": "The env package to read environment variables of json related files at the root of any project.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -287,8 +295,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/exceptions",
-                "reference": "1582e294ef2e373f8f0ce86a79edf7490e5c22d0"
+                "url": "packages/global-packages/packages/exceptions",
+                "reference": "d2167e16259172cbfe0d3b1ac9c5a7875c3c8b98"
             },
             "type": "library",
             "autoload": {
@@ -298,6 +306,7 @@
             },
             "description": "The blockera exceptions package.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -306,8 +315,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/features-library/icon",
-                "reference": "faad6b37fea397a2a34b1bb988f32ef3ec5274f2"
+                "url": "packages/global-packages/packages/features-library/icon",
+                "reference": "8b92cec4f7b0defe06c7896eb6909337c22c00db"
             },
             "type": "library",
             "autoload": {
@@ -326,6 +335,7 @@
             },
             "description": "The Blockera Feature Icon package.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -334,8 +344,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/features-core",
-                "reference": "07cdc99794728e7f870d8633124aae65801f0fe2"
+                "url": "packages/global-packages/packages/features-core",
+                "reference": "38b7f5b229b89f1e1453584843332e75bef44456"
             },
             "type": "library",
             "autoload": {
@@ -353,6 +363,7 @@
             },
             "description": "The Blockera Features Core package.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -385,8 +396,8 @@
             "version": "1.1.0",
             "dist": {
                 "type": "path",
-                "url": "packages/http",
-                "reference": "7026fc9166a4911fbf2ced23cd81d0d05f37b828"
+                "url": "packages/global-packages/packages/http",
+                "reference": "24909127a8f4628e68b36da922a468381bd8d7a6"
             },
             "type": "library",
             "autoload": {
@@ -396,6 +407,7 @@
             },
             "description": "The blockera http abstraction package.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -404,8 +416,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/icons",
-                "reference": "78160ddbc8b98b7d783d3dc89630c7a3dc6565a3"
+                "url": "packages/global-packages/packages/icons",
+                "reference": "a405a06b8728076857b8d50f10f4ee682929a73e"
             },
             "type": "library",
             "autoload": {
@@ -420,6 +432,7 @@
             },
             "description": "The blockera icons package.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -428,7 +441,7 @@
             "version": "1.1.1",
             "dist": {
                 "type": "path",
-                "url": "packages/notice",
+                "url": "./packages/notice",
                 "reference": "e30f6d6a3e269afaaaf6226888821385f252539b"
             },
             "require": {
@@ -453,8 +466,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/plugin-compatibility",
-                "reference": "ccff1c848b422b2ca2cb0c64689b9802f5983feb"
+                "url": "packages/global-packages/packages/plugin-compatibility",
+                "reference": "a90a46d5bdf7c47443be661159621682659a8ab7"
             },
             "type": "library",
             "autoload": {
@@ -469,6 +482,7 @@
             },
             "description": "Handles version plugin compatibility checking between Blockera and Blockera Pro plugins to ensure proper functionality",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -477,7 +491,7 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/plugin-compatibility-pro",
+                "url": "./packages/plugin-compatibility-pro",
                 "reference": "160394846b7b991d39119e3a8b9f9ce2853e7a30"
             },
             "type": "library",
@@ -501,8 +515,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "packages/storage",
-                "reference": "6ec75785b5d9c3660db5ee23e027328f1af8460c"
+                "url": "packages/global-packages/packages/storage",
+                "reference": "d5e7b81277c04cbb4a8a95334f57035039d803a4"
             },
             "type": "library",
             "autoload": {
@@ -512,6 +526,7 @@
             },
             "description": "Browser and database storage helpers for Blockera.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -520,8 +535,8 @@
             "version": "1.0.2",
             "dist": {
                 "type": "path",
-                "url": "packages/telemetry",
-                "reference": "1d122a201f8c6c7f7dabea49c887903f6a4a7c29"
+                "url": "packages/global-packages/packages/telemetry",
+                "reference": "6c8930956a1510337a33714f8c482eef6038546e"
             },
             "type": "library",
             "autoload": {
@@ -539,6 +554,7 @@
             },
             "description": "The telemetry system for blockera products by collecting necessary data of user and website to connect with Blockera API.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -547,8 +563,8 @@
             "version": "1.2.1",
             "dist": {
                 "type": "path",
-                "url": "packages/utils",
-                "reference": "8006e7df906e23f427440198696229db0f0f1544"
+                "url": "packages/global-packages/packages/utils",
+                "reference": "f505e5e55abc84fd7a2c508d7e5064aa708971e0"
             },
             "type": "library",
             "autoload": {
@@ -566,6 +582,7 @@
             },
             "description": "The utilities for JavaScript and PHP blockera applications.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -574,8 +591,8 @@
             "version": "1.1.6",
             "dist": {
                 "type": "path",
-                "url": "packages/wordpress",
-                "reference": "db4fb51e1a283c9704cfb4153e809d57a8bf4dba"
+                "url": "packages/global-packages/packages/wordpress",
+                "reference": "810395b2ebe26967414c2c40c4c8e31f8ead3ce3"
             },
             "type": "library",
             "autoload": {
@@ -593,6 +610,7 @@
             },
             "description": "The utilities for blockera on WordPress CMS.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -1796,12 +1814,35 @@
             "time": "2025-09-17T09:00:56+00:00"
         },
         {
+            "name": "blockera/dev-cypress",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/global-packages/packages/dev-cypress",
+                "reference": "fb768011009c8761482489827e1ae324da671629"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\DevCypress\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "description": "Blockera Cypress config and helpers",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "blockera/dev-phpunit",
             "version": "1.0.1",
             "dist": {
                 "type": "path",
-                "url": "./packages/dev-phpunit",
-                "reference": "0e076c7d788c254012af14ff428652528a87f6fd"
+                "url": "packages/global-packages/packages/dev-phpunit",
+                "reference": "377a7f6b0137be7f26dd5f0968510fd16612a927"
             },
             "type": "library",
             "autoload-dev": {
@@ -1811,6 +1852,30 @@
             },
             "description": "The development phpunit package of blockera",
             "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "blockera/dev-tools",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/global-packages/packages/dev-tools",
+                "reference": "e84cf97898e5e1336d0c7b52ffbd5d7be8ea5724"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\DevTools\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "description": "Blockera DevTools for developers",
+            "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
