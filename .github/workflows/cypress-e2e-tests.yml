@@ -25,6 +25,8 @@ jobs:
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
+              with:
+                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
 
             - name: List test categories
               id: set_categories
@@ -53,6 +55,8 @@ jobs:
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
+              with:
+                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
 
             - name: Install Cypress
               run: npx cypress install
