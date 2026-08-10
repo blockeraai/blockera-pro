@@ -46,8 +46,14 @@ if [ -z "$NO_CHECKS" ]; then
 
 	# Do a dry run of the repository reset. Prompting the user for a list of all
 	# files that will be removed should prevent them from losing important files!
+	#
+	# Keep the sparse global-packages submodule working tree intact.
 	status "Resetting the repository to pristine condition. ✨"
-	to_clean=$(git clean -xdf --dry-run)
+	git_clean_excludes=(
+		--exclude=packages/global-packages
+		--exclude=packages/global-packages/**
+	)
+	to_clean=$(git clean -xdf --dry-run "${git_clean_excludes[@]}")
 	if [ ! -z "$to_clean" ]; then
 		echo $to_clean
 		warning "🚨 About to delete everything above! Is this okay? 🚨"
@@ -57,7 +63,7 @@ if [ -z "$NO_CHECKS" ]; then
 			# Remove ignored files to reset repository to pristine condition. Previous
 			# test ensures that changed files abort the plugin build.
 			status "Cleaning working directory... 🛀"
-			git clean -xdf
+			git clean -xdf "${git_clean_excludes[@]}"
 		else
 			error "Fair enough; aborting. Tidy up your repo and try again. 🙂"
 			exit 1
@@ -98,12 +104,36 @@ php bin/generate-readme-txt.php > readme.tmp.txt
 mv readme.tmp.txt readme.txt
 
 
+# Shared packages live in packages/global-packages/packages and are consumed via
+# Composer path repos under vendor/blockera/*. Prefer vendor for packaging.
+resolve_shared_package_file () {
+	local relative_path="$1"
+	local candidate
+	for candidate in \
+		"vendor/blockera/${relative_path}" \
+		"packages/global-packages/packages/${relative_path}"
+	do
+		if [ -f "${candidate}" ]; then
+			php -r 'echo realpath($argv[1]);' "${candidate}"
+			return 0
+		fi
+	done
+	return 1
+}
+
 # Temporary copy some PHP files into "inc" directory.
 status "Generating inc/app.php 📝"
 mkdir -p "inc"
 cp packages/blockera-pro/php/app.php inc/app.php
-cp packages/autoloader-coordinator/class-shared-autoload-coordinator.php inc/class-shared-autoload-coordinator.php
-cp packages/autoloader-coordinator/bootstrap.php inc/bootstrap.php
+
+COORDINATOR_BOOTSTRAP="$(resolve_shared_package_file "autoloader-coordinator/bootstrap.php" || true)"
+COORDINATOR_CLASS="$(resolve_shared_package_file "autoloader-coordinator/class-shared-autoload-coordinator.php" || true)"
+if [ -z "$COORDINATOR_BOOTSTRAP" ] || [ -z "$COORDINATOR_CLASS" ]; then
+	error "ERROR: Could not find autoloader-coordinator under vendor/blockera or packages/global-packages/packages."
+	exit 1
+fi
+cp "${COORDINATOR_CLASS}" inc/class-shared-autoload-coordinator.php
+cp "${COORDINATOR_BOOTSTRAP}" inc/bootstrap.php
 
 build_files=$(find dist/ -type f \( -name "*.min.js" -o -name "*.min.css" -o -name "*.min.asset.php" \))
 
