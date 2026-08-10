@@ -4,6 +4,10 @@ inputs:
     node-version:
         description: 'Optional. The Node.js version to use. When not specified, the version specified in .nvmrc will be used.'
         required: false
+    global-packages-token:
+        description: 'PAT with read access to blockera-global-packages (secrets.BLOCKERABOT_PAT).'
+        required: false
+        default: ''
     chdir:
         description: 'Optional. The directory to run the commands in. When not specified, the current directory will be used.'
         required: false
@@ -16,6 +20,12 @@ inputs:
 runs:
     using: 'composite'
     steps:
+        - name: Ensure global-packages submodule (sparse)
+          shell: bash
+          env:
+              BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ inputs.global-packages-token }}
+          run: bash "${GITHUB_WORKSPACE}/.github/scripts/ensure-global-packages-sparse.sh" "${GITHUB_WORKSPACE}"
+
         - name: Setup Node.js with built-in npm cache
           uses: actions/setup-node@v4
           with:

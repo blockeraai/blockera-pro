@@ -77,6 +77,8 @@ jobs:
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
+              with:
+                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
 
             - name: Install Cypress
               run: npx cypress install
@@ -84,6 +86,7 @@ jobs:
             - name: Setup PHP Composer and install dependencies
               uses: ./.github/setup-php
               with:
+                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
                   custom-cache-suffix: $(/bin/date -u --date='last Mon' "+%F")
                   composer-options: '--no-dev -o --apcu-autoloader -a'
 

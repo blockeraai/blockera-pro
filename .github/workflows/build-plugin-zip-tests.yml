@@ -35,6 +35,8 @@ jobs:
               # Only run if Specs files are found.
               if: steps.find_specs_files.outputs.file_count != '0'
               uses: ./.github/setup-node
+              with:
+                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
 
             - name: Install Composer dependencies
               # Only run if Specs files are found.
@@ -90,7 +92,7 @@ jobs:
                   cp -r ./node_modules ./build/blockera-pro
                   cp ./cypress.config.js ./build/blockera-pro
                   cp .wp-env.json ./build/blockera-pro
-                  cp -r ./packages/dev-cypress ./build/blockera-pro/packages
+                  cp -r ./packages/global-packages/packages/dev-cypress ./build/blockera-pro/packages
                   find ./packages -path "*-pro*" -name "*.build.e2e.cy.js" -type f -exec cp {} ./build/blockera-pro/packages/blockera-pro/tests \;
 
             - name: Setup and Run E2E tests on Blockera build
