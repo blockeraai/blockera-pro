@@ -51,7 +51,7 @@
 		"test:unit:php": "npm-run-all test:unit:php:setup test:unit:php:base",
 		"test:unit:php:composer": "composer run-script test",
 		"version": "grunt version && grunt update-pot",
-		"icons:indexing": "node bin/create-icon-search-index.js",
+		"icons:indexing": "node packages/global-packages/packages/dev-tools/bin/create-icon-search-index.js",
 		"env": "wp-env",
 		"env:stop": "npm run env stop",
 		"env:start": "node packages/global-packages/packages/dev-tools/github/scripts/setup-wp-env.js && wp-env start",
