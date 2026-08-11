@@ -10,15 +10,20 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             release_branch: ${{ steps.get_release_branch.outputs.release_branch }}
+        env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
         steps:
-            - name: Compute release branch name
-              id: get_release_branch
+            - uses: actions/checkout@v5
+              with:
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
+
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
+
+            - id: get_release_branch
               env:
                   TAG: ${{ github.event.release.tag_name }}
-              run: |
-                  IFS='.' read -r -a VERSION_ARRAY <<< "${TAG#v}"
-                  RELEASE_BRANCH="release/${VERSION_ARRAY[0]}.${VERSION_ARRAY[1]}.${VERSION_ARRAY[2]}"
-                  echo "release_branch=${RELEASE_BRANCH}" >> $GITHUB_OUTPUT
+              run: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/upload-release-to-plugin-repo/compute-release-branch.sh
 
     upload:
         name: Upload release to Blockera AI
@@ -26,6 +31,7 @@ jobs:
         needs: get-release-branch
         if: ${{ !github.event.release.prerelease && github.event.release.assets[0] }}
         env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERAAI_PRODUCT_ID: ${{ secrets.BLOCKERAAI_PRODUCT_ID }}
             RELEASE_META_KEY: ${{ secrets.RELEASE_META_KEY }}
             RELEASE_ACTION: ${{ secrets.RELEASE_ACTION }}
@@ -34,40 +40,14 @@ jobs:
             PLUGIN_URL: ${{ github.event.release.assets[0].browser_download_url }}
             PLUGIN_VERSION: ${{ github.event.release.tag_name }}
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+            BLOCKERA_UPLOAD_BLOCKERAAI_ZIP: blockera-pro.zip
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v5
               with:
                   ref: ${{ needs.get-release-branch.outputs.release_branch }}
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
 
-            - name: Download release asset
-              run: |
-                  curl -L \
-                    -H "Accept: application/octet-stream" \
-                    -H "Authorization: Bearer ${GH_TOKEN}" \
-                    -o blockera-pro.zip "${PLUGIN_URL}"
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
 
-            - name: Download assets from release
-              uses: robinraju/release-downloader@v1.10
-              with:
-                  repository: ${{ github.repository }}
-                  tag: ${{ github.event.inputs.tag }}
-                  fileName: 'blockera-pro.zip'
-                  token: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Upload to Blockera AI
-              run: |
-                  CLEAN_VERSION=${PLUGIN_VERSION#v}
-                  curl -X POST "${RELEASE_ENDPOINT}" \
-                    -H "Content-Type: multipart/form-data" \
-                    -F "product_id=${BLOCKERAAI_PRODUCT_ID}" \
-                    -F "product_version=${CLEAN_VERSION}" \
-                    -F "metaKey=${RELEASE_META_KEY}" \
-                    -F "filename=./my-downloads/blockera-pro.zip" \
-                    -F "action=${RELEASE_ACTION}" \
-                    -F "api_key=${BLOCKERABOT_API_KEY}" \
-                    -F "file=@blockera-pro.zip"
-
-            - name: Clean up
-              run: rm -f my-downloads
+            - run: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/upload-release-to-blockeraai/publish.sh

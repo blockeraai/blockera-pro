@@ -27,7 +27,9 @@ git clone --recurse-submodules <blockera-pro-url>
 cd blockera-pro
 # If you cloned without --recurse-submodules:
 git submodule update --init packages/global-packages
-bash .github/scripts/ensure-global-packages-sparse.sh
+bash .github/actions/ensure-global-packages/ensure.sh
+# or (after submodule content exists):
+# bash packages/global-packages/packages/dev-tools/github/scripts/ensure-global-packages-sparse.sh
 
 composer install
 npm ci
@@ -46,7 +48,11 @@ You usually **do not** bump the submodule pin by hand.
    - **matching feature branch** (created by Husky mirror) → pushes the pin bump onto that branch
 4. Manual catch-up: Actions → **Sync global-packages submodule**, or `npm run submodule:bump`.
 
-Shared CI composites/scripts live in `packages/global-packages/packages/dev-tools/github/` and read `.github/blockera-ci.json`. Thin `.github/setup-node` / `.github/setup-php` bootstrap the submodule, then call those composites. After bumping the pin, sync bootstrap scripts:
+Shared CI composites/scripts live in `packages/global-packages/packages/dev-tools/github/`
+(Blockera plugin defaults). Pro workflows stay thin and override via `env:` / action `with:`
+(e.g. Cypress `BLOCKERA_E2E_PRODUCT_STYLE=pro`, zip `blockera-pro.zip`).
+
+Consumer bootstrap (must exist before the submodule is available):
 
 ```bash
 bash packages/global-packages/packages/dev-tools/github/scripts/sync-consumer-bootstrap.sh
@@ -56,7 +62,9 @@ Husky `post-checkout` mirrors new consumer branches into the submodule as `<repo
 
 Husky `pre-push` verifies the pinned `packages/global-packages` SHA exists on origin (and pushes the mirrored submodule branch when needed). Skip with `BLOCKERA_SKIP_SUBMODULE_PUSH=1`.
 
-CI does **not** use `actions/checkout` `submodules:`. `setup-node` / `setup-php` run `ensure-global-packages-sparse.sh` with `secrets.BLOCKERABOT_PAT`, rewrite the SSH `.gitmodules` URL to HTTPS + PAT, then init the sparse submodule.
+CI does **not** use `actions/checkout` `submodules:`. Workflows call
+`.github/actions/ensure-global-packages` with `secrets.BLOCKERABOT_PAT`, then invoke
+toolkit `setup-node` / `setup-php` / job scripts.
 
 **Note:** `repository_dispatch` only runs workflows that exist on this repo’s **default branch**.
 
