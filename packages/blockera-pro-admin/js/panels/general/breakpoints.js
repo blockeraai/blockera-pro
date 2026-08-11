@@ -13,7 +13,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { isEquals, mergeObject } from '@blockera/utils';
 import { validateSecretKeys } from '@blockera/validator';
 
-export const bootstrapBreakpoints = () => {
+export const bootstrapBreakpoints = (): void => {
 	const { saveEntityRecord } = dispatch(coreStore);
 
 	if ('false' === process.env.CI_ENV) {

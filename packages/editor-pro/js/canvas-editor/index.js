@@ -147,16 +147,21 @@ export const bootstrapCanvasEditor = () => {
 		'blockeraPro.editorPro.canvasEditor.bootstrap',
 		(breakpoints) => {
 			return Object.fromEntries(
-				Object.entries(breakpoints).map(([key, breakpoint]) => [
-					key,
-					{
-						...breakpoint,
-						...('' === breakpoint.type ? { type: key } : {}),
-						...(breakpoint.settings.picked
-							? { status: true, native: false }
-							: {}),
-					},
-				])
+				Object.entries(breakpoints).map(([key, breakpoint]) => {
+					// Build without dual conditional spreads (Flow exponential-spread).
+					const nextBreakpoint: Object = { ...breakpoint };
+
+					if ('' === breakpoint.type) {
+						nextBreakpoint.type = key;
+					}
+
+					if (breakpoint.settings.picked) {
+						nextBreakpoint.status = true;
+						nextBreakpoint.native = false;
+					}
+
+					return [key, nextBreakpoint];
+				})
 			);
 		}
 	);

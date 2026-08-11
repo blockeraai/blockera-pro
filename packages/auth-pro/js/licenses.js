@@ -15,7 +15,7 @@ import {
 	Image,
 	Avatar,
 	Button,
-	LoadingComponent,
+	BlockeraLoading,
 } from '@blockera/controls';
 import { Icon } from '@blockera/icons';
 
@@ -132,11 +132,7 @@ export const Licenses = ({
 	},
 }): MixedElement => {
 	if (!name || !licenses.length) {
-		return (
-			<LoadingComponent
-				loadingDescription={__('Connecting …', 'blockera')}
-			/>
-		);
+		return <BlockeraLoading text={__('Connecting …', 'blockera')} />;
 	}
 
 	return (
