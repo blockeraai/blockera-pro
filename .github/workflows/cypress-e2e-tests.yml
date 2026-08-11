@@ -5,10 +5,7 @@ on:
         types: [opened, synchronize, ready_for_review]
     workflow_dispatch:
 
-# Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
-    # The concurrency group contains the workflow name and the branch name for pull requests
-    # or the commit hash for any other events.
     group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
     cancel-in-progress: true
 
@@ -16,28 +13,23 @@ jobs:
     detect_categories:
         name: Detecting E2E Test Categories
         runs-on: ubuntu-latest
-        timeout-minutes: 10
         outputs:
-            categories: ${{ steps.set_categories.outputs.categories }}
+            categories: ${{ steps.detect.outputs.categories }}
+        env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+            BLOCKERA_E2E_LIST_CATEGORIES_CMD: node packages/global-packages/packages/dev-tools/github/scripts/list-e2e-test-categories-pro.js
         steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v3
-
-            - name: Setup Node.js and install dependencies
-              uses: ./.github/setup-node
+            - uses: actions/checkout@v5
               with:
-                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
 
-            - name: List test categories
-              id: set_categories
-              run: |
-                  categories=$(node .github/scripts/list-e2e-test-categories.js)
-                  categories_json=$(echo $categories | jq -c '.')
-                  echo "categories=$categories_json" >> $GITHUB_OUTPUT
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
 
-            - name: Print categories output
-              run: |
-                  echo "Detected categories: ${{ steps.set_categories.outputs.categories }}"
+            - uses: ./packages/global-packages/packages/dev-tools/github/actions/setup-node
+
+            - id: detect
+              run: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/cypress-e2e-tests/detect-categories.sh
 
     cypress_e2e_tests:
         name: Test
@@ -49,61 +41,25 @@ jobs:
             fail-fast: false
             matrix:
                 category: ${{ fromJson(needs.detect_categories.outputs.categories) }}
+        env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+            # Cross-repo download of Blockera free Actions artifacts from .pr-env.json.
+            GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+            BLOCKERA_E2E_CATEGORY: ${{ matrix.category }}
+            BLOCKERA_E2E_PRODUCT_STYLE: pro
+            BLOCKERA_E2E_GENERAL_CATEGORY: general
+            BLOCKERA_E2E_PREPARE_CMD: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/cypress-e2e-tests/prepare-pro.sh
+            BLOCKERA_E2E_PRE_TEST_CMD: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
+            BLOCKERAAI_USERNAME: ${{ secrets.BLOCKERAAI_USERNAME }}
+            BLOCKERAAI_USER_PASSWORD: ${{ secrets.BLOCKERAAI_USER_PASSWORD }}
         steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v3
-
-            - name: Setup Node.js and install dependencies
-              uses: ./.github/setup-node
+            - uses: actions/checkout@v5
               with:
-                  global-packages-token: ${{ secrets.BLOCKERABOT_PAT }}
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
 
-            - name: Install Cypress
-              run: npx cypress install
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
 
-            - name: Install Composer Packages
-              run: composer install --no-dev -o --apcu-autoloader -a
+            - uses: ./packages/global-packages/packages/dev-tools/github/actions/setup-node
 
-            - name: Create required environment files
-              env:
-                  # Cross-repo download of Blockera free Actions artifacts from .pr-env.json.
-                  GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
-              run: |
-                  touch cypress.env.json
-                  echo '{
-                    "blockeraUserName": "${{ secrets.BLOCKERAAI_USERNAME }}",
-                    "blockeraPassword": "${{ secrets.BLOCKERAAI_USER_PASSWORD }}"
-                  }' >> cypress.env.json
-                  cat cypress.env.json
-                  node .github/scripts/create-wp-env.js '${{ matrix.category }}'
-                  cat .wp-env.json
-                  touch .env
-                  echo APP_MODE=production >> .env
-                  echo DB=wp_tests >> .env
-                  echo CI_ENV=true >> .env
-                  cat .env
-
-            - name: Start WordPress Environment
-              run: npm run env:start
-
-            - name: Build wp-env app
-              run: npm run build
-
-            - name: Debug Matrix Category
-              run: |
-                  echo "Running category: ${{ matrix.category }}"
-
-            - name: Run License Activation Setup Test
-              run: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
-
-            - name: Run Cypress E2E Tests
-              run: |
-                  if [ "${{ matrix.category }}" != "general" ]; then
-                    spec_pattern="packages/**-pro(-**|)/**/*.${{ matrix.category }}.e2e.cy.js"
-                  else
-                    spec_pattern="packages/**-pro(-**|)/**/!(*.*.e2e).cy.js"
-                  fi
-                  npm run test:e2e -- --spec "$spec_pattern"
-
-            - name: Stop WordPress Environment
-              run: npm run env:stop
+            - run: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/cypress-e2e-tests/run.sh
