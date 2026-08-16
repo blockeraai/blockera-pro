@@ -1,9 +1,3 @@
-const base = require('./packages/global-packages/packages/dev-tools/js/stylelint/config');
-
-module.exports = {
-	...base,
-	ignoreFiles: [
-		...(base.ignoreFiles || []),
-		'packages/blockera-pro-admin/js/style.scss',
-	],
-};
+// Edit packages/global-packages/packages/dev-tools/root-configs/.stylelintrc.js
+// project:bootstrap copies this to the host repo root.
+module.exports = require('./packages/global-packages/packages/dev-tools/js/stylelint/config');
