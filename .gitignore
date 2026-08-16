@@ -85,3 +85,7 @@ cypress-image-diff-html-report
 
 # images directory
 images/
+
+# development helper folders
+.cursor
+source-codes
