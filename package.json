@@ -104,6 +104,7 @@
 		"fastest-json-copy": "^1.0.1",
 		"feather-icons": "^4.29.2",
 		"fuse.js": "^6.6.2",
+		"is-plain-object": "^5.0.0",
 		"lucide-static": "^0.517.0",
 		"overlayscrollbars": "^2.0.0",
 		"paper": "^0.12.18",
