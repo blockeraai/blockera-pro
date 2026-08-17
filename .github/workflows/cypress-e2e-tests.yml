@@ -9,6 +9,24 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
     cancel-in-progress: true
 
+env:
+    BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+    GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+    BLOCKERA_E2E_SCAN_ROOTS: packages
+    BLOCKERA_E2E_PACKAGE_SUFFIX: -pro
+    BLOCKERA_E2E_PACKAGE_PREFIX: blockera-pro-
+    BLOCKERA_E2E_GENERAL_PACKAGES: validator,guard,console
+    BLOCKERA_E2E_GENERAL_CATEGORY: general
+    BLOCKERA_E2E_EXCLUDE_CATEGORIES: 'plugin-compatibility*'
+    BLOCKERA_E2E_PACKAGE_GLOB: 'packages/**-pro(-**|)/**'
+    BLOCKERA_E2E_USE_CREATE_WP_ENV: 'true'
+    BLOCKERA_E2E_WRITE_CYPRESS_ENV: 'true'
+    BLOCKERA_E2E_CI_ENV: 'true'
+    BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
+    BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+    BLOCKERAAI_USERNAME: ${{ secrets.BLOCKERAAI_USERNAME }}
+    BLOCKERAAI_USER_PASSWORD: ${{ secrets.BLOCKERAAI_USER_PASSWORD }}
+
 jobs:
     detect_categories:
         name: Detecting E2E Test Categories
@@ -16,9 +34,6 @@ jobs:
         timeout-minutes: 30
         outputs:
             categories: ${{ steps.detect.outputs.categories }}
-        env:
-            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
-            BLOCKERA_E2E_LIST_CATEGORIES_CMD: node packages/global-packages/packages/dev-tools/github/scripts/list-e2e-test-categories-pro.js
         steps:
             - uses: actions/checkout@v5
               with:
@@ -43,16 +58,8 @@ jobs:
             matrix:
                 category: ${{ fromJson(needs.detect_categories.outputs.categories) }}
         env:
-            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
-            # Cross-repo download of Blockera free Actions artifacts from .pr-env.json.
-            GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERA_E2E_CATEGORY: ${{ matrix.category }}
-            BLOCKERA_E2E_PRODUCT_STYLE: pro
-            BLOCKERA_E2E_GENERAL_CATEGORY: general
-            BLOCKERA_E2E_PREPARE_CMD: bash packages/global-packages/packages/dev-tools/github/scripts/jobs/cypress-e2e-tests/prepare-pro.sh
             BLOCKERA_E2E_PRE_TEST_CMD: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
-            BLOCKERAAI_USERNAME: ${{ secrets.BLOCKERAAI_USERNAME }}
-            BLOCKERAAI_USER_PASSWORD: ${{ secrets.BLOCKERAAI_USER_PASSWORD }}
         steps:
             - uses: actions/checkout@v5
               with:
