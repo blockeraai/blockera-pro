@@ -85,6 +85,7 @@
 		"@blockera/notice": "file:packages/notice",
 		"@blockera/plugin-compatibility": "file:./packages/global-packages/packages/plugin-compatibility",
 		"@blockera/plugin-compatibility-pro": "file:packages/plugin-compatibility-pro",
+		"@blockera/products": "file:./packages/global-packages/packages/products",
 		"@blockera/storage": "file:./packages/global-packages/packages/storage",
 		"@blockera/telemetry": "file:./packages/global-packages/packages/telemetry",
 		"@blockera/utils": "file:./packages/global-packages/packages/utils",
