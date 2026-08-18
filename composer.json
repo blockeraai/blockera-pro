@@ -76,6 +76,7 @@
 		"blockera/features-core": "*",
 		"blockera/plugin-compatibility": "*",
 		"blockera/plugin-compatibility-pro": "*",
+		"blockera/products": "*",
 		"blockera/telemetry": "*",
 		"blockera/wordpress": "*",
 		"blockera/exceptions": "*",
@@ -120,5 +121,10 @@
 		"test:coverage": "@php ./vendor/bin/phpunit --coverage-html php-coverage",
 		"phpcs": "./bin/phpcs.sh",
 		"phpcbf": "phpcbf"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Blockera\\Pro\\Tests\\": "packages/blockera-pro/php/tests/"
+		}
 	}
 }
