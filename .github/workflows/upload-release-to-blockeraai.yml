@@ -5,8 +5,28 @@ on:
         types: [published]
 
 jobs:
+    pr-workflow-gate:
+        name: PR workflow filter
+        runs-on: ubuntu-latest
+        outputs:
+            run: ${{ steps.gate.outputs.run }}
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
+
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
+
+            - id: gate
+              uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
+              with:
+                  workflow-file: upload-release-to-blockeraai.yml
+
     get-release-branch:
         name: Get release branch name
+        needs: pr-workflow-gate
+        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
         outputs:
@@ -28,10 +48,10 @@ jobs:
 
     upload:
         name: Upload release to Blockera AI
+        needs: [pr-workflow-gate, get-release-branch]
+        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (!github.event.release.prerelease && github.event.release.assets[0]) }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
-        needs: get-release-branch
-        if: ${{ !github.event.release.prerelease && github.event.release.assets[0] }}
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERAAI_PRODUCT_ID: ${{ secrets.BLOCKERAAI_PRODUCT_ID }}
