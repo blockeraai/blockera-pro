@@ -130,6 +130,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
                   BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
                   BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+                  BLOCKERA_WP_ENV_PLUGIN_URL_MODE: replace
               run: |
                   BLOCKERA_DOWNLOAD_URL=""
 
