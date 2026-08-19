@@ -1,3 +1,3 @@
 {
-	"allowedActions": ["code-lint.yml", "php-unit-tests.yml"]
+	"allowedActions": ["plugin-compatibility.yml"]
 }
