@@ -53,6 +53,12 @@ const setupEditorWithParagraph = () => {
 	cy.getBlock('core/paragraph').click();
 };
 
+const setSizeWidth = (value) => {
+	cy.getParentContainer('Width').within(() => {
+		cy.get('input').first().type(`{selectall}${value}`, { force: true });
+	});
+};
+
 describe('Style Engine Testing ...', () => {
 	beforeEach(() => {
 		openGeneralSettings();
@@ -80,7 +86,7 @@ describe('Style Engine Testing ...', () => {
 		// ********************* Manipulating attributes of master block in hover state ************************ //
 
 		// 1- Set width for master block.
-		cy.setInputFieldValue('Width', 'Size', 100);
+		setSizeWidth(100);
 
 		// 2- Assert master block css.
 		getWPDataObject().then((data) => {
@@ -115,7 +121,7 @@ describe('Style Engine Testing ...', () => {
 		setInnerBlock('elements/link');
 
 		// 7- Set width for link inner block.
-		cy.setInputFieldValue('Width', 'Size', 50);
+		setSizeWidth(50);
 
 		// 8- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
@@ -139,7 +145,7 @@ describe('Style Engine Testing ...', () => {
 		setBlockState('Hover');
 
 		// 11- Set width for link inner block.
-		cy.setInputFieldValue('Width', 'Size', 2);
+		setSizeWidth(2);
 
 		// 12- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
@@ -210,7 +216,7 @@ describe('Style Engine Testing ...', () => {
 		// ********************* Manipulating attributes of master block in hover state ************************ //
 
 		// 1- Set width for master block.
-		cy.setInputFieldValue('Width', 'Size', 100);
+		setSizeWidth(100);
 
 		// 2- Assert master block css.
 		getWPDataObject().then((data) => {
@@ -245,7 +251,7 @@ describe('Style Engine Testing ...', () => {
 		setInnerBlock('elements/link');
 
 		// 7- Set width for link inner block.
-		cy.setInputFieldValue('Width', 'Size', 50);
+		setSizeWidth(50);
 
 		// 8- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
@@ -269,7 +275,7 @@ describe('Style Engine Testing ...', () => {
 		setBlockState('Hover');
 
 		// 11- Set width for link inner block.
-		cy.setInputFieldValue('Width', 'Size', 2);
+		setSizeWidth(2);
 
 		// 12- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
