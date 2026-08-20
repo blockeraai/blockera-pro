@@ -23,6 +23,7 @@ export async function fetchWordPressNotices(): Promise<Array<WordPressNotice>> {
 		});
 		return notices || [];
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to fetch WordPress notices:', error);
 		return [];
 	}
@@ -42,6 +43,7 @@ export async function createWordPressNotice(
 		});
 		return createdNotice;
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to create WordPress notice:', error);
 		return null;
 	}
@@ -62,6 +64,7 @@ export async function updateWordPressNotice(
 		});
 		return updatedNotice;
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to update WordPress notice:', error);
 		return null;
 	}
@@ -78,6 +81,7 @@ export async function deleteWordPressNotice(id: string): Promise<boolean> {
 		});
 		return true;
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to delete WordPress notice:', error);
 		return false;
 	}
@@ -186,6 +190,7 @@ export async function storeDismissedNotice(noticeId: string): Promise<boolean> {
 
 		return true;
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to store dismissed notice:', error);
 		return false;
 	}
@@ -203,6 +208,7 @@ export async function getDismissedNotices(): Promise<Array<string>> {
 
 		return userMeta.dismissed_notices || [];
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to get dismissed notices:', error);
 		return [];
 	}

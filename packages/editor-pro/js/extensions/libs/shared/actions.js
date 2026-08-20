@@ -63,6 +63,7 @@ export const clearCache = (): void => {
 			!clientSecret
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -75,6 +76,7 @@ export const clearCache = (): void => {
 
 		if ('active' !== status) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
@@ -96,6 +98,7 @@ export const clearCache = (): void => {
 
 		if (!validated) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -109,6 +112,7 @@ export const clearCache = (): void => {
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -125,6 +129,7 @@ export const clearCache = (): void => {
 			'subscription' === type
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
@@ -138,6 +143,7 @@ export const clearCache = (): void => {
 		// Validation: Start date.
 		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);

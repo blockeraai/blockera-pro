@@ -124,6 +124,7 @@ class AppServiceProvider extends ServiceProvider {
                 }
             }
         } catch (\Exception $e) {
+            // @debug-ignore
             wp_die(
                 implode(
                     ', ',

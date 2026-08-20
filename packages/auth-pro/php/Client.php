@@ -81,7 +81,8 @@ class Client {
 			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
 
             // Failed to get the access token or user details.
-             wp_die($e->getMessage());
+            // @debug-ignore
+            wp_die($e->getMessage());
         }
 
         if ($allowed_redirect_to) {
@@ -223,6 +224,7 @@ class Client {
         if ((isset($response_body['data']['success']) && false === $response_body['data']['success']) || (isset($response_body['success']) && false === $response_body['success']) || (isset($response_body['data']['errors']) || isset($response_body['errors']))) {
 			blockera_auth_pro_cleanup_auth_data(OptionRepository::getOptionKey());
 
+            // @debug-ignore
             wp_die(implode(', ', $response_body['data']['errors'] ?? $response_body['errors'] ?? [__('The resource owner or authorization server denied the request.', 'blockera-pro')]));
         }
 

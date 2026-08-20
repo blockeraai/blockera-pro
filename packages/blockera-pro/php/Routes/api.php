@@ -22,5 +22,6 @@ try {
 	$routes->post('auth/connect-account', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'connectAccount']);
 	$routes->post('auth/clear-licenses', [Blockera\Auth\Http\Controllers\ConnectionController::class, 'clearLicenses']);
 } catch (Exception $exception) {
+    // @debug-ignore
     wp_die($exception->getMessage() . ' ' . $exception->getFile() . ' on line: ' . $exception->getLine() . PHP_EOL . $exception->getTraceAsString());
 }

@@ -174,6 +174,7 @@ class Notice {
         $notice_id = sanitize_text_field($_POST['notice_id'] ?? '');
 
         if (empty($notice_id)) {
+            // @debug-ignore
             wp_die('Invalid notice ID');
         }
 

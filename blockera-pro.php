@@ -20,7 +20,7 @@ use Blockera\Auth\Repositories\OptionRepository;
 
 // security code.
 if (! defined('ABSPATH')) {
-
+	/* @debug-ignore */
     die('Access Denied!');
 }
 
