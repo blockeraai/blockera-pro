@@ -58,6 +58,8 @@
 		"env:stop": "npm run env stop",
 		"env:start": "node packages/global-packages/packages/dev-tools/github/scripts/setup-wp-env.js && wp-env start",
 		"env:reset": "npm run env:start --update --xdebug",
+		"env:clean": "npm run env clean all",
+		"env:destroy": "npm run env destroy",
 		"env:tests-cli:bash": "npm run env run tests-cli bash",
 		"packages:update": "wp-scripts packages-update",
 		"plugin:activate": "wp-env run tests-cli wp plugin activate blockera-pro",
