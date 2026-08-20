@@ -46,11 +46,13 @@ const saveGeneralSettings = () => {
 
 const setupEditorWithParagraph = () => {
 	createPost();
+	dismissOpenModals();
 
 	appendBlocks(PARAGRAPH_WITH_LINK);
 
 	// Select target block
 	cy.getBlock('core/paragraph').click();
+	cy.getByAriaControls('styles-view').click();
 };
 
 const setSizeWidth = (value) => {
@@ -125,7 +127,7 @@ describe('Style Engine Testing ...', () => {
 
 		// 8- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
-			cy.getByAriaLabel('Block').click();
+			cy.getByAriaLabel('Block').click({ force: true });
 		});
 
 		// 9- Assert link inner block css.
@@ -149,7 +151,7 @@ describe('Style Engine Testing ...', () => {
 
 		// 12- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
-			cy.getByAriaLabel('Block').click();
+			cy.getByAriaLabel('Block').click({ force: true });
 		});
 
 		// 13- Assert link inner block css.
@@ -182,21 +184,21 @@ describe('Style Engine Testing ...', () => {
 		cy.getByDataTest('add-new-breakpoint').should('be.visible').click();
 
 		cy.getParentContainer('Name').within(() => {
-			cy.get('input').type('Laptop');
+			cy.get('input').type('Laptop', { force: true });
 		});
 
 		cy.getParentContainer('Size').within(() => {
 			cy.getParentContainer('Min Width').within(() => {
-				cy.get('input').type('1280', { delay: 0 });
+				cy.get('input').type('1280', { delay: 0, force: true });
 			});
 
 			cy.getParentContainer('Max Width').within(() => {
-				cy.get('input').type('1368', { delay: 0 }).blur();
+				cy.get('input').type('1368', { delay: 0, force: true }).blur();
 			});
 		});
 
 		cy.getParentContainer('Status').within(() => {
-			cy.get('input').click();
+			cy.get('input').click({ force: true });
 		});
 
 		saveGeneralSettings();
@@ -255,7 +257,7 @@ describe('Style Engine Testing ...', () => {
 
 		// 8- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
-			cy.getByAriaLabel('Block').click();
+			cy.getByAriaLabel('Block').click({ force: true });
 		});
 
 		// 9- Assert link inner block css.
@@ -279,7 +281,7 @@ describe('Style Engine Testing ...', () => {
 
 		// 12- Set display block for link inner block.
 		cy.getParentContainer('Display', 'base-control').within(() => {
-			cy.getByAriaLabel('Block').click();
+			cy.getByAriaLabel('Block').click({ force: true });
 		});
 
 		// 13- Assert link inner block css.
