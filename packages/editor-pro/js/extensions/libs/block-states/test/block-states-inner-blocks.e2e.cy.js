@@ -1473,10 +1473,14 @@ describe('Inner Blocks E2E Test', () => {
 
 		setBlockState('Normal');
 
-		cy.getByDataTest('border-control-width').type(5);
+		cy.getParentContainer('Border').within(() => {
+			cy.getByDataTest('border-control-width').type(5, { force: true });
+		});
 
 		addBlockState('after');
 
-		cy.getByDataTest('border-control-width').should('have.value', '');
+		cy.getParentContainer('Border').within(() => {
+			cy.getByDataTest('border-control-width').should('have.value', '');
+		});
 	});
 });
