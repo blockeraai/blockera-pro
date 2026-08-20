@@ -49,7 +49,7 @@ describe('Inner Blocks E2E Test', () => {
 		cy.getByAriaControls('styles-view').click();
 	};
 
-	it.skip('should control value and attributes be correct, when navigate between states and devices', () => {
+	it('should control value and attributes be correct, when navigate between states and devices', () => {
 		initialSetting();
 		setInnerBlock('elements/link');
 

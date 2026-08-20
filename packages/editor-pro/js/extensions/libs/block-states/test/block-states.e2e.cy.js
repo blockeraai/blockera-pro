@@ -39,7 +39,7 @@ describe('Block State E2E Test', () => {
 		cy.getBlock('core/paragraph').click();
 	};
 
-	describe.skip('multiple states testing ...', () => {
+	describe('multiple states testing ...', () => {
 		beforeEach(() => {
 			initialSetting();
 		});
@@ -528,7 +528,7 @@ describe('Block State E2E Test', () => {
 			);
 		});
 	});
-	describe.skip('update repeater attributes in multiple states and devices', () => {
+	describe('update repeater attributes in multiple states and devices', () => {
 		const openBackgroundItem = () => {
 			cy.getParentContainer('Image & Gradient').within(() => {
 				cy.getByDataCy('group-control-header').click();
@@ -1011,7 +1011,7 @@ describe('Block State E2E Test', () => {
 		});
 	});
 
-	it.skip('should not inherit data of normal state while current state in master block is pseudo-element like "after" or "before"', () => {
+	it('should not inherit data of normal state while current state in master block is pseudo-element like "after" or "before"', () => {
 		initialSetting();
 
 		setBlockState('Normal');

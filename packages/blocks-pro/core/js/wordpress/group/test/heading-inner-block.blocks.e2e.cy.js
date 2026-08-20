@@ -153,7 +153,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 				});
 
-				it.skip('Variable', () => {
+				it('Variable', () => {
 					appendBlocks(
 						`<!-- wp:group {"style":{"elements":{"heading":{"color":{"gradient":"var:preset|gradient|gradient-4"}}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group"><!-- wp:heading -->
@@ -467,7 +467,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 		});
 
 		describe('BG Color & Gradient At Same Time', () => {
-			it.skip('Both BG color and gradient (BG color have more priority)', () => {
+			it('Both BG color and gradient (BG color have more priority)', () => {
 				appendBlocks(
 					`<!-- wp:group {"style":{"elements":{"heading":{"color":{"background":"#ffcaca"}}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group"><!-- wp:heading -->
