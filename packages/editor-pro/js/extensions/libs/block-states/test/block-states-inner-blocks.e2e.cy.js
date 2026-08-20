@@ -670,10 +670,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Set font-size
 		cy.getParentContainer('Font Size').within(() => {
-			cy.get('input[type="text"]').clear();
-			cy.get('input[type="text"]').type(25, {
-				force: true,
-			});
+			cy.get('input[type="text"]').type('{selectall}25', { force: true });
 		});
 
 		// reselect
@@ -738,10 +735,7 @@ describe('Inner Blocks E2E Test', () => {
 		setDeviceType('Mobile Portrait');
 		// Set font-size
 		cy.getParentContainer('Font Size').within(() => {
-			cy.get('input[type="text"]').clear();
-			cy.get('input[type="text"]').type(25, {
-				force: true,
-			});
+			cy.get('input[type="text"]').type('{selectall}25', { force: true });
 		});
 
 		// reselect
@@ -808,10 +802,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Set font-size
 		cy.getParentContainer('Font Size').within(() => {
-			cy.get('input[type="text"]').clear();
-			cy.get('input[type="text"]').type(25, {
-				force: true,
-			});
+			cy.get('input[type="text"]').type('{selectall}25', { force: true });
 		});
 
 		// reselect
@@ -889,8 +880,8 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Label renamed from "Border Line" → "Border" (matches free border e2e).
-		cy.setInputFieldValue('Border', 'Border And Shadow', 2);
-		cy.setInputFieldValue('Radius', 'Border And Shadow', 5);
+		cy.setInputFieldValue('Border', 'Border And Shadow', 2, true);
+		cy.setInputFieldValue('Radius', 'Border And Shadow', 5, true);
 
 		// Reselect
 		reSelectBlock();
@@ -905,10 +896,12 @@ describe('Inner Blocks E2E Test', () => {
 		cy.checkInputFieldValue('Radius', 'Border And Shadow', 5);
 
 		// Set
-		cy.getByAriaLabel('Custom Border Radius').click();
+		cy.getByAriaLabel('Custom Border Radius').click({ force: true });
 		cy.getParentContainer('Radius').within(() => {
 			// Top Left
-			cy.get('input[type="text"]').eq(0).type('{selectall}10');
+			cy.get('input[type="text"]')
+				.eq(0)
+				.type('{selectall}10', { force: true });
 		});
 
 		// Reselect
@@ -977,10 +970,12 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		// Set
-		cy.getByAriaLabel('Custom Border Radius').click();
+		cy.getByAriaLabel('Custom Border Radius').click({ force: true });
 		cy.getParentContainer('Radius').within(() => {
 			// Bottom Right
-			cy.get('input[type="text"]').eq(3).type('{selectall}30');
+			cy.get('input[type="text"]')
+				.eq(3)
+				.type('{selectall}30', { force: true });
 		});
 
 		// Reselect
@@ -1256,15 +1251,15 @@ describe('Inner Blocks E2E Test', () => {
 		addBlockState('hover');
 		setInnerBlock('elements/link');
 
-		// Add item
-		cy.getByAriaLabel('Add New Filter Effect').click();
-
 		// Alias
 		cy.getParentContainer('Filters')
 			.as('filter-container')
-			.within(() =>
-				cy.getByDataCy('group-control-header').as('filter-items')
-			);
+			.within(() => {
+				cy.getByAriaLabel('Add New Filter Effect').click({
+					force: true,
+				});
+				cy.getByDataCy('group-control-header').as('filter-items');
+			});
 		cy.getByDataTest('popover-body')
 			.as('filter-popover')
 			.within(() => {
@@ -1349,7 +1344,9 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		// Add new item
-		cy.getByAriaLabel('Add New Filter Effect').click();
+		cy.get('@filter-container').within(() => {
+			cy.getByAriaLabel('Add New Filter Effect').click({ force: true });
+		});
 		cy.get('@filter-popover').each(() => {
 			// Set blur
 			cy.getByDataTest('filter-blur-input').type('{selectall}5');
