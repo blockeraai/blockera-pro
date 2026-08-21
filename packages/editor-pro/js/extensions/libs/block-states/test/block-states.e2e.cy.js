@@ -21,6 +21,7 @@ import {
 	getBlockClientId,
 	checkCurrentState,
 	redirectToFrontPage,
+	openSettingsPanel,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Block State E2E Test', () => {
@@ -542,31 +543,62 @@ describe('Block State E2E Test', () => {
 		});
 	});
 	describe('update repeater attributes in multiple states and devices', () => {
+		const scrollBackgroundIntoView = () => {
+			openSettingsPanel('Background');
+			cy.getParentContainer('Image & Gradient').then(($container) => {
+				$container[0].scrollIntoView({
+					block: 'center',
+					inline: 'nearest',
+					behavior: 'auto',
+				});
+			});
+			cy.getParentContainer('Image & Gradient')
+				.scrollIntoView({ offset: { top: -300 }, duration: 0 })
+				.should('be.visible');
+		};
+
+		const prepareBackgroundControls = () => {
+			reSelectBlock();
+			scrollBackgroundIntoView();
+		};
+
 		const assertVisibleRepeaterCount = (label, count) => {
+			scrollBackgroundIntoView();
 			cy.getParentContainer(label).within(() => {
-				cy.getByDataCy('group-control-header')
-					.filter(':visible')
-					.should('have.length', count);
+				cy.getByDataCy('group-control-header', {
+					timeout: 20000,
+				}).should(($headers) => {
+					expect($headers.filter(':visible')).to.have.length(count);
+				});
 			});
 		};
 
 		const openBackgroundItem = () => {
+			scrollBackgroundIntoView();
 			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header')
-					.filter(':visible')
+				cy.get('[data-cy="group-control-header"]:visible')
 					.first()
 					.click({ force: true });
 			});
 		};
 
+		const assertBackgroundImage = (getSubject, expected) => {
+			getSubject().should(($el) => {
+				expect($el.css('background-image')).to.equal(expected);
+			});
+		};
+
 		beforeEach(() => {
 			initialSetting();
+			scrollBackgroundIntoView();
 
-			cy.getByAriaLabel('Add New Background').click({ force: true });
+			cy.getParentContainer('Image & Gradient').within(() => {
+				cy.getByAriaLabel('Add New Background').click({ force: true });
+			});
 			cy.getByAriaLabel('Linear Gradient').click({ force: true });
 
 			// Reselect
-			reSelectBlock();
+			prepareBackgroundControls();
 
 			// Assert control value
 			assertVisibleRepeaterCount('Image & Gradient', 1);
@@ -575,6 +607,7 @@ describe('Block State E2E Test', () => {
 			});
 
 			setBlockState('Hover');
+			prepareBackgroundControls();
 			openBackgroundItem();
 			cy.getByDataTest('popover-body')
 				.last()
@@ -591,7 +624,7 @@ describe('Block State E2E Test', () => {
 			});
 
 			// Reselect
-			reSelectBlock();
+			prepareBackgroundControls();
 
 			// Assert control value
 			openBackgroundItem();
@@ -606,6 +639,7 @@ describe('Block State E2E Test', () => {
 					});
 				});
 			addBlockState('focus');
+			prepareBackgroundControls();
 			openBackgroundItem();
 			cy.getByDataTest('popover-body')
 				.last()
@@ -631,7 +665,7 @@ describe('Block State E2E Test', () => {
 				});
 
 			// Reselect
-			reSelectBlock();
+			prepareBackgroundControls();
 
 			// Assert control value
 			openBackgroundItem();
@@ -653,7 +687,7 @@ describe('Block State E2E Test', () => {
 				});
 
 			setDeviceType('Mobile Portrait');
-			reSelectBlock();
+			prepareBackgroundControls();
 			openBackgroundItem();
 
 			cy.getByDataTest('popover-body')
@@ -677,7 +711,7 @@ describe('Block State E2E Test', () => {
 					});
 				});
 
-			reSelectBlock();
+			prepareBackgroundControls();
 
 			// Assert control
 			openBackgroundItem();
@@ -696,17 +730,18 @@ describe('Block State E2E Test', () => {
 			// Focus / Mobile
 			// Assert block css
 			getWPDataObject().then((data) => {
+				const blockSelector = `#block-${getBlockClientId(data)}`;
+
 				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
+					.find(blockSelector)
+					.scrollIntoView()
 					.should('have.css', 'background-attachment', 'fixed');
 
 				// Focus
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.realMouseDown();
+				cy.getIframeBody().find(blockSelector).realMouseDown();
 
 				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
+					.find(blockSelector)
 					.should('have.css', 'background-attachment', 'fixed')
 					.realMouseMove(300, 300);
 			});
@@ -714,36 +749,26 @@ describe('Block State E2E Test', () => {
 			// Normal / Desktop
 			setDeviceType('Desktop');
 			setBlockState('Normal');
-			reSelectBlock();
+			prepareBackgroundControls();
 
 			// Assert block css
 			getWPDataObject().then((data) => {
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should(
-						'have.css',
-						'background-image',
-						'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-					);
+				const blockSelector = `#block-${getBlockClientId(data)}`;
+
+				assertBackgroundImage(
+					() => cy.getIframeBody().find(blockSelector),
+					'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				);
 
 				// Hover
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.realHover();
+				cy.getIframeBody().find(blockSelector).safeRealHover();
 
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.invoke('css', 'background-image')
-					.then((bgImage) => {
-						expect(
-							'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)',
-							bgImage
-						);
-					});
+				assertBackgroundImage(
+					() => cy.getIframeBody().find(blockSelector),
+					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				);
 
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.realMouseUp();
+				cy.getIframeBody().find(blockSelector).realMouseUp();
 
 				// Focus
 				// TODO: WordPress inline style override expected our styles.
@@ -786,8 +811,10 @@ describe('Block State E2E Test', () => {
 
 			// Focus / Desktop
 			setBlockState('Focus');
+			prepareBackgroundControls();
 			// Assert block css
 			getWPDataObject().then((data) => {
+				const blockSelector = `#block-${getBlockClientId(data)}`;
 				// TODO: WordPress inline style override expected our styles.
 				// cy.getIframeBody()
 				// 	.find(`#block-${getBlockClientId(data)}`)
@@ -834,29 +861,25 @@ describe('Block State E2E Test', () => {
 
 			// Hover / Desktop
 			setBlockState('Hover');
+			prepareBackgroundControls();
 			// Assert block css
 			getWPDataObject().then((data) => {
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should(
-						'have.css',
-						'background-image',
-						'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-					);
+				const blockSelector = `#block-${getBlockClientId(data)}`;
+
+				assertBackgroundImage(
+					() => cy.getIframeBody().find(blockSelector),
+					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				);
 
 				// Hover
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.realHover();
+				cy.getIframeBody().find(blockSelector).safeRealHover();
 
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should(
-						'have.css',
-						'background-image',
-						'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-					)
-					.realMouseMove(50, 50);
+				assertBackgroundImage(
+					() => cy.getIframeBody().find(blockSelector),
+					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+				);
+
+				cy.getIframeBody().find(blockSelector).realMouseMove(50, 50);
 			});
 
 			// Assert control
@@ -985,7 +1008,7 @@ describe('Block State E2E Test', () => {
 			);
 
 			// Hover
-			cy.get('.blockera-block').realHover();
+			cy.get('.blockera-block').safeRealHover();
 			cy.get('.blockera-block')
 				.should(
 					'have.css',
@@ -1017,7 +1040,7 @@ describe('Block State E2E Test', () => {
 			);
 
 			// Hover
-			cy.get('.blockera-block').realHover();
+			cy.get('.blockera-block').safeRealHover();
 			cy.get('.blockera-block')
 				.should(
 					'have.css',
