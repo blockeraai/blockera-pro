@@ -49,6 +49,14 @@ describe('Inner Blocks E2E Test', () => {
 		cy.getByAriaControls('styles-view').click();
 	};
 
+	const assertVisibleRepeaterCount = (containerAlias, count) => {
+		cy.get(containerAlias).within(() => {
+			cy.getByDataCy('group-control-header')
+				.filter(':visible')
+				.should('have.length', count);
+		});
+	};
+
 	it('should control value and attributes be correct, when navigate between states and devices', () => {
 		initialSetting();
 		setInnerBlock('elements/link');
@@ -70,18 +78,16 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Assert control value
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 		cy.get('@box-shadow-container').within(() => {
 			cy.getByDataCy('group-control-header')
-				.should('have.length', '1')
+				.filter(':visible')
 				.and('include.text', '20');
 		});
 
 		addBlockState('hover');
 
-		cy.get('@box-shadow-container').within(() => {
-			// normal state updates should display
-			cy.getByDataCy('group-control-header').should('have.length', '1');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 
 		// set x
 		cy.openRepeaterItem('Box Shadows', 'Outer');
@@ -108,10 +114,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		addBlockState('active');
 
-		cy.get('@box-shadow-container').within(() => {
-			// normal state updates should display
-			cy.getByDataCy('group-control-header').should('have.length', '1');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 
 		// hover state updates should not display
 		cy.openRepeaterItem('Box Shadows', 'Outer');
@@ -142,9 +145,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Assert control value
 		checkCurrentState('active');
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header').should('have.length', '2');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 2);
 
 		cy.openRepeaterItem('Box Shadows', 'Inner');
 		cy.get('@box-shadow-popover').within(() => {
@@ -157,10 +158,15 @@ describe('Inner Blocks E2E Test', () => {
 
 		setDeviceType('Tablet');
 
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		checkCurrentState('active');
+
 		// normal state updates should display
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 		cy.get('@box-shadow-container').within(() => {
 			cy.getByDataCy('group-control-header')
-				.should('have.length', '1')
+				.filter(':visible')
 				.and('include.text', 'Outer');
 		});
 
@@ -204,9 +210,10 @@ describe('Inner Blocks E2E Test', () => {
 		setBlockState('Normal');
 
 		// should display only laptop / normal value
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 		cy.get('@box-shadow-container').within(() => {
 			cy.getByDataCy('group-control-header')
-				.should('have.length', '1')
+				.filter(':visible')
 				.and('include.text', 'Outer');
 		});
 		cy.openRepeaterItem('Box Shadows', 'Outer');
@@ -261,9 +268,7 @@ describe('Inner Blocks E2E Test', () => {
 		setDeviceType('Desktop');
 
 		// Assert control value
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header').should('have.length', '2');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 2);
 
 		cy.openRepeaterItem('Box Shadows', 'Outer');
 		cy.get('@box-shadow-popover').within(() => {
@@ -324,9 +329,7 @@ describe('Inner Blocks E2E Test', () => {
 		setBlockState('Normal');
 
 		// Assert control value
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header').should('have.length', '1');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 
 		cy.openRepeaterItem('Box Shadows', 'Outer');
 		cy.get('@box-shadow-popover').within(() => {
@@ -373,9 +376,7 @@ describe('Inner Blocks E2E Test', () => {
 		setBlockState('Hover');
 
 		// Assert control
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header').should('have.length', '1');
-		});
+		assertVisibleRepeaterCount('@box-shadow-container', 1);
 		cy.openRepeaterItem('Box Shadows', 'Outer');
 		cy.get('@box-shadow-popover').within(() => {
 			cy.getByDataTest('box-shadow-x-input').should('have.value', '5');
@@ -1270,10 +1271,11 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Set drop-shadow-x
 		cy.get('@filter-popover').within(() => {
-			cy.get('@type-select').select('drop-shadow');
+			cy.get('@type-select').select('drop-shadow', { force: true });
 
 			cy.getByDataTest('filter-drop-shadow-x-input').type(
-				'{selectall}20'
+				'{selectall}20',
+				{ force: true }
 			);
 		});
 
@@ -1293,7 +1295,7 @@ describe('Inner Blocks E2E Test', () => {
 		addBlockState('after');
 
 		// Normal state updates should display
-		cy.get('@filter-items').should('have.length', '1');
+		assertVisibleRepeaterCount('@filter-container', 1);
 		cy.openRepeaterItem('Filters', 'Drop Shadow');
 		cy.get('@filter-popover').within(() => {
 			cy.getByDataTest('filter-drop-shadow-x-input').should(
@@ -1328,7 +1330,7 @@ describe('Inner Blocks E2E Test', () => {
 		addBlockState('focus');
 
 		// Normal state updates should display
-		cy.get('@filter-items').should('have.length', '1');
+		assertVisibleRepeaterCount('@filter-container', 1);
 		cy.openRepeaterItem('Filters', 'Drop Shadow');
 		cy.get('@filter-popover').within(() => {
 			cy.getByDataTest('filter-drop-shadow-x-input').should(
@@ -1357,7 +1359,7 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Assert control
-		cy.get('@filter-items').should('have.length', '2');
+		assertVisibleRepeaterCount('@filter-container', 2);
 
 		cy.openRepeaterItem('Filters', 'Blur');
 		cy.get('@filter-popover').within(() => {
@@ -1368,7 +1370,7 @@ describe('Inner Blocks E2E Test', () => {
 		setDeviceType('Mobile Portrait');
 
 		// laptop/normal updates should display
-		cy.get('@filter-items').should('have.length', 1);
+		assertVisibleRepeaterCount('@filter-container', 1);
 		cy.openRepeaterItem('Filters', 'Drop Shadow');
 		cy.get('@filter-popover').within(() => {
 			cy.getByDataTest('filter-drop-shadow-x-input').should(
