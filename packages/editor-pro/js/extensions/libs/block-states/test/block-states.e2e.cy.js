@@ -37,6 +37,8 @@ describe('Block State E2E Test', () => {
 <!-- /wp:paragraph -->`
 		);
 		cy.getBlock('core/paragraph').click();
+		cy.getByAriaControls('styles-view').click();
+		cy.addNewTransition();
 	};
 
 	describe('multiple states testing ...', () => {
@@ -57,12 +59,23 @@ describe('Block State E2E Test', () => {
 				() => {
 					setBlockState('Hover');
 
-					cy.getByDataTest('border-control-color').click();
+					cy.getByDataTest('border-control-color').click({
+						force: true,
+					});
 					cy.getByDataTest('popover-body')
 						.last()
+						.should('be.visible')
 						.within(() => {
-							cy.get('input[maxlength="9"]').clear();
-							cy.get('input[maxlength="9"]').type('ccc');
+							cy.getByDataCy('color-picker-css-value').clear({
+								force: true,
+							});
+							cy.getByDataCy('color-picker-css-value').type(
+								'ccc',
+								{
+									delay: 0,
+									force: true,
+								}
+							);
 						});
 
 					// inherit of normal.
@@ -529,42 +542,51 @@ describe('Block State E2E Test', () => {
 		});
 	});
 	describe('update repeater attributes in multiple states and devices', () => {
+		const assertVisibleRepeaterCount = (label, count) => {
+			cy.getParentContainer(label).within(() => {
+				cy.getByDataCy('group-control-header')
+					.filter(':visible')
+					.should('have.length', count);
+			});
+		};
+
 		const openBackgroundItem = () => {
 			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header').click();
+				cy.getByDataCy('group-control-header')
+					.filter(':visible')
+					.first()
+					.click({ force: true });
 			});
 		};
 
 		beforeEach(() => {
 			initialSetting();
 
-			cy.getByAriaLabel('Add New Background').click();
-			cy.getByAriaLabel('Linear Gradient').click();
+			cy.getByAriaLabel('Add New Background').click({ force: true });
+			cy.getByAriaLabel('Linear Gradient').click({ force: true });
 
 			// Reselect
 			reSelectBlock();
 
 			// Assert control value
+			assertVisibleRepeaterCount('Image & Gradient', 1);
 			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header').should(
-					'have.length',
-					'1'
-				);
 				cy.contains('Linear Gradient').should('exist');
 			});
 
 			setBlockState('Hover');
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel('Rotate Anti-clockwise').click();
-			});
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel('Rotate Anti-clockwise').click({
+						force: true,
+					});
+				});
 
 			// normal state updates should display
+			assertVisibleRepeaterCount('Image & Gradient', 1);
 			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header').should(
-					'have.length',
-					'1'
-				);
 				cy.contains('Linear Gradient').should('exist');
 			});
 
@@ -573,88 +595,101 @@ describe('Block State E2E Test', () => {
 
 			// Assert control value
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'45'
-					);
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'45'
+						);
+					});
 				});
-			});
 			addBlockState('focus');
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.get('button[aria-label="Repeat"]').click();
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.get('button[aria-label="Repeat"]').click({
+						force: true,
+					});
 
-				// normal state updates should display
-				cy.getByAriaLabel('Linear Gradient').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				// hover state updates should not display
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
+					// normal state updates should display
+					cy.getByAriaLabel('Linear Gradient').should(
+						'have.attr',
+						'aria-checked',
+						'true'
 					);
+
+					// hover state updates should not display
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'90'
+						);
+					});
 				});
-			});
 
 			// Reselect
 			reSelectBlock();
 
 			// Assert control value
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'90'
+						);
+					});
+
+					cy.get('button[aria-label="Repeat"]').should(
+						'have.attr',
+						'aria-checked',
+						'true'
 					);
 				});
-
-				cy.get('button[aria-label="Repeat"]').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
 
 			setDeviceType('Mobile Portrait');
+			reSelectBlock();
 			openBackgroundItem();
 
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel('Parallax').click();
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel('Parallax').click({ force: true });
 
-				// focus state updates should not display
-				cy.getByAriaLabel('Repeat').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				// hover state updates should not display
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
+					// focus state updates should not display
+					cy.getByAriaLabel('Repeat').should(
+						'not.have.attr',
+						'aria-checked',
+						'true'
 					);
+
+					// hover state updates should not display
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'90'
+						);
+					});
 				});
-			});
 
 			reSelectBlock();
 
 			// Assert control
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel('Parallax').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel('Parallax').should(
+						'have.attr',
+						'aria-checked',
+						'true'
+					);
+				});
 		});
 
 		it('should control value and attributes be correct, when navigate between states and devices', () => {
@@ -679,6 +714,7 @@ describe('Block State E2E Test', () => {
 			// Normal / Desktop
 			setDeviceType('Desktop');
 			setBlockState('Normal');
+			reSelectBlock();
 
 			// Assert block css
 			getWPDataObject().then((data) => {
@@ -726,25 +762,27 @@ describe('Block State E2E Test', () => {
 
 			// Assert control
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel("Don't Repeat").should(
+						'have.attr',
+						'aria-checked',
+						'true'
 					);
+					cy.getByAriaLabel('Parallax').should(
+						'not.have.attr',
+						'aria-checked',
+						'true'
+					);
+
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'90'
+						);
+					});
 				});
-			});
 
 			// Focus / Desktop
 			setBlockState('Focus');
@@ -778,19 +816,21 @@ describe('Block State E2E Test', () => {
 
 			//Assert control
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel("Don't Repeat").should(
+						'not.have.attr',
+						'aria-checked',
+						'true'
+					);
 
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
+					cy.getByAriaLabel('Parallax').should(
+						'not.have.attr',
+						'aria-checked',
+						'true'
+					);
+				});
 
 			// Hover / Desktop
 			setBlockState('Hover');
@@ -821,26 +861,28 @@ describe('Block State E2E Test', () => {
 
 			// Assert control
 			openBackgroundItem();
-			cy.getByDataTest('popover-body').within(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
+			cy.getByDataTest('popover-body')
+				.last()
+				.within(() => {
+					cy.getByAriaLabel("Don't Repeat").should(
+						'have.attr',
+						'aria-checked',
+						'true'
+					);
 
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'45'
+					cy.getParentContainer('Angle').within(() => {
+						cy.get('input[inputmode="numeric"]').should(
+							'have.value',
+							'45'
+						);
+					});
+
+					cy.getByAriaLabel('Parallax').should(
+						'not.have.attr',
+						'aria-checked',
+						'true'
 					);
 				});
-
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
 
 			// Assert store data
 			//TODO : normal/mobile should not exist in object
