@@ -47,13 +47,34 @@ describe('Inner Blocks E2E Test', () => {
 		);
 		cy.getIframeBody().find('[data-type="core/paragraph"]').click();
 		cy.getByAriaControls('styles-view').click();
+		cy.addNewTransition();
+	};
+
+	const aliasBoxShadowContainer = () => {
+		cy.getParentContainer('Box Shadows').as('box-shadow-container');
+	};
+
+	const aliasFilterContainer = () => {
+		cy.getParentContainer('Filters').as('filter-container');
 	};
 
 	const assertVisibleRepeaterCount = (containerAlias, count) => {
+		cy.get(containerAlias).scrollIntoView();
 		cy.get(containerAlias).within(() => {
-			cy.getByDataCy('group-control-header')
-				.filter(':visible')
-				.should('have.length', count);
+			cy.getByDataCy('group-control-header').should(($headers) => {
+				expect($headers.filter(':visible')).to.have.length(count);
+			});
+		});
+	};
+
+	const assertVisibleRepeaterIncludesText = (containerAlias, text) => {
+		cy.get(containerAlias).scrollIntoView();
+		cy.get(containerAlias).within(() => {
+			cy.getByDataCy('group-control-header').should(($headers) => {
+				const $visible = $headers.filter(':visible');
+				expect($visible.length).to.be.greaterThan(0);
+				expect($visible.text()).to.include(text);
+			});
 		});
 	};
 
@@ -62,7 +83,7 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Alias
-		cy.getParentContainer('Box Shadows').as('box-shadow-container');
+		aliasBoxShadowContainer();
 
 		// add box shadow
 		cy.getByAriaLabel('Add New Box Shadow').click();
@@ -76,16 +97,16 @@ describe('Inner Blocks E2E Test', () => {
 		// Reselect
 		reSelectBlock();
 		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		// Assert control value
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header')
-				.filter(':visible')
-				.and('include.text', '20');
-		});
+		assertVisibleRepeaterIncludesText('@box-shadow-container', '20');
 
 		addBlockState('hover');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
 
@@ -113,6 +134,9 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		addBlockState('active');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
 
@@ -145,6 +169,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Assert control value
 		checkCurrentState('active');
+		aliasBoxShadowContainer();
 		assertVisibleRepeaterCount('@box-shadow-container', 2);
 
 		cy.openRepeaterItem('Box Shadows', 'Inner');
@@ -161,14 +186,11 @@ describe('Inner Blocks E2E Test', () => {
 		reSelectBlock();
 		setInnerBlock('elements/link');
 		checkCurrentState('active');
+		aliasBoxShadowContainer();
 
 		// normal state updates should display
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header')
-				.filter(':visible')
-				.and('include.text', 'Outer');
-		});
+		assertVisibleRepeaterIncludesText('@box-shadow-container', 'Outer');
 
 		cy.openRepeaterItem('Box Shadows', 'Outer');
 		cy.get('@box-shadow-popover').within(() => {
@@ -208,14 +230,13 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		setBlockState('Normal');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		// should display only laptop / normal value
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
-		cy.get('@box-shadow-container').within(() => {
-			cy.getByDataCy('group-control-header')
-				.filter(':visible')
-				.and('include.text', 'Outer');
-		});
+		assertVisibleRepeaterIncludesText('@box-shadow-container', 'Outer');
 		cy.openRepeaterItem('Box Shadows', 'Outer');
 		cy.get('@box-shadow-popover').within(() => {
 			cy.getByDataTest('box-shadow-blur-input').should(
@@ -266,6 +287,9 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Change to laptop device (active/desktop)
 		setDeviceType('Desktop');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		// Assert control value
 		assertVisibleRepeaterCount('@box-shadow-container', 2);
@@ -327,6 +351,9 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Change to normal state (normal/laptop)
 		setBlockState('Normal');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		// Assert control value
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
@@ -374,6 +401,9 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Change to hover state (hover/laptop)
 		setBlockState('Hover');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasBoxShadowContainer();
 
 		// Assert control
 		assertVisibleRepeaterCount('@box-shadow-container', 1);
@@ -1253,14 +1283,13 @@ describe('Inner Blocks E2E Test', () => {
 		setInnerBlock('elements/link');
 
 		// Alias
-		cy.getParentContainer('Filters')
-			.as('filter-container')
-			.within(() => {
-				cy.getByAriaLabel('Add New Filter Effect').click({
-					force: true,
-				});
-				cy.getByDataCy('group-control-header').as('filter-items');
+		aliasFilterContainer();
+		cy.get('@filter-container').within(() => {
+			cy.getByAriaLabel('Add New Filter Effect').click({
+				force: true,
 			});
+			cy.getByDataCy('group-control-header').as('filter-items');
+		});
 		cy.getByDataTest('popover-body')
 			.as('filter-popover')
 			.within(() => {
@@ -1293,6 +1322,9 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		addBlockState('after');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasFilterContainer();
 
 		// Normal state updates should display
 		assertVisibleRepeaterCount('@filter-container', 1);
@@ -1328,6 +1360,9 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		addBlockState('focus');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasFilterContainer();
 
 		// Normal state updates should display
 		assertVisibleRepeaterCount('@filter-container', 1);
@@ -1357,6 +1392,7 @@ describe('Inner Blocks E2E Test', () => {
 		// Reselect
 		reSelectBlock();
 		setInnerBlock('elements/link');
+		aliasFilterContainer();
 
 		// Assert control
 		assertVisibleRepeaterCount('@filter-container', 2);
@@ -1368,6 +1404,9 @@ describe('Inner Blocks E2E Test', () => {
 
 		setBlockState('Normal');
 		setDeviceType('Mobile Portrait');
+		reSelectBlock();
+		setInnerBlock('elements/link');
+		aliasFilterContainer();
 
 		// laptop/normal updates should display
 		assertVisibleRepeaterCount('@filter-container', 1);
