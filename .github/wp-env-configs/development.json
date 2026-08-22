@@ -1,9 +1,5 @@
 {
-	"plugins": [
-		".",
-		"../blockera",
-		"https://downloads.wordpress.org/plugin/svg-support.latest-stable.zip"
-	],
+	"plugins": [".", "../blockera"],
 	"config": {
 		"WP_DEBUG": true,
 		"WP_DEBUG_LOG": true,
