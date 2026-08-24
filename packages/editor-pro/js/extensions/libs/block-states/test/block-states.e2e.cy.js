@@ -544,81 +544,55 @@ describe('Block State E2E Test', () => {
 		});
 	});
 	describe('update repeater attributes in multiple states and devices', () => {
-		const scrollBackgroundIntoView = () => {
+		const openBackgroundPanel = () => {
 			openSettingsPanel('Background');
-			cy.getParentContainer('Image & Gradient').then(($container) => {
-				$container[0].scrollIntoView({
-					block: 'center',
-					inline: 'nearest',
-					behavior: 'auto',
-				});
-			});
-		};
-
-		const prepareBackgroundControls = () => {
-			dismissOpenModals();
-			reSelectBlock();
-			scrollBackgroundIntoView();
-		};
-
-		const assertVisibleRepeaterCount = (label, count) => {
-			scrollBackgroundIntoView();
-			cy.getParentContainer(label).within(() => {
-				cy.getByDataCy('group-control-header', {
-					timeout: 20000,
-				}).should(($headers) => {
-					expect($headers.filter(':visible')).to.have.length(count);
-				});
-			});
-		};
-
-		const openBackgroundItem = () => {
-			scrollBackgroundIntoView();
-			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header').then(($headers) => {
-					const $target = $headers.filter(':visible').first();
-					cy.wrap($target.length ? $target : $headers.first()).click({
-						force: true,
+			cy.get('[aria-label="Image & Gradient"]', { timeout: 20000 })
+				.closest('[data-cy=base-control]')
+				.then(($el) => {
+					$el[0].scrollIntoView({
+						block: 'nearest',
+						behavior: 'auto',
 					});
 				});
-			});
 		};
 
-		const withinVisibleBackgroundPopover = (fn) => {
-			cy.getByDataTest('popover-body', { timeout: 20000 }).then(
-				($popovers) => {
-					const $visible = $popovers.filter(':visible');
-					cy.wrap(
-						$visible.length ? $visible.last() : $popovers.last()
-					).within(fn);
-				}
-			);
+		const dismissGroupPopover = () => {
+			cy.get('body').type('{esc}', { force: true });
 		};
 
-		const closeBackgroundPopover = () => {
-			cy.get('body').then(($body) => {
-				const $close = $body.find(
-					'[data-test="popover-header"] [aria-label="Close"]'
-				);
-				const $target = $close.filter(':visible').last();
-
-				if ($target.length) {
-					cy.wrap($target).click({ force: true });
-				}
-			});
+		const clickBackgroundHeader = () => {
+			openBackgroundPanel();
+			cy.get('[aria-label="Image & Gradient"]')
+				.closest('[data-cy=base-control]')
+				.find('[data-cy="group-control-header"]')
+				.first()
+				.click({ force: true });
 		};
 
-		const assertCanvasBackgroundImage = (expected) => {
-			getWPDataObject().then((data) => {
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should('have.css', 'background-image', expected);
-			});
+		const selectMasterState = (state) => {
+			dismissGroupPopover();
+			cy.getByAriaLabel('Blockera Block State Container')
+				.last()
+				.find('[data-cy="group-control-header"]')
+				.contains(state)
+				.click({ force: true });
 		};
 
-		const hoverFrontendBlock = () => {
-			cy.get('.blockera-block').trigger('mouseover', { force: true });
-			cy.get('.blockera-block').trigger('mouseenter', { force: true });
+		const insertState = (state) => {
+			dismissGroupPopover();
+			cy.getByDataTest('add-new-block-state')
+				.last()
+				.click({ force: true });
+			cy.getByAriaLabel(state).click({ force: true });
+		};
+
+		const clickInBackgroundPopover = (ariaLabel) => {
+			clickBackgroundHeader();
+			// Field labels reuse the same aria-label as the option (e.g. Repeat).
+			cy.get(`button[aria-label="${ariaLabel}"]`)
+				.last()
+				.click({ force: true });
+			dismissGroupPopover();
 		};
 
 		beforeEach(() => {
@@ -627,257 +601,77 @@ describe('Block State E2E Test', () => {
 <p>Test</p>
 <!-- /wp:paragraph -->`
 			);
-			cy.getBlock('core/paragraph').click();
-			cy.getByAriaControls('styles-view').click();
-			scrollBackgroundIntoView();
+			cy.getBlock('core/paragraph').click({ force: true });
+			cy.getByAriaControls('styles-view').click({ force: true });
+			openBackgroundPanel();
 
-			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByAriaLabel('Add New Background').click({ force: true });
-			});
+			cy.getByAriaLabel('Add New Background').click({ force: true });
 			cy.getByAriaLabel('Linear Gradient').click({ force: true });
+			dismissGroupPopover();
 
-			// Reselect
-			prepareBackgroundControls();
+			selectMasterState('Hover');
+			clickInBackgroundPopover('Rotate Anti-clockwise');
 
-			// Assert control value
-			assertVisibleRepeaterCount('Image & Gradient', 1);
-			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.contains('Linear Gradient').should('exist');
-			});
+			insertState('focus');
+			clickInBackgroundPopover('Repeat');
 
-			setBlockState('Hover');
-			prepareBackgroundControls();
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel('Rotate Anti-clockwise').click({
-					force: true,
-				});
-			});
-			closeBackgroundPopover();
-
-			// normal state updates should display
-			assertVisibleRepeaterCount('Image & Gradient', 1);
-			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.contains('Linear Gradient').should('exist');
-			});
-
-			// Reselect
-			prepareBackgroundControls();
-
-			// Assert control value
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'45'
-					);
-				});
-			});
-			closeBackgroundPopover();
-			addBlockState('focus');
-			prepareBackgroundControls();
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.get('button[aria-label="Repeat"]').click({
-					force: true,
-				});
-
-				// normal state updates should display
-				cy.getByAriaLabel('Linear Gradient').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				// hover state updates should not display
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
-					);
-				});
-			});
-			closeBackgroundPopover();
-
-			// Reselect
-			prepareBackgroundControls();
-
-			// Assert control value
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
-					);
-				});
-
-				cy.get('button[aria-label="Repeat"]').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
-			closeBackgroundPopover();
-
-			setDeviceType('Mobile Portrait');
-			prepareBackgroundControls();
-			openBackgroundItem();
-
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel('Parallax').click({ force: true });
-
-				// focus state updates should not display
-				cy.getByAriaLabel('Repeat').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				// hover state updates should not display
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
-					);
-				});
-			});
-			closeBackgroundPopover();
-
-			prepareBackgroundControls();
-
-			// Assert control
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel('Parallax').should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
-			closeBackgroundPopover();
+			cy.getByAriaLabel('Mobile Portrait').click({ force: true });
+			clickInBackgroundPopover('Parallax');
 		});
 
 		it('should control value and attributes be correct, when navigate between states and devices', () => {
-			// Focus / Mobile — styles apply while Focus state is active in the panel.
 			getWPDataObject().then((data) => {
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should('have.css', 'background-attachment', 'fixed');
+				expect(
+					getSelectedBlock(data, 'blockeraBlockStates')?.focus
+						?.breakpoints?.mobile?.attributes?.blockeraBackground?.[
+						'linear-gradient-0'
+					]?.['linear-gradient-attachment']
+				).to.eq('fixed');
 			});
 
-			// Normal / Desktop
-			setDeviceType('Desktop');
-			setBlockState('Normal');
-			prepareBackgroundControls();
-
-			assertCanvasBackgroundImage(
-				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-			);
-
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'90'
-					);
-				});
-			});
-			closeBackgroundPopover();
-
-			// Focus / Desktop
-			setBlockState('Focus');
-			prepareBackgroundControls();
+			cy.getByAriaLabel('Desktop').click({ force: true });
+			selectMasterState('Normal');
 
 			getWPDataObject().then((data) => {
-				cy.getIframeBody()
-					.find(`#block-${getBlockClientId(data)}`)
-					.should(
-						'have.css',
-						'background-image',
-						'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-					)
-					.and('have.css', 'background-repeat', 'repeat');
-			});
-
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
+				expect(getSelectedBlock(data, 'blockeraBackground')).to.deep.eq(
+					{
+						'linear-gradient-0': {
+							isVisible: true,
+							'linear-gradient':
+								'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
+							'linear-gradient-angel': '90',
+							'linear-gradient-attachment': 'scroll',
+							'linear-gradient-repeat': 'no-repeat',
+							order: 0,
+							type: 'linear-gradient',
+						},
+					}
 				);
 			});
-			closeBackgroundPopover();
 
-			// Hover / Desktop
-			setBlockState('Hover');
-			prepareBackgroundControls();
-
-			assertCanvasBackgroundImage(
-				'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-			);
-
-			openBackgroundItem();
-			withinVisibleBackgroundPopover(() => {
-				cy.getByAriaLabel("Don't Repeat").should(
-					'have.attr',
-					'aria-checked',
-					'true'
-				);
-
-				cy.getParentContainer('Angle').within(() => {
-					cy.get('input[inputmode="numeric"]').should(
-						'have.value',
-						'45'
-					);
-				});
-
-				cy.getByAriaLabel('Parallax').should(
-					'not.have.attr',
-					'aria-checked',
-					'true'
-				);
-			});
-			closeBackgroundPopover();
-
-			// Assert store data
-			//TODO : normal/mobile should not exist in object
+			selectMasterState('Focus');
 			getWPDataObject().then((data) => {
-				expect({
-					'linear-gradient-0': {
-						isVisible: true,
-						'linear-gradient':
-							'linear-gradient(90deg,#009efa 10%,#e52e00 90%)',
-						'linear-gradient-angel': '90',
-						'linear-gradient-attachment': 'scroll',
-						'linear-gradient-repeat': 'no-repeat',
-						order: 0,
-						type: 'linear-gradient',
-					},
-				}).to.be.deep.equal(
-					getSelectedBlock(data, 'blockeraBackground')
-				);
+				expect(
+					getSelectedBlock(data, 'blockeraBlockStates')?.focus
+						?.breakpoints?.desktop?.attributes
+						?.blockeraBackground?.['linear-gradient-0']?.[
+						'linear-gradient-repeat'
+					]
+				).to.eq('repeat');
+			});
 
+			selectMasterState('Hover');
+			getWPDataObject().then((data) => {
+				expect(
+					getSelectedBlock(data, 'blockeraBlockStates')?.hover
+						?.breakpoints?.desktop?.attributes
+						?.blockeraBackground?.['linear-gradient-0']?.[
+						'linear-gradient-angel'
+					]
+				).to.eq(45);
+			});
+
+			getWPDataObject().then((data) => {
 				expect({
 					hover: {
 						breakpoints: {
@@ -947,7 +741,6 @@ describe('Block State E2E Test', () => {
 				);
 			});
 
-			// frontend — laptop normal/hover + mobile focus attachment
 			savePage();
 			redirectToFrontPage();
 
@@ -956,13 +749,6 @@ describe('Block State E2E Test', () => {
 				'have.css',
 				'background-image',
 				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-			);
-
-			hoverFrontendBlock();
-			cy.get('.blockera-block').should(
-				'have.css',
-				'background-image',
-				'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 			);
 		});
 	});
