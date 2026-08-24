@@ -21,8 +21,6 @@ import {
 	getBlockClientId,
 	checkCurrentState,
 	redirectToFrontPage,
-	openSettingsPanel,
-	dismissOpenModals,
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Block State E2E Test', () => {
