@@ -46,6 +46,7 @@ describe('Search Block', () => {
 
 		cy.getBlock('core/search')
 			.first()
+			.find('.wp-block-search__button')
 			.should('have.css', 'color', 'rgb(255, 16, 0)');
 
 		//
@@ -86,11 +87,9 @@ describe('Search Block', () => {
 		savePage();
 		redirectToFrontPage();
 
-		cy.get('.blockera-block.wp-block-search').should(
-			'have.css',
-			'color',
-			'rgb(255, 16, 0)'
-		);
+		cy.get(
+			'.blockera-block.wp-block-search .wp-block-search__button'
+		).should('have.css', 'color', 'rgb(255, 16, 0)');
 
 		cy.get('style#blockera-inline-css')
 			.invoke('text')
