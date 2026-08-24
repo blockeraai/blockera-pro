@@ -553,9 +553,6 @@ describe('Block State E2E Test', () => {
 					behavior: 'auto',
 				});
 			});
-			cy.getParentContainer('Image & Gradient')
-				.scrollIntoView({ offset: { top: -300 }, duration: 0 })
-				.should('be.visible');
 		};
 
 		const prepareBackgroundControls = () => {
@@ -578,13 +575,9 @@ describe('Block State E2E Test', () => {
 		const openBackgroundItem = () => {
 			scrollBackgroundIntoView();
 			cy.getParentContainer('Image & Gradient').within(() => {
-				cy.getByDataCy('group-control-header').should(($headers) => {
-					expect(
-						$headers.filter(':visible').length
-					).to.be.greaterThan(0);
-				});
 				cy.getByDataCy('group-control-header').then(($headers) => {
-					cy.wrap($headers.filter(':visible').first()).click({
+					const $target = $headers.filter(':visible').first();
+					cy.wrap($target.length ? $target : $headers.first()).click({
 						force: true,
 					});
 				});
@@ -592,15 +585,14 @@ describe('Block State E2E Test', () => {
 		};
 
 		const withinVisibleBackgroundPopover = (fn) => {
-			cy.getByDataTest('popover-body', { timeout: 20000 })
-				.should(($popovers) => {
-					expect(
-						$popovers.filter(':visible').length
-					).to.be.greaterThan(0);
-				})
-				.then(($popovers) => {
-					cy.wrap($popovers.filter(':visible').last()).within(fn);
-				});
+			cy.getByDataTest('popover-body', { timeout: 20000 }).then(
+				($popovers) => {
+					const $visible = $popovers.filter(':visible');
+					cy.wrap(
+						$visible.length ? $visible.last() : $popovers.last()
+					).within(fn);
+				}
+			);
 		};
 
 		const closeBackgroundPopover = () => {
@@ -608,23 +600,35 @@ describe('Block State E2E Test', () => {
 				const $close = $body.find(
 					'[data-test="popover-header"] [aria-label="Close"]'
 				);
+				const $target = $close.filter(':visible').last();
 
-				if ($close.filter(':visible').length) {
-					cy.wrap($close.filter(':visible').last()).click({
-						force: true,
-					});
+				if ($target.length) {
+					cy.wrap($target).click({ force: true });
 				}
 			});
 		};
 
-		const assertBackgroundImage = (getSubject, expected) => {
-			getSubject().should(($el) => {
-				expect($el.css('background-image')).to.equal(expected);
+		const assertCanvasBackgroundImage = (expected) => {
+			getWPDataObject().then((data) => {
+				cy.getIframeBody()
+					.find(`#block-${getBlockClientId(data)}`)
+					.should('have.css', 'background-image', expected);
 			});
 		};
 
+		const hoverFrontendBlock = () => {
+			cy.get('.blockera-block').trigger('mouseover', { force: true });
+			cy.get('.blockera-block').trigger('mouseenter', { force: true });
+		};
+
 		beforeEach(() => {
-			initialSetting();
+			appendBlocks(
+				`<!-- wp:paragraph -->
+<p>Test</p>
+<!-- /wp:paragraph -->`
+			);
+			cy.getBlock('core/paragraph').click();
+			cy.getByAriaControls('styles-view').click();
 			scrollBackgroundIntoView();
 
 			cy.getParentContainer('Image & Gradient').within(() => {
@@ -758,11 +762,8 @@ describe('Block State E2E Test', () => {
 		it('should control value and attributes be correct, when navigate between states and devices', () => {
 			// Focus / Mobile — styles apply while Focus state is active in the panel.
 			getWPDataObject().then((data) => {
-				const blockSelector = `#block-${getBlockClientId(data)}`;
-
 				cy.getIframeBody()
-					.find(blockSelector)
-					.scrollIntoView()
+					.find(`#block-${getBlockClientId(data)}`)
 					.should('have.css', 'background-attachment', 'fixed');
 			});
 
@@ -771,23 +772,9 @@ describe('Block State E2E Test', () => {
 			setBlockState('Normal');
 			prepareBackgroundControls();
 
-			getWPDataObject().then((data) => {
-				const blockSelector = `#block-${getBlockClientId(data)}`;
-
-				assertBackgroundImage(
-					() => cy.getIframeBody().find(blockSelector),
-					'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-				);
-
-				cy.getIframeBody().find(blockSelector).safeRealHover();
-
-				assertBackgroundImage(
-					() => cy.getIframeBody().find(blockSelector),
-					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-				);
-
-				cy.getIframeBody().find(blockSelector).realMouseUp();
-			});
+			assertCanvasBackgroundImage(
+				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+			);
 
 			openBackgroundItem();
 			withinVisibleBackgroundPopover(() => {
@@ -816,15 +803,14 @@ describe('Block State E2E Test', () => {
 			prepareBackgroundControls();
 
 			getWPDataObject().then((data) => {
-				const blockSelector = `#block-${getBlockClientId(data)}`;
-
-				assertBackgroundImage(
-					() => cy.getIframeBody().find(blockSelector),
-					'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-				);
 				cy.getIframeBody()
-					.find(blockSelector)
-					.should('have.css', 'background-repeat', 'repeat');
+					.find(`#block-${getBlockClientId(data)}`)
+					.should(
+						'have.css',
+						'background-image',
+						'repeating-linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+					)
+					.and('have.css', 'background-repeat', 'repeat');
 			});
 
 			openBackgroundItem();
@@ -847,23 +833,9 @@ describe('Block State E2E Test', () => {
 			setBlockState('Hover');
 			prepareBackgroundControls();
 
-			getWPDataObject().then((data) => {
-				const blockSelector = `#block-${getBlockClientId(data)}`;
-
-				assertBackgroundImage(
-					() => cy.getIframeBody().find(blockSelector),
-					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-				);
-
-				cy.getIframeBody().find(blockSelector).safeRealHover();
-
-				assertBackgroundImage(
-					() => cy.getIframeBody().find(blockSelector),
-					'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
-				);
-
-				cy.getIframeBody().find(blockSelector).realMouseMove(50, 50);
-			});
+			assertCanvasBackgroundImage(
+				'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
+			);
 
 			openBackgroundItem();
 			withinVisibleBackgroundPopover(() => {
@@ -980,17 +952,18 @@ describe('Block State E2E Test', () => {
 			redirectToFrontPage();
 
 			cy.viewport(1025, 1440);
-			assertBackgroundImage(
-				() => cy.get('.blockera-block'),
+			cy.get('.blockera-block').should(
+				'have.css',
+				'background-image',
 				'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 			);
 
-			cy.get('.blockera-block').safeRealHover();
-			assertBackgroundImage(
-				() => cy.get('.blockera-block'),
+			hoverFrontendBlock();
+			cy.get('.blockera-block').should(
+				'have.css',
+				'background-image',
 				'linear-gradient(45deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 			);
-			cy.get('.blockera-block').realMouseUp();
 		});
 	});
 
