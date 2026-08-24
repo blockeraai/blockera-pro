@@ -68,12 +68,114 @@ describe('Inner Blocks E2E Test', () => {
 		});
 	};
 
+	const getInnerBlockLinkSelector = (data) =>
+		`#block-${getBlockClientId(data)} a`;
+
+	// Editor canvas: active styles are previewed via injected fallback selectors
+	// while the Active block state is selected — :active cannot be simulated on
+	// inner links inside the editor iframe.
+	const assertEditorInnerBlockBoxShadow = (expected) => {
+		getWPDataObject().then((data) => {
+			assertBoxShadowCss(
+				() => cy.getIframeBody().find(getInnerBlockLinkSelector(data)),
+				expected
+			);
+		});
+	};
+
+	const assertFrontendActiveBoxShadow = (expected) => {
+		cy.get('.my-link').realMouseDown();
+		assertBoxShadowCss(() => cy.get('.my-link'), expected);
+		cy.get('.my-link').realMouseUp();
+	};
+
+	const dismissGroupPopover = () => {
+		cy.get('body').type('{esc}', { force: true });
+	};
+
+	const INNER_BLOCK_CONTROL_ADD_LABELS = {
+		'Box Shadows': 'Add New Box Shadow',
+		Filters: 'Add New Filter Effect',
+	};
+
+	const getControlContainerAlias = (label) =>
+		label === 'Box Shadows' ? '@box-shadow-container' : '@filter-container';
+
+	const getRepeaterRootSelector = (label) =>
+		label === 'Box Shadows'
+			? '.blockera-control-box-shadow[data-cy=blockera-repeater-control]'
+			: '.blockera-control-filter[data-cy=blockera-repeater-control]';
+
+	const pickNearestToInnerBlockCard = ($elements, $card) => {
+		const cardRect = $card[0].getBoundingClientRect();
+		let $best = Cypress.$();
+		let bestDistance = Infinity;
+
+		$elements.each((_, el) => {
+			const rect = el.getBoundingClientRect();
+
+			if (rect.height <= 0 || rect.width <= 0) {
+				return;
+			}
+
+			const distance =
+				Math.abs(rect.top - cardRect.bottom) +
+				Math.abs(rect.left - cardRect.left);
+
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				$best = Cypress.$(el);
+			}
+		});
+
+		return $best;
+	};
+
+	const resolveInnerBlockControlContainer = (label) => {
+		const addLabel = INNER_BLOCK_CONTROL_ADD_LABELS[label];
+
+		cy.getByDataTest('blockera-inner-block-card', {
+			timeout: 20000,
+		}).should('exist');
+
+		return cy
+			.getByAriaLabel(addLabel, { timeout: 20000 })
+			.then(($buttons) => {
+				return cy
+					.getByDataTest('blockera-inner-block-card')
+					.then(($card) => {
+						const $button = pickNearestToInnerBlockCard(
+							$buttons,
+							$card
+						);
+
+						expect(
+							$button.length,
+							`"${addLabel}" for inner block`
+						).to.be.greaterThan(0);
+
+						return cy.wrap(
+							$button.closest('[data-cy=base-control]')
+						);
+					});
+			});
+	};
+
+	const getRepeaterListRows = ($container, label) => {
+		return $container
+			.find(
+				`${getRepeaterRootSelector(label)} > [data-cy="repeater-item"]`
+			)
+			.filter(':visible')
+			.not('[data-test="repeater-item-creating-step"]');
+	};
+
 	const scrollControlIntoView = (label, panelName = null) => {
 		if (panelName) {
 			openSettingsPanel(panelName);
 		}
 
-		cy.getParentContainer(label).then(($container) => {
+		resolveInnerBlockControlContainer(label).then(($container) => {
 			$container[0].scrollIntoView({
 				block: 'center',
 				inline: 'nearest',
@@ -81,7 +183,7 @@ describe('Inner Blocks E2E Test', () => {
 			});
 		});
 
-		cy.getParentContainer(label)
+		resolveInnerBlockControlContainer(label)
 			.scrollIntoView({ offset: { top: -300 }, duration: 0 })
 			.should('be.visible');
 	};
@@ -93,32 +195,43 @@ describe('Inner Blocks E2E Test', () => {
 
 	const prepareBoxShadowControls = () => {
 		prepareInnerBlockLink();
+		dismissGroupPopover();
 		scrollControlIntoView('Box Shadows', 'Border And Shadow');
-		cy.getParentContainer('Box Shadows').as('box-shadow-container');
+		resolveInnerBlockControlContainer('Box Shadows').as(
+			'box-shadow-container'
+		);
 	};
 
 	const prepareFilterControls = () => {
 		prepareInnerBlockLink();
+		dismissGroupPopover();
 		scrollControlIntoView('Filters', 'Effects');
-		cy.getParentContainer('Filters').as('filter-container');
+		resolveInnerBlockControlContainer('Filters').as('filter-container');
 	};
 
 	const openBoxShadowRepeaterItem = (contains) => {
-		scrollControlIntoView('Box Shadows', 'Border And Shadow');
-		cy.getParentContainer('Box Shadows').within(() => {
-			cy.get('[data-cy="group-control-header"]:visible')
-				.contains(contains)
-				.click({ force: true });
+		dismissGroupPopover();
+		openSettingsPanel('Border And Shadow');
+		cy.get('@box-shadow-container').then(($container) => {
+			const $header = getRepeaterListRows($container, 'Box Shadows')
+				.find('[data-cy="group-control-header"]')
+				.filter((_, el) => el.textContent.includes(contains))
+				.first();
+
+			expect($header.length).to.be.greaterThan(0);
+			cy.wrap($header).click({ force: true });
 		});
 	};
 
 	const assertVisibleRepeaterCount = (label, count, panelName = null) => {
-		scrollControlIntoView(label, panelName);
-		cy.getParentContainer(label).within(() => {
-			cy.getByDataCy('group-control-header', { timeout: 20000 }).should(
-				($headers) => {
-					expect($headers.filter(':visible')).to.have.length(count);
-				}
+		dismissGroupPopover();
+		if (panelName) {
+			openSettingsPanel(panelName);
+		}
+
+		cy.get(getControlContainerAlias(label)).should(($container) => {
+			expect(getRepeaterListRows($container, label)).to.have.length(
+				count
 			);
 		});
 	};
@@ -128,14 +241,20 @@ describe('Inner Blocks E2E Test', () => {
 		text,
 		panelName = null
 	) => {
-		scrollControlIntoView(label, panelName);
-		cy.getParentContainer(label).within(() => {
-			cy.getByDataCy('group-control-header').should(($headers) => {
-				const $visible = $headers.filter(':visible');
-				expect($visible.length).to.be.greaterThan(0);
-				expect($visible.text()).to.include(text);
-			});
+		dismissGroupPopover();
+		if (panelName) {
+			openSettingsPanel(panelName);
+		}
+
+		cy.get(getControlContainerAlias(label)).should(($container) => {
+			const $rows = getRepeaterListRows($container, label);
+			expect($rows.length).to.be.greaterThan(0);
+			expect($rows.text()).to.include(text);
 		});
+	};
+
+	const withinBoxShadowPopover = (fn) => {
+		cy.getByDataTest('popover-body').last().within(fn);
 	};
 
 	it('should control value and attributes be correct, when navigate between states and devices', () => {
@@ -151,11 +270,10 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		// alias
-		cy.getByDataTest('popover-body').as('box-shadow-popover');
-
-		// Set blur
-		cy.getByDataTest('box-shadow-blur-input').type(`{selectall}20`, {
-			force: true,
+		withinBoxShadowPopover(() => {
+			cy.getByDataTest('box-shadow-blur-input').type(`{selectall}20`, {
+				force: true,
+			});
 		});
 
 		// Reselect
@@ -177,7 +295,7 @@ describe('Inner Blocks E2E Test', () => {
 		// set x
 		openBoxShadowRepeaterItem('Outer');
 
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			// normal state updates should display
 			cy.getByDataTest('box-shadow-blur-input').should(
 				'have.value',
@@ -192,7 +310,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// Assert control value
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-x-input').should('have.value', '5');
 		});
 
@@ -203,7 +321,7 @@ describe('Inner Blocks E2E Test', () => {
 
 		// hover state updates should not display
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-x-input').should(
 				'not.have.value',
 				'5'
@@ -220,11 +338,9 @@ describe('Inner Blocks E2E Test', () => {
 		cy.get('@box-shadow-container').within(() => {
 			cy.getByAriaLabel('Add New Box Shadow').click({ force: true });
 		});
-		cy.get('@box-shadow-popover')
-			.last()
-			.within(() => {
-				cy.getByAriaLabel('Inner').click();
-			});
+		withinBoxShadowPopover(() => {
+			cy.getByAriaLabel('Inner').click();
+		});
 
 		// Reselect
 		checkCurrentState('active');
@@ -232,7 +348,7 @@ describe('Inner Blocks E2E Test', () => {
 		assertVisibleRepeaterCount('Box Shadows', 2, 'Border And Shadow');
 
 		openBoxShadowRepeaterItem('Inner');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByAriaLabel('Inner').should(
 				'have.attr',
 				'aria-checked',
@@ -245,15 +361,20 @@ describe('Inner Blocks E2E Test', () => {
 		prepareBoxShadowControls();
 
 		// normal state updates should display
-		assertVisibleRepeaterCount('Box Shadows', 1, 'Border And Shadow');
+		assertVisibleRepeaterCount('Box Shadows', 2, 'Border And Shadow');
 		assertVisibleRepeaterIncludesText(
 			'Box Shadows',
 			'Outer',
 			'Border And Shadow'
 		);
+		assertVisibleRepeaterIncludesText(
+			'Box Shadows',
+			'Inner',
+			'Border And Shadow'
+		);
 
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			// hover state updates should not display
 			cy.getByDataTest('box-shadow-x-input').should(
 				'not.have.value',
@@ -275,7 +396,7 @@ describe('Inner Blocks E2E Test', () => {
 		prepareBoxShadowControls();
 
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-blur-input').should(
 				'have.value',
 				'20'
@@ -297,7 +418,7 @@ describe('Inner Blocks E2E Test', () => {
 			'Border And Shadow'
 		);
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-blur-input').should(
 				'have.value',
 				'20'
@@ -314,35 +435,18 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		// Assert block css (normal/tablet)
-		getWPDataObject().then((data) => {
-			assertBoxShadowCss(
-				() =>
-					cy
-						.getIframeBody()
-						.find(`#block-${getBlockClientId(data)} a`),
-				'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
-			);
-		});
+		assertEditorInnerBlockBoxShadow(
+			'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
+		);
 
 		setBlockState('Active');
+		checkCurrentState('active');
+		prepareBoxShadowControls();
 
 		// Assert block css (active/tablet)
-		getWPDataObject().then((data) => {
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
-				.realMouseDown();
-			assertBoxShadowCss(
-				() =>
-					cy
-						.getIframeBody()
-						.find(`#block-${getBlockClientId(data)} a`),
-				'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
-			);
-
-			cy.getIframeBody()
-				.find(`#block-${getBlockClientId(data)} a`)
-				.realMouseUp();
-		});
+		assertEditorInnerBlockBoxShadow(
+			'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+		);
 
 		// Change to laptop device (active/desktop)
 		setDeviceType('Desktop');
@@ -352,7 +456,7 @@ describe('Inner Blocks E2E Test', () => {
 		assertVisibleRepeaterCount('Box Shadows', 2, 'Border And Shadow');
 
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			// overwrite normal/laptop value
 			cy.getByDataTest('box-shadow-x-input').should('have.value', '10');
 
@@ -370,41 +474,27 @@ describe('Inner Blocks E2E Test', () => {
 		});
 
 		openBoxShadowRepeaterItem('Inner');
-		cy.get('@box-shadow-popover')
-			.last()
-			.within(() => {
-				// default value
-				cy.getByDataTest('box-shadow-x-input').should(
-					'have.value',
-					'10'
-				);
+		withinBoxShadowPopover(() => {
+			// default value
+			cy.getByDataTest('box-shadow-x-input').should('have.value', '10');
 
-				cy.getByDataTest('box-shadow-y-input').should(
-					'have.value',
-					'10'
-				);
+			cy.getByDataTest('box-shadow-y-input').should('have.value', '10');
 
-				cy.getByDataTest('box-shadow-blur-input').should(
-					'have.value',
-					'10'
-				);
+			cy.getByDataTest('box-shadow-blur-input').should(
+				'have.value',
+				'10'
+			);
 
-				cy.getByDataTest('box-shadow-spread-input').should(
-					'have.value',
-					'0'
-				);
-			});
-
-		// Assert block css
-		getWPDataObject().then((data) => {
-			assertBoxShadowCss(
-				() =>
-					cy
-						.getIframeBody()
-						.find(`#block-${getBlockClientId(data)} a`),
-				'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+			cy.getByDataTest('box-shadow-spread-input').should(
+				'have.value',
+				'0'
 			);
 		});
+
+		// Assert block css (active/desktop)
+		assertEditorInnerBlockBoxShadow(
+			'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+		);
 
 		// Change to normal state (normal/laptop)
 		setBlockState('Normal');
@@ -414,7 +504,7 @@ describe('Inner Blocks E2E Test', () => {
 		assertVisibleRepeaterCount('Box Shadows', 1, 'Border And Shadow');
 
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-x-input').should('have.value', '10');
 
 			cy.getByDataTest('box-shadow-y-input').should('have.value', '10');
@@ -463,7 +553,7 @@ describe('Inner Blocks E2E Test', () => {
 		// Assert control
 		assertVisibleRepeaterCount('Box Shadows', 1, 'Border And Shadow');
 		openBoxShadowRepeaterItem('Outer');
-		cy.get('@box-shadow-popover').within(() => {
+		withinBoxShadowPopover(() => {
 			cy.getByDataTest('box-shadow-x-input').should('have.value', '5');
 
 			cy.getByDataTest('box-shadow-y-input').should('have.value', '10');
@@ -528,6 +618,16 @@ describe('Inner Blocks E2E Test', () => {
 																spread: '0px',
 																color: '#000000ab',
 																order: 0,
+															},
+															'inner-0': {
+																isVisible: true,
+																type: 'inner',
+																x: '10px',
+																y: '10px',
+																blur: '10px',
+																spread: '0px',
+																color: '#000000ab',
+																order: 1,
 															},
 														},
 													},
@@ -652,14 +752,9 @@ describe('Inner Blocks E2E Test', () => {
 		cy.get('.my-link').realMouseUp();
 
 		// Active
-		cy.get('.my-link').realMouseDown();
-		assertBoxShadowCss(
-			() => cy.get('.my-link'),
+		assertFrontendActiveBoxShadow(
 			'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
 		);
-		cy.get('.my-link').realMouseUp();
-
-		cy.go('back');
 
 		// Set desktop viewport
 		cy.viewport(1441, 1920);
@@ -669,12 +764,9 @@ describe('Inner Blocks E2E Test', () => {
 		);
 
 		// Active
-		cy.get('.my-link').realMouseDown();
-		assertBoxShadowCss(
-			() => cy.get('.my-link'),
+		assertFrontendActiveBoxShadow(
 			'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
 		);
-		cy.get('.my-link').realMouseUp();
 
 		// Hover
 		cy.get('.my-link').realHover();
@@ -684,37 +776,20 @@ describe('Inner Blocks E2E Test', () => {
 		);
 		cy.get('.my-link').realMouseUp();
 
-		cy.go('back');
-
-		//  set tablet viewport
+		// Set tablet viewport
 		cy.viewport(768, 1024);
 
-		// Active
-		cy.get('.my-link').realMouseDown();
-		assertBoxShadowCss(
-			() => cy.get('.my-link'),
-			'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
-		);
-		cy.get('.my-link').realMouseUp();
-
-		// Hover
-		cy.get('.my-link').realHover();
-		assertBoxShadowCss(
-			() => cy.get('.my-link'),
-			'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
-		);
-		cy.get('.my-link').realMouseUp();
-
-		cy.go('back');
-
-		// Set mobile viewport (must inherit styles)
-		cy.viewport(380, 470);
-
+		// Normal (tablet breakpoint overrides)
 		assertBoxShadowCss(
 			() => cy.get('.my-link'),
 			'rgba(0, 0, 0, 0.67) 10px 10px 30px 40px'
 		);
 
+		// Active
+		assertFrontendActiveBoxShadow(
+			'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+		);
+
 		// Hover
 		cy.get('.my-link').realHover();
 		assertBoxShadowCss(
@@ -723,13 +798,26 @@ describe('Inner Blocks E2E Test', () => {
 		);
 		cy.get('.my-link').realMouseUp();
 
-		// Active
-		cy.get('.my-link').realMouseDown();
+		// Set mobile viewport — no mobile-specific normal override; desktop base applies
+		cy.viewport(380, 470);
+
 		assertBoxShadowCss(
 			() => cy.get('.my-link'),
-			'rgba(0, 0, 0, 0.67) 10px 50px 20px 0px'
+			'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px'
+		);
+
+		// Hover
+		cy.get('.my-link').realHover();
+		assertBoxShadowCss(
+			() => cy.get('.my-link'),
+			'rgba(0, 0, 0, 0.67) 5px 10px 20px 0px'
 		);
 		cy.get('.my-link').realMouseUp();
+
+		// Active (desktop/active — no mobile breakpoint override)
+		assertFrontendActiveBoxShadow(
+			'rgba(0, 0, 0, 0.67) 10px 10px 20px 0px, rgba(0, 0, 0, 0.67) 10px 10px 10px 0px inset'
+		);
 	});
 
 	it('Normal → default breakpoint(laptop)', () => {
