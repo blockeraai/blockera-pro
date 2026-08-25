@@ -104,11 +104,6 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		});
 	};
 
-	const hoverFrontendBlock = () => {
-		cy.get('.blockera-block').trigger('mouseover', { force: true });
-		cy.get('.blockera-block').trigger('mouseenter', { force: true });
-	};
-
 	const prepare = () => {
 		cy.viewport(1440, 1025);
 
@@ -404,7 +399,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 			'linear-gradient(90deg, rgb(0, 158, 250) 10%, rgb(229, 46, 0) 90%)'
 		);
 
-		hoverFrontendBlock();
+		cy.get('.blockera-block').realHover();
 		cy.get('.blockera-block').should(
 			'have.css',
 			'background-image',
