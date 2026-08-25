@@ -1,5 +1,15 @@
 import { goTo } from '@blockera/dev-cypress/js/helpers';
 
+/**
+ * Account settings is a Pro submenu. Inactive Pro → WP `user_can_access_admin_page()` 403.
+ * Activate via WP-CLI; plugins.php often never fires `load` in this env.
+ */
+const ensureBlockeraProActive = () => {
+	cy.task('wpPluginActivate', {
+		plugin: 'blockera-pro/blockera-pro.php',
+	});
+};
+
 const loginToBlockerAI = () => {
 	cy.get('body').then(($body) => {
 		if ($body.find('input#username').length > 0) {
@@ -60,6 +70,8 @@ const tryToActivatingLicense = (checkWPLoggedIn = false) => {
 
 describe('Activate License', () => {
 	it('should activate license', () => {
+		ensureBlockeraProActive();
+
 		goTo('/wp-admin/options-permalink.php');
 		cy.get('label').contains('Post name').click();
 		cy.get('input[type="submit"').click();
