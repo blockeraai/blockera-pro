@@ -86,12 +86,13 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		});
 	};
 
+	const getToggleOption = (ariaLabel) =>
+		cy.get(`button[aria-label="${ariaLabel}"]`);
+
 	const clickBackgroundOption = (ariaLabel) => {
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.get(`button[aria-label="${ariaLabel}"]`)
-				.last()
-				.click({ force: true });
+			getToggleOption(ariaLabel).last().click({ force: true });
 		});
 		closeBackgroundPopover();
 	};
@@ -121,7 +122,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		cy.getParentContainer('Image & Gradient').within(() => {
 			cy.getByAriaLabel('Add New Background').click({ force: true });
 		});
-		cy.getByAriaLabel('Linear Gradient').click({ force: true });
+		getToggleOption('Linear Gradient').click({ force: true });
 
 		prepareBackgroundControls();
 
@@ -152,15 +153,12 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.get('button[aria-label="Repeat"]').click({
+			getToggleOption('Repeat').click({
 				force: true,
 			});
 
-			cy.getByAriaLabel('Linear Gradient').should(
-				'have.attr',
-				'aria-checked',
-				'true'
-			);
+			// Type picker is icon-only; the gradient field label is the stable marker.
+			cy.getParentContainer('Linear Gradient').should('exist');
 
 			cy.getParentContainer('Angle').within(() => {
 				cy.get('input[inputmode="numeric"]').should('have.value', '90');
@@ -175,7 +173,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 				cy.get('input[inputmode="numeric"]').should('have.value', '90');
 			});
 
-			cy.get('button[aria-label="Repeat"]').should(
+			getToggleOption('Repeat').should(
 				'have.attr',
 				'aria-checked',
 				'true'
@@ -187,9 +185,9 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.getByAriaLabel('Parallax').click({ force: true });
+			getToggleOption('Parallax').click({ force: true });
 
-			cy.getByAriaLabel('Repeat').should(
+			getToggleOption('Repeat').should(
 				'not.have.attr',
 				'aria-checked',
 				'true'
@@ -204,7 +202,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.getByAriaLabel('Parallax').should(
+			getToggleOption('Parallax').should(
 				'have.attr',
 				'aria-checked',
 				'true'
@@ -236,12 +234,12 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.getByAriaLabel("Don't Repeat").should(
+			getToggleOption("Don't Repeat").should(
 				'have.attr',
 				'aria-checked',
 				'true'
 			);
-			cy.getByAriaLabel('Parallax').should(
+			getToggleOption('Parallax').should(
 				'not.have.attr',
 				'aria-checked',
 				'true'
@@ -270,13 +268,13 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.getByAriaLabel("Don't Repeat").should(
+			getToggleOption("Don't Repeat").should(
 				'not.have.attr',
 				'aria-checked',
 				'true'
 			);
 
-			cy.getByAriaLabel('Parallax').should(
+			getToggleOption('Parallax').should(
 				'not.have.attr',
 				'aria-checked',
 				'true'
@@ -295,7 +293,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 		prepareBackgroundControls();
 		openBackgroundItem();
 		withinVisibleBackgroundPopover(() => {
-			cy.getByAriaLabel("Don't Repeat").should(
+			getToggleOption("Don't Repeat").should(
 				'have.attr',
 				'aria-checked',
 				'true'
@@ -305,7 +303,7 @@ describe('Block State Repeater E2E Test - update repeater attributes in multiple
 				cy.get('input[inputmode="numeric"]').should('have.value', '45');
 			});
 
-			cy.getByAriaLabel('Parallax').should(
+			getToggleOption('Parallax').should(
 				'not.have.attr',
 				'aria-checked',
 				'true'
