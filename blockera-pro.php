@@ -4,7 +4,7 @@
  * Plugin URI: https://blockera.ai/products/site-builder/pricing/
  * Description: Unlock the full power of Blockera Site Builder with the PRO version.
  * Requires at least: 6.6
- * Tested up to: 6.8
+ * Tested up to: 7.1
  * Requires PHP: 7.4
  * Requires at least blockera: 1.12.2
  * Author: Blockera AI
@@ -20,7 +20,7 @@ use Blockera\Auth\Repositories\OptionRepository;
 
 // security code.
 if (! defined('ABSPATH')) {
-
+	/* @debug-ignore */
     die('Access Denied!');
 }
 
@@ -165,7 +165,7 @@ if ( blockera_pro_companions_missing_compatibility_check() ) {
 	return;
 }
 
-require_once __DIR__ . '/packages/autoloader-coordinator/bootstrap.php';
+require_once __DIR__ . '/packages/global-packages/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',
 	__DIR__,

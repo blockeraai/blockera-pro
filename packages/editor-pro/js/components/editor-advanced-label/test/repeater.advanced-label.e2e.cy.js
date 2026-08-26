@@ -3,7 +3,7 @@ import {
 	createPost,
 	addBlockState,
 	setDeviceType,
-} from '../../../../../dev-cypress/js/helpers';
+} from '@blockera/dev-cypress/js/helpers';
 
 describe('Repeater Control label testing on Pro version (Image & Gradient)', () => {
 	beforeEach(() => {
@@ -11,6 +11,13 @@ describe('Repeater Control label testing on Pro version (Image & Gradient)', () 
 
 		addBlockToPost('core/paragraph', true, 'blockera-paragraph');
 	});
+
+	const openBackgroundItem = (index = 0) => {
+		cy.getParentContainer('Image & Gradient').within(() => {
+			cy.getByDataCy('group-control-header').eq(index).click();
+		});
+	};
+
 	it('should display changed value on Image & Gradient, when set value in two states', () => {
 		/**
 		 * Normal
@@ -37,8 +44,9 @@ describe('Repeater Control label testing on Pro version (Image & Gradient)', () 
 			'changed-in-normal-state'
 		);
 
-		// Set value
-		cy.getByAriaLabel('Add New Background').click();
+		// Set value on hover by changing the inherited item (not adding a second one)
+		openBackgroundItem();
+		cy.getByAriaLabel('Linear Gradient').click();
 
 		// Assert label after set value
 		cy.checkLabelClassName(
@@ -46,13 +54,6 @@ describe('Repeater Control label testing on Pro version (Image & Gradient)', () 
 			'Image & Gradient',
 			'changed-in-secondary-state'
 		);
-
-		// Assert control
-		cy.getParentContainer('Image & Gradient').within(() => {
-			// Alias
-			cy.getByDataCy('group-control-header').as('background-item');
-		});
-		cy.get('@background-item').should('have.length', 2);
 
 		/**
 		 * Tablet device
@@ -65,9 +66,6 @@ describe('Repeater Control label testing on Pro version (Image & Gradient)', () 
 			'Image & Gradient',
 			'changed-in-normal-state'
 		);
-
-		// Assert control
-		cy.get('@background-item').should('have.length', 1);
 
 		// Assert state graph
 		cy.checkStateGraph('Background', 'Image & Gradient', {

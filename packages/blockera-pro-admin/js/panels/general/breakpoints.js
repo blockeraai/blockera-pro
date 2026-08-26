@@ -13,7 +13,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { isEquals, mergeObject } from '@blockera/utils';
 import { validateSecretKeys } from '@blockera/validator';
 
-export const bootstrapBreakpoints = () => {
+export const bootstrapBreakpoints = (): void => {
 	const { saveEntityRecord } = dispatch(coreStore);
 
 	if ('false' === process.env.CI_ENV) {
@@ -143,6 +143,7 @@ export const bootstrapBreakpoints = () => {
 			!clientSecret
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -152,6 +153,7 @@ export const bootstrapBreakpoints = () => {
 
 		if ('active' !== status) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
@@ -170,6 +172,7 @@ export const bootstrapBreakpoints = () => {
 
 		if (!validated) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -180,6 +183,7 @@ export const bootstrapBreakpoints = () => {
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -193,6 +197,7 @@ export const bootstrapBreakpoints = () => {
 			'subscription' === type
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
@@ -203,6 +208,7 @@ export const bootstrapBreakpoints = () => {
 		// Validation: Start date.
 		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);

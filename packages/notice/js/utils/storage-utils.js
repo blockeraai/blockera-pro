@@ -21,6 +21,7 @@ export function storeDismissedNotices(
 		const key = storageKey || DEFAULT_STORAGE_KEY;
 		localStorage.setItem(key, JSON.stringify(noticeIds));
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to store dismissed notices:', error);
 	}
 }
@@ -36,6 +37,7 @@ export function getDismissedNoticesFromStorage(
 		const stored = localStorage.getItem(key);
 		return stored ? JSON.parse(stored) : [];
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to get dismissed notices from storage:', error);
 		return [];
 	}
@@ -75,6 +77,7 @@ export function clearDismissedNotices(storageKey?: string): void {
 		const key = storageKey || DEFAULT_STORAGE_KEY;
 		localStorage.removeItem(key);
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to clear dismissed notices:', error);
 	}
 }
@@ -101,6 +104,7 @@ export function storeNoticePreferences(
 		const key = `${storageKey || DEFAULT_STORAGE_KEY}_preferences`;
 		localStorage.setItem(key, JSON.stringify(preferences));
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to store notice preferences:', error);
 	}
 }
@@ -114,6 +118,7 @@ export function getNoticePreferences(storageKey?: string): Object {
 		const stored = localStorage.getItem(key);
 		return stored ? JSON.parse(stored) : {};
 	} catch (error) {
+		//@debug-ignore
 		console.error('Failed to get notice preferences:', error);
 		return {};
 	}

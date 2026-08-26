@@ -38,3 +38,6 @@ if (! function_exists('blockera_pro_override_editor_assets_provider')) {
         return $providers;
     }
 }
+
+// Register the pro plugin as a product; the registry fires this once on first read access.
+add_action( 'blockera/products/registry/init', 'blockera_pro_register_product' );

@@ -48,6 +48,7 @@ export const applyBlockStates = (): void => {
 			!clientSecret
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -57,6 +58,7 @@ export const applyBlockStates = (): void => {
 
 		if ('active' !== status) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
@@ -75,6 +77,7 @@ export const applyBlockStates = (): void => {
 
 		if (!validated) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -85,6 +88,7 @@ export const applyBlockStates = (): void => {
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -95,6 +99,7 @@ export const applyBlockStates = (): void => {
 		// Validation: Next payment due date.
 		if (new Date(nextPaymentDueDate) < new Date()) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
@@ -105,6 +110,7 @@ export const applyBlockStates = (): void => {
 		// Validation: Start date.
 		if (new Date(startDate) > new Date()) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);
@@ -161,6 +167,7 @@ export const applyDefaultBlockStates = (): void => {
 			!clientSecret
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -170,6 +177,7 @@ export const applyDefaultBlockStates = (): void => {
 
 		if ('active' !== status) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
@@ -188,6 +196,7 @@ export const applyDefaultBlockStates = (): void => {
 
 		if (!validated) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -198,6 +207,7 @@ export const applyDefaultBlockStates = (): void => {
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -211,6 +221,7 @@ export const applyDefaultBlockStates = (): void => {
 			'subscription' === type
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
@@ -221,6 +232,7 @@ export const applyDefaultBlockStates = (): void => {
 		// Validation: Start date.
 		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);

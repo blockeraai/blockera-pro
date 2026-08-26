@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+import type { MixedElement } from 'react';
 import {
 	createContext,
 	useContext,
@@ -127,10 +128,10 @@ export default function NoticeProvider({
 	initialNotices = [],
 	persistDismissed = true,
 	storageKey = 'blockera_dismissed_notices',
-}: NoticeProviderProps) {
+}: NoticeProviderProps): MixedElement {
 	const [state, dispatch] = useReducer(noticeReducer, {
 		...initialState,
-		notices: initialNotices.map(createNoticeConfig),
+		notices: initialNotices.map((notice) => createNoticeConfig(notice)),
 	});
 
 	// Load dismissed notices from storage on mount
@@ -178,8 +179,9 @@ export default function NoticeProvider({
 		}
 
 		// Call onShow callback
-		if (isFunction(noticeConfig.onShow)) {
-			noticeConfig.onShow();
+		const { onShow } = noticeConfig;
+		if (onShow && isFunction(onShow)) {
+			onShow();
 		}
 	};
 

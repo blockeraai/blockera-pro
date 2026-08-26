@@ -51,6 +51,7 @@ export const bootstrapCanvasEditor = () => {
 			!clientSecret
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -60,6 +61,7 @@ export const bootstrapCanvasEditor = () => {
 
 		if ('active' !== status) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not active! please check your domain and license in the https://blockera.ai'
 				);
@@ -78,6 +80,7 @@ export const bootstrapCanvasEditor = () => {
 
 		if (!validated) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -88,6 +91,7 @@ export const bootstrapCanvasEditor = () => {
 		// Validation: Subscription name.
 		if (-1 === name.startsWith(`#${id} - `)) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Invalid registered license! please check your domain and license in the https://blockera.ai'
 				);
@@ -101,6 +105,7 @@ export const bootstrapCanvasEditor = () => {
 			'subscription' === type
 		) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is expired! please check your domain and license in the https://blockera.ai'
 				);
@@ -111,6 +116,7 @@ export const bootstrapCanvasEditor = () => {
 		// Validation: Start date.
 		if (new Date(startDate) > new Date() && 'subscription' === type) {
 			if (process.env.NODE_ENV === 'development') {
+				//@debug-ignore
 				console.warn(
 					'Your license is not started! it seems that your license invalid or ex please check your domain and license in the https://blockera.ai'
 				);
@@ -147,16 +153,21 @@ export const bootstrapCanvasEditor = () => {
 		'blockeraPro.editorPro.canvasEditor.bootstrap',
 		(breakpoints) => {
 			return Object.fromEntries(
-				Object.entries(breakpoints).map(([key, breakpoint]) => [
-					key,
-					{
-						...breakpoint,
-						...('' === breakpoint.type ? { type: key } : {}),
-						...(breakpoint.settings.picked
-							? { status: true, native: false }
-							: {}),
-					},
-				])
+				Object.entries(breakpoints).map(([key, breakpoint]) => {
+					// Build without dual conditional spreads (Flow exponential-spread).
+					const nextBreakpoint: Object = { ...breakpoint };
+
+					if ('' === breakpoint.type) {
+						nextBreakpoint.type = key;
+					}
+
+					if (breakpoint.settings.picked) {
+						nextBreakpoint.status = true;
+						nextBreakpoint.native = false;
+					}
+
+					return [key, nextBreakpoint];
+				})
 			);
 		}
 	);

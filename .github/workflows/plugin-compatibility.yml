@@ -12,14 +12,39 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    pr-workflow-gate:
+        name: PR workflow filter
+        runs-on: ubuntu-latest
+        outputs:
+            run: ${{ steps.gate.outputs.run }}
+        env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
+
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
+
+            - id: gate
+              uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
+              with:
+                  workflow-file: plugin-compatibility.yml
+
     check_version:
         name: Check Pro Version
+        needs: pr-workflow-gate
+        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
+        timeout-minutes: 30
         outputs:
             strategies: ${{ steps.set_matrix.outputs.strategies }}
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
+              with:
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
 
             - name: Build plugin compatibility matrix
               id: set_matrix
@@ -55,8 +80,12 @@ jobs:
 
     test:
         name: Run Plugin Compatibility Tests
-        needs: check_version
+        needs: [pr-workflow-gate, check_version]
+        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
+        timeout-minutes: 30
+        env:
+            BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
 
         strategy:
             fail-fast: false
@@ -71,28 +100,37 @@ jobs:
                   echo "blockera-free-latest-version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               with:
+                  token: ${{ secrets.BLOCKERABOT_PAT }}
                   show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
 
+            - name: Ensure global-packages submodule
+              uses: ./.github/actions/ensure-global-packages
+
             - name: Setup Node.js and install dependencies
-              uses: ./.github/setup-node
+              uses: ./packages/global-packages/packages/dev-tools/github/actions/setup-node
 
             - name: Install Cypress
               run: npx cypress install
 
             - name: Setup PHP Composer and install dependencies
-              uses: ./.github/setup-php
+              uses: ./packages/global-packages/packages/dev-tools/github/actions/setup-php
               with:
-                  custom-cache-suffix: $(/bin/date -u --date='last Mon' "+%F")
                   composer-options: '--no-dev -o --apcu-autoloader -a'
 
             - name: Build Plugin
-              uses: ./.github/build-plugin-zip
+              uses: ./packages/global-packages/packages/dev-tools/github/actions/build-plugin-zip
+              with:
+                  artifact-name: blockera-pro
+                  zip-file: ./blockera-pro.zip
 
             - name: Create required environment files
               env:
                   GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+                  BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
+                  BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+                  BLOCKERA_WP_ENV_PLUGIN_URL_MODE: replace
               run: |
                   BLOCKERA_DOWNLOAD_URL=""
 
@@ -115,9 +153,9 @@ jobs:
 
                   if [ -n "$BLOCKERA_DOWNLOAD_URL" ]; then
                     echo "Using Blockera plugin source: $BLOCKERA_DOWNLOAD_URL"
-                    node .github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
+                    node packages/global-packages/packages/dev-tools/github/scripts/create-wp-env.js "general" "$BLOCKERA_DOWNLOAD_URL"
                   else
-                    node .github/scripts/create-wp-env.js "general"
+                    node packages/global-packages/packages/dev-tools/github/scripts/create-wp-env.js "general"
                   fi
                   cat .wp-env.json
 

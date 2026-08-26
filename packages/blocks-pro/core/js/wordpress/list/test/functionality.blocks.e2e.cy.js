@@ -15,7 +15,7 @@ describe('List Block → Functionality + Inner blocks', () => {
 		createPost();
 	});
 
-	it.skip('Marker state with style customization', () => {
+	it('Marker state with style customization', () => {
 		appendBlocks(`<!-- wp:list -->
 <ul class="wp-block-list"><!-- wp:list-item -->
 <li>item 1 <a href="#">link is here</a></li>

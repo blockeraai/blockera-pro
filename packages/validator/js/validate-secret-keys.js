@@ -29,6 +29,7 @@ export const validateSecretKeys = ({
 	const domainHash = parts[1];
 	if (!domain || !subscriptionId) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your domain or license is not valid! please check your domain and license in the https://blockera.ai'
 			);
@@ -39,6 +40,7 @@ export const validateSecretKeys = ({
 	const partialCheck = sha256(payloadToHash).toString().substring(0, 10);
 	if (partialCheck !== domainHash) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your domain is not valid! please check your domain in the https://blockera.ai'
 			);
@@ -50,6 +52,7 @@ export const validateSecretKeys = ({
 	}
 	if ('string' !== typeof licenseKey) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your license is not valid! please check your license in the https://blockera.ai'
 			);
@@ -58,6 +61,7 @@ export const validateSecretKeys = ({
 	}
 	if (!licenseKey) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your license is not valid! please check your license in the https://blockera.ai'
 			);
@@ -66,6 +70,7 @@ export const validateSecretKeys = ({
 	}
 	if (parts.length !== 5) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your license is not valid! please check your license in the https://blockera.ai'
 			);
@@ -74,6 +79,7 @@ export const validateSecretKeys = ({
 	}
 	if ('1' !== parts[0]) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your license is not valid! please check your license in the https://blockera.ai'
 			);
@@ -82,6 +88,7 @@ export const validateSecretKeys = ({
 	}
 	if (!domain || !subscriptionId) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your domain or license is not valid! please check your domain and license in the https://blockera.ai'
 			);
@@ -92,6 +99,7 @@ export const validateSecretKeys = ({
 	const testHash = sha256(data).toString().substring(0, 10);
 	if (testHash !== domainHash) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your license is not valid! please check your license in the https://blockera.ai'
 			);
@@ -102,6 +110,7 @@ export const validateSecretKeys = ({
 		/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 	if (!uuidRegex.test(clientId)) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client id is not valid! please check your client id in the https://blockera.ai'
 			);
@@ -110,6 +119,7 @@ export const validateSecretKeys = ({
 	}
 	if ('string' !== typeof clientId) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client id is not valid! please check your client id in the https://blockera.ai'
 			);
@@ -118,6 +128,7 @@ export const validateSecretKeys = ({
 	}
 	if (!clientId) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client id is not valid! please check your client id in the https://blockera.ai'
 			);
@@ -129,6 +140,7 @@ export const validateSecretKeys = ({
 	}
 	if (!clientSecret) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client secret is not valid! please check your client secret in the https://blockera.ai'
 			);
@@ -137,6 +149,7 @@ export const validateSecretKeys = ({
 	}
 	if (typeof clientSecret !== 'string') {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client secret is not valid! please check your client secret in the https://blockera.ai'
 			);
@@ -149,6 +162,7 @@ export const validateSecretKeys = ({
 	const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(clientSecret);
 	if (!hasUpperCase || !hasLowerCase || !hasNumbers || hasSpecialChars) {
 		if (process.env.NODE_ENV === 'development') {
+			//@debug-ignore
 			console.warn(
 				'Your client secret is not valid! please check your client secret in the https://blockera.ai'
 			);

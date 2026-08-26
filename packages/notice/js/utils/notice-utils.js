@@ -21,10 +21,11 @@ export function generateNoticeId(): string {
 /**
  * Create notice configuration with defaults
  */
-export function createNoticeConfig(
-	config: Partial<NoticeConfig>
-): NoticeConfig {
+export function createNoticeConfig(config: $Shape<NoticeConfig>): NoticeConfig {
 	return {
+		type: DEFAULT_NOTICE_CONFIG.type,
+		context: DEFAULT_NOTICE_CONFIG.context,
+		message: '',
 		...DEFAULT_NOTICE_CONFIG,
 		...config,
 		id: config.id || generateNoticeId(),
@@ -113,14 +114,17 @@ export function filterNoticesByContext(
 export function groupNoticesByType(notices: Array<NoticeConfig>): {
 	[NoticeType]: Array<NoticeConfig>,
 } {
-	return notices.reduce((groups, notice) => {
-		const type = notice.type;
-		if (!groups[type]) {
-			groups[type] = [];
-		}
-		groups[type].push(notice);
-		return groups;
-	}, {});
+	return notices.reduce<{ [NoticeType]: Array<NoticeConfig> }>(
+		(groups, notice) => {
+			const type = notice.type;
+			if (!groups[type]) {
+				groups[type] = [];
+			}
+			groups[type].push(notice);
+			return groups;
+		},
+		{}
+	);
 }
 
 /**

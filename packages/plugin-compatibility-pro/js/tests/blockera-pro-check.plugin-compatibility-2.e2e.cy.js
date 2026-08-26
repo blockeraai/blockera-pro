@@ -8,6 +8,17 @@ import {
 } from '@blockera/dev-cypress/js/helpers';
 
 describe('Blockera PRO plugin compatibility checks', () => {
+	after(() => {
+		cy.task('restoreBlockeraProVersion').then((result) => {
+			const versionLog = `[plugin-compatibility-2] Blockera Pro version restore: ok=${result?.ok} message=${result?.message}`;
+			cy.log(versionLog);
+			cy.task('logToCi', versionLog, { log: false });
+		});
+		cy.task('wpPluginActivate', {
+			plugin: 'blockera-pro/blockera-pro.php',
+		});
+	});
+
 	it('should not conflicted with free plugin default functionality like style engine and render modules', () => {
 		createPost();
 

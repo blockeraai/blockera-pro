@@ -1,29 +1,13 @@
+/**
+ * Internal dependencies
+ */
+const {
+	createPluginCliConfig,
+} = require('../../packages/global-packages/packages/dev-tools/bin/plugin/create-config');
+
 const gitRepoOwner = 'blockeraai';
 
-/**
- * @typedef WPPluginCLIConfig
- *
- * @property {string} slug                    Slug.
- * @property {string} name                    Name.
- * @property {string} team                    GitHub Team Name.
- * @property {string} versionMilestoneFormat  printf template for milestone
- *                                            version name. Expected to be called
- *                                            with a merged object of the config
- *                                            and semver-parsed version parts.
- * @property {string} githubRepositoryOwner   GitHub Repository Owner.
- * @property {string} githubRepositoryName    GitHub Repository Name.
- * @property {string} pluginEntryPoint        Plugin Entry Point File.
- * @property {string} buildZipCommand         Build Plugin ZIP command.
- * @property {string} githubRepositoryURL     GitHub Repository URL.
- * @property {string} wpRepositoryReleasesURL WordPress Repository Tags URL.
- * @property {string} gitRepositoryURL        Git Repository URL.
- * @property {string} svnRepositoryURL        SVN Repository URL.
- */
-
-/**
- * @type {WPPluginCLIConfig}
- */
-const config = {
+module.exports = createPluginCliConfig({
 	slug: 'blockera-pro',
 	name: 'Blockera PRO',
 	team: 'Blockeraai',
@@ -32,12 +16,17 @@ const config = {
 	githubRepositoryName: 'blockera-pro',
 	pluginEntryPoint: 'blockera-pro.php',
 	buildZipCommand: '/bin/bash bin/build-plugin-zip.temp.sh',
-	githubRepositoryURL: 'https://github.com/' + gitRepoOwner + '/blockera/',
+	githubRepositoryURL:
+		'https://github.com/' + gitRepoOwner + '/blockera-pro/',
 	wpRepositoryReleasesURL:
-		'https://github.com/' + gitRepoOwner + '/blockera-pro/releases',
+		'https://github.com/' + gitRepoOwner + '/blockera-pro/releases/',
 	gitRepositoryURL:
 		'https://github.com/' + gitRepoOwner + '/blockera-pro.git',
 	svnRepositoryURL: 'https://plugins.svn.wordpress.org/blockera',
-};
-
-module.exports = config;
+	changelog: {
+		archiveUrl:
+			'https://github.com/' + gitRepoOwner + '/blockera-pro/releases',
+		archiveLabel: 'Blockera PRO',
+		includeCommitCount: true,
+	},
+});

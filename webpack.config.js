@@ -1,168 +1,111 @@
 /**
  * External dependencies
  */
+const fs = require('fs');
 const path = require('path');
-const {
-	camelCaseDash,
-} = require('@wordpress/dependency-extraction-webpack-plugin/lib/util');
 
 /**
  * Internal dependencies
  */
 const { dependencies } = require('./package');
-const packagesConfig = require('./packages/dev-tools/js/webpack/packages');
+const packagesConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/packages');
+const createRootWebpackConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/create-root-config');
 
-const exportDefaultPackages = [];
+const BLOCKERA_GUARD_MAIN_NAME = 'guard';
+const BLOCKERA_GUARD_NICKNAME = 'features-manager';
 
-module.exports = (env, argv) => {
-	if (!argv) {
-		return require(
-			path.resolve(
-				process.cwd(),
-				'packages/dev-cypress/js/webpack.config.js'
-			)
+/**
+ * Resolve a Blockera package directory after the sparse-submodule migration.
+ * Prefer Composer path-repo symlinks, then local Pro packages, then submodule.
+ *
+ * @param {string} packageName Canonical package slug (e.g. controls-pro, feature-icon).
+ * @return {string} Relative package directory from the plugin root.
+ */
+function resolvePackageDir(packageName) {
+	const candidates = [
+		`./vendor/blockera/${packageName}`,
+		`./packages/${packageName}`,
+		`./packages/global-packages/packages/${packageName}`,
+	];
+
+	// Library packages may still live under features-library/<name> in the submodule.
+	if (packageName.startsWith('feature-')) {
+		candidates.push(
+			`./packages/global-packages/packages/features-library/${packageName.replace(
+				'feature-',
+				''
+			)}`
+		);
+	}
+	if (packageName.startsWith('block-')) {
+		candidates.push(
+			`./packages/global-packages/packages/blocks-library/${packageName.replace(
+				'block-',
+				''
+			)}`
 		);
 	}
 
-	const BLOCKERA_NAMESPACE = '@blockera/';
-	const BLOCKERA_GUARD_MAIN_NAME = 'guard';
-	const BLOCKERA_GUARD_NICKNAME = 'features-manager';
-	const blockeraPackages = Object.keys(dependencies)
-		.filter((packageName) => packageName.startsWith(BLOCKERA_NAMESPACE))
-		.map((packageName) => packageName.replace(BLOCKERA_NAMESPACE, ''))
-		.map((packageName) => {
-			if (BLOCKERA_GUARD_MAIN_NAME === packageName) {
-				// Rename guard package to feature-manager to avoid exposing security functionality
-				packageName = BLOCKERA_GUARD_NICKNAME;
-			}
-
-			return packageName;
-		});
-	const blockeraPackagesVersion = Object.fromEntries(
-		blockeraPackages.map((packageName) => {
-			let parentDirectory = '';
-			let name = packageName;
-
-			if (-1 !== packageName.indexOf('block-')) {
-				name = name.split('block-')[1];
-				parentDirectory = 'blocks-library/';
-			} else if (-1 !== packageName.indexOf('feature-')) {
-				name = name.split('feature-')[1];
-				parentDirectory = 'features-library/';
-			}
-
-			if (BLOCKERA_GUARD_NICKNAME === name) {
-				name = BLOCKERA_GUARD_MAIN_NAME;
-			}
-
-			const { version } = require(
-				`./packages/${parentDirectory}${name}/package.json`
-			);
-
-			return [packageName, version.replace(/\./g, '_')];
-		})
-	);
-	const blockeraEntries = blockeraPackages.reduce((memo, packageName) => {
-		// Exclude dev packages.
-		if (-1 !== packageName.indexOf('dev-')) {
-			return memo;
-		}
-
+	for (const candidate of candidates) {
 		if (
-			!blockeraPackagesVersion[packageName] &&
-			packageName === BLOCKERA_GUARD_NICKNAME &&
-			!blockeraPackagesVersion[BLOCKERA_GUARD_MAIN_NAME]
+			fs.existsSync(
+				path.resolve(process.cwd(), candidate, 'package.json')
+			)
 		) {
-			return memo;
+			return candidate;
 		}
+	}
 
-		let parentDirectory = '';
-		let _packageName =
-			packageName === BLOCKERA_GUARD_NICKNAME
-				? BLOCKERA_GUARD_MAIN_NAME
-				: packageName;
-		if (-1 !== packageName.indexOf('block-')) {
-			_packageName = _packageName.split('block-')[1];
-			parentDirectory = 'blocks-library/';
-		} else if (-1 !== packageName.indexOf('feature-')) {
-			_packageName = _packageName.split('feature-')[1];
-			parentDirectory = 'features-library/';
-		}
-		const version =
-			packageName === BLOCKERA_GUARD_NICKNAME
-				? blockeraPackagesVersion[BLOCKERA_GUARD_MAIN_NAME]
-				: blockeraPackagesVersion[packageName];
+	throw new Error(
+		`Cannot find Blockera package "${packageName}" under vendor/blockera, packages/, or packages/global-packages/packages/`
+	);
+}
 
-		let name = packageName.startsWith('blockera')
-			? camelCaseDash(packageName + '_' + version)
-			: camelCaseDash('blockera-' + packageName + '_' + version);
-
-		if ('icons' === packageName) {
-			name = packageName.startsWith('blockera')
-				? camelCaseDash(packageName)
-				: camelCaseDash('blockera-' + packageName);
-		}
-
-		return {
-			...memo,
-			[packageName]: {
-				import: `./packages/${parentDirectory}${_packageName}`,
-				library: {
-					name,
-					type: 'var',
-					export: exportDefaultPackages.includes(packageName)
-						? 'default'
-						: undefined,
-				},
-			},
-		};
-	}, {});
-
-	return packagesConfig(env, {
-		...argv,
-		entry: Object.fromEntries(
-			Object.entries(blockeraEntries).filter(([entry]) => {
-				if (BLOCKERA_GUARD_NICKNAME === entry) {
-					return false;
-				}
-
-				return true;
-			})
-		),
-		devtoolNamespace: 'blockera-pro',
-		mode: argv?.mode || 'production',
-		externals: {
-			// Externalize the local packages.
-			'@blockera/icons': 'blockeraIcons',
-			'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
-			'@blockera/telemetry':
-				'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
-			'@blockera/storage':
-				'blockeraStorage_' + blockeraPackagesVersion.storage,
-			'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
-			'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
-			'@blockera/editor':
-				'blockeraEditor_' + blockeraPackagesVersion.editor,
-			'@blockera/blocks-core':
-				'blockeraBlocksCore_' + blockeraPackagesVersion['blocks-core'],
-			'@blockera/feature-icon':
-				'blockeraFeatureIcon_' +
-				blockeraPackagesVersion['feature-icon'],
-			'@blockera/features-core':
-				'blockeraFeaturesCore_' +
-				blockeraPackagesVersion['features-core'],
-			'@blockera/controls':
-				'blockeraControls_' + blockeraPackagesVersion.controls,
-			'@blockera/bootstrap':
-				'blockeraBootstrap_' + blockeraPackagesVersion.bootstrap,
-			'@blockera/wordpress':
-				'blockeraWordpress_' + blockeraPackagesVersion.wordpress,
-			'@blockera/classnames':
-				'blockeraClassnames_' + blockeraPackagesVersion.classnames,
-			'@blockera/data-editor':
-				'blockeraDataEditor_' + blockeraPackagesVersion['data-editor'],
-			'@blockera/feature-manager':
-				'blockeraFeatureManager_' + blockeraPackagesVersion.guard,
-		},
-	});
-};
+module.exports = createRootWebpackConfig({
+	dependencies,
+	packagesConfig,
+	resolvePackageDir,
+	devtoolNamespace: 'blockera-pro',
+	// Rename guard → features-manager so security package name is not exposed in version/externals keys.
+	mapPackageName: (packageName) =>
+		packageName === BLOCKERA_GUARD_MAIN_NAME
+			? BLOCKERA_GUARD_NICKNAME
+			: packageName,
+	resolveCanonicalPackageName: (packageName) =>
+		packageName === BLOCKERA_GUARD_NICKNAME
+			? BLOCKERA_GUARD_MAIN_NAME
+			: packageName,
+	// Keep nickname in the version map for `@blockera/feature-manager`, but do not emit an entry.
+	shouldIncludeEntry: (packageName) =>
+		packageName !== BLOCKERA_GUARD_NICKNAME,
+	getExternals: (blockeraPackagesVersion) => ({
+		'@blockera/icons': 'blockeraIcons',
+		'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
+		'@blockera/telemetry':
+			'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
+		'@blockera/storage':
+			'blockeraStorage_' + blockeraPackagesVersion.storage,
+		'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
+		'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
+		'@blockera/editor': 'blockeraEditor_' + blockeraPackagesVersion.editor,
+		'@blockera/blocks-core':
+			'blockeraBlocksCore_' + blockeraPackagesVersion['blocks-core'],
+		'@blockera/feature-icon':
+			'blockeraFeatureIcon_' + blockeraPackagesVersion['feature-icon'],
+		'@blockera/features-core':
+			'blockeraFeaturesCore_' + blockeraPackagesVersion['features-core'],
+		'@blockera/controls':
+			'blockeraControls_' + blockeraPackagesVersion.controls,
+		'@blockera/bootstrap':
+			'blockeraBootstrap_' + blockeraPackagesVersion.bootstrap,
+		'@blockera/wordpress':
+			'blockeraWordpress_' + blockeraPackagesVersion.wordpress,
+		'@blockera/classnames':
+			'blockeraClassnames_' + blockeraPackagesVersion.classnames,
+		'@blockera/data-editor':
+			'blockeraDataEditor_' + blockeraPackagesVersion['data-editor'],
+		'@blockera/feature-manager':
+			'blockeraFeatureManager_' +
+			blockeraPackagesVersion[BLOCKERA_GUARD_NICKNAME],
+	}),
+});
