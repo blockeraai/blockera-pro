@@ -1,6 +1,10 @@
-<!--@see: https://github.com/wp-phpunit/docs to configuration project for wp phpunit testing-->
+<!--
+	Pro-specific PHPUnit config (__BLOCKERA_DIR__ / suites).
+	Do not replace with dev-tools/php/phpunit.plugin.xml.dist (core plugin suites).
+	@see https://github.com/wp-phpunit/docs
+-->
 <phpunit
-        bootstrap="./packages/dev-phpunit/php/bootstrap.php"
+        bootstrap="./packages/global-packages/packages/dev-phpunit/php/bootstrap.php"
         backupGlobals="false"
         colors="true"
         convertErrorsToExceptions="true"
@@ -15,8 +19,13 @@
     </coverage>
 
     <testsuites>
-        <testsuite name="Test Suite">
-            <directory suffix=".php">./packages/dev-phpunit/php/</directory>
+        <!--
+            Pro integration tests only. GP package suites (e.g. blockera/products)
+            run in blockera-global-packages CI — do not duplicate them here.
+        -->
+        <testsuite name="units">
+            <directory suffix=".php">./packages/global-packages/packages/dev-phpunit/php/</directory>
+            <directory suffix=".php">./packages/blockera-pro/php/tests/</directory>
             <exclude>./node_modules/</exclude>
             <exclude>./dist/</exclude>
         </testsuite>
@@ -26,9 +35,8 @@
         <env name="VERSION" value="1.0-beta" />
         <const name="PHPUNIT_PLUGIN_TEST" value="true"/>
         <env name="__BLOCKERA_DIR__" value="blockera-pro" />
-        <env name="WP_PHPUNIT__TESTS_CONFIG" value="./packages/dev-phpunit/php/config.php" />
-        <env name="WP_TESTS_CONFIG_FILE_PATH" value="./packages/dev-phpunit/php/config.php" />
+        <env name="WP_PHPUNIT__TESTS_CONFIG" value="./packages/global-packages/packages/dev-phpunit/php/config.php" />
+        <env name="WP_TESTS_CONFIG_FILE_PATH" value="./packages/global-packages/packages/dev-phpunit/php/config.php" />
     </php>
 
 </phpunit>
-
