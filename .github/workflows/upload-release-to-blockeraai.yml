@@ -51,7 +51,7 @@ jobs:
     upload:
         name: Upload release to Blockera AI
         needs: [pr-workflow-gate, get-release-branch]
-        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (!github.event.release.prerelease && github.event.release.assets[0]) }}
+        if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && github.event.release.assets[0] }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
         env:
@@ -65,6 +65,7 @@ jobs:
             PLUGIN_VERSION: ${{ github.event.release.tag_name }}
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             BLOCKERA_UPLOAD_BLOCKERAAI_ZIP: blockera-pro.zip
+            BLOCKERA_UPLOAD_BLOCKERAAI_FILES_MODE: ${{ github.event.release.prerelease && 'append' || 'replace' }}
         steps:
             - uses: actions/checkout@v5
               with:
