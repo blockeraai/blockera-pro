@@ -1,6 +1,0 @@
-{
-	"plugins": [
-		".",
-		"https://github.com/blockeraai/blockera/tree/refactor/consume-global-packages"
-	]
-}
