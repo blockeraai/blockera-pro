@@ -1,9 +1,0 @@
-{
-	"name": "blockera/validator",
-	"path": "packages/validator",
-	"dependent": {
-		"repositories": [
-			"https://github.com/blockeraai/blockera-pro.git"
-		]
-	}
-}

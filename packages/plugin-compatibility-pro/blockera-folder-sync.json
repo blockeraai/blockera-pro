@@ -1,7 +1,0 @@
-{
-	"name": "blockera/compatibility-pro",
-	"path": "packages/plugin-compatibility-pro",
-	"dependent": {
-		"repositories": ["https://github.com/blockeraai/blockera-pro.git"]
-	}
-}
