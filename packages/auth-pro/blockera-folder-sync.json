@@ -1,7 +1,0 @@
-{
-	"name": "blockera/auth-pro",
-	"path": "packages/auth-pro",
-	"dependent": {
-		"repositories": ["https://github.com/blockeraai/blockera-pro.git"]
-	}
-}

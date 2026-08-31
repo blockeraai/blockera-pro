@@ -1,9 +1,0 @@
-{
-	"name": "blockera/guard",
-	"path": "packages/guard",
-	"dependent": {
-		"repositories": [
-			"https://github.com/blockeraai/blockera-pro.git"
-		]
-	}
-}
