@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Development Notes
+- Package README documents public JS/PHP bootstrap APIs for developers and agents.
+
 - Tests: run `test:js` against product packages only; skip `packages/global-packages` specs.
 - Release: upload RC GitHub releases to Blockera AI Downloadable files (append RC rows; stable replaces all rows).
 

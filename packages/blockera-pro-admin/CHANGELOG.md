@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Development Notes
+- Package README documents public admin JS filters and PHP asset/menu APIs.
+
 ## 1.2.0 (2025-07-17)
 
 ### New Features

@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Development Notes
+- Package README documents public editor overlay APIs (`registerEditorExtensions`, canvas, states).
+
 ## 1.0.1 (2025-07-20)
 
 ### Bug Fixes

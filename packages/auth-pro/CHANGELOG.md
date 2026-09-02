@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Development Notes
+- Package README documents public connect UI and PHP auth/OAuth APIs.
+
 ## 1.1.2 (2025-06-28)
 
 ### Improvements
