@@ -13,6 +13,8 @@ Pro plugin that unlocks Site Builder Pro. Depends on the free plugin being prese
 
 `blockera-pro`, `blockera-pro-admin`, `editor-pro`, `blocks-pro`, `controls-pro`, `auth-pro`, `guard`, `console`, `validator`, `notice`, `plugin-compatibility-pro`.
 
+Public APIs for `*-pro` packages: that package’s `README.md` (see [`.ai/architecture.md`](.ai/architecture.md)).
+
 ## Constraints
 
 - Active product **blockera-pro** when working here. GP writes: `packages/global-packages/`.
