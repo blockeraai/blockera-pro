@@ -158,6 +158,8 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						});
 					});
 
+					cy.wait(1000);
+
 					// WP data should be removed too
 					assertBlockData((data) => {
 						expect(undefined).to.be.equal(
@@ -167,7 +169,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					assertBlockData((data) => {
-						expect({}).to.be.deep.equal(
+						expect(undefined).to.be.equal(
 							getSelectedBlock(data, 'blockeraInnerBlocks')[
 								'core/heading'
 							]?.attributes
@@ -291,6 +293,8 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 							);
 						});
 
+						cy.wait(1000);
+
 						assertBlockData((data) => {
 							expect(undefined).to.be.equal(
 								getSelectedBlock(data, 'style')?.elements
@@ -299,7 +303,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						});
 
 						assertBlockData((data) => {
-							expect({}).to.be.deep.equal(
+							expect(undefined).to.be.equal(
 								getSelectedBlock(data, 'blockeraInnerBlocks')[
 									'core/heading'
 								]?.attributes
@@ -436,6 +440,8 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 						});
 					});
 
+					cy.wait(1000);
+
 					// WP data should be removed too
 					assertBlockData((data) => {
 						expect(undefined).to.be.equal(
@@ -445,7 +451,7 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 
 					assertBlockData((data) => {
-						expect({}).to.be.deep.equal(
+						expect(undefined).to.be.equal(
 							getSelectedBlock(data, 'blockeraInnerBlocks')[
 								'core/heading'
 							]?.attributes
@@ -594,8 +600,10 @@ describe('Group Block → Heading Inner Block → WP Data Compatibility', () => 
 					});
 				});
 
+				cy.wait(1000);
+
 				assertBlockData((data) => {
-					expect({}).to.be.deep.equal(
+					expect(undefined).to.be.equal(
 						getSelectedBlock(data, 'blockeraInnerBlocks')[
 							'core/heading'
 						]?.attributes

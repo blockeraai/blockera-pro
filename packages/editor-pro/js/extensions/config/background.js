@@ -12,6 +12,33 @@ import { Icon } from '@blockera/icons';
 
 const blockeraBackground: Object = {
 	config: {
+		types: [
+			{
+				label: __('Image', 'blockera-pro'),
+				value: 'image',
+				icon: <Icon icon="background-image" iconSize="18" />,
+			},
+			{
+				label: __('Linear Gradient', 'blockera-pro'),
+				value: 'linear-gradient',
+				icon: <Icon icon="background-linear-gradient" iconSize="18" />,
+			},
+			{
+				label: __('Radial Gradient', 'blockera-pro'),
+				value: 'radial-gradient',
+				icon: <Icon icon="background-radial-gradient" iconSize="18" />,
+			},
+			{
+				label: __('Mesh Gradient', 'blockera-pro'),
+				value: 'mesh-gradient',
+				icon: <Icon icon="background-mesh-gradient" iconSize="18" />,
+			},
+			{
+				label: __('None', 'blockera-pro'),
+				value: 'none',
+				icon: <Icon icon="background-none" iconSize="18" />,
+			},
+		],
 		meshGradientColors: {
 			onNative: false,
 		},

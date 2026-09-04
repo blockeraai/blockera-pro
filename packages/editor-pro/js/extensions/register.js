@@ -17,6 +17,35 @@ import { validateSecretKeys } from '@blockera/validator';
 import * as config from './config';
 import { applyBlockStates, clearCache } from './libs';
 
+/**
+ * Merge free extension supports with Pro flags.
+ * Inner-block usage must not fall back to native/companion locks.
+ *
+ * @param {Object} previous Free (or previously filtered) support map.
+ * @param {Object} next Pro support overlay.
+ * @return {Object} Merged support map.
+ */
+const mergeProExtensionSupport = (previous: Object, next: Object): Object => {
+	const merged = mergeObject(previous, next);
+
+	Object.keys(merged).forEach((key) => {
+		if (!merged[key] || 'object' !== typeof merged[key]) {
+			return;
+		}
+
+		const item = merged[key];
+
+		if (
+			!item.hasOwnProperty('onNativeOnInnerBlocks') ||
+			true === item.onNativeOnInnerBlocks
+		) {
+			item.onNativeOnInnerBlocks = false;
+		}
+	});
+
+	return merged;
+};
+
 export const registerEditorExtensions = () => {
 	if ('false' === process.env.CI_ENV) {
 		const { blockeraAccount: account } = window;
@@ -137,6 +166,23 @@ export const registerEditorExtensions = () => {
 	);
 
 	addFilter(
+		'blockera.extensions.innerBlocks.config',
+		'blockeraPro-editorInnerBlocksExtensions',
+		(previous: Object): Object => {
+			const merged = { ...previous };
+
+			Object.entries(config).forEach(([supportId, next]) => {
+				merged[supportId] = mergeProExtensionSupport(
+					previous[supportId] || {},
+					next
+				);
+			});
+
+			return merged;
+		}
+	);
+
+	addFilter(
 		'blocks.registerBlockType',
 		'blockeraPro-editorExtensions',
 		(settings: Object, name: Object): Object => {
@@ -146,31 +192,8 @@ export const registerEditorExtensions = () => {
 				addFilter(
 					`blockera.block.${blockName}.extension.${supportId}`,
 					'blockeraPro-editorBlockCustomizeExtension',
-					(previous: Object) => {
-						const merged = mergeObject(previous, next);
-
-						// Remove label property from each support config in the merged object.
-						// Modified the onNativeOnInnerBlocks property from each support config in the merged object.
-						Object.keys(merged).forEach((key) => {
-							if (
-								!merged[key] ||
-								'object' !== typeof merged[key]
-							) {
-								return;
-							}
-
-							const item = merged[key];
-
-							if (
-								!item.hasOwnProperty('onNativeOnInnerBlocks') ||
-								true === item.onNativeOnInnerBlocks
-							) {
-								item.onNativeOnInnerBlocks = false;
-							}
-						});
-
-						return merged;
-					}
+					(previous: Object) =>
+						mergeProExtensionSupport(previous, next)
 				)
 			);
 
