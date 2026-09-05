@@ -17,6 +17,7 @@ env:
     BLOCKERA_E2E_PACKAGE_PREFIX: blockera-pro-
     BLOCKERA_E2E_GENERAL_PACKAGES: validator,guard,console
     BLOCKERA_E2E_GENERAL_CATEGORY: general
+    BLOCKERA_E2E_SHARD_SIZE: '50'
     BLOCKERA_E2E_EXCLUDE_CATEGORIES: 'plugin-compatibility*'
     BLOCKERA_E2E_PACKAGE_GLOB: 'packages/**-pro(-**|)/**'
     BLOCKERA_E2E_USE_CREATE_WP_ENV: 'true'
