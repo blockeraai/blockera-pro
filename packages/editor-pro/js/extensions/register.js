@@ -15,7 +15,7 @@ import { validateSecretKeys } from '@blockera/validator';
  * Internal dependencies
  */
 import * as config from './config';
-import { applyBlockStates, clearCache } from './libs';
+import { applyBlockStates, applySearchReplace, clearCache } from './libs';
 
 /**
  * Merge free extension supports with Pro flags.
@@ -206,4 +206,5 @@ export const registerEditorExtensions = () => {
 export const applyExtensions = (): void => {
 	clearCache();
 	applyBlockStates();
+	applySearchReplace();
 };

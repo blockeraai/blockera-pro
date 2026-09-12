@@ -1,5 +1,8 @@
 ## Unreleased
 
+### New Features
+- Search and replace can include block attributes (for example image alt or CSS classes) and All (visible text plus attributes).
+
 ### Development Notes
 - Package README documents public editor overlay APIs (`registerEditorExtensions`, canvas, states).
 
