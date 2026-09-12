@@ -3,6 +3,10 @@
 ### New Features
 - Search and replace can include block attributes (for example image alt or CSS classes) and All (visible text plus attributes).
 
+### Automated Tests
+- Cypress covers unlocked Attributes and All scopes for search and replace.
+- Cypress covers regex replace of an image alt attribute.
+
 ### Development Notes
 - Package README documents public editor overlay APIs (`registerEditorExtensions`, canvas, states).
 
