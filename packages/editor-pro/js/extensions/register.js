@@ -15,7 +15,7 @@ import { validateSecretKeys } from '@blockera/validator';
  * Internal dependencies
  */
 import * as config from './config';
-import { applyBlockStates, applySearchReplace, clearCache } from './libs';
+import { applyBlockStates, clearCache } from './libs';
 
 /**
  * Merge free extension supports with Pro flags.
@@ -201,10 +201,21 @@ export const registerEditorExtensions = () => {
 		},
 		10
 	);
+
+	addFilter(
+		'blockera.editor.searchReplace.scopes',
+		'blockera.pro.editor.searchReplace.scopes',
+		(scopes) =>
+			(scopes || []).map((scope) => {
+				if (scope.value === 'attributes' || scope.value === 'all') {
+					return { ...scope, locked: false };
+				}
+				return scope;
+			})
+	);
 };
 
 export const applyExtensions = (): void => {
 	clearCache();
 	applyBlockStates();
-	applySearchReplace();
 };
