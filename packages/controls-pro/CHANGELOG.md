@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Development Notes
+- `applyControls` only registers additive overlays (mesh color `OnChange`, extra transition option lists).
 - Package README documents public `applyControls` hooks and filter names.
 
 ### New Features

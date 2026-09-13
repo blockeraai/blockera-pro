@@ -1,14 +1,14 @@
 # `@blockera/controls-pro`
 
-Pro **control overlays** for GP `@blockera/controls`. Unlocks paid control options (promo slots, extra libraries, repeater header gating) via `addFilter`.
+Pro **control overlays** for GP `@blockera/controls`. Adds paid control options (mesh gradient color `OnChange`, extra transition lists) via `addFilter`.
 
-Not a second control library. Do not reimplement controls here.
+Not a second control library. Do not reimplement controls here. Promo slots and item caps are read from the products store in GP.
 
 ---
 
 ## Why it exists
 
-Some control behavior is limited in free (`PromoComponent`, gated libraries, repeater headers). Pro applies hooks from `applyControls()` after the same unlock entry as `editor-pro` `registerEditorExtensions`.
+Some control **behavior** is extra in Pro (mesh color updates, fuller transition option lists). Pro applies hooks from `applyControls()` after the same overlay gate as `editor-pro` `registerEditorExtensions`.
 
 ---
 
@@ -19,13 +19,7 @@ packages/controls-pro/
 └── js/
     ├── index.js                      # applyControls
     ├── background-control/apply.js
-    ├── text-shadow-control/apply.js
-    ├── box-shadow-control/apply.js
-    ├── transform-control/apply.js
-    ├── transition-control/apply.js
-    ├── filter-control/apply.js
-    ├── icon-control/apply.js
-    └── repeater-control/apply.js
+    └── transition-control/           # apply.js + extra option lists
 ```
 
 | Side | Package name | Entry |
@@ -42,21 +36,14 @@ No Composer package. PHP control rendering stays in GP.
 import { applyControls } from '@blockera/controls-pro';
 ```
 
-Called from `@blockera/blockera-pro`. `applyControls()` runs the Pro unlock entry, then:
+Called from `@blockera/blockera-pro`. `applyControls()` runs when overlays may run, then:
 
 | Helper | Filter | Effect |
 |--------|--------|--------|
 | `applyBackgroundControlHooks` | `blockera.controls.background.meshGradientColors.OnChange` | Repeater item color updates |
-| | `blockera.controls.background.props` | `PromoComponent: null` |
-| `applyTextShadowControlHooks` | `blockera.controls.text-shadow.props` | `PromoComponent: null` |
-| `applyBoxShadowControlHooks` | `blockera.controls.box-shadow.props` | `PromoComponent: null` |
-| `applyTransformControlHooks` | `blockera.controls.transform.props` | `PromoComponent: null` |
-| `applyTransitionControlHooks` | `blockera.controls.transition.props` | `PromoComponent: null` |
-| `applyFilterControlHooks` | `blockera.controls.filter.props`, `blockera.controls.backdrop-filter.props` | `PromoComponent: null` |
-| `applyIconControlHooks` | `blockera.controls.iconControl.utils.getLibraryIcons.type` | `'none'` (do not force a free-only library type) |
-| `applyRepeaterControlHooks` | `blockera.repeater.shouldGateRepeaterItemHeaderForPromo` | `true` (Pro header behavior) |
+| `applyTransitionControlHooks` | `blockera.controls.transition.props` | Extra type and timing option lists |
 
-Helpers are **not** part of the documented import surface. Add a new control overlay as `js/<control>/apply.js` and call it from `applyControls()` after the unlock entry.
+Helpers are **not** part of the documented import surface. Add a new **additive** control overlay as `js/<control>/apply.js` and call it from `applyControls()`. Do not add filters whose only job is `PromoComponent: null` or item-cap lifts.
 
 ---
 
@@ -88,4 +75,4 @@ Control e2e often lives next to free controls or `editor-pro` libs. Package-leve
 
 - [ ] New paid control option: free `applyFilters` first, then a `apply*Hooks` here.
 - [ ] Extension-level unlock (whole support): `editor-pro` config, not this package.
-- [ ] Call new hooks from `applyControls()` only after the existing unlock entry.
+- [ ] Call new hooks from `applyControls()` only after the existing overlay gate.

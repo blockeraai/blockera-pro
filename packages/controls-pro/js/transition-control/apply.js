@@ -17,7 +17,6 @@ export const applyTransitionControlHooks = () => {
 		(props: Object) => {
 			return {
 				...props,
-				PromoComponent: null,
 				getTransitionTypeOptions,
 				getTransitionTimingOptions,
 			};

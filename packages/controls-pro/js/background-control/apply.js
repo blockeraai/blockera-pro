@@ -26,15 +26,4 @@ export const applyBackgroundControlHooks = () => {
 			};
 		}
 	);
-
-	addFilter(
-		`blockera.controls.background.props`,
-		'blockera.pro.controls.background.props',
-		(props: Object) => {
-			return {
-				...props,
-				PromoComponent: null,
-			};
-		}
-	);
 };
