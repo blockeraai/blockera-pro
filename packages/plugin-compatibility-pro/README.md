@@ -45,7 +45,7 @@ addFilter(
 ```
 
 - `pluginExists === 0` → `false`
-- Otherwise runs the same Pro unlock entry as other packages, then returns `updateUrl.length > 0`
+- Otherwise returns `updateUrl.length > 0` when overlays may run (`isAccountLicenseValid()`)
 
 Do not add a second compatibility boot. Extend this filter or the free package.
 
@@ -68,7 +68,7 @@ Asset path is the Pro plugin `dist/` folder. If the asset PHP file is missing, e
 
 1. Version compare logic stays in free `plugin-compatibility`.
 2. Do not enqueue this script from other admin pages.
-3. Keep the JS filter’s unlock entry aligned with other Pro packages (copy from `editor-pro` `register.js`; do not invent a shorter check).
+3. Keep the JS filter’s overlay gate aligned with other Pro packages (`isAccountLicenseValid()`).
 
 ---
 
