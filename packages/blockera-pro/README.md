@@ -44,25 +44,11 @@ packages/blockera-pro/
 
 ## JS API
 
-There is **no reusable component API**. The entry is a boot:
+There is **no reusable component API**. The entry is a boot. On load it writes coarse `meta.license` onto the registered `blockera-pro` product (`syncProProductLicense` in `js/register-product-license.js`; no keys or tokens). Then it registers `addFilter('blockera.before.bootstrap', 'blockera.pro.bootstrap', …)` so free bootstrap runs Pro init **before** the free app finishes.
 
-```js
-import { applyControls } from '@blockera/controls-pro';
-import {
-	applyExtensions,
-	bootstrapCanvasEditor,
-	applyDefaultBlockStates,
-	registerEditorExtensions,
-} from '@blockera/editor-pro';
-```
+That callback writes product license again, then (when overlays may run) `bootstrapCanvasEditor()`, `registerEditorExtensions()`, `applyControls()`, `applyExtensions()`.
 
-On load it:
-
-1. Calls `applyDefaultBlockStates()` immediately (default extra states overlay).
-2. Registers `addFilter('blockera.before.bootstrap', 'blockera.pro.bootstrap', …)` so free bootstrap runs Pro init **before** the free app finishes.
-3. That callback runs `bootstrapCanvasEditor()`, `registerEditorExtensions()`, `applyControls()`, `applyExtensions()`.
-
-Do not call those four functions from a new boot file. Extend the existing packages instead.
+Do not call those four functions from a new boot file. Extend the existing packages instead. Do not import this package’s `js/index.js` from admin (it is a side-effect boot); admin uses `js/register-product-license.js` only.
 
 ---
 
@@ -93,7 +79,9 @@ Providers (registered from Pro config `app.providers`):
 | `blockera_pro_core_config( string $key )` | Pro config via `blockera_core_config`, root = `BLOCKERA_PRO_PATH`. |
 | `blockera_pro_get_root_path(): string` | Plugin filesystem root. |
 | `blockera_pro_get_root_url(): string` | Plugin URL. |
-| `blockera_pro_get_product_details(): array` | Products-registry payload from plugin headers (`slug` = `blockera-pro`). |
+| `blockera_pro_get_product_details(): array` | Products-registry payload from plugin headers (`slug` = `blockera-pro`), including `meta.license` coarse flags. |
+| `blockera_pro_license_meta_from_account( array $account ): array` | `{ valid: bool, status: string }` from an account array. Never returns secrets. |
+| `blockera_pro_get_license_meta(): array` | Same flags from Pro account config. |
 | `blockera_pro_register_product(): void` | Registers that payload when the entry file lives under `WP_PLUGIN_DIR`. |
 
 ### Hooks (`php/hooks.php`)
@@ -130,7 +118,7 @@ Do not duplicate these routes in another package.
 1. Boot Pro from the plugin entry (`blockera-pro.php` → this package). Do not instantiate `BlockeraPro` from GP.
 2. New editor unlocks belong in `editor-pro` / `controls-pro` / `blocks-pro`, then stay wired from `js/index.js` — do not add a second `blockera.before.bootstrap` boot.
 3. New REST auth endpoints: add the route here and the controller method in `auth-pro`.
-4. Do not reimplement license checks in this package; unlocks already live in the packages this boot calls.
+4. Do not duplicate product-license writes; use `syncProProductLicense` / PHP `blockera_pro_get_license_meta()`. Additive overlays stay in `editor-pro` / `controls-pro`.
 
 ---
 
@@ -139,6 +127,7 @@ Do not duplicate these routes in another package.
 | File | Kind |
 |------|------|
 | `php/tests/ProductRegistrationTest.php` | PHPUnit — product registry helpers |
+| `php/tests/LicenseMetaTest.php` | PHPUnit — `meta.license` flags from account |
 | `php/tests/TestCase.php` | PHPUnit base |
 
 From the **blockera-pro repo root**: `npm run test:unit:php`, `npm run test:js`, `npm run test:e2e`. Do not invent runners.

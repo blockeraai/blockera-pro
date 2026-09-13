@@ -46,7 +46,7 @@ if ( ! function_exists( 'blockera_pro_get_root_url' ) ) {
 	}
 }
 
-if ( ! function_exists( 'blockera_pro_get_product_details' ) ) :
+if ( ! function_exists( 'blockera_pro_get_product_details' ) ) {
 	/**
 	 * Blockera Pro plugin product details for the products registry.
 	 *
@@ -83,11 +83,127 @@ if ( ! function_exists( 'blockera_pro_get_product_details' ) ) :
 				'wordpress' => ! empty( $headers['RequiresWP'] ) ? $headers['RequiresWP'] : '',
 				'php'       => ! empty( $headers['RequiresPHP'] ) ? $headers['RequiresPHP'] : '',
 			),
+			'meta'        => array(
+				'license' => blockera_pro_get_license_meta(),
+			),
 		);
 	}
-endif;
+}
 
-if ( ! function_exists( 'blockera_pro_register_product' ) ) :
+if ( ! function_exists( 'blockera_pro_license_meta_from_account' ) ) {
+	/**
+	 * Coarse license flags for the products registry.
+	 *
+	 * Installed (`status: active` on the product) is not a license. Never put
+	 * keys, tokens, or secrets on this payload.
+	 *
+	 * @param array $account Account config (`client_*`, `access_token`, `license`).
+	 *
+	 * @return array{valid: bool, status: string}
+	 */
+	function blockera_pro_license_meta_from_account( array $account ): array {
+		$license = $account['license'] ?? null;
+
+		if ( ! is_array( $license ) || array() === $license ) {
+			return array(
+				'valid'  => false,
+				'status' => 'missing',
+			);
+		}
+
+		$id            = $license['id'] ?? '';
+		$name          = $license['name'] ?? '';
+		$type          = $license['type'] ?? '';
+		$status        = $license['status'] ?? '';
+		$license_key   = $license['licenseKey'] ?? '';
+		$start_date    = $license['startDate'] ?? '';
+		$due_date      = $license['nextPaymentDueDate'] ?? '';
+		$client_id     = $account['client_id'] ?? '';
+		$client_secret = $account['client_secret'] ?? '';
+		$access_token  = $account['access_token'] ?? '';
+		$refresh_token = $account['refresh_token'] ?? '';
+
+		if (
+			'' === $id
+			|| '' === $name
+			|| '' === $status
+			|| '' === $license_key
+			|| '' === $start_date
+			|| '' === $due_date
+			|| '' === $client_id
+			|| '' === $client_secret
+			|| '' === $access_token
+			|| '' === $refresh_token
+		) {
+			return array(
+				'valid'  => false,
+				'status' => 'invalid',
+			);
+		}
+
+		if ( 'active' !== $status ) {
+			return array(
+				'valid'  => false,
+				'status' => 'invalid',
+			);
+		}
+
+		$id_string = (string) $id;
+
+		if ( 0 !== strpos( (string) $name, '#' . $id_string . ' - ' ) ) {
+			return array(
+				'valid'  => false,
+				'status' => 'invalid',
+			);
+		}
+
+		$now = time();
+
+		if ( 'subscription' === $type ) {
+			$due_ts   = strtotime( (string) $due_date );
+			$start_ts = strtotime( (string) $start_date );
+
+			if ( false !== $due_ts && $due_ts < $now ) {
+				return array(
+					'valid'  => false,
+					'status' => 'expired',
+				);
+			}
+
+			if ( false !== $start_ts && $start_ts > $now ) {
+				return array(
+					'valid'  => false,
+					'status' => 'invalid',
+				);
+			}
+		}
+
+		return array(
+			'valid'  => true,
+			'status' => 'active',
+		);
+	}
+}
+
+if ( ! function_exists( 'blockera_pro_get_license_meta' ) ) {
+	/**
+	 * License flags from Pro account config for product localization.
+	 *
+	 * @return array{valid: bool, status: string}
+	 */
+	function blockera_pro_get_license_meta(): array {
+		$account = array();
+
+		if ( function_exists( 'blockera_pro_core_config' ) ) {
+			$loaded  = blockera_pro_core_config( 'account' );
+			$account = is_array( $loaded ) ? $loaded : array();
+		}
+
+		return blockera_pro_license_meta_from_account( $account );
+	}
+}
+
+if ( ! function_exists( 'blockera_pro_register_product' ) ) {
 	/**
 	 * Register the Blockera Pro plugin into the blockera products registry.
 	 *
@@ -111,4 +227,4 @@ if ( ! function_exists( 'blockera_pro_register_product' ) ) :
 
 		blockera_register_product( blockera_pro_get_product_details() );
 	}
-endif;
+}

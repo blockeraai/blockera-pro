@@ -9,21 +9,32 @@ import { addFilter } from '@wordpress/hooks';
  * Blockera dependencies
  */
 import { applyControls } from '@blockera/controls-pro';
+import { isAccountLicenseValid } from '@blockera/validator';
 import {
 	applyExtensions,
 	bootstrapCanvasEditor,
-	applyDefaultBlockStates,
 	registerEditorExtensions,
 } from '@blockera/editor-pro';
 
+/**
+ * Internal dependencies
+ */
+import { syncProProductLicense } from './register-product-license';
+
+syncProProductLicense();
+
 const initializeBlockeraPro = () => {
+	syncProProductLicense();
+
+	if (!isAccountLicenseValid()) {
+		return;
+	}
+
 	bootstrapCanvasEditor();
 	registerEditorExtensions();
 	applyControls();
 	applyExtensions();
 };
-
-applyDefaultBlockStates();
 
 /**
  * Initialize blockera react application.
