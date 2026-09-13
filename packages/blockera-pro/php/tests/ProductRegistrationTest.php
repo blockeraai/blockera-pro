@@ -85,6 +85,12 @@ class ProductRegistrationTest extends TestCase {
 		foreach ( array( 'name', 'slug', 'version', 'type', 'status', 'isCompanion' ) as $key ) {
 			$this->assertArrayHasKey( $key, $details );
 		}
+
+		$this->assertArrayHasKey( 'meta', $details );
+		$this->assertArrayHasKey( 'license', $details['meta'] );
+		$this->assertArrayHasKey( 'valid', $details['meta']['license'] );
+		$this->assertArrayHasKey( 'status', $details['meta']['license'] );
+		$this->assertIsBool( $details['meta']['license']['valid'] );
 	}
 
 	/**
