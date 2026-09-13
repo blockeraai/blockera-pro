@@ -2,13 +2,13 @@
 
 Pro **editor overlays**: extension config merge, extra block states, canvas / global styles, shared extension cache.
 
-Free owns implementations in GP `@blockera/editor`. This package **does not fork** those libs. It `addFilter`s names free already exposes, after the shared Pro unlock entry used by `registerEditorExtensions`.
+Free owns implementations in GP `@blockera/editor`. This package **does not fork** those libs. It `addFilter`s names free already exposes, after the same overlay gate as `registerEditorExtensions`.
 
 ---
 
 ## Why it exists
 
-Paid editor behavior (extra states, `onNative: false` supports, unlimited global-style variations, canvas breakpoints) must stay out of GP. Pro merges `./extensions/config` onto `blockera.block.{blockName}.extension.{supportId}` and unlocks canvas UI.
+Paid editor behavior (extra states, `onNative: false` supports, canvas breakpoint types) must stay out of GP. Pro merges `./extensions/config` onto `blockera.block.{blockName}.extension.{supportId}` and fills empty canvas breakpoint types. Item caps and promo slots are read from the products store in GP.
 
 ---
 
@@ -45,6 +45,7 @@ import {
 	applyBlockStates,
 	clearCache,
 	bootstrapCanvasEditor,
+	unlockGlobalStyles,
 	config,
 } from '@blockera/editor-pro';
 ```
@@ -53,9 +54,9 @@ Called from `@blockera/blockera-pro` (`js/index.js`). Do not add a parallel boot
 
 ### `registerEditorExtensions()`
 
-Unlock entry, then:
+When overlays may run:
 
-- `blockera.editor.components.editorFeatureWrapper.editorStoreParams` — `{ list: true }`
+- `blockera.extensions.innerBlocks.config` — merge Pro support maps
 - `blocks.registerBlockType` — for each export in `js/extensions/config`, `addFilter('blockera.block.{blockName}.extension.{supportId}', …)` via `mergeObject`. Sets `onNativeOnInnerBlocks` to `false` when missing or `true`.
 
 **Config exports** (`js/extensions/config/index.js`): `typographyConfig`, `backgroundConfig`, `borderAndShadowConfig`, `effectsConfig`, `spacingConfig`, `positionConfig`, `sizeConfig`, `layoutConfig`, `customStyleConfig`, `flexChildConfig`, `mouseConfig`, `entranceAnimationConfig`, `scrollAnimationConfig`, `clickAnimationConfig`, `conditionsConfig`, `advancedSettingsConfig`, `iconConfig`, `statesConfig`.
@@ -66,35 +67,23 @@ Add a new support overlay here **and** keep the free lib as source of truth. Spa
 
 `clearCache()` then `applyBlockStates()`.
 
-### `applyBlockStates()` / `applyDefaultBlockStates()`
+### `applyBlockStates()` / `applyDefaultBlockStates()` / `unlockGlobalStyles()`
 
-| Function | Filter | Effect |
-|----------|--------|--------|
-| `applyBlockStates` | `blockera.controls.block-states.props` | `PromoComponent: null` |
-| `applyDefaultBlockStates` | `blockera.editor.extensions.blockStates.availableStates` | Sets `native: false` on states that were `native: true` in free |
+Licensed no-ops kept so existing boot / import names stay valid. Native and promo locks are lifted in GP from `blockera-pro` product `meta.license`.
 
 ### `clearCache()` (`libs/shared/actions.js`)
 
-`addAction('blockera.editor.extensions.sharedExtension.blockSupports.cacheData', …)` — writes extension config JSON through `@blockera/storage`.
+When overlays may run, `addAction('blockera.editor.extensions.sharedExtension.blockSupports.cacheData', …)` — writes extension config JSON through `@blockera/storage`.
 
 ### `bootstrapCanvasEditor()`
 
-Unlock entry, then:
+When overlays may run:
 
 | Filter | Effect |
 |--------|--------|
-| `blockera.editor.tabs` | Tab limits: regular/pinned `Infinity`, recentlyClosed `30` (registered even when the unlock entry returns early so local/dev still get tab limits) |
-| `blockera.editor.canvasEditor.bootstrap.breakpoints` | Picked breakpoints: `status: true`, `native: false` |
+| `blockera.editor.canvasEditor.bootstrap.breakpoints` | Empty `type` is filled with the breakpoint key |
 
-Then `unlockGlobalStyles()`:
-
-| Filter | Effect |
-|--------|--------|
-| `blockera.block.{style\|size}.variations.globalStylesMaxItems` | `-1` (unlimited) |
-| `blockera.globalStyles.usageForMultipleBlocks.maxBlocks` | `-1` |
-| `blockera.globalStyles.colorShades.canEditShadeColors` | `true` |
-
-New canvas / GS unlocks: `addFilter` the free names. Do not import Pro from GP.
+New canvas overlays: `addFilter` the free names. Do not import Pro from GP.
 
 ---
 
@@ -109,9 +98,9 @@ Use this base for Pro-only style definitions that must skip free ignore checks. 
 ## Rules for consumers
 
 1. Free first, then `applyFilters` in GP; Pro `addFilter` here.
-2. New unlocks use the same entry as `registerEditorExtensions` (open that file; do not invent a shorter check).
+2. New unlocks use the same overlay gate as `registerEditorExtensions` (`isAccountLicenseValid()`).
 3. Do not `import` this package from GP.
-4. Inner blocks / states: free `native: true` → Pro sets `false` (see GP `inner-blocks-and-block-states.md`).
+4. Inner blocks / states: Pro support overlays set `onNativeOnInnerBlocks: false` (see GP `inner-blocks-and-block-states.md`).
 
 ---
 
@@ -127,7 +116,7 @@ Cypress next to libs (`js/extensions/libs/**/test/`, `js/canvas-editor/test/`, `
 |----------|--------|
 | `@blockera/blockera-pro` | Boot |
 | GP `@blockera/editor` | Filter host |
-| `@blockera/controls-pro` | Control promo / options (separate package) |
+| `@blockera/controls-pro` | Additive control overlays (separate package) |
 
 ---
 

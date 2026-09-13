@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Development Notes
+- Canvas bootstrap only fills empty breakpoint types; extension overlays stay on inner-block and support merge filters.
 - Package README documents public editor overlay APIs (`registerEditorExtensions`, canvas, states).
 
 ## 1.0.1 (2025-07-20)
