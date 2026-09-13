@@ -43,7 +43,7 @@ packages/blockera-pro-admin/
 
 The package **does not export** a public React tree from `js/index.js`. It registers `addFilter('blockera.bootstrapper.before.domReady', 'blockera.pro.admin.bootstrap', initializeBlockeraProAdmin)`.
 
-`initializeBlockeraProAdmin()` returns a function that runs:
+`initializeBlockeraProAdmin()` returns a function that first calls `syncProProductLicense()` (from `@blockera/blockera-pro/js/register-product-license.js`, not the editor boot entry), then:
 
 | Function | Filter(s) | Effect |
 |----------|-----------|--------|
@@ -57,8 +57,8 @@ The package **does not export** a public React tree from `js/index.js`. It regis
 | `accountActivePanelComponent` | `blockera.admin.panel.account.activePanelComponent` | `<ConnectWithBlockera />` |
 | `accountDescriptionComponent` | `blockera.admin.panel.account.description` | Connect copy when disconnected |
 | `accountShowButtons` | `blockera.admin.panel.account.showButtons` | `false` |
-| `bootstrapBreakpoints` | `blockera.breakpoints.*` | Custom breakpoints when Pro settings apply |
-| `bootstrapGeneralPanel` | `blockera.admin.panel.settings.config` and visibility `onChange` filters | Unlocks restrict-visibility / roles / post types |
+| `bootstrapBreakpoints` | `blockera.breakpoints.*` | Custom breakpoint values when overlays may run; otherwise resets extras |
+| `bootstrapGeneralPanel` | `blockera.admin.panel.settings.config` and visibility `onChange` filters | Restrict-visibility / roles / post types overlays |
 
 Import for tests or reuse (not a second boot):
 
@@ -68,7 +68,7 @@ import { ConnectWithBlockera } from '@blockera/auth-pro';
 
 Account UI is owned by `auth-pro`. This package only mounts it through filters.
 
-`bootstrapGeneralPanel` / `bootstrapBreakpoints` follow the same Pro unlock entry pattern as `editor-pro` (`registerEditorExtensions`). Copy that sequence from those files; do not invent a shorter check.
+`bootstrapGeneralPanel` / `bootstrapBreakpoints` use `isAccountLicenseValid()` from `@blockera/validator` (same overlay gate as `registerEditorExtensions`). Do not copy a second account-field checklist into these files.
 
 ---
 
@@ -88,7 +88,7 @@ Extends `Blockera\Bootstrap\AssetsProvider`. `boot()` runs only on `page` contai
 
 - Inline script handle filter: `blockera/wordpress/{id}/handle/inline-script`
 - Before inline: `authorizationInlineScript` (OAuth / account globals for the admin app)
-- Package deps include `@blockera/auth-pro`
+- Enqueues `products` with `@blockera/auth-pro` and `@blockera/blockera-pro-admin`. Package deps list `@blockera/products` before `@blockera/controls` so the products global exists when controls loads.
 
 Do not enqueue this script on every `admin_enqueue_scripts` from another package.
 

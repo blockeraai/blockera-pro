@@ -6,6 +6,11 @@
 import { addFilter } from '@wordpress/hooks';
 
 /**
+ * Blockera dependencies
+ */
+import { syncProProductLicense } from '@blockera/blockera-pro/js/register-product-license.js';
+
+/**
  * Internal dependencies
  */
 import {
@@ -25,6 +30,8 @@ import {
 
 const initializeBlockeraProAdmin = () => {
 	return () => {
+		syncProProductLicense();
+
 		filteredIgnoredPanelTabs();
 
 		filterCallToActions();
