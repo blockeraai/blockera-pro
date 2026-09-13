@@ -31,6 +31,18 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
         add_filter('blockera/wordpress/' . $this->getId() . '/handle/inline-script', [ $this, 'getHandler' ]);
         add_filter('blockera/wordpress/' . $this->getId() . '/inline-script/before', [ $this, 'authorizationInlineScript' ]);
 
+		$admin_package_deps = [
+			'@blockera/products',
+			'@blockera/utils',
+			'@blockera/classnames',
+			'@blockera/icons',
+			'@blockera/data',
+			'@blockera/data-editor',
+			'@blockera/env',
+			'@blockera/storage',
+			'@blockera/controls',
+		];
+
         $this->app->make(
             $this->getId(),
             [
@@ -43,26 +55,8 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
                     'enqueue-admin-assets' => true,
                     'id' => $this->getId(),
                     'packages-deps' => [
-						'@blockera/auth-pro' => [
-							'@blockera/utils',
-							'@blockera/classnames',
-							'@blockera/icons',
-							'@blockera/data',
-							'@blockera/data-editor',
-							'@blockera/env',
-							'@blockera/storage',
-							'@blockera/controls',
-                    	],
-						'@blockera/blockera-pro-admin' => [
-							'@blockera/utils',
-							'@blockera/classnames',
-							'@blockera/icons',
-							'@blockera/data',
-							'@blockera/data-editor',
-							'@blockera/env',
-							'@blockera/storage',
-							'@blockera/controls',
-                    	],
+						'@blockera/auth-pro' => $admin_package_deps,
+						'@blockera/blockera-pro-admin' => $admin_package_deps,
 					],
                 ],
             ]
@@ -199,6 +193,7 @@ class BlockeraProAdminAssetsProvider extends AssetsProvider {
     protected function getAssets(): array {
         return array_merge(
             [
+				'products',
                 'auth-pro',
                 'auth-pro-styles',
                 'blockera-pro-admin',

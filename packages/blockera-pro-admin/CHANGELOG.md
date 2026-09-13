@@ -1,7 +1,7 @@
 ## Unreleased
 
-### Development Notes
-- Package README documents public admin JS filters and PHP asset/menu APIs.
+### Bug Fixes
+- Settings screens no longer fail to load because the products script was missing before controls.
 
 ## 1.2.0 (2025-07-17)
 
