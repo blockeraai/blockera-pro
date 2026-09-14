@@ -20,6 +20,13 @@
 		},
 		{
 			"type": "path",
+			"url": "../blockera/packages/global-packages/packages/auth",
+			"options": {
+				"symlink": true
+			}
+		},
+		{
+			"type": "path",
 			"url": "./packages/auth-pro"
 		},
 		{
@@ -55,6 +62,7 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7.4",
+		"blockera/auth": "*",
 		"blockera/auth-pro": "*",
 		"blockera/guard": "*",
 		"blockera/editor-pro": "*",

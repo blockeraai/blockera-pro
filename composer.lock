@@ -17,7 +17,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Blockera\\Auth\\": "php/"
+                    "Blockera\\AuthPro\\": "php/"
                 },
                 "files": [
                     "php/functions.php"
@@ -25,7 +25,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Blockera\\Auth\\Tests\\": "php/tests/"
+                    "Blockera\\AuthPro\\Tests\\": "php/tests/"
                 }
             },
             "description": "OAuth 2.0 client functionality implementation for authentication and subscription management",
