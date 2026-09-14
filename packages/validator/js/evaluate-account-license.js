@@ -45,6 +45,7 @@ export function evaluateAccountLicense(account: Object): TAccountLicenseMeta {
 	const type = license?.type;
 	const name = license?.name;
 	const status = license?.status;
+	const orderId = license?.orderId;
 	const startDate = license?.startDate;
 	const licenseKey = license?.licenseKey;
 	const nextPaymentDueDate = license?.nextPaymentDueDate;
@@ -59,7 +60,8 @@ export function evaluateAccountLicense(account: Object): TAccountLicenseMeta {
 		!nextPaymentDueDate ||
 		!startDate ||
 		!clientId ||
-		!clientSecret
+		!clientSecret ||
+		(!orderId && 'non-subscription' === type)
 	) {
 		return {
 			valid: false,
@@ -91,7 +93,17 @@ export function evaluateAccountLicense(account: Object): TAccountLicenseMeta {
 		};
 	}
 
-	if (!String(name).startsWith(`#${id} - `)) {
+	if (
+		!String(name).startsWith(`${orderId} - `) &&
+		'non-subscription' === type
+	) {
+		return {
+			valid: false,
+			status: 'invalid',
+		};
+	}
+
+	if (!String(name).startsWith(`${id} - `) && 'subscription' === type) {
 		return {
 			valid: false,
 			status: 'invalid',
