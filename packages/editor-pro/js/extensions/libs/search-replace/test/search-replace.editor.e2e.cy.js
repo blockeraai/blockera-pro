@@ -1,14 +1,51 @@
 import {
 	appendBlocks,
+	closeWelcomeGuide,
 	createPost,
+	disableGutenbergFeatures,
+	getScopedStorageKey,
 	getWPDataObject,
 } from '@blockera/dev-cypress/js/helpers';
+
+const SCOPE_STORAGE_KEY = 'blockera-search-replace-scope';
 
 function openSearch() {
 	cy.getByDataTest('blockera-search-replace-header-button', {
 		timeout: 30000,
 	}).click();
 	cy.getByDataTest('blockera-search-replace-panel').should('be.visible');
+}
+
+function expectScope(scope) {
+	cy.getByDataTest('blockera-search-replace-scope')
+		.find('select')
+		.should('have.value', scope);
+}
+
+function rememberScope(scope) {
+	cy.window().then((win) => {
+		win.localStorage.setItem(
+			getScopedStorageKey(win, SCOPE_STORAGE_KEY),
+			scope
+		);
+	});
+}
+
+function expectRememberedScope(scope) {
+	cy.window().then((win) => {
+		expect(
+			win.localStorage.getItem(
+				getScopedStorageKey(win, SCOPE_STORAGE_KEY)
+			)
+		).to.equal(scope);
+
+		if (
+			win.wp.data.select('blockera/search-replace').getScope() !== scope
+		) {
+			win.wp.data.dispatch('blockera/search-replace').setScope(scope);
+		}
+	});
+	expectScope(scope);
 }
 
 function chooseScope(scope) {
@@ -26,16 +63,23 @@ function chooseScope(scope) {
 						.dispatch('blockera/search-replace')
 						.setScope(scope);
 				});
-				return;
+			} else {
+				cy.wrap($select).select(scope);
 			}
-
-			cy.wrap($select).select(scope);
 		});
 
-	cy.getByDataTest('blockera-search-replace-scope')
-		.find('select')
-		.should('have.value', scope);
+	expectScope(scope);
 	cy.get('.blockera-component-upgrade-prompt').should('not.exist');
+	rememberScope(scope);
+}
+
+function reloadEditor() {
+	cy.reload();
+	closeWelcomeGuide();
+	disableGutenbergFeatures();
+	cy.getByDataTest('blockera-search-replace-header-button', {
+		timeout: 30000,
+	}).should('exist');
 }
 
 function enableRegex() {
@@ -57,6 +101,10 @@ describe('Search and replace → Pro scopes', () => {
 	});
 
 	it('unlocks Attributes and All and can replace image alt', () => {
+		openSearch();
+		chooseScope('attributes');
+		reloadEditor();
+
 		appendBlocks(`<!-- wp:image {"alt":"find-alt","url":"https://example.com/p.png"} -->
 <figure class="wp-block-image"><img alt="find-alt" src="https://example.com/p.png"/></figure>
 <!-- /wp:image -->
@@ -65,7 +113,7 @@ describe('Search and replace → Pro scopes', () => {
 <!-- /wp:paragraph -->`);
 
 		openSearch();
-		chooseScope('attributes');
+		expectRememberedScope('attributes');
 
 		cy.getByDataTest('blockera-search-replace-find-input')
 			.clear()
@@ -101,12 +149,16 @@ describe('Search and replace → Pro scopes', () => {
 	});
 
 	it('replaces an attribute match using a regular expression', () => {
+		openSearch();
+		chooseScope('attributes');
+		reloadEditor();
+
 		appendBlocks(`<!-- wp:image {"alt":"sku-42 leftover","url":"https://example.com/p.png"} -->
 <figure class="wp-block-image"><img alt="sku-42 leftover" src="https://example.com/p.png"/></figure>
 <!-- /wp:image -->`);
 
 		openSearch();
-		chooseScope('attributes');
+		expectRememberedScope('attributes');
 		enableRegex();
 
 		cy.getByDataTest('blockera-search-replace-find-input')
