@@ -21,7 +21,7 @@ packages/editor-pro/
 │   ├── extensions/
 │   │   ├── register.js          # registerEditorExtensions, applyExtensions
 │   │   ├── config/              # Per-support overlay objects
-│   │   └── libs/                # block-states, shared cache
+│   │   └── libs/                # block-states, shared cache; search-replace e2e
 │   └── canvas-editor/           # bootstrapCanvasEditor, global-styles
 ├── php/StyleDefinitions/BaseProStyleDefinition.php
 ├── package.json                 # @blockera/editor-pro

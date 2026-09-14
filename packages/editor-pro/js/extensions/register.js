@@ -87,6 +87,18 @@ export const registerEditorExtensions = () => {
 		},
 		10
 	);
+
+	addFilter(
+		'blockera.editor.searchReplace.scopes',
+		'blockera.pro.editor.searchReplace.scopes',
+		(scopes) =>
+			(scopes || []).map((scope) => {
+				if (scope.value === 'attributes' || scope.value === 'all') {
+					return { ...scope, locked: false };
+				}
+				return scope;
+			})
+	);
 };
 
 export const applyExtensions = (): void => {
