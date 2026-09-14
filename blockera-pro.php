@@ -16,8 +16,6 @@
  * @package Blockera Pro
  */
 
-use Blockera\Auth\Repositories\OptionRepository;
-
 // security code.
 if (! defined('ABSPATH')) {
 	/* @debug-ignore */
@@ -324,8 +322,8 @@ function blockera_pro_init(): void {
         require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
         ### END AUTO-GENERATED FRONT CONTROLLERS
 		
-		if (class_exists(Blockera\Auth\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
-			new \Blockera\Auth\Jobs(
+		if (class_exists(Blockera\AuthPro\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
+			new \Blockera\AuthPro\Jobs(
 				new \Blockera\WordPress\Sender(),
 				include __DIR__ . '/config/auth.php'
 			);
@@ -350,6 +348,18 @@ function blockera_pro_init_notice(): void {
 register_activation_hook(__FILE__, 'blockera_pro_activation');
 
 /**
+ * Option flag written on activate so admin can redirect to Account.
+ *
+ * Uses the shared OAuth option prefix without loading `OptionRepository`,
+ * because this hook can run before the free plugin autoloads `Blockera\Auth`.
+ *
+ * @return string
+ */
+function blockera_pro_activation_redirect_option_key(): string {
+	return 'blockera-oauth-credentials_do_activation_redirect';
+}
+
+/**
  * Activation plugin hook.
  *
  * @return void
@@ -365,7 +375,7 @@ function blockera_pro_activation(): void {
 		wp_schedule_event(time(), 'blockera_pro_10_days', 'blockera_pro_each_per_ten_days');
 	}
 
-	add_option(OptionRepository::getOptionKey() . '_do_activation_redirect', true);
+	add_option(blockera_pro_activation_redirect_option_key(), true);
 }
 
 register_deactivation_hook(__FILE__, 'blockera_pro_deactivation');
@@ -394,7 +404,7 @@ function blockera_pro_redirect_to_activation_page(): void {
 		return;
 	}
 	
-	$optionKey = OptionRepository::getOptionKey() . '_do_activation_redirect';
+	$optionKey = blockera_pro_activation_redirect_option_key();
 
 	// Check if the redirect flag is set and the user has sufficient permissions.
 	if (get_option($optionKey, false)) {
