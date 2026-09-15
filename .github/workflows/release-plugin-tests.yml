@@ -49,7 +49,7 @@ jobs:
             BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
             BLOCKERA_BUILD_ZIP_TESTS_SPECS_ROOTS: ./packages
             BLOCKERA_BUILD_ZIP_TESTS_SPECS_PATH: '*-pro*'
-            BLOCKERA_BUILD_ZIP_TESTS_SPECS_DEST: packages/blockera-pro/tests
+            BLOCKERA_BUILD_ZIP_TESTS_SPECS_DEST: packages/global-packages/packages/blockera-pro/tests
         steps:
             - uses: actions/checkout@v5
               with:

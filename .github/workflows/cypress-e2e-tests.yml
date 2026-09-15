@@ -15,7 +15,7 @@ env:
     BLOCKERA_E2E_SCAN_ROOTS: packages
     BLOCKERA_E2E_PACKAGE_SUFFIX: -pro
     BLOCKERA_E2E_PACKAGE_PREFIX: blockera-pro-
-    BLOCKERA_E2E_GENERAL_PACKAGES: validator,guard,console
+    BLOCKERA_E2E_GENERAL_PACKAGES: validator-pro,guard-pro,console-pro
     BLOCKERA_E2E_GENERAL_CATEGORY: general
     BLOCKERA_E2E_SHARD_SIZE: '50'
     BLOCKERA_E2E_EXCLUDE_CATEGORIES: 'plugin-compatibility*'
@@ -82,7 +82,7 @@ jobs:
                 category: ${{ fromJson(needs.detect_categories.outputs.categories) }}
         env:
             BLOCKERA_E2E_CATEGORY: ${{ matrix.category }}
-            BLOCKERA_E2E_PRE_TEST_CMD: npm run test:e2e -- --spec "packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
+            BLOCKERA_E2E_PRE_TEST_CMD: npm run test:e2e -- --spec "packages/global-packages/packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"
         steps:
             - uses: actions/checkout@v5
               with:
