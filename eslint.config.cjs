@@ -9,6 +9,14 @@ module.exports = createConfig( {
 		// Pro-only paths (were in root .eslintignore).
 		'packages/console/*',
 		'wordpress*',
+		'packages/*-one/**',
+		'packages/*-one-*/**',
+		'packages/global-packages/packages/**/*-one/**',
+		'packages/global-packages/packages/**/*-one-*/**',
+		'packages/*-toolkit/**',
+		'packages/*-toolkit-*/**',
+		'packages/global-packages/packages/**/*-toolkit/**',
+		'packages/global-packages/packages/**/*-toolkit-*/**',
 	],
 	allowedTextDomains: [ 'blockera', 'blockera-pro' ],
 } );
