@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Blockera Site Builder [PRO]
+ * Plugin Name: Blockera Builder [PRO]
  * Plugin URI: https://blockera.ai/products/site-builder/pricing/
- * Description: Unlock the full power of Blockera Site Builder with the PRO version.
+ * Description: Unlock the full power of Blockera Builder with the PRO version.
  * Requires at least: 6.6
  * Tested up to: 7.1
  * Requires PHP: 7.4
