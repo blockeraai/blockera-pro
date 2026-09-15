@@ -1,6 +1,6 @@
 # Agents — Blockera Pro
 
-Pro plugin that unlocks Site Builder Pro. Depends on the free plugin being present. Host packages live next to the GP submodule.
+Pro plugin that unlocks Site Builder Pro. Depends on the free plugin being present. Pro packages live in the GP submodule (`packages/global-packages/packages/*-pro*`).
 
 ## Inspect
 
@@ -9,9 +9,9 @@ Pro plugin that unlocks Site Builder Pro. Depends on the free plugin being prese
 - Gutenberg / WordPress: `source-codes/` (same routing as free plugin)
 - Generated `.cursor/` — edit GP templates, not the host copy
 
-## Host packages (product-only)
+## Pro packages (in global-packages)
 
-`blockera-pro`, `blockera-pro-admin`, `editor-pro`, `blocks-pro`, `controls-pro`, `auth-pro`, `guard`, `console`, `validator`, `notice`, `plugin-compatibility-pro`.
+`blockera-pro`, `blockera-pro-admin`, `editor-pro`, `blocks-pro`, `controls-pro`, `auth-pro`, `guard-pro`, `console-pro`, `validator-pro`, `notice-pro`, `plugin-compatibility-pro`.
 
 Public APIs for `*-pro` packages: that package’s `README.md` (see [`.ai/architecture.md`](.ai/architecture.md)).
 

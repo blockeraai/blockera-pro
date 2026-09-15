@@ -18,7 +18,7 @@ packages/global-packages/          # submodule → blockeraai/blockera-global-pa
     ...
 ```
 
-Pro-only packages stay local under `packages/` (`*-pro*`, plus `console`, `guard`, `notice`, `validator`) and are not moved into global-packages.
+Pro-only packages live in this submodule under `packages/` (`*-pro*`, including `console-pro`, `guard-pro`, `notice-pro`, `validator-pro`). Other products sparse-checkout the same tree but do not npm/Composer `require` those packages. Free-plugin CI uses `BLOCKERA_E2E_EXCLUDE_PACKAGES` (and CT/Playwright equivalents) so Pro specs do not run there.
 
 ### Local setup
 
