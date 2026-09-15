@@ -4,15 +4,46 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96b48cade8ed524251dee657da4638ee",
+    "content-hash": "8c7e4eddbd3d40e58d230d63e54bd67f",
     "packages": [
+        {
+            "name": "blockera/auth",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/global-packages/packages/auth",
+                "reference": "4d90cb8c69e637130b5a78188c1461b4e4e03511"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockera\\Auth\\": "php/"
+                },
+                "files": [
+                    "php/functions.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Blockera\\Auth\\Tests\\": "php/tests/"
+                }
+            },
+            "description": "Login-only OAuth connect session for Blockera.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
         {
             "name": "blockera/auth-pro",
             "version": "1.1.2",
             "dist": {
                 "type": "path",
                 "url": "./packages/auth-pro",
-                "reference": "eea8872e2e0229b70c9a4e886ab8411eaf4b3796"
+                "reference": "8980a1899c0503b02f5b6fcce9a094821afb418b"
+            },
+            "require": {
+                "blockera/auth": "*"
             },
             "type": "library",
             "autoload": {
@@ -28,7 +59,7 @@
                     "Blockera\\AuthPro\\Tests\\": "php/tests/"
                 }
             },
-            "description": "OAuth 2.0 client functionality implementation for authentication and subscription management",
+            "description": "License UI and Pro update transients on top of the shared Blockera auth session",
             "transport-options": {
                 "relative": true
             }
@@ -81,11 +112,11 @@
         },
         {
             "name": "blockera/blocks-core",
-            "version": "1.4.0",
+            "version": "9.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/blocks-core",
-                "reference": "8ed1ca395f3c28ee7fd4de915ebd4a8740a80e15"
+                "reference": "791c0da6c055cb6ac816ebe25b892a5081b77cdb"
             },
             "type": "library",
             "autoload": {
@@ -104,11 +135,11 @@
         },
         {
             "name": "blockera/bootstrap",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/bootstrap",
-                "reference": "c030cb60aa6ce80395072f6e400859113ea86b68"
+                "reference": "7dafba063751f630cbf4a87ed67fe3fd63695e44"
             },
             "type": "library",
             "autoload": {
@@ -149,11 +180,11 @@
         },
         {
             "name": "blockera/controls",
-            "version": "1.4.0",
+            "version": "7.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/controls",
-                "reference": "6f7251f323f8467b3a198e6a17c18fcdc736ff9d"
+                "reference": "17d9ebb3c970c0842d4cb8c160c25f94e8c2af96"
             },
             "type": "library",
             "autoload": {
@@ -217,11 +248,11 @@
         },
         {
             "name": "blockera/editor",
-            "version": "2.0.1",
+            "version": "9.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/editor",
-                "reference": "1c5e3fbc6dda26129f23b9f4446bb332363cdee7"
+                "reference": "3540729b6288f13aa347c5e84d672816f563c274"
             },
             "type": "library",
             "autoload": {
@@ -312,11 +343,11 @@
         },
         {
             "name": "blockera/feature-icon",
-            "version": "1.0.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/features-library/icon",
-                "reference": "8b92cec4f7b0defe06c7896eb6909337c22c00db"
+                "reference": "e15248f6186a5afcc93ea53b03a3baf9a42374af"
             },
             "type": "library",
             "autoload": {
@@ -341,11 +372,11 @@
         },
         {
             "name": "blockera/features-core",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/features-core",
-                "reference": "38b7f5b229b89f1e1453584843332e75bef44456"
+                "reference": "9214efc8eb492997f34604c95bc6519a7c1cb4d6"
             },
             "type": "library",
             "autoload": {
@@ -413,11 +444,11 @@
         },
         {
             "name": "blockera/icons",
-            "version": "1.0.0",
+            "version": "4.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/icons",
-                "reference": "a405a06b8728076857b8d50f10f4ee682929a73e"
+                "reference": "d559cfb23cf4c80d6f09067dc8254f69a860c379"
             },
             "type": "library",
             "autoload": {
@@ -463,11 +494,11 @@
         },
         {
             "name": "blockera/plugin-compatibility",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/plugin-compatibility",
-                "reference": "a90a46d5bdf7c47443be661159621682659a8ab7"
+                "reference": "7082cc62605f992daf7600d73bcb25a07dc3b663"
             },
             "type": "library",
             "autoload": {
@@ -512,11 +543,11 @@
         },
         {
             "name": "blockera/products",
-            "version": "1.0.0",
+            "version": "3.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/products",
-                "reference": "b2a7a7fa544181705a3d5e245b32ac6813496fa1"
+                "reference": "f60fc70e88382a49fc4ba97bea16e6b8861968b6"
             },
             "type": "library",
             "autoload": {
@@ -589,11 +620,11 @@
         },
         {
             "name": "blockera/utils",
-            "version": "1.2.1",
+            "version": "3.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/utils",
-                "reference": "f505e5e55abc84fd7a2c508d7e5064aa708971e0"
+                "reference": "478ed942f1c64d6a77aa8cd44db3ee8da026a9ed"
             },
             "type": "library",
             "autoload": {
@@ -617,11 +648,11 @@
         },
         {
             "name": "blockera/wordpress",
-            "version": "1.1.6",
+            "version": "3.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/wordpress",
-                "reference": "810395b2ebe26967414c2c40c4c8e31f8ead3ce3"
+                "reference": "fa12cc0622e191ed901ed7c6e25753ca180a8ea0"
             },
             "type": "library",
             "autoload": {
@@ -1813,11 +1844,11 @@
         },
         {
             "name": "blockera/dev-cypress",
-            "version": "1.0.0",
+            "version": "8.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/dev-cypress",
-                "reference": "fb768011009c8761482489827e1ae324da671629"
+                "reference": "3ba94d4b82d03464e2ec7b9216aa4bced33c1a81"
             },
             "type": "library",
             "autoload": {
@@ -1857,11 +1888,11 @@
         },
         {
             "name": "blockera/dev-tools",
-            "version": "1.0.0",
+            "version": "8.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/dev-tools",
-                "reference": "e84cf97898e5e1336d0c7b52ffbd5d7be8ea5724"
+                "reference": "0cde4b8886322540e3b502063baae4106578d213"
             },
             "type": "library",
             "autoload": {
