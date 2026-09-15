@@ -24,7 +24,7 @@ env:
     BLOCKERA_E2E_WRITE_CYPRESS_ENV: 'true'
     BLOCKERA_E2E_CI_ENV: 'true'
     BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
-    BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+    BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/${{ github.head_ref || github.ref_name }}
     BLOCKERAAI_USERNAME: ${{ secrets.BLOCKERAAI_USERNAME }}
     BLOCKERAAI_USER_PASSWORD: ${{ secrets.BLOCKERAAI_USER_PASSWORD }}
 
