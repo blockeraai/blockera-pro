@@ -20,13 +20,6 @@
 		},
 		{
 			"type": "path",
-			"url": "../blockera/packages/global-packages/packages/auth",
-			"options": {
-				"symlink": true
-			}
-		},
-		{
-			"type": "path",
 			"url": "./packages/auth-pro"
 		},
 		{
