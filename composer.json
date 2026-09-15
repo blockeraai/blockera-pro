@@ -17,34 +17,6 @@
 			"options": {
 				"symlink": true
 			}
-		},
-		{
-			"type": "path",
-			"url": "./packages/auth-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro-admin"
-		},
-		{
-			"type": "path",
-			"url": "./packages/guard"
-		},
-		{
-			"type": "path",
-			"url": "./packages/editor-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/notice"
-		},
-		{
-			"type": "path",
-			"url": "./packages/plugin-compatibility-pro"
 		}
 	],
 	"authors": [
@@ -57,13 +29,13 @@
 		"php": ">=7.4",
 		"blockera/auth": "*",
 		"blockera/auth-pro": "*",
-		"blockera/guard": "*",
+		"blockera/guard-pro": "*",
 		"blockera/editor-pro": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
 		"blockera/editor": "*",
 		"blockera/utils": "*",
-		"blockera/notice": "*",
+		"blockera/notice-pro": "*",
 		"blockera/classnames": "*",
 		"blockera/controls": "*",
 		"blockera/icons": "*",
@@ -125,7 +97,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Blockera\\Pro\\Tests\\": "packages/blockera-pro/php/tests/"
+			"Blockera\\Pro\\Tests\\": "packages/global-packages/packages/blockera-pro/php/tests/"
 		}
 	}
 }

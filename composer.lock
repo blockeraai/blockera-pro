@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c7e4eddbd3d40e58d230d63e54bd67f",
+    "content-hash": "a75be43bc55486ccc598575825cbefce",
     "packages": [
         {
             "name": "blockera/auth",
@@ -39,8 +39,8 @@
             "version": "1.1.2",
             "dist": {
                 "type": "path",
-                "url": "./packages/auth-pro",
-                "reference": "8980a1899c0503b02f5b6fcce9a094821afb418b"
+                "url": "packages/global-packages/packages/auth-pro",
+                "reference": "57d9da6b3e6ee5f592f08a7cba830cd2f35a34cb"
             },
             "require": {
                 "blockera/auth": "*"
@@ -61,6 +61,7 @@
             },
             "description": "License UI and Pro update transients on top of the shared Blockera auth session",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -69,8 +70,8 @@
             "version": "1.1.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/blockera-pro",
-                "reference": "0c996f7e3df4d7cafe8037e652613e6ecdf8d402"
+                "url": "packages/global-packages/packages/blockera-pro",
+                "reference": "11918ba885724fff3b1846568928cfec983fcd02"
             },
             "type": "library",
             "autoload": {
@@ -88,6 +89,7 @@
             },
             "description": "The bootstrapper for blockera PRO php application for WordPress in admin and front-end sides.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -96,8 +98,8 @@
             "version": "1.2.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/blockera-pro-admin",
-                "reference": "df3e670eb4dd3ab3185d1133a8c60bcabf7b63d0"
+                "url": "packages/global-packages/packages/blockera-pro-admin",
+                "reference": "33917dea5783dc8993f7f64c3fe3bf1fbec741f7"
             },
             "type": "library",
             "autoload": {
@@ -107,6 +109,7 @@
             },
             "description": "The bootstrapper for blockera PRO Admin php application for WordPress for WordPress admin panel.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -279,8 +282,8 @@
             "version": "1.0.1",
             "dist": {
                 "type": "path",
-                "url": "./packages/editor-pro",
-                "reference": "8895133815ee2d5fbf27fb4e0edb9e49cf92130f"
+                "url": "packages/global-packages/packages/editor-pro",
+                "reference": "51c778482f4ace28960b276a1299e39e27e417fb"
             },
             "type": "library",
             "autoload": {
@@ -295,6 +298,7 @@
             },
             "description": "Editor Pro functionality implementation",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -399,12 +403,12 @@
             }
         },
         {
-            "name": "blockera/guard",
+            "name": "blockera/guard-pro",
             "version": "1.0.1",
             "dist": {
                 "type": "path",
-                "url": "./packages/guard",
-                "reference": "b3072f96626294c21b976f97e6dc03e425379972"
+                "url": "packages/global-packages/packages/guard-pro",
+                "reference": "ab108b5c1afc43583f7826388acc0b3a20fcf4a3"
             },
             "type": "library",
             "autoload": {
@@ -419,6 +423,7 @@
             },
             "description": "The Blockera Guard of pro features versus hackers.",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -468,12 +473,12 @@
             }
         },
         {
-            "name": "blockera/notice",
+            "name": "blockera/notice-pro",
             "version": "1.1.1",
             "dist": {
                 "type": "path",
-                "url": "./packages/notice",
-                "reference": "e30f6d6a3e269afaaaf6226888821385f252539b"
+                "url": "packages/global-packages/packages/notice-pro",
+                "reference": "75dbacb26388a45199b3ef6a22c99ad34d013f6a"
             },
             "require": {
                 "php": ">=7.4"
@@ -489,6 +494,7 @@
             ],
             "description": "WordPress Notice API integration for Blockera",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },
@@ -522,8 +528,8 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/plugin-compatibility-pro",
-                "reference": "160394846b7b991d39119e3a8b9f9ce2853e7a30"
+                "url": "packages/global-packages/packages/plugin-compatibility-pro",
+                "reference": "e3f8fc4883402931f2eabd6181ba1a0d33658c01"
             },
             "type": "library",
             "autoload": {
@@ -538,6 +544,7 @@
             },
             "description": "Handles version plugin compatibility checking between Blockera and Blockera Pro plugins to ensure proper functionality",
             "transport-options": {
+                "symlink": true,
                 "relative": true
             }
         },

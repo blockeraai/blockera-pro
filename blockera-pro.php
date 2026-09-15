@@ -319,7 +319,7 @@ function blockera_pro_init(): void {
 
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
-        require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
+        require BLOCKERA_PRO_PATH . 'packages/global-packages/packages/blockera-pro/php/app.php';
         ### END AUTO-GENERATED FRONT CONTROLLERS
 		
 		if (class_exists(Blockera\AuthPro\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
@@ -339,7 +339,7 @@ add_action('admin_init', 'blockera_pro_init_notice');
  * @return void
  */
 function blockera_pro_init_notice(): void {
-	require_once __DIR__ . '/vendor/blockera/notice/php/Notice.php';
+	require_once __DIR__ . '/vendor/blockera/notice-pro/php/Notice.php';
 	\Blockera\Notice\Notice::init();
 
 	require_once __DIR__ . '/vendor/blockera/blockera-pro/php/notices.php';

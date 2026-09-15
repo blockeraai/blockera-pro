@@ -21,8 +21,8 @@
     <testsuites>
         <testsuite name="units">
             <directory suffix=".php">./packages/global-packages/packages/dev-phpunit/php/</directory>
-            <directory suffix=".php">./packages/blockera-pro/php/tests/</directory>
-            <directory suffix=".php">./packages/auth-pro/php/tests/</directory>
+            <directory suffix=".php">./packages/global-packages/packages/blockera-pro/php/tests/</directory>
+            <directory suffix=".php">./packages/global-packages/packages/auth-pro/php/tests/</directory>
             <exclude>./node_modules/</exclude>
             <exclude>./dist/</exclude>
         </testsuite>

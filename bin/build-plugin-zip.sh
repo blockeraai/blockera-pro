@@ -124,7 +124,7 @@ resolve_shared_package_file () {
 # Temporary copy some PHP files into "inc" directory.
 status "Generating inc/app.php 📝"
 mkdir -p "inc"
-cp packages/blockera-pro/php/app.php inc/app.php
+cp packages/global-packages/packages/blockera-pro/php/app.php inc/app.php
 
 COORDINATOR_BOOTSTRAP="$(resolve_shared_package_file "autoloader-coordinator/bootstrap.php" || true)"
 COORDINATOR_CLASS="$(resolve_shared_package_file "autoloader-coordinator/class-shared-autoload-coordinator.php" || true)"

@@ -11,12 +11,12 @@ const { dependencies } = require( './package' );
 const packagesConfig = require( './packages/global-packages/packages/dev-tools/js/webpack/packages' );
 const createRootWebpackConfig = require( './packages/global-packages/packages/dev-tools/js/webpack/create-root-config' );
 
-const BLOCKERA_GUARD_MAIN_NAME = 'guard';
+const BLOCKERA_GUARD_MAIN_NAME = 'guard-pro';
 const BLOCKERA_GUARD_NICKNAME = 'features-manager';
 
 /**
  * Resolve a Blockera package directory after the sparse-submodule migration.
- * Prefer Composer path-repo symlinks, then local Pro packages, then submodule.
+ * Prefer Composer path-repo symlinks, then the global-packages submodule.
  *
  * @param {string} packageName Canonical package slug (e.g. controls-pro, feature-icon).
  * @return {string} Relative package directory from the plugin root.
