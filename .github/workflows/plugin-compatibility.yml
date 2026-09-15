@@ -31,6 +31,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: plugin-compatibility.yml
+                  require-files: .pr-env.json
 
     check_version:
         name: Check Pro Version

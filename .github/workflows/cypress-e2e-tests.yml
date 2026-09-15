@@ -48,6 +48,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: cypress-e2e-tests.yml
+                  require-files: .pr-env.json
 
     detect_categories:
         name: Detecting E2E Test Categories

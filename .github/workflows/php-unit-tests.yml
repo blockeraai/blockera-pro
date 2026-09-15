@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: php-unit-tests.yml
+                  require-files: .pr-env.json
 
     compute-previous-wordpress-version:
         name: Compute previous WordPress version

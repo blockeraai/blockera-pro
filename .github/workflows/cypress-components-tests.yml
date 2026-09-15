@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: cypress-components-tests.yml
+                  require-files: .pr-env.json
 
     cypress_components_tests:
         name: Cypress Components Tests

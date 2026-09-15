@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: release-plugin-tests.yml
+                  require-files: .pr-env.json
 
     build_tests:
         name: Building and Run E2E Tests (PHP ${{ matrix.php }})
