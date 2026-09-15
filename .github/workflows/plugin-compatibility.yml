@@ -268,7 +268,7 @@ jobs:
                   # -3 (force-compat) only when Free lacks "Requires at least blockera-pro".
                   if [ "${{ steps.check_free_header.outputs.has_header }}" != "true" ]; then
                     echo "Free has no Requires at least blockera-pro header; running plugin-compatibility-3."
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
                     exit 0
                   fi
 
@@ -276,11 +276,11 @@ jobs:
 
                   # Header present → existing version-compat suites only.
                   if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
                   elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
                   else
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
                   fi
 
             - name: Stop WP Environment
