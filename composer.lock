@@ -49,10 +49,7 @@
             "autoload": {
                 "psr-4": {
                     "Blockera\\AuthPro\\": "php/"
-                },
-                "files": [
-                    "php/functions.php"
-                ]
+                }
             },
             "autoload-dev": {
                 "psr-4": {
