@@ -22,12 +22,15 @@ if (! defined('ABSPATH')) {
     die('Access Denied!');
 }
 
-### BEGIN AUTO-GENERATED AUTOLOADER
 /**
  * Whether an active companion cannot mutual-check Pro.
  *
  * True when CompatibilityCheck is missing from the companion vendor tree, or when
  * active Free lacks the "Requires at least blockera-pro" header.
+ *
+ * Must live outside ### AUTO-GENERATED AUTOLOADER so production zip generation
+ * (`bin/generate-blockera-pro-php.php`) keeps this helper. Playground/zips still
+ * call it from `blockera_pro_init()`.
  *
  * @return bool
  */
@@ -163,6 +166,7 @@ if ( blockera_pro_companions_missing_compatibility_check() ) {
 	return;
 }
 
+### BEGIN AUTO-GENERATED AUTOLOADER
 require_once __DIR__ . '/packages/global-packages/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',
