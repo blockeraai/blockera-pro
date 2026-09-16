@@ -65,6 +65,7 @@ module.exports = createRootWebpackConfig({
 	dependencies,
 	packagesConfig,
 	resolvePackageDir,
+	obfuscateProduction: true,
 	devtoolNamespace: 'blockera-pro',
 	// Rename guard → features-manager so security package name is not exposed in version/externals keys.
 	mapPackageName: (packageName) =>
