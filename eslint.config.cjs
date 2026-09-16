@@ -2,9 +2,9 @@
 // project:bootstrap copies this to the host repo root for --project=blockera-pro.
 const {
 	createConfig,
-} = require( './packages/global-packages/packages/dev-tools/js/eslint/config' );
+} = require('./packages/global-packages/packages/dev-tools/js/eslint/config');
 
-module.exports = createConfig( {
+module.exports = createConfig({
 	extraIgnores: [
 		// Pro-only paths (were in root .eslintignore).
 		'packages/console/*',
@@ -18,5 +18,5 @@ module.exports = createConfig( {
 		'packages/global-packages/packages/**/*-toolkit/**',
 		'packages/global-packages/packages/**/*-toolkit-*/**',
 	],
-	allowedTextDomains: [ 'blockera', 'blockera-pro' ],
-} );
+	allowedTextDomains: ['blockera', 'blockera-pro'],
+});
