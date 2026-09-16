@@ -3,6 +3,7 @@
 		".",
 		"https://downloads.wordpress.org/plugin/icon-block.latest-stable.zip"
 	],
+	"testsEnvironment": false,
 	"config": {
 		"BLOCKERA_TELEMETRY_OPT_IN_OFF": true
 	},

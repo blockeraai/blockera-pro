@@ -53,7 +53,7 @@
 		"test:generate-output": "jest --json --outputFile=.jest-test-results.json",
 		"test:generate-output:dev": "jest --json --outputFile=.jest-test-results.json -- --watch",
 		"test:unit:php:setup": "npm run env:start",
-		"test:unit:php:base": "wp-env run --env-cwd='wp-content/plugins/blockera-pro' tests-wordpress vendor/bin/phpunit -c phpunit.xml.dist --verbose",
+		"test:unit:php:base": "wp-env run --env-cwd='wp-content/plugins/blockera-pro' wordpress vendor/bin/phpunit -c phpunit.xml.dist --verbose",
 		"test:unit:php": "npm-run-all test:unit:php:setup test:unit:php:base",
 		"test:unit:php:composer": "composer run-script test",
 		"version": "grunt version && grunt update-pot",
@@ -64,10 +64,10 @@
 		"env:reset": "npm run env:start --update --xdebug",
 		"env:clean": "npm run env clean all",
 		"env:destroy": "npm run env destroy",
-		"env:tests-cli:bash": "npm run env run tests-cli bash",
+		"env:tests-cli:bash": "npm run env run cli bash",
 		"packages:update": "wp-scripts packages-update",
-		"plugin:activate": "wp-env run tests-cli wp plugin activate blockera-pro",
-		"plugin:deactivate": "wp-env run tests-cli wp plugin deactivate blockera-pro"
+		"plugin:activate": "wp-env run cli wp plugin activate blockera-pro",
+		"plugin:deactivate": "wp-env run cli wp plugin deactivate blockera-pro"
 	},
 	"dependencies": {
 		"@blockera/auth": "file:./packages/global-packages/packages/auth",
