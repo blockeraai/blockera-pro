@@ -6,7 +6,9 @@ Public APIs for `*-pro` packages: each package `README.md` (quality bar: GP `@bl
 
 ## Packages (in global-packages)
 
-Pro packages live under `packages/global-packages/packages/`. The free plugin does not `require` them.
+Pro overlays live under `packages/global-packages/packages/`. **PHPUnit / Jest / PHPCS allow-list** is [declared-gp-packages.md](declared-gp-packages.md) (`project:bootstrap`), not this catalog. The free plugin does not `require` these overlays.
+
+Roles (do not add a row to test setup unless the lockfile lists it):
 
 | Package | Role | README |
 |---------|------|--------|
@@ -21,4 +23,4 @@ Pro packages live under `packages/global-packages/packages/`. The free plugin do
 
 ## Tests
 
-From this repo root: `npm run test:e2e`, `test:ct`, `test:js`, `test:unit:php`. Do not invent runners.
+From this repo root: `npm run test:e2e`, `test:ct`, `test:js`, `test:unit:php`. Do not invent runners. Package allow-list: [declared-gp-packages.md](declared-gp-packages.md).
