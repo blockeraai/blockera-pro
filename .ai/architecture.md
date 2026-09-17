@@ -17,7 +17,6 @@ Pro packages live under `packages/global-packages/packages/`. The free plugin do
 | `controls-pro` | Pro controls | [`packages/global-packages/packages/controls-pro/README.md`](../packages/global-packages/packages/controls-pro/README.md) |
 | `auth-pro` | Licensing / auth | [`packages/global-packages/packages/auth-pro/README.md`](../packages/global-packages/packages/auth-pro/README.md) |
 | `guard-pro` / `validator-pro` / `console-pro` | Pro security and CLI-style tooling | — |
-| `notice-pro` | In-editor notices | — |
 | `plugin-compatibility-pro` | Pro compatibility gate | [`packages/global-packages/packages/plugin-compatibility-pro/README.md`](../packages/global-packages/packages/plugin-compatibility-pro/README.md) |
 
 ## Tests

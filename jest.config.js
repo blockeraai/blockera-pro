@@ -18,7 +18,6 @@ const PRO_PACKAGE_NAMES = [
 	'controls-pro',
 	'editor-pro',
 	'guard-pro',
-	'notice-pro',
 	'plugin-compatibility-pro',
 	'validator-pro',
 ];

@@ -89,7 +89,6 @@
 		"@blockera/global-styles-ui": "file:./packages/global-packages/packages/global-styles-ui",
 		"@blockera/guard-pro": "file:./packages/global-packages/packages/guard-pro",
 		"@blockera/icons": "file:./packages/global-packages/packages/icons",
-		"@blockera/notice-pro": "file:./packages/global-packages/packages/notice-pro",
 		"@blockera/plugin-compatibility": "file:./packages/global-packages/packages/plugin-compatibility",
 		"@blockera/plugin-compatibility-pro": "file:./packages/global-packages/packages/plugin-compatibility-pro",
 		"@blockera/products": "file:./packages/global-packages/packages/products",

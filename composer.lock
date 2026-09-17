@@ -470,32 +470,6 @@
             }
         },
         {
-            "name": "blockera/notice-pro",
-            "version": "1.1.1",
-            "dist": {
-                "type": "path",
-                "url": "packages/global-packages/packages/notice-pro",
-                "reference": "75dbacb26388a45199b3ef6a22c99ad34d013f6a"
-            },
-            "require": {
-                "php": ">=7.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Blockera\\Notice\\": "php/"
-                }
-            },
-            "license": [
-                "ISC"
-            ],
-            "description": "WordPress Notice API integration for Blockera",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
             "name": "blockera/plugin-compatibility",
             "version": "1.1.0",
             "dist": {
