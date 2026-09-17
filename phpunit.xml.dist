@@ -22,8 +22,13 @@
             <directory suffix="Test.php">./packages/global-packages/packages/blockera-pro/php/tests/</directory>
             <directory suffix="Test.php">./packages/global-packages/packages/wordpress/php/tests/Admin/</directory>
             <directory suffix="Test.php">./packages/global-packages/packages/auth-pro/php/tests/</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/autoloader-coordinator/php/tests/</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/products/php/tests/</directory>
             <exclude>./node_modules/</exclude>
             <exclude>./dist/</exclude>
+            <exclude>./packages/global-packages/packages/autoloader-coordinator/php/tests/TestCase.php</exclude>
+            <exclude>./packages/global-packages/packages/autoloader-coordinator/php/tests/fixtures/</exclude>
+            <exclude>./packages/global-packages/packages/products/php/tests/TestCase.php</exclude>
         </testsuite>
     </testsuites>
 
