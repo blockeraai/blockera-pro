@@ -255,6 +255,10 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
+	if ( function_exists( 'blockera_pro_register_notice_hooks' ) ) {
+		blockera_pro_register_notice_hooks();
+	}
+
 	if (file_exists(__DIR__ . '/.env')) {		
 		// Env Loading ...
 		$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -333,20 +337,6 @@ function blockera_pro_init(): void {
 			);
 		}
     }
-}
-
-add_action('admin_init', 'blockera_pro_init_notice');
-
-/**
- * Initialize the notice package.
- *
- * @return void
- */
-function blockera_pro_init_notice(): void {
-	require_once __DIR__ . '/vendor/blockera/notice-pro/php/Notice.php';
-	\Blockera\Notice\Notice::init();
-
-	require_once __DIR__ . '/vendor/blockera/blockera-pro/php/notices.php';
 }
 
 register_activation_hook(__FILE__, 'blockera_pro_activation');
