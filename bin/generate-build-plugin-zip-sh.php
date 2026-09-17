@@ -123,8 +123,9 @@ while ( true ) {
 			$zip_paths = [];
 
 			foreach ( $internal_packages as $name ) {
+				// Include notice/admin JS; php/json/css alone left playground notice.js 404.
 				$zip_paths[] = sprintf(
-					'	$(find ./vendor/blockera/%1$s/ -type f ! -path "*/tests/*" \( -name "*.php" -o -name "*.json" -o -name "*.css" \)) \\',
+					'	$(find ./vendor/blockera/%1$s/ -type f ! -path "*/tests/*" \( -name "*.php" -o -name "*.json" -o -name "*.css" -o -name "*.js" \)) \\',
 					$name
 				);
 			}
