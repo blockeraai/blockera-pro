@@ -93,12 +93,5 @@
 		"test:coverage": "@php ./vendor/bin/phpunit --coverage-html php-coverage",
 		"phpcs": "./bin/phpcs.sh",
 		"phpcbf": "phpcbf"
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Blockera\\Pro\\Tests\\": "packages/global-packages/packages/blockera-pro/php/tests/",
-			"Blockera\\SharedAutoload\\Tests\\": "packages/global-packages/packages/autoloader-coordinator/php/tests/",
-			"Blockera\\Products\\Tests\\": "packages/global-packages/packages/products/php/tests/"
-		}
 	}
 }
