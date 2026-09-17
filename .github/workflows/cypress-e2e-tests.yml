@@ -25,7 +25,7 @@ env:
     BLOCKERA_E2E_CI_ENV: 'true'
     BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
     BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/${{ github.head_ref || github.ref_name }}
-    BLOCKERA_WP_ENV_OMIT_COMPANION_PLUGINS_CATEGORIES: required-free
+    BLOCKERA_WP_ENV_OMIT_COMPANION_PLUGINS_CATEGORIES: required-blockera-builder
     BLOCKERAAI_USERNAME: ${{ secrets.BLOCKERAAI_USERNAME }}
     BLOCKERAAI_USER_PASSWORD: ${{ secrets.BLOCKERAAI_USER_PASSWORD }}
 
@@ -84,8 +84,8 @@ jobs:
                 category: ${{ fromJson(needs.detect_categories.outputs.categories) }}
         env:
             BLOCKERA_E2E_CATEGORY: ${{ matrix.category }}
-            BLOCKERA_E2E_PRE_TEST_CMD: if [ "${BLOCKERA_E2E_CATEGORY}" != "required-free" ]; then npm run test:e2e -- --spec "packages/global-packages/packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"; fi
-            BLOCKERA_WP_ENV_OMIT_COMPANION_PLUGINS_CATEGORIES: required-free
+            BLOCKERA_E2E_PRE_TEST_CMD: if [ "${BLOCKERA_E2E_CATEGORY}" != "required-blockera-builder" ]; then npm run test:e2e -- --spec "packages/global-packages/packages/blockera-pro-admin/js/test/blockera-settings-account.panels.e2e.cy.js"; fi
+            BLOCKERA_WP_ENV_OMIT_COMPANION_PLUGINS_CATEGORIES: required-blockera-builder
         steps:
             - uses: actions/checkout@v5
               with:
