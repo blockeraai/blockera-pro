@@ -38,6 +38,7 @@
 		"blockera/classnames": "*",
 		"blockera/controls": "*",
 		"blockera/icons": "*",
+		"blockera/interact": "*",
 		"blockera/http": "*",
 		"blockera/blocks-core": "*",
 		"blockera/env": "*",

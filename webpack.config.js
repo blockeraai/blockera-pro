@@ -80,6 +80,8 @@ module.exports = createRootWebpackConfig({
 		packageName !== BLOCKERA_GUARD_NICKNAME,
 	getExternals: (blockeraPackagesVersion) => ({
 		'@blockera/icons': 'blockeraIcons',
+		'@blockera/interact':
+			'blockeraInteract_' + blockeraPackagesVersion.interact,
 		'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
 		'@blockera/telemetry':
 			'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
