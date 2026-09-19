@@ -18,7 +18,7 @@ packages/global-packages/          # submodule → blockeraai/blockera-global-pa
     ...
 ```
 
-Pro-only packages live in this submodule under `packages/` (`*-pro*`, including `console-pro`, `guard-pro`, `validator-pro`). Other products sparse-checkout the same tree but do not npm/Composer `require` those packages. Free-plugin CI uses `BLOCKERA_E2E_EXCLUDE_PACKAGES` (and CT/Playwright equivalents) so Pro specs do not run there.
+Pro-only packages live in this submodule under `packages/` (`*-pro*`, including `console-pro`, `guard-pro`, `validator-pro`). Other products sparse-checkout the same tree but do not npm/Composer `require` those packages. Free-plugin Cypress CI skips undeclared GP packages from `package.json` `dependencies` so Pro specs do not run there.
 
 ### Local setup
 
