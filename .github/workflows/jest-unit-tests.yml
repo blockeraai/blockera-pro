@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: jest-unit-tests.yml
+                  require-files: .pr-env.json
 
     unit-js:
         name: JavaScript
@@ -41,7 +42,9 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                node: ['18.3.0']
+                # serialize-javascript 7 (audit override) needs the Web Crypto
+                # global (Node 19+). Engines already require >=20.19.0.
+                node: ['20.19.0']
         steps:
             - uses: actions/checkout@v5
               with:

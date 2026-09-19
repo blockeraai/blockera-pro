@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: wp-tested-up-to-update.yml
+                  require-files: .pr-env.json
 
     tut-check:
         name: Check for new "Tested up to" version

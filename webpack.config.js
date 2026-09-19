@@ -11,12 +11,12 @@ const { dependencies } = require('./package');
 const packagesConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/packages');
 const createRootWebpackConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/create-root-config');
 
-const BLOCKERA_GUARD_MAIN_NAME = 'guard';
+const BLOCKERA_GUARD_MAIN_NAME = 'guard-pro';
 const BLOCKERA_GUARD_NICKNAME = 'features-manager';
 
 /**
  * Resolve a Blockera package directory after the sparse-submodule migration.
- * Prefer Composer path-repo symlinks, then local Pro packages, then submodule.
+ * Prefer Composer path-repo symlinks, then the global-packages submodule.
  *
  * @param {string} packageName Canonical package slug (e.g. controls-pro, feature-icon).
  * @return {string} Relative package directory from the plugin root.
@@ -44,6 +44,9 @@ function resolvePackageDir(packageName) {
 				''
 			)}`
 		);
+	}
+	if (packageName === 'blocks-pro-core') {
+		candidates.push('./packages/global-packages/packages/blocks-pro/core');
 	}
 
 	for (const candidate of candidates) {
@@ -80,11 +83,17 @@ module.exports = createRootWebpackConfig({
 		packageName !== BLOCKERA_GUARD_NICKNAME,
 	getExternals: (blockeraPackagesVersion) => ({
 		'@blockera/icons': 'blockeraIcons',
+		'@blockera/interact':
+			'blockeraInteract_' + blockeraPackagesVersion.interact,
 		'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
 		'@blockera/telemetry':
 			'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
 		'@blockera/storage':
 			'blockeraStorage_' + blockeraPackagesVersion.storage,
+		'@blockera/auth':
+			'blockeraAuth_' + (blockeraPackagesVersion.auth || '1_0_0'),
+		'@blockera/products':
+			'blockeraProducts_' + blockeraPackagesVersion.products,
 		'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
 		'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
 		'@blockera/editor': 'blockeraEditor_' + blockeraPackagesVersion.editor,

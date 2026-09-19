@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: release-plugin-tests.yml
+                  require-files: .pr-env.json
 
     build_tests:
         name: Building and Run E2E Tests (PHP ${{ matrix.php }})
@@ -46,10 +47,10 @@ jobs:
             BLOCKERA_BUILD_ZIP_TESTS_USE_CREATE_WP_ENV: 'true'
             BLOCKERA_BUILD_ZIP_TESTS_WP_ENV_CATEGORY: general
             BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
-            BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+            BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/${{ github.head_ref || github.ref_name }}
             BLOCKERA_BUILD_ZIP_TESTS_SPECS_ROOTS: ./packages
             BLOCKERA_BUILD_ZIP_TESTS_SPECS_PATH: '*-pro*'
-            BLOCKERA_BUILD_ZIP_TESTS_SPECS_DEST: packages/blockera-pro/tests
+            BLOCKERA_BUILD_ZIP_TESTS_SPECS_DEST: packages/global-packages/packages/blockera-pro/tests
         steps:
             - uses: actions/checkout@v5
               with:

@@ -28,6 +28,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: bundle-size.yml
+                  require-files: .pr-env.json
 
     build:
         name: Building and Give Sizes
@@ -35,6 +36,10 @@ jobs:
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request') }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
+        permissions:
+            contents: read
+            checks: write
+            pull-requests: read
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERA_BUNDLE_SIZE_PATHS_FILE: .github/bundle-size-paths

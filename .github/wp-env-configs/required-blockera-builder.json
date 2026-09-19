@@ -5,6 +5,6 @@
 		"BLOCKERA_TELEMETRY_OPT_IN_OFF": true
 	},
 	"lifecycleScripts": {
-		"afterStart": "wp-env run cli wp theme activate twentytwentyfive"
+		"afterStart": "wp-env run cli wp theme activate twentytwentyfive && wp-env run cli wp plugin activate blockera-pro"
 	}
 }

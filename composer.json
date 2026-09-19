@@ -17,34 +17,6 @@
 			"options": {
 				"symlink": true
 			}
-		},
-		{
-			"type": "path",
-			"url": "./packages/auth-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro-admin"
-		},
-		{
-			"type": "path",
-			"url": "./packages/guard"
-		},
-		{
-			"type": "path",
-			"url": "./packages/editor-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/notice"
-		},
-		{
-			"type": "path",
-			"url": "./packages/plugin-compatibility-pro"
 		}
 	],
 	"authors": [
@@ -55,17 +27,18 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7.4",
+		"blockera/auth": "*",
 		"blockera/auth-pro": "*",
-		"blockera/guard": "*",
+		"blockera/guard-pro": "*",
 		"blockera/editor-pro": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
 		"blockera/editor": "*",
 		"blockera/utils": "*",
-		"blockera/notice": "*",
 		"blockera/classnames": "*",
 		"blockera/controls": "*",
 		"blockera/icons": "*",
+		"blockera/interact": "*",
 		"blockera/http": "*",
 		"blockera/blocks-core": "*",
 		"blockera/env": "*",
@@ -121,10 +94,5 @@
 		"test:coverage": "@php ./vendor/bin/phpunit --coverage-html php-coverage",
 		"phpcs": "./bin/phpcs.sh",
 		"phpcbf": "phpcbf"
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Blockera\\Pro\\Tests\\": "packages/blockera-pro/php/tests/"
-		}
 	}
 }

@@ -1,7 +1,7 @@
 <!--
-	Pro-specific PHPUnit config (__BLOCKERA_DIR__ / suites).
-	Do not replace with dev-tools/php/phpunit.plugin.xml.dist (core plugin suites).
-	@see https://github.com/wp-phpunit/docs
+	Generated from composer.json require (blockera/*) plus autoloader-coordinator
+	and products. project:bootstrap rewrites this file.
+	@see packages/dev-tools/ai/workflows/consumer-test-roots.md
 -->
 <phpunit
         bootstrap="./packages/global-packages/packages/dev-phpunit/php/bootstrap.php"
@@ -19,15 +19,23 @@
     </coverage>
 
     <testsuites>
-        <!--
-            Pro integration tests only. GP package suites (e.g. blockera/products)
-            run in blockera-global-packages CI — do not duplicate them here.
-        -->
         <testsuite name="units">
-            <directory suffix=".php">./packages/global-packages/packages/dev-phpunit/php/</directory>
-            <directory suffix=".php">./packages/blockera-pro/php/tests/</directory>
+            <directory suffix=".php">./packages/global-packages/packages/dev-phpunit/php</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/auth-pro/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/auth/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/autoloader-coordinator/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/blockera-pro/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/data/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/editor/php/Tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/interact/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/products/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/utils/php/tests</directory>
+            <directory suffix="Test.php">./packages/global-packages/packages/wordpress/php/tests</directory>
             <exclude>./node_modules/</exclude>
             <exclude>./dist/</exclude>
+            <exclude>./packages/global-packages/packages/autoloader-coordinator/php/tests/Fixtures/</exclude>
+            <exclude>./packages/global-packages/packages/editor/php/Tests/Fixtures/</exclude>
+            <exclude>./packages/global-packages/packages/wordpress/php/tests/Fixtures/</exclude>
         </testsuite>
     </testsuites>
 
