@@ -45,6 +45,9 @@ function resolvePackageDir(packageName) {
 			)}`
 		);
 	}
+	if (packageName === 'blocks-pro-core') {
+		candidates.push('./packages/global-packages/packages/blocks-pro/core');
+	}
 
 	for (const candidate of candidates) {
 		if (
