@@ -151,7 +151,7 @@ if [ -n "$MAIN_FILE_SUFFIX" ]; then
 fi
 
 vendor_without_blockera_pro=$(
-  find ./vendor -type f -not -path "./vendor/blockera-pro" \
+  find ./vendor \( -path './vendor/blockera' -o -path './vendor/blockera/*' -o -path './vendor/blockera-pro' -o -path './vendor/blockera-pro/*' \) -prune -o -type f -print
 );
 
 # Generate the plugin zip file.
