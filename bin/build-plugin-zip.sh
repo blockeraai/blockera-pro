@@ -150,16 +150,12 @@ if [ -n "$MAIN_FILE_SUFFIX" ]; then
   cp blockera-pro.php "$main_plugin_file"
 fi
 
-vendor_without_blockera_pro=$(
-  find ./vendor \( -path './vendor/blockera' -o -path './vendor/blockera/*' -o -path './vendor/blockera-pro' -o -path './vendor/blockera-pro/*' \) -prune -o -type f -print
-);
-
 # Generate the plugin zip file.
 status "Creating archive... 🎁"
-zip -r -q blockera-pro.zip \
+zip -r -9 -q blockera-pro.zip \
   inc \
 	config \
-	assets \
+	$(find ./assets -type f ! -name "*.map" ! -name "*.scss" 2>/dev/null) \
 	readme.txt \
 	languages \
 	$build_files \
@@ -167,9 +163,11 @@ zip -r -q blockera-pro.zip \
 	changelog.txt \
 	composer.json \
 	experimental.config.json \
-	$vendor_without_blockera_pro \
+  ### BEGIN AUTO-GENERATED THIRD-PARTY VENDOR PATH PATTERN
+  ### END AUTO-GENERATED THIRD-PARTY VENDOR PATH PATTERN
   ### BEGIN AUTO-GENERATED VENDOR PACKAGES PATH PATTERN
   ### END AUTO-GENERATED VENDOR PACKAGES PATH PATTERN
+  -x "*.map" "*.scss" "*.zip-build.bak" \
   && echo "blockera-pro.zip created successfully ✅" || echo "blockera-pro.zip creation failed ❌"
 
 status "Cleaning up... 🧹"
