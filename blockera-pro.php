@@ -259,7 +259,7 @@ function blockera_pro_init(): void {
 		blockera_pro_register_notice_hooks();
 	}
 
-	if (file_exists(__DIR__ . '/.env')) {		
+	if (file_exists(__DIR__ . '/.env') && class_exists(Dotenv\Dotenv::class)) {		
 		// Env Loading ...
 		$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 		$dotenv->safeLoad();
