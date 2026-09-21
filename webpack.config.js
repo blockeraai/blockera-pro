@@ -7,7 +7,7 @@ const path = require('path');
 /**
  * Internal dependencies
  */
-const { dependencies } = require('./package');
+const packageJson = require('./package.json');
 const packagesConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/packages');
 const createRootWebpackConfig = require('./packages/global-packages/packages/dev-tools/js/webpack/create-root-config');
 
@@ -65,7 +65,8 @@ function resolvePackageDir(packageName) {
 }
 
 module.exports = createRootWebpackConfig({
-	dependencies,
+	packageJson,
+	dependencies: packageJson.dependencies,
 	packagesConfig,
 	resolvePackageDir,
 	devtoolNamespace: 'blockera-pro',
@@ -85,6 +86,8 @@ module.exports = createRootWebpackConfig({
 		'@blockera/icons': 'blockeraIcons',
 		'@blockera/interact':
 			'blockeraInteract_' + blockeraPackagesVersion.interact,
+		'@blockera/blockera-one':
+			'blockeraBlockeraOne_' + blockeraPackagesVersion['blockera-one'],
 		'@blockera/env': 'blockeraEnv_' + blockeraPackagesVersion.env,
 		'@blockera/telemetry':
 			'blockeraTelemetry_' + blockeraPackagesVersion.telemetry,
@@ -97,6 +100,9 @@ module.exports = createRootWebpackConfig({
 		'@blockera/data': 'blockeraData_' + blockeraPackagesVersion.data,
 		'@blockera/utils': 'blockeraUtils_' + blockeraPackagesVersion.utils,
 		'@blockera/editor': 'blockeraEditor_' + blockeraPackagesVersion.editor,
+		'@blockera/global-styles-ui':
+			'blockeraGlobalStylesUi_' +
+			blockeraPackagesVersion['global-styles-ui'],
 		'@blockera/blocks-core':
 			'blockeraBlocksCore_' + blockeraPackagesVersion['blocks-core'],
 		'@blockera/feature-icon':
