@@ -6,9 +6,9 @@ Public APIs for `*-pro` packages: each package `README.md` (quality bar: GP `@bl
 
 ## Packages (in global-packages)
 
-Pro overlays live under `packages/global-packages/packages/`. **PHPUnit / Jest / PHPCS allow-list** is [declared-gp-packages.md](declared-gp-packages.md) (`project:bootstrap`), not this catalog. The free plugin does not `require` these overlays.
+Pro overlays live under `packages/global-packages/packages/`. **PHPUnit / Jest / PHPCS allow-list** is [declared-gp-packages.md](declared-gp-packages.md) (`project:bootstrap` from `config/assets.php`), not this catalog. The free plugin does not `require` these overlays.
 
-Roles (do not add a row to test setup unless the lockfile lists it):
+Roles (do not add a row to test setup unless the allow-list lists it):
 
 | Package | Role | README |
 |---------|------|--------|
