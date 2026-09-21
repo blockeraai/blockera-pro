@@ -14,9 +14,6 @@
 		"build",
 		"dist",
 		"source-codes",
-		"packages/global-packages/packages/blockera/js",
-		"packages/global-packages/packages/blockera-admin/js",
-		"packages/global-packages/packages/blockera-one/js",
 		"packages/global-packages/packages/console-pro/js",
 		"packages/global-packages/packages/site-toolkit/js"
 	]

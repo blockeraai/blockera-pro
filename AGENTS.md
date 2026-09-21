@@ -11,7 +11,7 @@ Pro plugin that unlocks Site Builder Pro. Depends on the free plugin being prese
 
 ## Pro overlays
 
-Pro application code lives in GP overlay packages. **Tests and project setup** only include packages listed in [`.ai/declared-gp-packages.md`](.ai/declared-gp-packages.md) (from this product’s lockfiles). Do not add `blocks-pro`, `console-pro`, or other overlays to PHPUnit/Jest because they exist on disk.
+Pro application code lives in GP overlay packages. **Tests and project setup** only include packages listed in [`.ai/declared-gp-packages.md`](.ai/declared-gp-packages.md) (from this product’s `config/assets.php`). Do not add `blocks-pro`, `console-pro`, or other overlays to PHPUnit/Jest because they exist on disk.
 
 Public APIs: each package `README.md` (see [`.ai/architecture.md`](.ai/architecture.md)).
 
@@ -25,5 +25,5 @@ Public APIs: each package `README.md` (see [`.ai/architecture.md`](.ai/architect
 ## Declared GP packages
 
 <!-- generated:declared-gp-packages -->
-Read [`.ai/declared-gp-packages.md`](.ai/declared-gp-packages.md) before changing PHPUnit, Jest, PHPCS, ESLint, Stylelint, Cypress spec/CI filters, or CI package filters. `project:bootstrap` rewrites that file from `package.json` `dependencies` / `devDependencies` and `composer.json` `require` / `require-dev`. Do **not** add a GP package to those setups if it is missing from the generated list.
+Read [`.ai/declared-gp-packages.md`](.ai/declared-gp-packages.md) before changing PHPUnit, Jest, PHPCS, ESLint, Stylelint, Cypress spec/CI filters, or CI package filters. `project:bootstrap` rewrites that file from `config/assets.php` `list` handles (fallback: `package.json` `dependencies` / `devDependencies` and `composer.json` `require` / `require-dev`). Do **not** add a GP package to those setups if it is missing from the generated list.
 <!-- /generated:declared-gp-packages -->

@@ -6,12 +6,6 @@ includes:
 parameters:
 	excludePaths:
 		analyse:
-			- %currentWorkingDirectory%/packages/global-packages/packages/blockera
-			- %currentWorkingDirectory%/packages/global-packages/packages/blockera-admin
-			- %currentWorkingDirectory%/packages/global-packages/packages/blockera-one
-			- %currentWorkingDirectory%/packages/global-packages/packages/blocks-pro/core
 			- %currentWorkingDirectory%/packages/global-packages/packages/console-pro
 			- %currentWorkingDirectory%/packages/global-packages/packages/controls-pro
-			- %currentWorkingDirectory%/packages/global-packages/packages/global-styles-ui
 			- %currentWorkingDirectory%/packages/global-packages/packages/site-toolkit
-			- %currentWorkingDirectory%/packages/global-packages/packages/validator-pro
