@@ -20,31 +20,10 @@
 		},
 		{
 			"type": "path",
-			"url": "./packages/auth-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/blockera-pro-admin"
-		},
-		{
-			"type": "path",
-			"url": "./packages/guard"
-		},
-		{
-			"type": "path",
-			"url": "./packages/editor-pro"
-		},
-		{
-			"type": "path",
-			"url": "./packages/notice"
-		},
-		{
-			"type": "path",
-			"url": "./packages/plugin-compatibility-pro"
+			"url": "packages/global-packages/packages/blocks-pro/*",
+			"options": {
+				"symlink": true
+			}
 		}
 	],
 	"authors": [
@@ -55,32 +34,37 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7.4",
+		"blockera/auth": "*",
 		"blockera/auth-pro": "*",
-		"blockera/guard": "*",
-		"blockera/editor-pro": "*",
+		"blockera/blockera": "*",
+		"blockera/blockera-admin": "*",
+		"blockera/blockera-one": "*",
 		"blockera/blockera-pro": "*",
 		"blockera/blockera-pro-admin": "*",
-		"blockera/editor": "*",
-		"blockera/utils": "*",
-		"blockera/notice": "*",
+		"blockera/blocks-core": "*",
+		"blockera/bootstrap": "*",
 		"blockera/classnames": "*",
 		"blockera/controls": "*",
-		"blockera/icons": "*",
-		"blockera/http": "*",
-		"blockera/blocks-core": "*",
-		"blockera/env": "*",
-		"blockera/storage": "*",
 		"blockera/data": "*",
 		"blockera/data-editor": "*",
+		"blockera/editor": "*",
+		"blockera/editor-pro": "*",
+		"blockera/env": "*",
+		"blockera/exceptions": "*",
 		"blockera/feature-icon": "*",
 		"blockera/features-core": "*",
+		"blockera/global-styles-ui": "*",
+		"blockera/guard-pro": "*",
+		"blockera/http": "*",
+		"blockera/icons": "*",
+		"blockera/interact": "*",
 		"blockera/plugin-compatibility": "*",
 		"blockera/plugin-compatibility-pro": "*",
 		"blockera/products": "*",
+		"blockera/storage": "*",
 		"blockera/telemetry": "*",
+		"blockera/utils": "*",
 		"blockera/wordpress": "*",
-		"blockera/exceptions": "*",
-		"blockera/bootstrap": "*",
 		"vlucas/phpdotenv": "^5.6@dev",
 		"league/oauth2-client": "dev-master"
 	},
@@ -121,10 +105,5 @@
 		"test:coverage": "@php ./vendor/bin/phpunit --coverage-html php-coverage",
 		"phpcs": "./bin/phpcs.sh",
 		"phpcbf": "phpcbf"
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Blockera\\Pro\\Tests\\": "packages/blockera-pro/php/tests/"
-		}
 	}
 }

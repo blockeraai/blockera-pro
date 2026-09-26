@@ -62,6 +62,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: sync-global-packages-submodule.yml
+                  require-files: .pr-env.json
 
     sync:
         name: Bump packages/global-packages pin

@@ -29,6 +29,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: code-lint.yml
+                  require-files: .pr-env.json
 
     lint:
         name: ${{ matrix.name }}

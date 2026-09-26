@@ -31,6 +31,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: plugin-compatibility.yml
+                  require-files: .pr-env.json
 
     check_version:
         name: Check Pro Version
@@ -129,7 +130,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
                   BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
-                  BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+                  BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/${{ github.head_ref || github.ref_name }}
                   BLOCKERA_WP_ENV_PLUGIN_URL_MODE: replace
               run: |
                   BLOCKERA_DOWNLOAD_URL=""
@@ -268,7 +269,7 @@ jobs:
                   # -3 (force-compat) only when Free lacks "Requires at least blockera-pro".
                   if [ "${{ steps.check_free_header.outputs.has_header }}" != "true" ]; then
                     echo "Free has no Requires at least blockera-pro header; running plugin-compatibility-3."
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
                     exit 0
                   fi
 
@@ -276,11 +277,11 @@ jobs:
 
                   # Header present → existing version-compat suites only.
                   if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
                   elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
                   else
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
                   fi
 
             - name: Stop WP Environment

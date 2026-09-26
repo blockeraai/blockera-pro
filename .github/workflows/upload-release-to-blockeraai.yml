@@ -24,6 +24,7 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: upload-release-to-blockeraai.yml
+                  require-files: .pr-env.json
 
     get-release-branch:
         name: Get release branch name
