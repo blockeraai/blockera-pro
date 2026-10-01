@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1a569a49af700a0d111716ad0ab8607",
+    "content-hash": "d012ffa6da23f65b10a7e4d1f5e01efe",
     "packages": [
         {
             "name": "blockera/auth",
@@ -68,7 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/global-packages/packages/blockera",
-                "reference": "a3d17804e06f15a12447a32f37b1ed28eae75eb6"
+                "reference": "4617c727e6a09efa4eb03f8f41c263b2cad94b32"
             },
             "type": "library",
             "autoload": {
@@ -84,7 +84,8 @@
                     "php/Compatibility/BlockSupports/typography.php",
                     "php/Compatibility/global-styles-and-settings.php",
                     "php/Compatibility/fonts.php",
-                    "php/Compatibility/BlockSupports/block-style-variations.php"
+                    "php/Compatibility/BlockSupports/block-style-variations.php",
+                    "php/functions-login-page.php"
                 ]
             },
             "autoload-dev": {
@@ -116,34 +117,6 @@
                 ]
             },
             "description": "The blockera admin menus on WordPress admin dashboard.",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "blockera/blockera-one",
-            "version": "0.1.0",
-            "dist": {
-                "type": "path",
-                "url": "packages/global-packages/packages/blockera-one",
-                "reference": "39180e110aab86a726c56a06ad274b7898d790b9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Blockera\\One\\": "php/"
-                },
-                "files": [
-                    "php/functions.php"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Blockera\\One\\Tests\\": "php/tests/"
-                }
-            },
-            "description": "The bootstrapper for blockera one theme php application for WordPress in admin and front-end sides.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8195,5 +8168,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
