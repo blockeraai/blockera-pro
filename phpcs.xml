@@ -6,7 +6,7 @@
 
     <rule ref="./packages/global-packages/packages/dev-tools/php/phpcs.xml"/>
 
-    <config name="text_domain" value="blockera-pro,blockera,default"/>
+    <config name="text_domain" value="blockera-pro,blockera-one,blockera,default"/>
     <file>./packages/global-packages/packages</file>
     <exclude-pattern>./packages/global-packages/packages/(blocks-pro/core|console-pro|controls-pro|dev-jest|dev-playwright|site-toolkit|validator-pro)/*</exclude-pattern>
 
