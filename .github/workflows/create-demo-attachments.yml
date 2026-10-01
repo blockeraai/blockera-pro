@@ -39,7 +39,7 @@ jobs:
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (github.event.action != 'closed' && (github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request')) }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERA_DEMO_META_TITLE_DEFAULT: Blockera PRO Demo
@@ -73,7 +73,7 @@ jobs:
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (github.event.action == 'closed' && (github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request')) }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             BLOCKERA_DEMO_SLUG: blockera-pro

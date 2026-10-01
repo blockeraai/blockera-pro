@@ -38,7 +38,7 @@ jobs:
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         outputs:
             strategies: ${{ steps.set_matrix.outputs.strategies }}
         steps:
@@ -84,7 +84,7 @@ jobs:
         needs: [pr-workflow-gate, check_version]
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
 
