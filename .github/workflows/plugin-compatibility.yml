@@ -31,13 +31,14 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: plugin-compatibility.yml
+                  require-files: .pr-env.json
 
     check_version:
         name: Check Pro Version
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         outputs:
             strategies: ${{ steps.set_matrix.outputs.strategies }}
         steps:
@@ -83,9 +84,10 @@ jobs:
         needs: [pr-workflow-gate, check_version]
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
+            BLOCKERA_WP_ENV_FREE_EXTRACT_DIR: ${{ runner.temp }}/blockera-free
 
         strategy:
             fail-fast: false
@@ -129,7 +131,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
                   BLOCKERA_WP_ENV_FALLBACK_CONFIG: general
-                  BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/master
+                  BLOCKERA_WP_ENV_DEFAULT_PLUGIN: https://github.com/blockeraai/blockera/tree/${{ github.head_ref || github.ref_name }}
                   BLOCKERA_WP_ENV_PLUGIN_URL_MODE: replace
               run: |
                   BLOCKERA_DOWNLOAD_URL=""
@@ -200,7 +202,7 @@ jobs:
             - name: Check Blockera free Requires at least blockera-pro header
               id: check_free_header
               run: |
-                  FREE_DIR=".github/cache/blockera-free"
+                  FREE_DIR="${BLOCKERA_WP_ENV_FREE_EXTRACT_DIR:-.github/cache/blockera-free}"
                   FREE_PHP="$FREE_DIR/blockera.php"
 
                   # Release-zip strategies mount the URL in wp-env only; extract locally for the header check.
@@ -268,7 +270,7 @@ jobs:
                   # -3 (force-compat) only when Free lacks "Requires at least blockera-pro".
                   if [ "${{ steps.check_free_header.outputs.has_header }}" != "true" ]; then
                     echo "Free has no Requires at least blockera-pro header; running plugin-compatibility-3."
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-3.e2e.cy.js"
                     exit 0
                   fi
 
@@ -276,11 +278,11 @@ jobs:
 
                   # Header present → existing version-compat suites only.
                   if [ "${{ matrix.strategy }}" = "blockera-free-latest" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-1.e2e.cy.js"
                   elif [ "${{ matrix.strategy }}" = "blockera-pro-current" ]; then
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility-2.e2e.cy.js"
                   else
-                    npm run test:e2e -- --spec "packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
+                    npm run test:e2e -- --spec "packages/global-packages/packages/(blockera-pro-**|**-pro)/**/*.plugin-compatibility.e2e.cy.js"
                   fi
 
             - name: Stop WP Environment

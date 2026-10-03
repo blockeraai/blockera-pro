@@ -61,6 +61,9 @@ while ( true ) {
 		require BLOCKERA_PRO_PATH . 'inc/app.php';\n";
 			break;
 
+		// Only swap autoloader paths. Keep companion helpers and other boot
+		// logic outside these markers in blockera-pro.php so zips still define
+		// blockera_pro_companions_missing_compatibility_check().
 		case '### BEGIN AUTO-GENERATED AUTOLOADER':
 			$inside_defines = true;
 			echo $line;

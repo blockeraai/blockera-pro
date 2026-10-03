@@ -1,24 +1,52 @@
+// Edit packages/global-packages/packages/dev-tools/root-configs/jest.config.js
+// project:bootstrap copies this to every consumer root.
 /**
- * Pro Jest: product packages only.
- * Shared GP unit tests run in blockera / global-packages, not here.
+ * Consumer Jest: GP packages listed in this product's package.json
+ * `dependencies` and `devDependencies` (`@blockera/*` file:). Overlay
+ * packages that only exist on disk after a submodule bump are not included.
  */
 const fs = require('fs');
 const path = require('path');
 
 const base = require('./packages/global-packages/packages/dev-jest/js/jest.config.js');
 
-const packagesDir = path.join(__dirname, 'packages');
-const productRoots = fs
-	.readdirSync(packagesDir, { withFileTypes: true })
-	.filter((entry) => entry.isDirectory() && entry.name !== 'global-packages')
-	.map((entry) => path.join(packagesDir, entry.name));
+function declaredPackageRoots(rootDir) {
+	const helper = path.join(
+		rootDir,
+		'packages/global-packages/packages/dev-tools/js/consumer-packages/resolve-gp-packages.js'
+	);
 
-module.exports = {
-	...base,
-	roots: productRoots,
-	collectCoverageFrom: productRoots.map((root) => `${root}/**/*.js`),
-	testPathIgnorePatterns: [
-		...(base.testPathIgnorePatterns || []),
-		'/packages/global-packages/',
-	],
-};
+	if (fs.existsSync(helper)) {
+		const { createConsumerJestConfig } = require(helper);
+		return createConsumerJestConfig(rootDir, base);
+	}
+
+	const pkg = JSON.parse(
+		fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8')
+	);
+	const roots = Object.entries({
+		...(pkg.dependencies || {}),
+		...(pkg.devDependencies || {}),
+	})
+		.filter(
+			([name, spec]) =>
+				name.startsWith('@blockera/') &&
+				typeof spec === 'string' &&
+				spec.startsWith('file:')
+		)
+		.map(([, spec]) =>
+			path.resolve(
+				rootDir,
+				spec.replace(/^file:/, '').replace(/^\.\//, '')
+			)
+		)
+		.filter((dir) => fs.existsSync(dir));
+
+	return {
+		...base,
+		roots,
+		collectCoverageFrom: roots.map((root) => `${root}/**/*.js`),
+	};
+}
+
+module.exports = declaredPackageRoots(__dirname);

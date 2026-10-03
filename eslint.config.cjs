@@ -1,8 +1,10 @@
-// Edit packages/global-packages/packages/dev-tools/root-configs/.stylelintrc.blockera-pro.js
+// Edit packages/global-packages/packages/dev-tools/root-configs/eslint.config.blockera-pro.cjs
 // project:bootstrap copies this to the host repo root for --project=blockera-pro.
 const fs = require('fs');
 const path = require('path');
-const shared = require('./packages/global-packages/packages/dev-tools/js/stylelint/config');
+const {
+	createConfig,
+} = require('./packages/global-packages/packages/dev-tools/js/eslint/config');
 const lockfileExtraIgnoresPath = path.join(
 	__dirname,
 	'packages/global-packages/packages/dev-tools/js/consumer-packages/lockfile-extra-ignores.cjs'
@@ -11,10 +13,11 @@ const getLockfileExtraIgnores = fs.existsSync(lockfileExtraIgnoresPath)
 	? require(lockfileExtraIgnoresPath).getLockfileExtraIgnores
 	: () => [];
 
-module.exports = {
-	...shared,
-	ignoreFiles: [
-		...(shared.ignoreFiles || []),
+module.exports = createConfig({
+	extraIgnores: [
+		'packages/console/*',
+		'wordpress*',
 		...getLockfileExtraIgnores(__dirname),
 	],
-};
+	allowedTextDomains: ['blockera', 'blockera-pro'],
+});

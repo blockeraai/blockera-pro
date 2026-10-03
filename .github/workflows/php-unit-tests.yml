@@ -29,13 +29,14 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: php-unit-tests.yml
+                  require-files: .pr-env.json
 
     compute-previous-wordpress-version:
         name: Compute previous WordPress version
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         outputs:
             previous-wordpress-version: ${{ steps.get-previous-wordpress-version.outputs.previous-wordpress-version }}
         env:
@@ -56,7 +57,7 @@ jobs:
         needs: [pr-workflow-gate, compute-previous-wordpress-version]
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (github.repository == 'blockeraai/blockera-pro' || github.event_name == 'pull_request') }}
         runs-on: ubuntu-latest
-        timeout-minutes: 20
+        timeout-minutes: 120
         strategy:
             fail-fast: true
             matrix:

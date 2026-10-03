@@ -18,7 +18,7 @@ packages/global-packages/          # submodule → blockeraai/blockera-global-pa
     ...
 ```
 
-Pro-only packages stay local under `packages/` (`*-pro*`, plus `console`, `guard`, `notice`, `validator`) and are not moved into global-packages.
+Pro-only packages live in this submodule under `packages/` (`*-pro*`, including `console-pro`, `guard-pro`, `validator-pro`). Other products sparse-checkout the same tree but do not npm/Composer `require` those packages. Free-plugin Cypress CI skips undeclared GP packages from `package.json` `dependencies` so Pro specs do not run there.
 
 ### Local setup
 

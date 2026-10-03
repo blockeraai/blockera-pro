@@ -62,13 +62,14 @@ jobs:
               uses: ./packages/global-packages/packages/dev-tools/github/actions/pr-workflow-gate
               with:
                   workflow-file: sync-global-packages-submodule.yml
+                  require-files: .pr-env.json
 
     sync:
         name: Bump packages/global-packages pin
         needs: pr-workflow-gate
         if: ${{ needs.pr-workflow-gate.outputs.run == 'true' && (github.repository == 'blockeraai/blockera-pro') }}
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 120
         env:
             BLOCKERA_GLOBAL_PACKAGES_TOKEN: ${{ secrets.BLOCKERABOT_PAT }}
             GP_SCRIPTS: packages/global-packages/packages/dev-tools/github/scripts

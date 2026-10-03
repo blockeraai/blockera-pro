@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Blockera Site Builder [PRO]
+ * Plugin Name: Blockera Builder [PRO]
  * Plugin URI: https://blockera.ai/products/site-builder/pricing/
- * Description: Unlock the full power of Blockera Site Builder with the PRO version.
+ * Description: Unlock the full power of Blockera Builder with the PRO version.
  * Requires at least: 6.6
  * Tested up to: 7.1
  * Requires PHP: 7.4
@@ -16,20 +16,21 @@
  * @package Blockera Pro
  */
 
-use Blockera\Auth\Repositories\OptionRepository;
-
 // security code.
 if (! defined('ABSPATH')) {
 	/* @debug-ignore */
     die('Access Denied!');
 }
 
-### BEGIN AUTO-GENERATED AUTOLOADER
 /**
  * Whether an active companion cannot mutual-check Pro.
  *
  * True when CompatibilityCheck is missing from the companion vendor tree, or when
  * active Free lacks the "Requires at least blockera-pro" header.
+ *
+ * Must live outside ### AUTO-GENERATED AUTOLOADER so production zip generation
+ * (`bin/generate-blockera-pro-php.php`) keeps this helper. Playground/zips still
+ * call it from `blockera_pro_init()`.
  *
  * @return bool
  */
@@ -165,6 +166,7 @@ if ( blockera_pro_companions_missing_compatibility_check() ) {
 	return;
 }
 
+### BEGIN AUTO-GENERATED AUTOLOADER
 require_once __DIR__ . '/packages/global-packages/packages/autoloader-coordinator/bootstrap.php';
 blockera_bootstrap_shared_autoloader(
 	'blockera-pro',
@@ -253,7 +255,11 @@ add_action('plugins_loaded', 'blockera_pro_init', 5);
  */
 function blockera_pro_init(): void {
 
-	if (file_exists(__DIR__ . '/.env')) {		
+	if ( function_exists( 'blockera_pro_register_notice_hooks' ) ) {
+		blockera_pro_register_notice_hooks();
+	}
+
+	if (file_exists(__DIR__ . '/.env') && class_exists(Dotenv\Dotenv::class)) {		
 		// Env Loading ...
 		$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 		$dotenv->safeLoad();
@@ -321,11 +327,11 @@ function blockera_pro_init(): void {
 
         ### BEGIN AUTO-GENERATED FRONT CONTROLLERS
         // loading front controller.
-        require BLOCKERA_PRO_PATH . 'packages/blockera-pro/php/app.php';
+        require BLOCKERA_PRO_PATH . 'packages/global-packages/packages/blockera-pro/php/app.php';
         ### END AUTO-GENERATED FRONT CONTROLLERS
 		
-		if (class_exists(Blockera\Auth\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
-			new \Blockera\Auth\Jobs(
+		if (class_exists(Blockera\AuthPro\Jobs::class) && class_exists(Blockera\WordPress\Sender::class)) {
+			new \Blockera\AuthPro\Jobs(
 				new \Blockera\WordPress\Sender(),
 				include __DIR__ . '/config/auth.php'
 			);
@@ -333,21 +339,19 @@ function blockera_pro_init(): void {
     }
 }
 
-add_action('admin_init', 'blockera_pro_init_notice');
+register_activation_hook(__FILE__, 'blockera_pro_activation');
 
 /**
- * Initialize the notice package.
+ * Option flag written on activate so admin can redirect to Account.
  *
- * @return void
+ * Uses the shared OAuth option prefix without loading `OptionRepository`,
+ * because this hook can run before the free plugin autoloads `Blockera\Auth`.
+ *
+ * @return string
  */
-function blockera_pro_init_notice(): void {
-	require_once __DIR__ . '/vendor/blockera/notice/php/Notice.php';
-	\Blockera\Notice\Notice::init();
-
-	require_once __DIR__ . '/vendor/blockera/blockera-pro/php/notices.php';
+function blockera_pro_activation_redirect_option_key(): string {
+	return 'blockera-oauth-credentials_do_activation_redirect';
 }
-
-register_activation_hook(__FILE__, 'blockera_pro_activation');
 
 /**
  * Activation plugin hook.
@@ -365,7 +369,7 @@ function blockera_pro_activation(): void {
 		wp_schedule_event(time(), 'blockera_pro_10_days', 'blockera_pro_each_per_ten_days');
 	}
 
-	add_option(OptionRepository::getOptionKey() . '_do_activation_redirect', true);
+	add_option(blockera_pro_activation_redirect_option_key(), true);
 }
 
 register_deactivation_hook(__FILE__, 'blockera_pro_deactivation');
@@ -394,7 +398,7 @@ function blockera_pro_redirect_to_activation_page(): void {
 		return;
 	}
 	
-	$optionKey = OptionRepository::getOptionKey() . '_do_activation_redirect';
+	$optionKey = blockera_pro_activation_redirect_option_key();
 
 	// Check if the redirect flag is set and the user has sufficient permissions.
 	if (get_option($optionKey, false)) {
